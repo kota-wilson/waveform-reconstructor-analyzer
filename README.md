@@ -6,7 +6,7 @@ The first MVP is a CLI and core library slice. It focuses on CSV waveform loadin
 
 ## Current Status
 
-This repository is in validated MVP stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria, including waveform metadata, ordered pre-criteria transforms such as moving average, low-pass filtering, and ideal ADC quantization. Criteria consume reusable measurement primitives from `ferrisoxide-measurements`, reports expose reusable measurement records with stable result links, and the desktop CLI can also render SVG waveform plots. The workspace has `no_std` crates for signal and embedded paths: `ferrisoxide-signal`, `ferrisoxide-measurements`, and `ferrisoxide-embedded`.
+This repository is in validated MVP stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria, including waveform metadata, ordered pre-criteria transforms such as moving average, low-pass filtering, and ideal ADC quantization. Criteria consume reusable measurement primitives from `ferrisoxide-measurements`, reports expose reusable measurement records with stable result links, and the desktop CLI can also render SVG waveform plots. The workspace has `no_std` crates for signal and embedded paths: `ferrisoxide-signal`, `ferrisoxide-measurements`, and `ferrisoxide-embedded`; `ferrisoxide-rule-schema` defines the first portable rule package schema for future desktop-to-embedded workflows.
 
 ## MVP Scope
 
@@ -41,6 +41,7 @@ crates/ferrisoxide-cli/         CLI entry point
 crates/ferrisoxide-embedded/    no_std RTOS/ARM64 adapter boundaries
 crates/ferrisoxide-measurements/no_std measurement primitives used by criteria evidence
 crates/ferrisoxide-plot/        Desktop SVG plotting support
+crates/ferrisoxide-rule-schema/ Portable rule package schema types
 crates/ferrisoxide-signal/      no_std signal primitives
 docs/                  Product, architecture, and MVP docs
 embedded/              Future embedded and ARM64 adapter notes
@@ -69,6 +70,10 @@ No global package installation is required.
 `crates/ferrisoxide-signal` is a dependency-free `#![no_std]` crate for fixed-size waveform buffers, streaming sample ingestion, min/max threshold evaluation, and transient event detection. `crates/ferrisoxide-embedded` is a `#![no_std]` adapter-boundary crate with sample-source, event-sink, and runtime-hook traits for future ARM64 and RTOS wrappers.
 
 The embedded track now has a host-checkable ARM64 QEMU proof slice under `embedded/arm64/qemu/` and an isolated Zephyr feasibility sketch under `embedded/arm64/zephyr/`. These prototypes intentionally exclude CSV parsing, file I/O, plotting, text/JSON reports, GUI, DAQ integration, hardware HALs, production RTOS readiness, and certification evidence.
+
+## Portable Rule Packages
+
+`crates/ferrisoxide-rule-schema` defines the initial versioned FerrisOxide Rule Package schema. The reviewable package format is documented in `docs/rule-package-format.md`, with parse-tested examples in `examples/rule-package/`. Export commands, validators, checksums, binary packages, shared execution, no_std rule-engine behavior, and desktop-vs-embedded parity tests remain future M8 issues.
 
 ## MVP Usage
 

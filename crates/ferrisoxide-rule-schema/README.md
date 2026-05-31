@@ -19,6 +19,8 @@ The initial schema covers:
 
 Future issues add validation, export commands, checksums/manifests, shared execution, no_std boundaries, and parity tests.
 
+The initial reviewable package format is documented in `../../docs/rule-package-format.md`, with parse-tested examples in `../../examples/rule-package/`.
+
 ## Hand-Off Note
 
 Role: Software Architect / Core Software Engineer

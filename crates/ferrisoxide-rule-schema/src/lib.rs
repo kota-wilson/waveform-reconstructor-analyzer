@@ -408,4 +408,22 @@ mod tests {
             serde_json::from_str(&json).expect("schema should deserialize");
         assert_eq!(round_trip, package);
     }
+
+    #[test]
+    fn examples_rules_toml_and_json_describe_same_package() {
+        let rules_toml = include_str!("../../../examples/rule-package/rules.toml");
+        let rules_json = include_str!("../../../examples/rule-package/rules.json");
+
+        let toml_package: RulePackage =
+            toml::from_str(rules_toml).expect("rules.toml should match the schema");
+        let json_package: RulePackage =
+            serde_json::from_str(rules_json).expect("rules.json should match the schema");
+
+        assert_eq!(toml_package, json_package);
+        assert_eq!(toml_package.package.schema_version, CURRENT_SCHEMA_VERSION);
+        assert_eq!(toml_package.channels[0].name, "switch_signal");
+        assert_eq!(toml_package.channels[0].thresholds.len(), 3);
+        assert_eq!(toml_package.filters.len(), 2);
+        assert_eq!(toml_package.criteria.len(), 3);
+    }
 }

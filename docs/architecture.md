@@ -145,7 +145,7 @@ Platform split
 - Reports expose top-level measurement records and per-result `measurement_id` links so measured evidence and pass/fail decisions remain auditable separately.
 - Plotting is a desktop-only SVG renderer in `ferrisoxide-plot`; 2D evidence overlays reuse report measurement evidence; `ferrisoxide-core` and `ferrisoxide-signal` do not depend on Plotters.
 - Criteria DSL direction is documented in `docs/criteria-dsl.md`; existing `[[criteria]]` entries remain the runtime compatibility baseline.
-- Portable rule package direction is documented in `decisions/ADR-004-portable-rule-package-architecture.md`; future desktop and embedded/controller paths must use one rule schema and one shared rule engine rather than duplicate rule semantics.
+- Portable rule package direction is documented in `decisions/ADR-004-portable-rule-package-architecture.md`; the initial package format is documented in `docs/rule-package-format.md`; future desktop and embedded/controller paths must use one rule schema and one shared rule engine rather than duplicate rule semantics.
 - Controller-in-the-loop direction is documented in `docs/controller-in-the-loop-workflow.md`; production control config and test verification config remain separate but linked through manifests and parity evidence.
 - Platform target direction is documented in `docs/platform-targets.md`; RTOS compatibility is a later layer around the Raspberry Pi 5 bare-metal ARM64 first-class embedded target, and Pico 2 support is a later optional microcontroller subset rather than a full runtime replacement.
 

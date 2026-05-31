@@ -1,0 +1,137 @@
+{
+  "package": {
+    "name": "switch-qualification-rule",
+    "version": "1.0.0",
+    "schema_version": "0.1.0",
+    "description": "Example portable rule package for a switch signal qualification check."
+  },
+  "target": {
+    "kind": "controller_runtime",
+    "identifier": "raspberry-pi-5-bare-metal",
+    "notes": [
+      "Documentation example only; not a certified controller release."
+    ]
+  },
+  "sample_timing": {
+    "timestamp_unit": "s",
+    "nominal_sample_rate_hz": 10000.0,
+    "sample_rate_tolerance_hz": 1.0,
+    "nominal_sample_interval_s": 0.0001,
+    "timestamp_tolerance_s": 0.000001
+  },
+  "channels": [
+    {
+      "name": "switch_signal",
+      "source_name": "daq_ai0",
+      "unit": "V",
+      "sample_rate_hz": 10000.0,
+      "thresholds": [
+        {
+          "name": "switch_low",
+          "role": "low",
+          "value": {
+            "value": 0.5,
+            "unit": "V"
+          }
+        },
+        {
+          "name": "switch_high",
+          "role": "high",
+          "value": {
+            "value": 4.5,
+            "unit": "V"
+          }
+        },
+        {
+          "name": "switch_decision",
+          "role": "decision",
+          "value": {
+            "value": 2.5,
+            "unit": "V"
+          }
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "type": "moving_average",
+      "id": "switch_moving_average",
+      "channel": "switch_signal",
+      "window_samples": 5
+    },
+    {
+      "type": "adc_quantize",
+      "id": "switch_adc_quantizer",
+      "channel": "switch_signal",
+      "bits": 12,
+      "min": {
+        "value": 0.0,
+        "unit": "V"
+      },
+      "max": {
+        "value": 5.0,
+        "unit": "V"
+      }
+    }
+  ],
+  "criteria": [
+    {
+      "id": "CRIT-001",
+      "channel": "switch_signal",
+      "measurement": {
+        "type": "transient_event_duration",
+        "event_kind": "dropout",
+        "expected_state": "high",
+        "threshold": {
+          "value": 2.5,
+          "unit": "V"
+        }
+      },
+      "requirement": {
+        "operator": "less_than_or_equal",
+        "value": {
+          "value": 0.001,
+          "unit": "s"
+        }
+      }
+    },
+    {
+      "id": "CRIT-002",
+      "channel": "switch_signal",
+      "measurement": {
+        "type": "stable_state_duration",
+        "state": "high",
+        "threshold": {
+          "value": 2.5,
+          "unit": "V"
+        }
+      },
+      "requirement": {
+        "operator": "greater_than_or_equal",
+        "value": {
+          "value": 0.1,
+          "unit": "s"
+        }
+      }
+    },
+    {
+      "id": "CRIT-003",
+      "channel": "switch_signal",
+      "measurement": {
+        "type": "state_transition_count",
+        "threshold": {
+          "value": 2.5,
+          "unit": "V"
+        }
+      },
+      "requirement": {
+        "operator": "equal_to",
+        "value": {
+          "value": 2.0,
+          "unit": "count"
+        }
+      }
+    }
+  ]
+}

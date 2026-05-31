@@ -22,6 +22,47 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-core`, and `ferrisoxide-cli`.
 
+## M8-002 Rule Package Format Branch
+
+Current as of the M8-002 branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo tree -p ferrisoxide-rule-schema` | Passed | Runtime dependency is approved `serde`; dev-dependencies are approved `serde_json` and `toml`. No CLI, CSV, plotting, report, controller I/O, HAL, SDK, or RTOS dependency appears. |
+| `cargo test -p ferrisoxide-rule-schema` | Passed | 3 schema tests passed, including TOML/JSON example parity. |
+| `cargo fmt --check` | Passed | Formatting remained clean. |
+| `cargo test --workspace` | Passed | 109 tests passed: 11 CLI, 55 core, 15 criteria-engine fixture/golden/parity tests, 1 CSV fixture integration test, 4 `ferrisoxide-embedded`, 5 `ferrisoxide-measurements`, 6 `ferrisoxide-plot`, 3 `ferrisoxide-rule-schema`, 9 `ferrisoxide-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+
+### Format Evidence
+
+| Artifact | Coverage |
+|---|---|
+| `docs/rule-package-format.md` | Artifact roles, schema model, example shape, filters, criteria, embedded subset, validation expectations, and non-goals. |
+| `examples/rule-package/rules.toml` | Human-authored reviewable package example. |
+| `examples/rule-package/rules.json` | Automation-friendly package example equivalent to `rules.toml`. |
+| `crates/ferrisoxide-rule-schema/src/lib.rs` | Parse test proving TOML and JSON examples deserialize to equal `RulePackage` values. |
+| `docs/m8-002-rule-package-format-pipeline-report.md` | Pipeline gates, acceptance mapping, validation evidence, and handoff. |
+
+### Gate Decision
+
+- Gate: Documentation and Testing Gates for M8-002.
+- Decision: Pass locally.
+- Reason: Package format documentation covers every issue #71 artifact role; TOML/JSON examples are parse-tested against the schema; workspace tests, clippy, formatting, dependency boundary, and whitespace checks pass.
+- Residual risk: Protected GitHub CI is pending until PR creation; validator, export, checksum/manifest, binary package, shared rule engine, no_std boundary, and parity tests remain open M8 issues.
+- Owner for residual risk: GitHub Maintainer Specialist / Project Orchestrator.
+
+### Hand-Off Note
+
+Role: Documentation Engineer / Verification and Validation Engineer
+Goal: Validate the initial portable rule package format for issue #71.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo tree -p ferrisoxide-rule-schema`; `cargo test -p ferrisoxide-rule-schema`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally; protected-branch PR and CI pending.
+Known gaps: No package validator, export command, checksum/manifest implementation, binary package, shared rule execution, no_std rule-engine boundary, or parity tests yet.
+Next recommended step: Open the M8-002 PR with `Fixes #71`.
+
 ## M8-001 Rule Schema Crate Branch
 
 Current as of the M8-001 branch on 2026-05-31.
