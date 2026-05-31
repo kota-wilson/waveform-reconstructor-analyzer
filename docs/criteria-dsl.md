@@ -55,6 +55,67 @@ value = 0.005
 unit = "s"
 ```
 
+## Accepted DSL Shape
+
+Each DSL criterion is a `[[criteria]]` table with `id`, `channel`, a `[criteria.measurement]` section, and a `[criteria.requirement]` section:
+
+```toml
+[[criteria]]
+id = "rise_time_max_5ms"
+channel = "switch_v"
+
+[criteria.measurement]
+type = "rise_time"
+low_threshold = { value = 0.5, unit = "V" }
+high_threshold = { value = 4.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.005
+unit = "s"
+```
+
+Top-level criterion fields:
+
+| Field | Required | Meaning |
+|---|---:|---|
+| `id` | Yes | Stable criterion identifier used in reports. |
+| `channel` | Yes | Waveform channel to measure. |
+| `measurement` | Yes | Measurement section that defines what evidence to compute. |
+| `requirement` | Yes | Requirement section that defines the comparison and required value. |
+
+Legacy fields such as `type`, `threshold_v`, `state`, `direction`, `max_duration_s`, or `min_duration_s` cannot be mixed into a DSL criterion. Keep them in legacy criteria entries only.
+
+Measurement fields:
+
+| Field | Applies To | Required | Meaning |
+|---|---|---:|---|
+| `type` | all DSL measurements | Yes | Measurement type. |
+| `threshold` | `state_transition_count`, `pulse_width`, `stable_state_duration`, `transient_event_duration` | Yes | State threshold as `{ value, unit = "V" }`. |
+| `low_threshold` | `rise_time`, `fall_time` | Yes | Lower edge threshold as `{ value, unit = "V" }`. |
+| `high_threshold` | `rise_time`, `fall_time` | Yes | Upper edge threshold as `{ value, unit = "V" }`. |
+| `state` | `pulse_width`, `stable_state_duration` | Yes | `high` or `low`. |
+| `expected_state` | `transient_event_duration` | Yes | Expected steady state, `high` or `low`; the measured transient is the opposite state. |
+| `event_kind` | `transient_event_duration` | No | Defaults to `transient_event`; accepted values match transient event kinds below. |
+| `selection` | `pulse_width`, `stable_state_duration`, `transient_event_duration` | Sometimes | `shortest` or `longest`; required for `equal_to` pulse width, inferred for other pulse-width operators, and must be `longest` if supplied for stable/transient duration. |
+
+Accepted `event_kind` values:
+
+- `transient_event`
+- `spurious_transition`
+- `contact_bounce`
+- `dropout`
+- `noise_induced_transition`
+- `threshold_crossing_event`
+
+Requirement fields:
+
+| Field | Required | Meaning |
+|---|---:|---|
+| `operator` | Yes | One of the supported operators below. |
+| `value` | Yes | Numeric required value. |
+| `unit` | Yes | Explicit unit matching the measurement output: `V`, `s`, or `count`. |
+
 ## Initial Operator Vocabulary
 
 The first operator vocabulary is small and auditable:
@@ -67,9 +128,9 @@ The first operator vocabulary is small and auditable:
 | `greater_than_or_equal` | Measured value may equal or be above the required value. |
 | `equal_to` | Measured value must equal the required value after the configured tolerance model is applied. |
 
-Tolerance handling should remain explicit and reportable. The report must show the measured value, required value, unit, tolerance used, sample index, timestamp, channel, and measurement ID.
+Tolerance handling remains explicit and reportable. The report shows the measured value, required value, unit, tolerance used, sample index, timestamp, channel, and measurement ID.
 
-## Explicit Units Before Shorthand Strings
+## Explicit Units
 
 Numeric values with explicit `unit` fields are required. Shorthand strings such as `10ms` are not supported.
 
@@ -94,22 +155,71 @@ Reasons:
 - Engineering review is clearer when unit conversion rules are explicit.
 - Shorthand strings require a unit parser, rounding policy, and compatibility tests.
 
-## Candidate Measurement Types
+## Measurement Types And Evaluation Mapping
 
-Initial DSL measurement types should map to existing measurement primitives:
+Initial DSL measurement types map to existing measurement and evaluator behavior:
 
-| Measurement type | Existing backing logic |
-|---|---|
-| `minimum_sample` | `minimum_sample` |
-| `maximum_sample` | `maximum_sample` |
-| `state_transition_count` | `count_state_transitions` |
-| `pulse_width` | `state_run_extremum` with `shortest` or `longest` selection |
-| `stable_state_duration` | `state_run_extremum` |
-| `transient_event_duration` | `state_run_extremum` over the opposite state |
-| `rise_time` | `measure_rise_time` |
-| `fall_time` | `measure_fall_time` |
+| DSL measurement type | Existing backing logic | Report method | Report context |
+|---|---|---|---|
+| `minimum_sample` | `minimum_sample` | `minimum_sample` | no thresholds |
+| `maximum_sample` | `maximum_sample` | `maximum_sample` | no thresholds |
+| `state_transition_count` | `count_state_transitions` | `state_transition_count` | `threshold_v` |
+| `pulse_width` | `state_run_extremum` over selected state | `state_run_duration` | `threshold_v`, `state`, `selection` |
+| `stable_state_duration` | `state_run_extremum` using `longest` selected state | `state_run_duration` | `threshold_v`, `state`, `selection = "longest"` |
+| `transient_event_duration` | `state_run_extremum` using `longest` run of the opposite state | `state_run_duration` | `threshold_v`, transient `state`, `expected_state`, `event_kind`, `selection = "longest"` |
+| `rise_time` | `measure_rise_time` | `edge_time` | `low_threshold_v`, `high_threshold_v`, `direction = "rise"` |
+| `fall_time` | `measure_fall_time` | `edge_time` | `low_threshold_v`, `high_threshold_v`, `direction = "fall"` |
 
 Future measurement types such as duty cycle, frequency, period, overshoot, undershoot, RMS, peak-to-peak, and noise floor should be added only after known-answer validation fixtures exist.
+
+## Report Evidence Behavior
+
+DSL criteria use the same report schema as legacy criteria:
+
+- `measurements[]` contains reusable measured evidence.
+- Each result references evidence with `measurement_id`.
+- Current measurement IDs use `{criterion_id}_measurement`.
+- `results[]` contains pass/fail decisions, required values, tolerance, sample index, timestamp, channel, and reason.
+- Equivalent DSL and legacy configs should preserve the same `id` values when exact `measurement_id` compatibility matters.
+
+Example JSON result fields:
+
+```json
+{
+  "criterion_id": "input_max_voltage",
+  "outcome": "pass",
+  "failed_criterion": null,
+  "measurement_id": "input_max_voltage_measurement",
+  "channel": "input_v",
+  "measured_value": 5.0,
+  "required_value": 5.5,
+  "tolerance_used": 0.0,
+  "unit": "V",
+  "sample_index": 4,
+  "timestamp": 0.004,
+  "reason": "maximum observed voltage was 5.000000 V"
+}
+```
+
+For `state_transition_count`, TOML requirements use `unit = "count"` while the current report evidence unit remains `transitions` for legacy report compatibility.
+
+## Unsupported Syntax And Current Rejections
+
+Current DSL rejects:
+
+- mixed legacy and DSL fields in one criterion,
+- missing `measurement` or `requirement` sections,
+- missing `requirement.operator`, `requirement.value`, or `requirement.unit`,
+- unsupported operators or units,
+- mismatched requirement units for the selected measurement,
+- missing threshold fields required by the selected measurement,
+- `rise_time` / `fall_time` thresholds where `low_threshold >= high_threshold`,
+- invalid states other than `high` or `low`,
+- `pulse_width` with `operator = "equal_to"` and no explicit `selection`,
+- unit shorthand strings such as `value = "5ms"`,
+- arithmetic expressions or compound requirement expressions.
+
+Future work must keep unsupported syntax separate from current behavior until it has validation, parity tests, and documentation.
 
 ## Non-Goals
 
@@ -119,6 +229,7 @@ Future measurement types such as duty cycle, frequency, period, overshoot, under
 - No machine learning.
 - No RTOS expansion.
 - No unit-shorthand parser in this documentation slice.
+- No expression language.
 - No certification, hardware qualification, or flight-readiness claim.
 
 ## Gate Decision

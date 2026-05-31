@@ -95,6 +95,19 @@ The `measurements` array separates measured signal evidence from pass/fail crite
 
 Golden tests in `tests/golden/` compare JSON output exactly. Any intentional schema change should update this document, the golden files, and release notes together.
 
+## Criteria DSL Evidence Note
+
+Measurement-backed DSL criteria use the same report schema as legacy criteria. A DSL config changes how the criterion is written in TOML, not how measurement evidence appears in JSON.
+
+For equivalent configs:
+
+- `criterion_id` remains the configured `id`.
+- `measurement_id` remains `{criterion_id}_measurement`.
+- `measurements[]` records the measured evidence with method and context.
+- `results[]` records the pass/fail decision with measured value, required value, tolerance, sample index, timestamp, channel, and reason.
+
+The current parity tests compare representative DSL reports against legacy reports and existing golden JSON exactly. For `state_transition_count`, the DSL requirement unit is `count`, while the report evidence unit remains `transitions` for existing report compatibility.
+
 ## M6-003 Migration Note
 
 M6-003 adds the top-level `measurements` array and the per-result `measurement_id` field. Existing result fields remain present so older consumers can keep reading criterion-level pass/fail evidence while newer consumers can de-duplicate measurement evidence and render richer report/SVG annotations.

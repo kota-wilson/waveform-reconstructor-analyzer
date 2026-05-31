@@ -22,6 +22,44 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-core`, and `ferrisoxide-cli`.
 
+## M7-007 DSL Schema And Report Evidence Docs Branch
+
+Current as of the M7-007 branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| Documentation inspection | Passed | `docs/criteria-dsl.md` lists accepted DSL fields, supported units/operators, measurement mappings, unsupported syntax, and report evidence behavior; `docs/report-schema.md` notes DSL evidence compatibility. |
+| `cargo fmt --check` | Passed | Formatting remained clean. |
+| `cargo test --workspace` | Passed | 106 tests passed: 11 CLI, 55 core, 15 criteria-engine fixture/golden/parity tests, 1 CSV fixture integration test, 4 `ferrisoxide-embedded`, 5 `ferrisoxide-measurements`, 6 `ferrisoxide-plot`, 9 `ferrisoxide-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+
+### Documentation Evidence
+
+| Artifact | Coverage |
+|---|---|
+| `docs/criteria-dsl.md` | Accepted fields, unit rules, operators, measurement mappings, report evidence behavior, unsupported syntax, and non-goals. |
+| `docs/report-schema.md` | DSL evidence note for measurements, results, `measurement_id`, and parity behavior. |
+| `docs/documentation-review.md` | M7 documentation review and scope-boundary confirmation. |
+
+### Gate Decision
+
+- Gate: Documentation Gate for M7-007.
+- Decision: Pass locally.
+- Reason: Documentation inspection, formatting, workspace tests, clippy, and whitespace checks pass; docs keep unsupported syntax and future work separate from current behavior.
+- Residual risk: Protected GitHub CI is pending until PR creation; future rule-package docs should reference these DSL semantics.
+- Owner for residual risk: GitHub Maintainer Specialist / Documentation Engineer.
+
+### Hand-Off Note
+
+Role: Documentation Engineer
+Goal: Validate DSL schema/reference and report evidence docs for issue #61.
+Files changed: `docs/validation-log.md`
+Checks run: Documentation inspection; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally; protected-branch PR and CI pending.
+Known gaps: Milestone closure and next issue selection remain after PR merge.
+Next recommended step: Open the M7-007 PR with `Fixes #61`.
+
 ## M7-006 DSL Examples And Migration Docs Branch
 
 Current as of the M7-006 branch on 2026-05-31.
