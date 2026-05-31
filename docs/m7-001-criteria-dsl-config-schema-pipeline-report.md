@@ -8,7 +8,9 @@ Milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`
 
 Issue: #55, `M7-001 Add criteria DSL config schema and compatibility adapter`
 
-Status: Local implementation and validation complete; PR #63 open.
+Status: Merged.
+
+Merge commit: `9a8b0e667f9d829a1083168b7875db967ca4e960`
 
 ## Scope
 
@@ -85,7 +87,7 @@ Out of scope:
   - `AnalysisConfig::validate()` rejects mixed legacy/DSL entries and incomplete DSL shape.
   - `CriterionConfig::to_criterion()` preserves legacy conversion and returns `NotImplemented` for DSL evaluation until M7-003.
 - Gate: Implementation Gate.
-- Decision: Pass locally.
+- Decision: Pass.
 - Residual risk: Unit/operator semantics are intentionally deferred to #56.
 - Next owner: Test Automation Engineer.
 
@@ -100,8 +102,8 @@ Out of scope:
   - Added CLI fixture coverage for mixed legacy/DSL config shape.
   - `cargo test --workspace` passed with 87 tests.
 - Gate: Testing Gate.
-- Decision: Pass locally.
-- Residual risk: Protected-branch CI remains pending until PR creation.
+- Decision: Pass.
+- Residual risk: Visual and user-facing DSL ergonomics remain future work.
 - Next owner: Verification and Validation Engineer.
 
 ## Verification And Validation
@@ -111,7 +113,7 @@ Out of scope:
 - Verification: #55 acceptance criteria map to config code and tests.
 - Validation: This is a software configuration-boundary validation only; it is not runtime DSL validation, hardware validation, or certification evidence.
 - Gate: V&V Gate.
-- Decision: Pass locally.
+- Decision: Pass.
 - Residual risk: DSL parity validation belongs to #58.
 - Next owner: QA Engineer.
 
@@ -121,7 +123,7 @@ Out of scope:
 - Artifact: Local test results and scope review.
 - Evidence: Legacy criteria tests continue to pass; DSL schema is accepted only at config shape level; ambiguous mixed entries fail clearly.
 - Gate: QA Gate.
-- Decision: Pass locally.
+- Decision: Pass.
 - Residual risk: External user feedback on DSL ergonomics remains future work.
 - Next owner: Security Engineer.
 
@@ -131,7 +133,7 @@ Out of scope:
 - Artifact: Dependency and surface review.
 - Evidence: No new dependencies, unsafe Rust, file I/O surface, network surface, plugin runtime, DAQ integration, SDK, HAL, FFI, or executable expression language.
 - Gate: Security Gate.
-- Decision: Pass locally.
+- Decision: Pass.
 - Residual risk: Future DSL expansion must avoid expression evaluation or plugin execution without a fresh security review.
 - Next owner: Performance Engineer.
 
@@ -141,7 +143,7 @@ Out of scope:
 - Artifact: Code inspection and test scope.
 - Evidence: Schema validation is linear over criteria entries and does not add waveform scanning or report generation work.
 - Gate: Performance Gate.
-- Decision: Pass locally.
+- Decision: Pass.
 - Residual risk: Runtime DSL evaluation performance belongs to #57/#58.
 - Next owner: Documentation Engineer.
 
@@ -151,7 +153,7 @@ Out of scope:
 - Artifact: This report plus requirements, traceability, and project-state updates.
 - Evidence: Planning docs identify issue #55 and explicitly defer runtime evaluation, unit semantics, and docs refresh to later M7 issues.
 - Gate: Documentation Gate.
-- Decision: Pass locally.
+- Decision: Pass.
 - Residual risk: Full user-facing DSL docs remain in #60/#61.
 - Next owner: Code Reviewer.
 
@@ -161,7 +163,7 @@ Out of scope:
 - Artifact: Local code review.
 - Findings: No blocking findings. The implementation keeps behavior at the config boundary and does not fork the evaluator.
 - Gate: Code Review Gate.
-- Decision: Pass locally.
+- Decision: Pass.
 - Residual risk: M7-003 should review any conversion from DSL structs to `Criterion` variants carefully.
 - Next owner: Evaluation Engineer.
 
@@ -171,7 +173,7 @@ Out of scope:
 - Artifact: This report.
 - Result: #55 is implementation-actionable, verified, scoped, and traceable without absorbing #56/#57/#58/#60/#61.
 - Gate: Evaluation Gate.
-- Decision: Pass locally.
+- Decision: Pass.
 - Residual risk: The milestone remains open until all M7 issues close.
 - Next owner: Release Engineer.
 
@@ -179,19 +181,19 @@ Out of scope:
 
 - Owner role: Release Engineer
 - Artifact: Local validation evidence.
-- Evidence: `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `git diff --check` passed locally; PR #63 is open and protected `rust` CI remains pending.
+- Evidence: `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `git diff --check` passed locally; PR #63 required `rust` CI passed in 28 seconds and merged at `9a8b0e667f9d829a1083168b7875db967ca4e960`.
 - Gate: Release Gate.
-- Decision: Pending CI/merge.
-- Residual risk: Branch work is not released until CI passes and the PR is merged.
+- Decision: Pass.
+- Residual risk: This is mainline repository evidence, not a tagged product release.
 - Next owner: GitHub Maintainer Specialist.
 
 ## Community
 
 - Owner role: Community Engineering Lead
 - Artifact: Future PR body.
-- Evidence: PR #63 body closes issue #55 only.
+- Evidence: PR #63 closed issue #55. Milestone #7 remains open with issues #56 through #61.
 - Gate: Community Gate.
-- Decision: Pending merge.
+- Decision: Pass.
 - Residual risk: Issues #56 through #61 remain open.
 - Next owner: Project Coordinator.
 
@@ -201,7 +203,7 @@ Out of scope:
 - Artifact: This report.
 - Lesson: Splitting schema recognition from operator semantics and evaluation keeps DSL risk reviewable.
 - Gate: Retrospective Gate.
-- Decision: Pending post-merge evidence.
+- Decision: Pass.
 - Residual risk: Later M7 work still needs parity and invalid-config matrices.
 - Next owner: Project Orchestrator.
 
@@ -211,6 +213,6 @@ Role: Core Software Engineer
 Goal: Complete M7-001 / issue #55.
 Files changed: `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, `tests/configs/invalid-mixed-legacy-dsl-criterion.toml`, requirements, traceability, project state, and this report.
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Local implementation, validation, and pipeline evidence complete; PR #63 open.
+Status: Complete; PR #63 merged and issue #55 closed.
 Known gaps: Runtime DSL evaluation, operator semantics, explicit unit validation, DSL parity golden tests, and full user docs remain in issues #56 through #61.
-Next recommended step: Wait for required CI on PR #63, merge, and verify issue #55 closure.
+Next recommended step: Start M7-002 / issue #56 through the implementation pipeline.
