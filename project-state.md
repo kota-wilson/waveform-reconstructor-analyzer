@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Plan v0.5.0 criteria DSL implementation after milestone approval.
+Implement M7-001 criteria DSL config schema.
 
 ## Current Stage
 
-Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 through #61 after user approval. The milestone turns the M6 criteria DSL direction into runtime behavior while preserving legacy `[[criteria]]` configs and M6 report evidence. Milestone #6, `v0.4.0: Measurement & Evidence Engine`, is closed with issues #43 through #47 closed. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
+Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 through #61 after user approval. Issue #55 is implemented locally on branch `feature/m7-001-dsl-config-schema`: the config layer can deserialize legacy and DSL criteria shapes side by side, rejects ambiguous mixed shapes, and preserves legacy runtime conversion while DSL runtime evaluation remains deferred. Milestone #6, `v0.4.0: Measurement & Evidence Engine`, is closed with issues #43 through #47 closed. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -77,7 +77,7 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55
 
 Role: Project Orchestrator / Project Coordinator
 
-Expected deliverable: Start with M7-001 / issue #55 through the implementation pipeline.
+Expected deliverable: Open and validate the M7-001 / issue #55 PR.
 
 ## Orchestration Status
 
@@ -86,7 +86,7 @@ Expected deliverable: Start with M7-001 / issue #55 through the implementation p
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
 - Current milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
-- Next gate: Implement M7-001 / issue #55 before evaluation, parity, invalid-config, or documentation follow-up issues.
+- Next gate: Full local validation, PR creation, and protected-branch CI for issue #55.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, unit shorthand parsing, new measurements, or expanded annotated SVG features without a fresh issue/gate.
 
 ## Granularity Status
@@ -106,7 +106,7 @@ Expected deliverable: Start with M7-001 / issue #55 through the implementation p
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, and v0.5.0 requirements WRA-RQ-036 through WRA-RQ-042 mapped to issues #55 through #61.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, WRA-RQ-036 branch evidence for issue #55, and remaining v0.5.0 requirements WRA-RQ-037 through WRA-RQ-042 mapped to issues #56 through #61.
 
 ## Gate Decisions
 
@@ -232,6 +232,10 @@ Expected deliverable: Start with M7-001 / issue #55 through the implementation p
 | v0.5.0 Proposal Requirements Gate | Pass | `docs/v0.5.0-criteria-dsl-milestone-proposal.md`; WRA-RQ-036 through WRA-RQ-042 | Project Coordinator |
 | v0.5.0 Human Approval Gate | Pass | User approved the milestone proposal before GitHub issue creation | Project Coordinator |
 | v0.5.0 Issue Planning Gate | Pass | Milestone #7 and issues #55 through #61 created | Core Software Engineer |
+| M7-001 Requirements Gate | Pass | WRA-RQ-036; issue #55 | Software Architect |
+| M7-001 Architecture Gate | Pass | Config-boundary schema and compatibility adapter in `crates/wra-core/src/config.rs` | Abstraction Review Engineer |
+| M7-001 Implementation Gate | Pass locally | DSL config structs, shape validation, legacy conversion preservation, CLI invalid-config fixture | Test Automation Engineer |
+| M7-001 Testing Gate | Pass locally | `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `git diff --check` passed | Verification and Validation Engineer |
 
 ## Update Rules
 

@@ -217,7 +217,7 @@ fn load_config(args: &[String]) -> Result<Option<AnalysisConfig>, String> {
     }
     config
         .validate()
-        .map_err(|error| format!("invalid config tolerances: {error}"))?;
+        .map_err(|error| format!("invalid config: {error}"))?;
 
     Ok(Some(config))
 }
@@ -660,7 +660,11 @@ mod tests {
             ),
             (
                 "invalid-negative-tolerance.toml",
-                "invalid config tolerances: invalid parameter `tolerances.time_s`",
+                "invalid config: invalid parameter `tolerances.time_s`",
+            ),
+            (
+                "invalid-mixed-legacy-dsl-criterion.toml",
+                "invalid config: invalid parameter `criteria.mixed_shape`",
             ),
         ] {
             let config_path = format!("{manifest_dir}/../../tests/configs/{config_file}");

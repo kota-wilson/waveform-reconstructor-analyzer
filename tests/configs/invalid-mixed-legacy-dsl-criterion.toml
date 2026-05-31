@@ -1,0 +1,17 @@
+[input]
+time_column = "time"
+channels = ["signal_v"]
+
+[[criteria]]
+id = "mixed_shape"
+type = "maximum_voltage"
+channel = "signal_v"
+threshold_v = 5.0
+
+[criteria.measurement]
+type = "maximum_sample"
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 5.0
+unit = "V"

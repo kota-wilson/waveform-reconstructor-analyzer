@@ -43,7 +43,11 @@ impl AnalysisConfig {
     }
 
     pub fn validate(&self) -> Result<()> {
-        self.tolerances.validate()
+        self.tolerances.validate()?;
+        for criterion in &self.criteria {
+            criterion.validate_schema()?;
+        }
+        Ok(())
     }
 }
 
@@ -98,8 +102,10 @@ impl FilterConfig {
 pub struct CriterionConfig {
     pub id: String,
     #[serde(rename = "type")]
-    pub kind: String,
+    pub kind: Option<String>,
     pub channel: String,
+    pub measurement: Option<CriterionMeasurementConfig>,
+    pub requirement: Option<CriterionRequirementConfig>,
     pub threshold_v: Option<f64>,
     pub expected_count: Option<usize>,
     pub state: Option<String>,
@@ -114,9 +120,113 @@ pub struct CriterionConfig {
     pub direction: Option<String>,
 }
 
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct CriterionMeasurementConfig {
+    #[serde(rename = "type")]
+    pub kind: String,
+    pub threshold: Option<UnitValueConfig>,
+    pub low_threshold: Option<UnitValueConfig>,
+    pub high_threshold: Option<UnitValueConfig>,
+    pub state: Option<String>,
+    pub expected_state: Option<String>,
+    pub event_kind: Option<String>,
+    pub direction: Option<String>,
+    pub selection: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct CriterionRequirementConfig {
+    pub operator: Option<String>,
+    pub value: Option<f64>,
+    pub unit: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct UnitValueConfig {
+    pub value: f64,
+    pub unit: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CriterionConfigShape {
+    Legacy,
+    Dsl,
+}
+
 impl CriterionConfig {
+    pub fn shape(&self) -> Result<CriterionConfigShape> {
+        self.validate_schema()
+    }
+
+    fn validate_schema(&self) -> Result<CriterionConfigShape> {
+        let has_legacy_type = self.kind.is_some();
+        let has_dsl_measurement = self.measurement.is_some();
+        let has_dsl_requirement = self.requirement.is_some();
+        let has_dsl = has_dsl_measurement || has_dsl_requirement;
+        let has_legacy_fields = self.has_legacy_specific_fields();
+
+        if has_legacy_type && has_dsl {
+            return Err(WaveformError::InvalidParameter {
+                name: format!("criteria.{}", self.id),
+                reason:
+                    "legacy criteria using `type` cannot include DSL `measurement` or `requirement` sections"
+                        .to_string(),
+            });
+        }
+
+        if has_dsl {
+            if has_legacy_fields {
+                return Err(WaveformError::InvalidParameter {
+                    name: format!("criteria.{}", self.id),
+                    reason:
+                        "DSL criteria cannot include legacy fields such as `threshold_v`, `state`, `direction`, or duration limits"
+                            .to_string(),
+                });
+            }
+
+            if !(has_dsl_measurement && has_dsl_requirement) {
+                return Err(WaveformError::InvalidParameter {
+                    name: format!("criteria.{}", self.id),
+                    reason: "DSL criteria require both `measurement` and `requirement` sections"
+                        .to_string(),
+                });
+            }
+
+            return Ok(CriterionConfigShape::Dsl);
+        }
+
+        if has_legacy_type {
+            return Ok(CriterionConfigShape::Legacy);
+        }
+
+        if has_legacy_fields {
+            return Err(WaveformError::InvalidParameter {
+                name: format!("criteria.{}", self.id),
+                reason: "legacy criteria require a `type` field".to_string(),
+            });
+        }
+
+        Err(WaveformError::InvalidParameter {
+            name: format!("criteria.{}", self.id),
+            reason:
+                "criterion must include either legacy `type` or DSL `measurement` and `requirement` sections"
+                    .to_string(),
+        })
+    }
+
     fn to_criterion(&self) -> Result<Criterion> {
-        match self.kind.as_str() {
+        let kind = match self.validate_schema()? {
+            CriterionConfigShape::Legacy => self.kind.as_deref().expect("legacy type validated"),
+            CriterionConfigShape::Dsl => {
+                return Err(WaveformError::NotImplemented {
+                    feature:
+                        "criteria DSL evaluation is not implemented yet; use legacy criteria fields until M7-003"
+                            .to_string(),
+                });
+            }
+        };
+
+        match kind {
             "minimum_voltage" => Ok(Criterion::minimum_voltage(
                 self.id.clone(),
                 self.channel.clone(),
@@ -174,9 +284,24 @@ impl CriterionConfig {
             )),
             _ => Err(WaveformError::InvalidParameter {
                 name: "criteria.type".to_string(),
-                reason: format!("unsupported criterion type `{}`", self.kind),
+                reason: format!("unsupported criterion type `{kind}`"),
             }),
         }
+    }
+
+    fn has_legacy_specific_fields(&self) -> bool {
+        self.threshold_v.is_some()
+            || self.expected_count.is_some()
+            || self.state.is_some()
+            || self.expected_state.is_some()
+            || self.event_kind.is_some()
+            || self.min_width_s.is_some()
+            || self.max_width_s.is_some()
+            || self.max_duration_s.is_some()
+            || self.min_duration_s.is_some()
+            || self.low_threshold_v.is_some()
+            || self.high_threshold_v.is_some()
+            || self.direction.is_some()
     }
 
     fn required_f64(&self, field: &str) -> Result<f64> {
@@ -276,8 +401,10 @@ mod tests {
             }],
             criteria: vec![CriterionConfig {
                 id: "max".to_string(),
-                kind: "maximum_voltage".to_string(),
+                kind: Some("maximum_voltage".to_string()),
                 channel: "input_v".to_string(),
+                measurement: None,
+                requirement: None,
                 threshold_v: Some(5.5),
                 expected_count: None,
                 state: None,
@@ -353,6 +480,123 @@ mod tests {
         assert!(matches!(
             config.validate(),
             Err(WaveformError::InvalidParameter { .. })
+        ));
+    }
+
+    #[test]
+    fn deserializes_legacy_and_dsl_criteria_side_by_side() {
+        let toml = r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[criteria]]
+id = "legacy_max"
+type = "maximum_voltage"
+channel = "switch_v"
+threshold_v = 5.0
+
+[[criteria]]
+id = "dsl_rise"
+channel = "switch_v"
+
+[criteria.measurement]
+type = "rise_time"
+low_threshold = { value = 0.5, unit = "V" }
+high_threshold = { value = 4.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.005
+unit = "s"
+"#;
+
+        let config = toml::from_str::<AnalysisConfig>(toml).expect("config should deserialize");
+
+        assert_eq!(config.criteria.len(), 2);
+        assert_eq!(config.criteria[0].shape(), Ok(CriterionConfigShape::Legacy));
+        assert_eq!(config.criteria[1].shape(), Ok(CriterionConfigShape::Dsl));
+        assert_eq!(
+            config.criteria[1].measurement.as_ref().map(|measurement| {
+                (
+                    measurement.kind.as_str(),
+                    measurement
+                        .low_threshold
+                        .as_ref()
+                        .map(|threshold| (threshold.value, threshold.unit.as_str())),
+                    measurement
+                        .high_threshold
+                        .as_ref()
+                        .map(|threshold| (threshold.value, threshold.unit.as_str())),
+                )
+            }),
+            Some(("rise_time", Some((0.5, "V")), Some((4.5, "V"))))
+        );
+        assert!(config.validate().is_ok());
+    }
+
+    #[test]
+    fn rejects_ambiguous_mixed_legacy_and_dsl_criterion() {
+        let toml = r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[criteria]]
+id = "mixed"
+type = "maximum_voltage"
+channel = "switch_v"
+threshold_v = 5.0
+
+[criteria.measurement]
+type = "maximum_sample"
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 5.0
+unit = "V"
+"#;
+
+        let config = toml::from_str::<AnalysisConfig>(toml).expect("config should deserialize");
+
+        assert_eq!(
+            config.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.mixed".to_string(),
+                reason:
+                    "legacy criteria using `type` cannot include DSL `measurement` or `requirement` sections"
+                        .to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn dsl_criteria_do_not_convert_to_runtime_until_evaluation_issue() {
+        let toml = r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[criteria]]
+id = "dsl_rise"
+channel = "switch_v"
+
+[criteria.measurement]
+type = "rise_time"
+low_threshold = { value = 0.5, unit = "V" }
+high_threshold = { value = 4.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.005
+unit = "s"
+"#;
+
+        let config = toml::from_str::<AnalysisConfig>(toml).expect("config should deserialize");
+
+        assert!(matches!(
+            config.criteria(),
+            Err(WaveformError::NotImplemented { .. })
         ));
     }
 
