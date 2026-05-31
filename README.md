@@ -239,6 +239,29 @@ Expected JSON output:
 }
 ```
 
+Measurement-backed DSL configs can express the same checks as measurement plus requirement:
+
+```bash
+cargo run --quiet --bin ferrisoxide-signal -- analyze \
+  --input examples/basic-waveform.csv \
+  --config examples/basic-dsl-config.toml \
+  --format text
+```
+
+Representative output excerpt:
+
+```text
+Overall: Pass
+Measurements:
+- input_min_voltage_measurement: method=minimum_sample channel=input_v measured=0.000000 V sample_index=0 timestamp=0.000000
+- input_max_voltage_measurement: method=maximum_sample channel=input_v measured=5.000000 V sample_index=4 timestamp=0.004000
+Criteria:
+- input_min_voltage: Pass measurement_id=input_min_voltage_measurement channel=input_v measured=0.000000 V required=0.000000 V tolerance=0.000000 sample_index=0 timestamp=0.000000 reason=minimum observed voltage was 0.000000 V
+- input_max_voltage: Pass measurement_id=input_max_voltage_measurement channel=input_v measured=5.000000 V required=5.500000 V tolerance=0.000000 sample_index=4 timestamp=0.004000 reason=maximum observed voltage was 5.000000 V
+```
+
+See [criteria DSL migration](docs/criteria-dsl-migration.md) for before/after config examples, explicit unit rules, compatibility expectations, and non-goals.
+
 For quick one-off checks, criteria can still be supplied through CLI flags:
 
 ```bash
@@ -266,7 +289,7 @@ max_v = 5.0
 
 The quantizer clips samples outside the configured range, snaps in-range samples to the nearest ideal ADC code level, and keeps output samples in volts so normal voltage criteria can evaluate the digitized waveform. See [ADC quantization transform](docs/adc-quantization.md) for assumptions and limits.
 
-Implemented transform equations are documented in [filter behavior](docs/filter-behavior.md). Measurement primitives are documented in [measurement engine](docs/measurements.md). Criteria DSL direction is documented in [criteria DSL direction](docs/criteria-dsl.md). Time-axis validation and tolerance semantics are documented in [time axis and tolerances](docs/time-axis-and-tolerances.md).
+Implemented transform equations are documented in [filter behavior](docs/filter-behavior.md). Measurement primitives are documented in [measurement engine](docs/measurements.md). Criteria DSL direction is documented in [criteria DSL direction](docs/criteria-dsl.md), with migration notes in [criteria DSL migration](docs/criteria-dsl-migration.md). Time-axis validation and tolerance semantics are documented in [time axis and tolerances](docs/time-axis-and-tolerances.md).
 
 ## Plotting
 

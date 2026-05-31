@@ -505,6 +505,28 @@ mod tests {
     }
 
     #[test]
+    fn runs_analysis_with_dsl_config_and_text_output() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path = format!("{manifest_dir}/../../examples/basic-waveform.csv");
+        let config_path = format!("{manifest_dir}/../../examples/basic-dsl-config.toml");
+
+        let output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--config".to_string(),
+            config_path,
+            "--format".to_string(),
+            "text".to_string(),
+        ])
+        .expect("analysis should run");
+
+        assert!(output.contains("Overall: Pass"));
+        assert!(output.contains("input_min_voltage_measurement"));
+        assert!(output.contains("input_max_voltage_measurement"));
+    }
+
+    #[test]
     fn renders_2d_plot_to_svg_file() {
         let input_path = format!(
             "{}/../../examples/basic-waveform.csv",

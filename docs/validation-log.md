@@ -22,6 +22,47 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-core`, and `ferrisoxide-cli`.
 
+## M7-006 DSL Examples And Migration Docs Branch
+
+Current as of the M7-006 branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo run --quiet --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --config examples/basic-dsl-config.toml --format text` | Passed | Produced `Overall: Pass` with `input_min_voltage_measurement` and `input_max_voltage_measurement` evidence used in docs excerpts. |
+| `cargo test -p ferrisoxide-cli runs_analysis_with_dsl_config_and_text_output` | Passed | CLI test verifies the checked-in DSL example remains runnable and reports measurement IDs. |
+| `cargo fmt` | Passed | Rust sources formatted after CLI test edit. |
+| `cargo fmt --check` | Passed | Formatting remained clean. |
+| `cargo test --workspace` | Passed | 106 tests passed: 11 CLI, 55 core, 15 criteria-engine fixture/golden/parity tests, 1 CSV fixture integration test, 4 `ferrisoxide-embedded`, 5 `ferrisoxide-measurements`, 6 `ferrisoxide-plot`, 9 `ferrisoxide-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+
+### Documentation Evidence
+
+| Artifact | Coverage |
+|---|---|
+| `examples/basic-dsl-config.toml` | Working DSL equivalent of `examples/basic-config.toml`. |
+| `docs/criteria-dsl-migration.md` | Before/after config snippets, command, expected output excerpt, when to use DSL, explicit unit rules, compatibility notes, and non-goals. |
+| README and `docs/usage-mvp.md` | Link to the working DSL example and show representative output. |
+| `docs/criteria-dsl.md` | Updated from future-only direction to implemented initial runtime-subset status. |
+
+### Gate Decision
+
+- Gate: Testing and Documentation Gate for M7-006.
+- Decision: Pass locally.
+- Reason: CLI smoke, focused CLI test, formatting, workspace tests, clippy, and whitespace checks pass; docs link to a checked-in example.
+- Residual risk: Protected GitHub CI is pending until PR creation; full schema/report evidence reference remains #61.
+- Owner for residual risk: GitHub Maintainer Specialist / Documentation Engineer.
+
+### Hand-Off Note
+
+Role: Documentation Engineer
+Goal: Validate engineering DSL examples and migration docs for issue #60.
+Files changed: `docs/validation-log.md`
+Checks run: CLI smoke for `examples/basic-dsl-config.toml`; `cargo test -p ferrisoxide-cli runs_analysis_with_dsl_config_and_text_output`; `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally; protected-branch PR and CI pending.
+Known gaps: #61 schema reference and report evidence notes remain open.
+Next recommended step: Open the M7-006 PR with `Fixes #60`.
+
 ## M7-005 Invalid DSL Config Tests Branch
 
 Current as of the M7-005 branch on 2026-05-31.
