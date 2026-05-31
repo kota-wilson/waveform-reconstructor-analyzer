@@ -1184,3 +1184,40 @@ Checks run: `cargo test -p ferrisoxide-core --test rule_parity`; `cargo fmt --ch
 Status: Pass locally; protected PR, CI, merge, issue #74 closure, and final M8 open-issue confirmation pending.
 Known gaps: Runtime package loaders, binary package serialization, signing, hardware execution, and certification evidence remain out of scope.
 Next recommended step: Open a protected-branch PR with `Fixes #74`, wait for required `rust` CI, merge, then confirm no open milestone #8 issues remain.
+
+## M8 Completion Release Update
+
+Date: 2026-05-31
+
+Stage: Release and community closeout for milestone #8
+
+Owner Role: GitHub Maintainer Specialist / Project Coordinator
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `gh pr checks 115 --watch` | Passed | Required `rust` CI passed for PR #115. |
+| `gh pr merge 115 --rebase --delete-branch` | Passed | PR #115 merged and issue #74 closed. |
+| `gh issue list --milestone "v0.6.0: Portable Rule Package System" --state open --json number,title,state,url` | Passed | Returned `[]`; no M8 issues remained open. |
+| `gh issue view 74 --json number,title,state,url` | Passed | Issue #74 was `CLOSED`. |
+| `gh api repos/kota-wilson/ferrisoxide/milestones/8 --jq '{number,title,state,open_issues,closed_issues}'` | Passed | Milestone #8 had 0 open issues and 8 closed issues before closure. |
+| `gh api -X PATCH repos/kota-wilson/ferrisoxide/milestones/8 -f state=closed --jq '{number,title,state,open_issues,closed_issues}'` | Passed | Milestone #8 is now closed. |
+
+### Gate Decision
+
+- Gate: Release and Community Gate for M8.
+- Decision: Pass.
+- Reason: PR #115 passed required CI and merged; issue #74 closed; milestone #8 has no open issues and is closed.
+- Residual risk: Runtime package loaders, binary package serialization, signing, hardware execution, and certification evidence remain future work.
+- Owner for residual risk: Project Coordinator / Software Architect.
+
+### Hand-Off Note
+
+Role: GitHub Maintainer Specialist / Project Coordinator
+Goal: Close out milestone #8 after M8-008 merged.
+Files changed: `project-state.md`, `requirements.md`, `traceability-matrix.md`, `docs/rule-package-format.md`, `docs/m8-008-rule-parity-tests-pipeline-report.md`, and `docs/validation-log.md`.
+Checks run: GitHub PR check/merge commands, issue-state checks, and milestone-state checks listed above.
+Status: Pass; milestone #8 closed.
+Known gaps: Runtime loaders and hardware-target execution are not implemented.
+Next recommended step: Select the next user-approved milestone or issue.

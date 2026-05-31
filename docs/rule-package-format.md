@@ -2,7 +2,7 @@
 
 Date: 2026-05-31
 
-Status: Reviewable format with M8-008 desktop-vs-embedded parity fixtures implemented locally.
+Status: Reviewable format with M8-008 desktop-vs-embedded parity fixtures merged.
 
 Related requirements: WRA-RQ-043, WRA-RQ-044, WRA-RQ-046, WRA-RQ-047, WRA-RQ-048, WRA-RQ-049, WRA-RQ-050.
 
@@ -272,7 +272,7 @@ Implemented and remaining issue boundaries:
 
 - M8-006 shared rule execution is implemented locally through `ferrisoxide-rule-engine`,
 - M8-007 no_std compatibility boundary is implemented locally through `ferrisoxide-rule-engine`,
-- M8-008 desktop-vs-embedded parity tests are implemented locally in `tests/parity/` and `crates/ferrisoxide-core/tests/rule_parity.rs`.
+- M8-008 desktop-vs-embedded parity tests are implemented in `tests/parity/` and `crates/ferrisoxide-core/tests/rule_parity.rs`.
 
 The M8-003 validator and M8-005 checksum helpers return structured errors for:
 
@@ -290,6 +290,6 @@ Role: Software Architect / Documentation Engineer
 Goal: Define the initial portable rule package format and artifact roles.
 Files changed: `docs/rule-package-format.md`, `examples/rule-package/rules.toml`, `examples/rule-package/rules.json`.
 Checks run: Parse-tested examples and workspace validation recorded in `docs/validation-log.md`.
-Status: Format documented; schema, validator, desktop export, manifest, checksum evidence, shared rule-engine semantics, no_std rule-engine boundary, and exact desktop-vs-embedded parity fixture implemented locally.
+Status: Format documented; schema, validator, desktop export, manifest, checksum evidence, shared rule-engine semantics, no_std rule-engine boundary, and exact desktop-vs-embedded parity fixture implemented and merged through milestone #8.
 Known gaps: Binary package and runtime loaders remain future follow-up issues.
-Next recommended step: Complete M8-008 PR review and close milestone #8 when all issues are closed.
+Next recommended step: Select the next runtime-loader or controller-simulation issue before expanding beyond software parity evidence.
