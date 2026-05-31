@@ -6,7 +6,7 @@ The first MVP is a CLI and core library slice. It focuses on CSV waveform loadin
 
 ## Current Status
 
-This repository is in MVP implementation stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria. The workspace also has an embedded foundation crate, `wra-signal`, for `no_std` signal primitives that can later be wrapped by RTOS or ARM64 adapters.
+This repository is in validated MVP stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria, including ordered pre-criteria transforms such as moving average, low-pass filtering, and ideal ADC quantization. The workspace also has an embedded foundation crate, `wra-signal`, for `no_std` signal primitives that can later be wrapped by RTOS or ARM64 adapters.
 
 ## MVP Scope
 

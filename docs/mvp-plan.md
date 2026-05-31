@@ -2,9 +2,9 @@
 
 ## MVP Goal
 
-Deliver a CLI-driven Rust MVP that can parse a simple CSV waveform fixture into typed waveform data, apply planned filter interfaces, evaluate basic min/max voltage criteria, and produce a report model.
+Deliver a CLI-driven Rust MVP that can parse CSV waveform fixtures into typed waveform data, apply derived transform interfaces, evaluate configurable waveform criteria, and produce text/JSON reports.
 
-Current status: M1-M3 dependency-reviewed slice is implemented and locally validated. M4 is approved for publication execution after release readiness review.
+Current status: The dependency-reviewed MVP slice is implemented, public, and validated on protected `main`. Follow-up work has added v0.2.0 criteria, real fixtures, golden JSON reports, `wra-signal`, domain review, and ADC quantization. Remaining M1 backlog focuses on richer metadata and README expected-output polish.
 
 ## Milestone M1: Foundation
 
@@ -25,7 +25,7 @@ Acceptance criteria:
 - CLI accepts explicit local analysis arguments.
 - Unit tests exist for model and parser basics.
 
-## Milestone M2: Filters
+## Milestone M2: Derived Transforms
 
 Owner: Systems Engineer
 
@@ -36,9 +36,10 @@ Files:
 
 Acceptance criteria:
 
-- Filter trait exists.
+- Filter trait and enum-backed filter steps exist.
 - Moving average filter has basic implementation.
 - Low-pass filter has a simple first-order implementation and must not claim validated frequency response yet.
+- ADC quantization has an ideal endpoint-inclusive implementation and must not claim hardware ADC fidelity.
 - Tests use synthetic fixtures with tolerances.
 
 ## Milestone M3: Criteria And Reports
@@ -54,8 +55,8 @@ Files:
 
 Acceptance criteria:
 
-- Min/max voltage criteria can be represented.
-- Analysis result reports pass/fail, measured value, threshold, and reason.
+- Min/max voltage, state transition, pulse width, transient event, stable-state duration, and rise/fall criteria can be represented.
+- Analysis result reports pass/fail, measured value, required value, sample index, timestamp, channel, and reason.
 - Report model can render text output.
 - CLI accepts explicit min/max criteria flags and TOML config files.
 - Report model can render JSON output.
@@ -84,4 +85,4 @@ cargo clippy --workspace --all-targets
 
 - Stop before adding dependencies.
 - Stop before full GUI planning.
-- Stop before public repository publication.
+- Stop before tagged release publication.

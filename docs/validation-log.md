@@ -6,9 +6,13 @@ Updated: 2026-05-31
 
 Project: Waveform Reconstructor and Analyzer
 
-Stage: Testing dependency-reviewed MVP slice
+Stage: Validation audit trail
 
 Owner Role: Test Automation Engineer
+
+## Reading This Log
+
+This file is an audit trail. The newest validation snapshot is listed first, and older sections preserve point-in-time command evidence from earlier PRs. Historical test counts are intentionally not rewritten unless the original entry was wrong at the time it was recorded.
 
 ## Environment
 
@@ -17,7 +21,32 @@ Owner Role: Test Automation Engineer
 - Rust: `rustc 1.95.0 (59807616e 2026-04-14)`
 - Dependencies: `csv`, `serde`, `serde_json`, `toml`; resolved versions are pinned in `Cargo.lock`.
 
-## Commands And Results
+## Documentation Accuracy Branch Validation
+
+Current as of documentation accuracy review on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo fmt --check` | Passed | Rust formatting clean. |
+| `cargo test --workspace` | Passed | 50 tests passed: 6 CLI, 28 core, 6 criteria-engine fixture/golden tests, 1 CSV fixture integration test, 9 `wra-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors in the documentation review diff. |
+| README local-link target checks | Passed | `docs/adc-quantization.md` and `docs/environmental-test-use-cases.md` exist. |
+| Stale-status and conflict-marker scan | Passed | Only intentional audit references and the product prompt abstraction-review line matched. |
+
+## Feature Baseline Validation Snapshot
+
+Current as of PR #25 merge on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo fmt --check` | Passed | Rust formatting clean. |
+| `cargo test --workspace` | Passed | 50 tests passed: 6 CLI, 28 core, 6 criteria-engine fixture/golden tests, 1 CSV fixture integration test, 9 `wra-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --config examples/adc-quantized-config.toml --format text` | Passed | Config-driven ADC quantization produced `Overall: Pass` with `input_max_after_adc` evidence. |
+| GitHub Actions `rust` check for PR #25 | Passed | Required status check passed before merge. |
+
+## Historical MVP Commands And Results
 
 | Command | Result | Notes |
 |---|---|---|
@@ -91,7 +120,7 @@ Files changed: `crates/wra-core/src/csv.rs`, `docs/validation-log.md`
 Checks run: `cargo test -p wra-core csv::tests -- --nocapture`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`
 Status: Pass.
 Known gaps: No external DAQ export corpus included.
-Next recommended step: Open PR for issue #1.
+Next recommended step: Historical M1-001 validation handoff is complete; use future parser issues for broader CSV dialect coverage.
 
 ## M3-RTOS-001 Validation Update
 

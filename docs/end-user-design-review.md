@@ -105,6 +105,6 @@ Role: Project Orchestrator
 Goal: Complete end-user design review using new domain specialty roles.
 Files changed: `docs/end-user-design-review.md`, `requirements.md`, `project-state.md`
 Checks run: Documentation review; terminology scan for informal event wording; `git diff --check`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`.
-Status: Review complete; follow-up issue routing pending.
-Known gaps: Findings are advisory until routed into issues or implementation PRs.
-Next recommended step: Merge the docs PR, then route accepted findings into GitHub issues.
+Status: Review complete; accepted findings have been routed through later M1, v0.2.0, M3, and ADC quantization work, with remaining open items tracked in `project-state.md`.
+Known gaps: Some advisory findings remain future work until selected for issue-specific implementation PRs.
+Next recommended step: Route remaining open M1 and M3 issues through focused PRs.

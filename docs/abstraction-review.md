@@ -12,6 +12,8 @@ Go / No-Go: Go for M1 foundation only.
 
 Reason: The plan names crates, modules, types, files, tests, validation commands, and stop conditions. It is concrete enough for the Core Software Engineer to implement the first milestone without guessing.
 
+Current status: Historical abstraction review. Later dependency, release, v0.2.0, M3-RTOS-001, end-user review, ADC quantization, and documentation accuracy gates are tracked in `project-state.md`.
+
 ## Zoom-Level Assessment
 
 | Area | Expected Level | Actual Level | Result |
@@ -26,7 +28,7 @@ Reason: The plan names crates, modules, types, files, tests, validation commands
 | Severity | Location | Finding | Problem | Required Detail | Owner |
 |---|---|---|---|---|---|
 | Medium | Dependency strategy | CSV and config crates are deferred. | Parser implementation may be limited. | Dependency review before adding crates. | Security Engineer |
-| Medium | License assumption | MIT selected by default. | Owner should confirm before public publication. | Record license decision. | Project Coordinator |
+| Medium | License assumption | MIT selected by default. | Owner confirmation was required before publication. | Recorded in `decisions/ADR-002-license-assumption.md`. | Project Coordinator |
 
 ## Missing Artifacts
 
@@ -43,7 +45,7 @@ Next role: Core Software Engineer.
 
 ## Update 2026-05-31
 
-Follow-up decision: Proceeded through a dependency-free M2/M3 slice after user approval, without adding crates or changing the architecture boundaries.
+Follow-up decision: Proceeded through dependency review, public release, v0.2.0 criteria work, `wra-signal`, and ADC quantization while preserving the original architecture boundaries.
 
 Evidence:
 
@@ -51,4 +53,4 @@ Evidence:
 - `docs/validation-log.md`
 - `traceability-matrix.md`
 
-Remaining gate: Dependency and release approval before config/report crates or external publication.
+Remaining gate: Issue-specific readiness review before the next selected M1 or M3 task.

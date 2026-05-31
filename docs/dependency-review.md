@@ -12,6 +12,8 @@ Owner Role: Security Engineer / Software Architect
 
 The user approved proceeding through the dependency, license, and publication gates after the dependency-free MVP validation.
 
+Current status: Approved dependencies were added and pinned in `Cargo.lock`; the public repository publication gate later passed. Any new dependency still requires a fresh dependency review.
+
 ## Proposed Dependencies
 
 | Crate | Scope | Purpose | License Expectation | Alternative Considered | Decision |
@@ -33,7 +35,7 @@ The user approved proceeding through the dependency, license, and publication ga
 - Gate: Dependency Gate.
 - Decision: Pass.
 - Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing.
-- Residual risk: Release readiness should inspect `Cargo.lock` and dependency license metadata before public publication.
+- Residual risk: Dependency license and advisory scanning is not automated yet.
 - Next owner: Core Software Engineer.
 
 ## Hand-Off Note

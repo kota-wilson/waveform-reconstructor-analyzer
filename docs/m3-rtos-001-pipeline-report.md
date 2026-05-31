@@ -12,6 +12,10 @@ GitHub issue: #20, `M3-RTOS-001 Extract no_std signal primitives`
 
 Pull request: #21, `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/21`
 
+## Current Status
+
+This is a historical report for issue #20 and PR #21. PR #21 has since merged into `main`, issue #20 is closed, and follow-up M3 issues #17-#19 remain open for QEMU, RTOS adapter, and Zephyr work. The stage decisions below preserve the original pre-merge handoff context.
+
 ## Research
 
 Owner Role: Open Source Research Engineer
@@ -147,10 +151,10 @@ Owner Role: Evaluation Engineer
 
 Owner Role: Release Engineer / GitHub Maintainer Specialist
 
-- Decision: Pass for PR creation; merge pending protected-branch CI.
+- Decision: Pass for PR creation; PR later merged after protected-branch CI.
 - Evidence: Feature branch `feature/m3-rtos-001-wra-signal`; PR #21 titled `Add no_std signal primitives crate`; issue link #20.
 - Reason: The branch is reviewable and local validation is green.
-- Residual risk: GitHub Actions must pass before merge.
+- Residual risk: Future M3 adapter PRs must still pass GitHub Actions before merge.
 - Next owner: Community Engineering Lead.
 
 ## Community
@@ -179,6 +183,6 @@ Role: Project Orchestrator
 Goal: Complete M3-RTOS-001 through PR creation.
 Files changed: `crates/wra-signal/`, `embedded/`, `docs/embedded-roadmap.md`, `docs/m3-rtos-001-pipeline-report.md`, `docs/implementation-report.md`, `docs/validation-log.md`, `README.md`, `CHANGELOG.md`, `requirements.md`, `traceability-matrix.md`, `project-state.md`, `Cargo.toml`, `Cargo.lock`
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-signal`; terminology scan for informal event wording
-Status: PR #21 opened; merge pending protected-branch CI.
+Status: Historical handoff complete; PR #21 later merged into `main`.
 Known gaps: ARM64 QEMU, RTOS adapter abstraction, and Zephyr feasibility are tracked by follow-up M3 issues.
-Next recommended step: Monitor CI and merge after required checks pass.
+Next recommended step: Continue with M3 follow-up issues #17-#19.

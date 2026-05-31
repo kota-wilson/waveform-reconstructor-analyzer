@@ -4,6 +4,10 @@ Date: 2026-05-31
 
 Owner Role: Security Engineer
 
+## Current Status
+
+This is the initial publication security review record. Later feature PRs preserved the no-secret, no-global-install, and no-unsafe-Rust posture; current dependency status is summarized in `docs/dependency-review.md`.
+
 ## Scope
 
 Review dependency, file-input, and publication security posture for the initial MVP.
@@ -33,7 +37,7 @@ No blocking security issues found.
 ## Hand-Off Note
 
 Role: Security Engineer
-Goal: Review MVP security posture before public release completion.
+Goal: Review MVP security posture for the initial public release gate.
 Files changed: `docs/security-review.md`
 Checks run: File and dependency review.
 Status: Pass.

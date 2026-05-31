@@ -4,6 +4,10 @@ Date: 2026-05-31
 
 Owner Role: QA Engineer
 
+## Current Status
+
+This is the initial publication QA record. Later feature PRs have their own validation evidence; current repository state is summarized in `project-state.md` and `docs/validation-log.md`.
+
 ## Review Scope
 
 Initial public MVP repository quality review after local validation and GitHub Actions CI.
@@ -33,7 +37,7 @@ No blocking QA defects found.
 ## Hand-Off Note
 
 Role: QA Engineer
-Goal: Review MVP repository quality before publication completion.
+Goal: Review MVP repository quality for the initial public publication gate.
 Files changed: `docs/qa-review.md`
 Checks run: Reviewed local and CI validation evidence.
 Status: Pass.

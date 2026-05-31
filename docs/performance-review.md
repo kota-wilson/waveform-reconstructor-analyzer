@@ -4,6 +4,10 @@ Date: 2026-05-31
 
 Owner Role: Performance Engineer
 
+## Current Status
+
+This is the initial publication performance review record. The repository still avoids production performance claims, and benchmarking remains future work.
+
 ## Scope
 
 Review MVP performance claims and known limits.
@@ -23,7 +27,7 @@ No blocking performance issue found for the small-fixture MVP. No production per
 ## Hand-Off Note
 
 Role: Performance Engineer
-Goal: Prevent unsupported performance claims before publication.
+Goal: Prevent unsupported performance claims for the initial publication gate.
 Files changed: `docs/performance-review.md`
 Checks run: Reviewed scope, README, and risk register.
 Status: Pass for MVP.

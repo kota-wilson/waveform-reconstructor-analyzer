@@ -122,7 +122,7 @@ Files changed: `crates/wra-core/src/csv.rs`, `docs/implementation-report.md`, `d
 Checks run: `cargo test -p wra-core csv::tests -- --nocapture`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`
 Status: Pass.
 Known gaps: No external DAQ export corpus included.
-Next recommended step: Open PR for issue #1.
+Next recommended step: Historical M1-001 PR handoff is complete; use future parser issues for broader CSV dialect coverage.
 
 ## M3-RTOS-001 Implementation Update
 

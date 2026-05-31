@@ -12,6 +12,10 @@ Open-source contribution/product repository; Rust systems and signal-analysis to
 
 Create a Rust-centered library and CLI that can import CSV waveform data, reconstruct analog waveform channels, apply simulated filters, evaluate signals against configurable pass/fail criteria, and export analysis outputs.
 
+## Current Status
+
+This is the historical intake prompt for the project. The repository has since been published publicly, the MIT license decision is recorded, approved dependencies are pinned in `Cargo.lock`, and current implementation status is tracked in `requirements.md`, `traceability-matrix.md`, and `project-state.md`.
+
 ## Target User
 
 Test engineers, validation engineers, and open-source contributors working with time-series electrical waveform data from DAQ or test equipment.
@@ -63,7 +67,7 @@ Cross-platform CLI first. Future GUI and bindings should be possible but are out
 - Time values are numeric seconds unless configured otherwise.
 - Signal values are numeric volts unless configured otherwise.
 - The MVP can use a simple parser interface before selecting a production CSV dependency.
-- MIT license is acceptable pending owner confirmation before publication.
+- MIT license is acceptable for the initial scaffold; the publication decision is now recorded in `decisions/ADR-002-license-assumption.md`.
 
 ## Risks
 
@@ -75,12 +79,12 @@ Cross-platform CLI first. Future GUI and bindings should be possible but are out
 
 ## Acceptance Criteria
 
-- [ ] Project scaffold includes professional open-source files.
-- [ ] Requirements and traceability exist.
-- [ ] Architecture names modules, APIs, tests, and risks.
-- [ ] Rust workspace exists with core and CLI crates.
-- [ ] MVP milestone is defined.
-- [ ] No full implementation starts before architecture and MVP requirements exist.
+- [x] Project scaffold includes professional open-source files.
+- [x] Requirements and traceability exist.
+- [x] Architecture names modules, APIs, tests, and risks.
+- [x] Rust workspace exists with core and CLI crates.
+- [x] MVP milestone is defined.
+- [x] No full implementation starts before architecture and MVP requirements exist.
 
 ## Granularity Requirements
 

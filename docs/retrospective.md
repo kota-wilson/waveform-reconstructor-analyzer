@@ -4,6 +4,10 @@ Date: 2026-05-31
 
 Owner Role: Project Coordinator
 
+## Current Status
+
+This is the initial publication retrospective. Follow-up GitHub issues have since been created for M1, v0.2.0, M3, and ADC quantization work; remaining open issues are tracked in `project-state.md`.
+
 ## What Worked
 
 - The project stayed inside the workspace and used project-local Cargo tooling.
@@ -23,7 +27,7 @@ Owner Role: Project Coordinator
 - Gate: Retrospective Gate.
 - Decision: Pass.
 - Reason: Lessons and next actions are recorded.
-- Residual risk: Follow-up issues are not yet created.
+- Residual risk: Remaining follow-up issues still need prioritization and implementation.
 - Next owner: Community Engineering Lead.
 
 ## Hand-Off Note
@@ -33,5 +37,5 @@ Goal: Capture lessons from project creation through public publication.
 Files changed: `docs/retrospective.md`
 Checks run: Reviewed project artifacts and final CI status.
 Status: Pass.
-Known gaps: No follow-up GitHub issues opened yet.
-Next recommended step: Create first public follow-up issue.
+Known gaps: Open backlog remains in GitHub issues.
+Next recommended step: Route remaining M1 and M3 issues through focused PRs.

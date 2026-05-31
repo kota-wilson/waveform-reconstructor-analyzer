@@ -8,6 +8,10 @@ Stage: Release Gate
 
 Owner Role: Release Engineer / GitHub Maintainer Specialist
 
+## Current Status
+
+This review records the initial public-repository publication gate. Since publication, PR #16, #21, #22, #23, and #25 have merged into protected `main` with required `rust` CI passing. The release notes below describe the initial publication slice, not the full current feature set.
+
 ## Scope
 
 Publish the initial public GitHub repository for the MVP Rust waveform analysis tool.

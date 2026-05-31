@@ -6,6 +6,8 @@ Date: 2026-05-30
 
 The system is a Rust Cargo workspace with a reusable core library and a small CLI. The architecture separates raw data ingestion, waveform modeling, derived waveform transformations, criteria evaluation, and report rendering so future GUI or language bindings can reuse the core without depending on CLI concerns.
 
+Current status: This proposal has been implemented through the validated MVP feature baseline. Current implementation details and remaining open issues are tracked in `requirements.md`, `traceability-matrix.md`, and `project-state.md`.
+
 ## Context Reviewed
 
 | Source | Finding |

@@ -7,7 +7,7 @@ This project inherits the root `/Users/kota/Desktop/softwareai/AGENTS.md`, `STUD
 - Product: Waveform Reconstructor and Analyzer.
 - Type: Rust-centered open-source product repository.
 - Domain: signal analysis for CSV waveform reconstruction, filter simulation, and pass/fail evaluation.
-- Current phase: dependency-reviewed MVP implementation slice.
+- Current phase: validated MVP implementation slice.
 
 ## Engineering Guardrails
 
@@ -21,4 +21,4 @@ This project inherits the root `/Users/kota/Desktop/softwareai/AGENTS.md`, `STUD
 
 ## Current Stop Condition
 
-This repository has a dependency-reviewed MVP slice with CSV loading, waveform modeling, basic filters, TOML config parsing, min/max criteria, text/JSON reports, and CLI analysis. Stop before claiming production-grade signal-processing behavior, expanding into GUI/DAQ/certification work, or adding more dependencies without a fresh gate decision.
+This repository has a dependency-reviewed MVP slice with CSV loading, waveform modeling, derived transforms, TOML config parsing, waveform criteria, text/JSON reports, CLI analysis, and a separate `wra-signal` embedded foundation. Stop before claiming production-grade signal-processing behavior, expanding into GUI/DAQ/certification work, or adding more dependencies without a fresh gate decision.

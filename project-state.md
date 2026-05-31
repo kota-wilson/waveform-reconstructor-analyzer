@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Route remaining M1 and M3 backlog after completing simulated ADC quantization.
+Maintain accurate, auditable, and readable validated-MVP documentation while routing the remaining M1 and M3 backlog.
 
 ## Current Stage
 
-ADC quantization implementation, documentation, and local validation are complete; PR #25 records release status for issue #24 and M1-003 issue #2.
+Documentation accuracy review completed for the PR #25 feature baseline. The docs now separate current repository state from historical pipeline reports, preserve point-in-time evidence, and record the validation checks used for the documentation audit.
 
 ## Open Risks
 
@@ -44,18 +44,18 @@ ADC quantization implementation, documentation, and local validation are complet
 
 ## Next Responsible Role
 
-Role: Release Engineer / GitHub Maintainer Specialist
+Role: Project Coordinator / GitHub Maintainer Specialist
 
-Expected deliverable: Route remaining M1 issues #4 and #6 plus M3 issues #17-#19 while keeping hardware/DAQ/certification claims out of scope.
+Expected deliverable: Route the remaining open issues without weakening the documented scope boundaries or audit trail.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: ADC quantization transform complete.
+- Current milestone: Validated MVP follow-through.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`.
-- Next gate: Remaining M1 and M3 backlog routing after PR #25.
+- Next gate: Issue-specific readiness gate for the next selected M1 or M3 task.
 - Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/certification work.
 
 ## Granularity Status
@@ -126,7 +126,8 @@ Expected deliverable: Route remaining M1 issues #4 and #6 plus M3 issues #17-#19
 | Domain End-User Review Gate | Pass | `docs/end-user-design-review.md`; PR #23 | Documentation Engineer |
 | ADC Quantization Implementation Gate | Pass | `crates/wra-core/src/filter.rs`, `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, `docs/implementation-report.md` | Test Automation Engineer |
 | ADC Quantization Testing Gate | Pass | `docs/validation-log.md`; unit, config, CLI, and workspace tests passed | Release Engineer |
-| ADC Quantization Release Gate | Pass | PR #25 opened with required `rust` CI passing | Project Orchestrator |
+| ADC Quantization Release Gate | Pass | PR #25 merged after required `rust` CI passed | Project Orchestrator |
+| Documentation Accuracy Gate | Pass | `docs/documentation-audit-2026-05-31.md`; fmt, workspace tests, clippy, whitespace, link-target, and stale-status scans passed | Project Coordinator |
 
 ## Update Rules
 
