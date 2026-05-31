@@ -26,15 +26,15 @@ Owner Role: Community Engineering Lead
 ## M5 Community Update
 
 - Issue #38 records optional SVG plotting acceptance criteria.
-- Milestone `M5: Plotting and Visualization` tracks the plotting slice.
-- PR handoff should describe the feature as desktop SVG output only and avoid GUI, DAQ, embedded plotting, surface-plotting, or certification claims.
-- Issue and milestone closure should be verified after protected-branch merge.
+- PR #39 merged and closed issue #38.
+- Milestone `M5: Plotting and Visualization` is closed with 1 closed issue and 0 open issues.
+- Follow-up community messaging should describe the feature as desktop SVG output only and avoid GUI, DAQ, embedded plotting, surface-plotting, or certification claims.
 
 ## Gate Decision
 
 - Gate: Community Gate.
-- Decision: Pass for initial publication and M5 PR handoff.
-- Reason: Public repository exists with templates, contribution docs, CI, clear scope, M4 issue/milestone closure evidence, and M5 issue/milestone handoff evidence.
+- Decision: Pass for initial publication and M5 issue/milestone closure.
+- Reason: Public repository exists with templates, contribution docs, CI, clear scope, M4 issue/milestone closure evidence, and M5 issue/milestone closure evidence.
 - Residual risk: Community onboarding quality and plotting usability are untested until external issue/PR feedback.
 - Next owner: Project Coordinator.
 

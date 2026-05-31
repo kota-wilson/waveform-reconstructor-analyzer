@@ -41,5 +41,5 @@ Goal: Capture lessons from project creation through public publication.
 Files changed: `docs/retrospective.md`
 Checks run: Reviewed project artifacts and final CI status.
 Status: Pass.
-Known gaps: Open backlog remains in GitHub issues; M5 mainline release evidence still needs post-merge update.
-Next recommended step: Complete M5 protected-branch PR and update release/community evidence after merge.
+Known gaps: Open backlog remains in GitHub issues; plotting still lacks visual regression and external usability feedback.
+Next recommended step: Gather plotting feedback before adding new visualization backends or interactive plotting scope.

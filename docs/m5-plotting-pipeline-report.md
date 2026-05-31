@@ -174,28 +174,28 @@ Out of scope: GUI windows, web frontend, DAQ integration, live acquisition, embe
 
 ## Release Stage
 
-- Artifact: Protected-branch PR to `main`.
-- Evidence: Branch validation is complete; PR creation is approved by the user.
+- Artifact: PR #39 to `main` with issue-closing keyword and CI evidence.
+- Evidence: PR #39 merged on 2026-05-31 at `9bc3d53bf416fff7e280abbcc24840c34811918f`; required `rust` CI passed in 31 seconds.
 - Gate: Release Gate.
-- Decision: Pass for PR creation.
-- Reason: All prior gates passed and the branch is ready for protected-branch CI.
-- Residual risk: Mainline release evidence must be updated after PR merge.
+- Decision: Pass.
+- Reason: Protected-branch CI passed and the PR merged by rebase into `main`.
+- Residual risk: No tagged release has been published; this remains repository-mainline evidence only.
 - Next owner: GitHub Maintainer Specialist.
 
 ## Community Stage
 
-- Artifact: Issue #38 and M5 milestone.
-- Evidence: Issue #38 records the plotting acceptance criteria; PR body will use closing keywords and summarize validation commands.
+- Artifact: PR body, issue link, and milestone closure status.
+- Evidence: PR #39 included `Fixes #38`; issue #38 is closed; M5 milestone #5 is closed with 1 closed issue and 0 open issues.
 - Gate: Community Gate.
-- Decision: Pass for PR handoff.
-- Reason: GitHub issue and milestone tracking exist for the community surface.
-- Residual risk: Issue and milestone closure must be verified after merge.
+- Decision: Pass.
+- Reason: GitHub issue and milestone state now reflect the completed M5 work.
+- Residual risk: External contributor feedback is still unavailable.
 - Next owner: Project Coordinator.
 
 ## Retrospective Stage
 
 - Artifact: This report and final handoff.
-- Evidence: The feature added one approved dependency, one isolated crate, one CLI subcommand, focused tests, and explicit scope limits.
+- Evidence: The feature added one approved dependency, one isolated crate, one CLI subcommand, focused tests, explicit scope limits, and post-merge release/community evidence.
 - Gate: Retrospective Gate.
 - Decision: Pass.
 - Reason: Lessons and residual risks are recorded before release.
@@ -208,6 +208,6 @@ Role: Project Orchestrator
 Goal: Add optional desktop SVG plotting with optional third-axis visualization through the contribution pipeline.
 Files changed: `crates/wra-plot/`, `crates/wra-cli/src/main.rs`, `tests/fixtures/plot_three_axis.csv`, README, docs, requirements, risk, traceability, `Cargo.toml`, and `Cargo.lock`.
 Checks run: `cargo fmt`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; 2D/3D `wra plot` smoke commands; `cargo fmt --check`; `git diff --check`; `cargo metadata --format-version 1 --no-deps`; `cargo tree -p wra-plot`.
-Status: Pass for protected-branch PR creation.
+Status: Complete for M5 mainline merge and milestone closure.
 Known gaps: No GUI, DAQ, embedded plotting, surface plotting, visual regression tests, large-plot benchmark, or certification evidence.
-Next recommended step: Open the M5 plotting PR, wait for required CI, merge if checks pass, then update release/community evidence.
+Next recommended step: Gather external plotting usability feedback before adding new visualization backends or interactive plotting scope.

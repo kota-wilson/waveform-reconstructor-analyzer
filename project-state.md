@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-M5 plotting and visualization is implemented on `feature/m5-svg-plotting`; prepare protected-branch PR review and CI.
+M5 plotting and visualization is merged; record post-merge release/community evidence.
 
 ## Current Stage
 
-The repository now includes branch-local M5 plotting work for issue #38. The branch adds an isolated `wra-plot` crate, optional `wra plot` SVG output, 2D time/signal plotting, optional 3D time/signal/auxiliary-axis line plotting, fixture coverage, dependency review, documentation, and validation evidence. RTOS/Zephyr work remains parked; GUI, DAQ, embedded plotting, surface fitting, and certification claims remain out of scope.
+The repository now includes merged M5 plotting work addressing issue #38. Mainline includes an isolated `wra-plot` crate, optional `wra plot` SVG output, 2D time/signal plotting, optional 3D time/signal/auxiliary-axis line plotting, fixture coverage, dependency review, documentation, and validation evidence. PR #39 merged with required `rust` CI passing, issue #38 is closed, and M5 milestone #5 is closed. RTOS/Zephyr work remains parked; GUI, DAQ, embedded plotting, surface fitting, and certification claims remain out of scope.
 
 ## Open Risks
 
@@ -57,7 +57,7 @@ The repository now includes branch-local M5 plotting work for issue #38. The bra
 
 Role: GitHub Maintainer Specialist
 
-Expected deliverable: Open the M5 plotting PR, wait for required CI, merge if checks pass, and update release/community evidence.
+Expected deliverable: Finish post-merge release/community evidence update for M5.
 
 ## Orchestration Status
 
@@ -66,7 +66,7 @@ Expected deliverable: Open the M5 plotting PR, wait for required CI, merge if ch
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
 - Current milestone: M5 plotting and visualization.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`.
-- Next gate: Protected-branch PR and CI for M5 plotting.
+- Next gate: Post-merge evidence PR for M5.
 - Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/embedded plotting/certification work.
 
 ## Granularity Status
@@ -164,10 +164,10 @@ Expected deliverable: Open the M5 plotting PR, wait for required CI, merge if ch
 | M5 Security Gate | Pass | `docs/security-review.md`, `docs/dependency-review.md`, `cargo tree -p wra-plot` | Performance Engineer |
 | M5 Performance Gate | Pass | `docs/performance-review.md`; no unsupported performance claims | Documentation Engineer |
 | M5 Documentation Gate | Pass | README, `docs/usage-mvp.md`, `docs/plotting.md` | Code Reviewer |
-| M5 Code Review Gate | Pass for PR creation | `docs/code-review.md`, `docs/m5-plotting-pipeline-report.md` | Evaluation Engineer |
+| M5 Code Review Gate | Pass | `docs/code-review.md`, `docs/m5-plotting-pipeline-report.md` | Evaluation Engineer |
 | M5 Evaluation Gate | Pass | `docs/evaluation-report.md` | Release Engineer |
-| M5 Release Gate | Pass for PR creation | `docs/m5-plotting-pipeline-report.md`; protected-branch PR pending | GitHub Maintainer Specialist |
-| M5 Community Gate | Pass for PR handoff | Issue #38 and M5 milestone prepared for PR closing keywords | Project Coordinator |
+| M5 Release Gate | Pass | PR #39 merged after required `rust` CI passed; merge commit `9bc3d53bf416fff7e280abbcc24840c34811918f` | GitHub Maintainer Specialist |
+| M5 Community Gate | Pass | Issue #38 closed; M5 milestone #5 closed with 1 closed issue and 0 open issues | Project Coordinator |
 
 ## Update Rules
 

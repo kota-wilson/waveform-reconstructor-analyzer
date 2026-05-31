@@ -10,7 +10,7 @@ Owner Role: Release Engineer / GitHub Maintainer Specialist
 
 ## Current Status
 
-This review records the initial public-repository publication gate. Since publication, PR #16, #21, #22, #23, and #25 have merged into protected `main` with required `rust` CI passing. The release notes below describe the initial publication slice, not the full current feature set.
+This review records the initial public-repository publication gate. Since publication, PR #16, #21, #22, #23, #25, #36, #37, and #39 have merged into protected `main` with required `rust` CI passing. The release notes below describe the initial publication slice, not the full current feature set.
 
 ## Scope
 
@@ -66,18 +66,21 @@ Gate: Release Gate for M4.
 Decision: Pass.
 Residual risk: This is mainline repository evidence, not a tagged product release or certification artifact.
 
-## M5 Release Readiness Update
+## M5 Release Update
 
-- Branch: `feature/m5-svg-plotting`
+- PR: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/39`
+- Merge commit: `9bc3d53bf416fff7e280abbcc24840c34811918f`
+- Merge method: rebase / fast-forward mainline.
+- Required check: `rust`, passed in 31 seconds.
 - Issue: #38, `M5-001 Add optional SVG waveform plotting with third axis`
-- Milestone: `M5: Plotting and Visualization`
+- Milestone: `M5: Plotting and Visualization`, closed with 1 closed issue and 0 open issues.
 - Scope: Optional desktop SVG plotting only.
 - Validation: `cargo fmt`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; 2D/3D CLI smoke plots; `cargo fmt --check`; `git diff --check`; `cargo metadata --format-version 1 --no-deps`; `cargo tree -p wra-plot`.
 - Dependency evidence: Plotters approved by user and isolated to `wra-plot` with SVG backend and line-series features.
 
 Gate: Release Gate for M5.
-Decision: Pass for protected-branch PR creation.
-Residual risk: Mainline merge, CI result, issue closure, and milestone closure must be recorded after PR merge.
+Decision: Pass.
+Residual risk: This is mainline repository evidence, not a tagged product release, visual-quality certification, hardware validation, or certification artifact.
 
 ## Hand-Off Note
 
