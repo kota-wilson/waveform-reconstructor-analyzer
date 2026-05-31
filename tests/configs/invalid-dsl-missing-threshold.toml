@@ -1,0 +1,17 @@
+[input]
+time_column = "time_s"
+channels = ["control_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[criteria]]
+id = "dsl_missing_threshold"
+channel = "control_v"
+
+[criteria.measurement]
+type = "state_transition_count"
+
+[criteria.requirement]
+operator = "equal_to"
+value = 4
+unit = "count"
