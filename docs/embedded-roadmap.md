@@ -8,7 +8,7 @@ Owner Role: Software Architect
 
 The embedded path is a separate module track. It must not live inside the desktop CLI path and must not pull CSV parsing, file I/O, plotting, or report generation into embedded crates.
 
-The first-class embedded target is Raspberry Pi 5 bare-metal ARM64 using Rust target `aarch64-unknown-none`. RTOS compatibility remains a later layer around that target rather than a generic embedded target replacement. Platform profiles are defined in `docs/platform-targets.md`.
+The first-class embedded target is Raspberry Pi 5 bare-metal ARM64 using Rust target `aarch64-unknown-none`. RTOS compatibility remains a later layer around that target rather than a generic embedded target replacement. Raspberry Pi Pico 2 is a future optional microcontroller runtime profile for small deterministic fixtures and controller loops, not a full embedded runtime replacement. Platform profiles are defined in `docs/platform-targets.md`.
 
 ## Modular Split
 
@@ -19,6 +19,7 @@ The first-class embedded target is Raspberry Pi 5 bare-metal ARM64 using Rust ta
 | `wra-criteria` | Future `no_std` pass/fail criteria engine if criteria outgrow `wra-signal`. | Future |
 | `wra-cli` | Desktop CSV/config/report command-line interface. | Existing |
 | `wra-embedded` | `no_std` RTOS/ARM64 adapter boundary around `wra-signal` sample sources, event sinks, and runtime hooks. | M3-RTOS-003 |
+| `wra-pico-runtime` | Future optional Pico 2 microcontroller adapter for compact configs, fixed buffers, simple filters, threshold/timing checks, and GPIO/PWM actions. | Future; issue #92 |
 
 ## Adapter Order
 
@@ -27,6 +28,7 @@ The first-class embedded target is Raspberry Pi 5 bare-metal ARM64 using Rust ta
 3. M3-RTOS-003: Add embedded adapter abstraction.
 4. M3-RTOS-004: Add Zephyr feasibility prototype.
 5. M9-011: Define Apple Silicon desktop and Raspberry Pi 5 bare-metal platform profiles.
+6. M9-012: Define Raspberry Pi Pico 2 optional micro-runtime profile.
 
 ## M3 Follow-Up Status
 
@@ -46,15 +48,17 @@ The first-class embedded target is Raspberry Pi 5 bare-metal ARM64 using Rust ta
 - No heap requirement for the basic analysis path.
 - No Raspberry Pi 5 hardware boot claim until separate board-support validation exists.
 - No generic RTOS target claim replacing the Raspberry Pi 5 bare-metal first-class target.
+- No Raspberry Pi Pico 2 runtime crate, HAL, ADC driver, PIO driver, probe tooling, compact binary config loader, or hardware validation until a future gate approves it.
+- No claim that Pico 2 can run desktop-style analysis, CSV parsing, SVG/report generation, large waveform storage, or complex multi-channel workflows.
 
 ## Architecture Decision
 
-Start with `wra-signal`, then add `wra-embedded` as a small adapter boundary before any runtime-specific implementation. This keeps reusable math and evaluation logic small, testable on desktop, and independent of RTOS runtime decisions. ARM64/QEMU and Zephyr artifacts remain wrapper/prototype layers.
+Start with `wra-signal`, then add `wra-embedded` as a small adapter boundary before any runtime-specific implementation. This keeps reusable math and evaluation logic small, testable on desktop, and independent of RTOS runtime decisions. ARM64/QEMU and Zephyr artifacts remain wrapper/prototype layers. Pico 2 support should arrive later as a constrained `wra-pico-runtime` consumer of the same portable rule subset, not as a forked rule engine.
 
 ## Gate Decision
 
 - Gate: Architecture Gate.
 - Decision: Pass.
 - Reason: The embedded track has separate signal, adapter, QEMU proof, and Zephyr feasibility boundaries with explicit non-goals.
-- Residual risk: Future RTOS crates may need feature flags, target CI, unsafe FFI review, and hardware-facing API review once real runtimes are introduced.
+- Residual risk: Future RTOS or Pico 2 crates may need feature flags, target CI, unsafe FFI review, board-support review, and hardware-facing API review once real runtimes are introduced.
 - Next owner: Core Software Engineer.

@@ -32,7 +32,7 @@ Future portable rule package crates are planned in `decisions/ADR-004-portable-r
 
 Future controller-in-the-loop simulation and deployment config modules are planned in `docs/controller-in-the-loop-workflow.md` and `docs/v0.7.0-controller-simulation-deployment-config-milestone-proposal.md`. They are not implemented yet.
 
-Platform targets are documented in `docs/platform-targets.md`. The desktop authoring platform is Apple Silicon macOS using `aarch64-apple-darwin`; the first-class embedded runtime target is Raspberry Pi 5 bare-metal ARM64 using `aarch64-unknown-none`.
+Platform targets are documented in `docs/platform-targets.md`. The desktop authoring platform is Apple Silicon macOS using `aarch64-apple-darwin`; the first-class embedded runtime target is Raspberry Pi 5 bare-metal ARM64 using `aarch64-unknown-none`; Raspberry Pi Pico 2 is a future optional microcontroller profile for constrained rule execution.
 
 ## Module Map
 
@@ -90,6 +90,7 @@ Future controller-in-the-loop flow
 Platform split
   -> Apple Silicon macOS desktop uses std, files, reports, plotting, and export workflows
   -> Raspberry Pi 5 bare-metal ARM64 uses no_std, fixed buffers, deterministic runtime, and compact outputs
+  -> Raspberry Pi Pico 2 micro-runtime uses no_std, fixed buffers, compact rule subsets, threshold/timing checks, and GPIO/PWM outputs
 ```
 
 ## Public API Outline
@@ -144,7 +145,7 @@ Platform split
 - Criteria DSL direction is documented in `docs/criteria-dsl.md`; existing `[[criteria]]` entries remain the runtime compatibility baseline.
 - Portable rule package direction is documented in `decisions/ADR-004-portable-rule-package-architecture.md`; future desktop and embedded/controller paths must use one rule schema and one shared rule engine rather than duplicate rule semantics.
 - Controller-in-the-loop direction is documented in `docs/controller-in-the-loop-workflow.md`; production control config and test verification config remain separate but linked through manifests and parity evidence.
-- Platform target direction is documented in `docs/platform-targets.md`; RTOS compatibility is a later layer around the Raspberry Pi 5 bare-metal ARM64 first-class embedded target.
+- Platform target direction is documented in `docs/platform-targets.md`; RTOS compatibility is a later layer around the Raspberry Pi 5 bare-metal ARM64 first-class embedded target, and Pico 2 support is a later optional microcontroller subset rather than a full runtime replacement.
 
 ## Test Plan
 
@@ -182,6 +183,7 @@ The current MVP slice uses approved third-party crates for CSV parsing, serializ
 - Interactive plotting controls.
 - Production RTOS integration or hardware HALs.
 - Zephyr production support.
+- Pico 2 runtime crate, Pico HAL support, ADC/PIO drivers, probe tooling, or microcontroller production readiness.
 
 ## Handoff
 

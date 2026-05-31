@@ -14,7 +14,8 @@ The controlling idea is:
 
 ```text
 Desktop: controller simulation + DAQ acquisition + rule authoring + qualification evidence
-RTOS: production controller runtime + test/verification runtime using the same approved rules
+RTOS/controller runtime: production controller runtime + test/verification runtime using the same approved rules
+Pico 2 micro-runtime: constrained deterministic executor for small fixtures and simple controllers
 ```
 
 ## Standard Workflow
@@ -118,6 +119,13 @@ RTOS Runtime
   -> signal validation mode
   -> config loader
   -> controller I/O adapter
+
+Optional Pico 2 Micro-Runtime
+  -> compact approved rule subset
+  -> fixed-size sample buffers
+  -> threshold and timing checks
+  -> simple filters
+  -> GPIO/PWM output actions
 ```
 
 Recommended future crate/module boundaries:
@@ -133,9 +141,10 @@ Recommended future crate/module boundaries:
 | `wra-deployment` | Deployment package manifest/export model. | Future v0.7.0 work. |
 | `wra-daq` | DAQ input abstraction, initially host/test double friendly. | Future v0.7.0 work. |
 | `wra-embedded` | no_std adapter boundaries for runtime integration. | Exists as foundation. |
+| `wra-pico-runtime` | Optional Pico 2 microcontroller adapter for compact configs, fixed buffers, threshold/timing criteria, simple filters, and GPIO/PWM actions. | Future issue #92 work; not implemented. |
 | `wra-cli` | CLI workflows for analysis, plotting, export, and future simulation commands. | Exists. |
 
-Platform profiles are defined in `docs/platform-targets.md`. Controller-in-the-loop implementation should treat Apple Silicon macOS as the desktop authoring platform and Raspberry Pi 5 bare-metal ARM64 as the first-class embedded runtime target.
+Platform profiles are defined in `docs/platform-targets.md`. Controller-in-the-loop implementation should treat Apple Silicon macOS as the desktop authoring platform, Raspberry Pi 5 bare-metal ARM64 as the first-class richer embedded runtime target, and Raspberry Pi Pico 2 as a later optional microcontroller target for constrained deterministic rule execution.
 
 ## Operating Modes
 
@@ -242,6 +251,30 @@ Rules:
 - RTOS compatibility is a later layer around the Raspberry Pi 5 bare-metal target, not a generic replacement target.
 - Target SDK, HAL, QEMU execution, Zephyr production support, and real hardware validation require separate gates.
 
+### Pico 2 Micro-Runtime Mode
+
+Purpose: run a small deterministic subset of approved rules on Raspberry Pi Pico 2 for production-test fixtures, subcomponent validators, or simple controller loops.
+
+Inputs:
+
+- compact approved rule subset
+- fixed-size sample buffer or streaming ADC sample input
+- GPIO/PWM output mapping where applicable
+
+Outputs:
+
+- pass/fail flag
+- compact event/status record where supported
+- GPIO/PWM control response where configured
+
+Rules:
+
+- Pico 2 is not the full controller-computer target.
+- The Pico 2 path must remain `no_std` and avoid heap requirements where practical.
+- The Pico 2 path must not include CSV parsing, SVG/report generation, desktop simulation, large waveform storage, complex filtering, or large multi-channel analysis.
+- Unsupported rule/package features must return target-profile validation errors before deployment.
+- HALs, ADC drivers, PIO drivers, probe tooling, compact binary config loaders, and hardware validation require separate future gates.
+
 ## Desktop And RTOS Parity Rules
 
 The desktop simulator and RTOS/controller runtime must share:
@@ -254,6 +287,8 @@ The desktop simulator and RTOS/controller runtime must share:
 - same pass/fail logic
 - same channel map semantics
 - same version and checksum validation rules
+
+The Pico 2 micro-runtime must share the same semantics for its supported compact subset. Features outside that subset must be rejected during package validation instead of reimplemented with approximate or divergent behavior.
 
 Required parity test shape:
 
