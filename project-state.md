@@ -80,6 +80,15 @@ Expected deliverable: Monitor public repository CI and plan first follow-up issu
 | Testing Gate | Pass | `docs/validation-log.md` | Project Orchestrator |
 | Dependency Gate | Pass | `docs/dependency-review.md` | Core Software Engineer |
 | Release Gate | Pass | `docs/release-readiness.md`; public repository created and initial CI passed | Community Engineering Lead |
+| V&V Gate | Pass | `docs/verification-validation-report.md` | QA Engineer |
+| QA Gate | Pass | `docs/qa-review.md` | Security Engineer |
+| Security Gate | Pass | `docs/security-review.md` | Performance Engineer |
+| Performance Gate | Pass for MVP | `docs/performance-review.md` | Documentation Engineer |
+| Documentation Gate | Pass | `docs/documentation-review.md` | Code Reviewer |
+| Code Review Gate | Pass | `docs/code-review.md` | Evaluation Engineer |
+| Evaluation Gate | Pass | `docs/evaluation-report.md` | Community Engineering Lead |
+| Community Gate | Pass | `docs/community-report.md` | Project Coordinator |
+| Retrospective Gate | Pass | `docs/retrospective.md` | Community Engineering Lead |
 
 ## Update Rules
 
