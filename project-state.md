@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Plan v0.6.0 portable rule package system while preserving active v0.5.0 DSL work.
+Continue v0.5.0 criteria DSL implementation after planning v0.6.0 portable rule packages.
 
 ## Current Stage
 
-Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 and #56 closed and issues #57 through #61 open. PR #65 merged M7-002: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. Milestone #8, `v0.6.0: Portable Rule Package System`, is open with issues #67 through #74 created for desktop rule authoring/export and embedded/controller deployment through one schema and one shared rule engine. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
+Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 and #56 closed and issues #57 through #61 open. PR #65 merged M7-002: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. PR #75 planned milestone #8, `v0.6.0: Portable Rule Package System`, with issues #67 through #74 for desktop rule authoring/export and embedded/controller deployment through one schema and one shared rule engine. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -86,7 +86,7 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55
 
 Role: Project Orchestrator / Project Coordinator
 
-Expected deliverable: Validate and merge the v0.6.0 portable rule package planning PR without displacing active M7 issues.
+Expected deliverable: Start M7-003 / issue #57 through the implementation pipeline unless v0.6.0 is explicitly reprioritized.
 
 ## Orchestration Status
 
@@ -95,7 +95,7 @@ Expected deliverable: Validate and merge the v0.6.0 portable rule package planni
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
 - Current milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`; future milestone #8, `v0.6.0: Portable Rule Package System`, is planned.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
-- Next gate: Open and merge the v0.6.0 portable rule package planning PR, then return to M7-003 / issue #57 unless reprioritized.
+- Next gate: Implement DSL criteria evaluation through existing measurement evidence for issue #57 unless v0.6.0 is explicitly reprioritized.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, unit shorthand parsing, new measurements, or expanded annotated SVG features without a fresh issue/gate.
 
 ## Granularity Status
@@ -258,6 +258,8 @@ Expected deliverable: Validate and merge the v0.6.0 portable rule package planni
 | v0.6.0 Portable Rule Package Architecture Gate | Pass for proposal | `decisions/ADR-004-portable-rule-package-architecture.md` | Abstraction Review Engineer |
 | v0.6.0 Portable Rule Package Scope Gate | Pass | Proposal excludes GUI, live DAQ, controller SDK/HAL, RTOS production integration, certification claims, and hardware qualification | Project Orchestrator |
 | v0.6.0 Portable Rule Package Issue Planning Gate | Pass | GitHub milestone #8 and issues #67 through #74 created | GitHub Maintainer Specialist |
+| v0.6.0 Portable Rule Package Release Gate | Pass | PR #75 merged after required `rust` CI passed; merge commit `3dadc38f591ffe2faa3c2c62016f07e9c46ecab0` | Project Coordinator |
+| v0.6.0 Portable Rule Package Community Gate | Pass | Milestone #8 open with issues #67 through #74; active M7 issues #57 through #61 remain open | Project Orchestrator |
 
 ## Update Rules
 
