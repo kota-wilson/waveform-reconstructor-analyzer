@@ -8,7 +8,7 @@ Continue v0.5.0 criteria DSL implementation after planning v0.7.0 controller-in-
 
 ## Current Stage
 
-Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 and #56 closed and issues #57 through #61 open. PR #65 merged M7-002: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. PR #75 planned milestone #8, `v0.6.0: Portable Rule Package System`, with issues #67 through #74 for desktop rule authoring/export and embedded/controller deployment through one schema and one shared rule engine. PR #87 planned milestone #9, `v0.7.0: Controller Simulation and Deployment Config System`, with issues #77 through #86 plus issue #89 for desktop digital-twin simulation, separate production control and test verification configs, Apple Silicon desktop authoring, Raspberry Pi 5 bare-metal ARM64 embedded runtime, deployment packages, and RTOS verification mode. GUI, live DAQ vendor SDKs, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
+Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 and #56 closed and issues #57 through #61 open. PR #65 merged M7-002: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. PR #75 planned milestone #8, `v0.6.0: Portable Rule Package System`, with issues #67 through #74 for desktop rule authoring/export and embedded/controller deployment through one schema and one shared rule engine. PR #87 planned milestone #9, `v0.7.0: Controller Simulation and Deployment Config System`, with issues #77 through #86 plus issue #89 for desktop digital-twin simulation, separate production control and test verification configs, Apple Silicon desktop authoring, Raspberry Pi 5 bare-metal ARM64 embedded runtime, deployment packages, and RTOS verification mode. Issue #89 is implemented in PR #90. GUI, live DAQ vendor SDKs, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -100,7 +100,7 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55
 
 Role: Project Orchestrator / Project Coordinator
 
-Expected deliverable: Start M7-003 / issue #57 through the implementation pipeline unless v0.6.0 or v0.7.0 is explicitly reprioritized.
+Expected deliverable: Validate and merge PR #90 for M9-011 / issue #89.
 
 ## Orchestration Status
 
@@ -109,7 +109,7 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
 - Current milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`; future milestones #8, `v0.6.0: Portable Rule Package System`, and #9, `v0.7.0: Controller Simulation and Deployment Config System`, are planned; issue #89 adds platform profiles to milestone #9.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
-- Next gate: Implement DSL criteria evaluation through existing measurement evidence for issue #57 unless v0.6.0 or v0.7.0 is explicitly reprioritized.
+- Next gate: Protected-branch CI and merge for PR #90 / issue #89.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, unit shorthand parsing, new measurements, or expanded annotated SVG features without a fresh issue/gate.
 
 ## Granularity Status
@@ -129,7 +129,7 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, WRA-RQ-036 release evidence for issue #55, WRA-RQ-037 and WRA-RQ-038 release evidence for issue #56, remaining v0.5.0 requirements WRA-RQ-039 through WRA-RQ-042 mapped to issues #57 through #61, planned v0.6.0 requirements WRA-RQ-043 through WRA-RQ-050 mapped to issues #67 through #74, and planned v0.7.0 requirements WRA-RQ-051 through WRA-RQ-061 mapped to issues #77 through #86 and #89.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, WRA-RQ-036 release evidence for issue #55, WRA-RQ-037 and WRA-RQ-038 release evidence for issue #56, remaining v0.5.0 requirements WRA-RQ-039 through WRA-RQ-042 mapped to issues #57 through #61, planned v0.6.0 requirements WRA-RQ-043 through WRA-RQ-050 mapped to issues #67 through #74, WRA-RQ-051 through WRA-RQ-060 mapped to issues #77 through #86, and WRA-RQ-061 PR #90 evidence for issue #89.
 
 ## Gate Decisions
 
@@ -284,6 +284,7 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 | v0.7.0 Platform Profile Requirements Gate | Pass | WRA-RQ-061 in `requirements.md`; issue #89 | Software Architect |
 | v0.7.0 Platform Profile Architecture Gate | Pass | `docs/platform-targets.md`; `aarch64-apple-darwin` and `aarch64-unknown-none` target names verified locally | Embedded RTOS Engineer |
 | v0.7.0 Platform Profile Target Check Gate | Pass locally | `cargo check --workspace --target aarch64-apple-darwin`; `cargo check -p wra-signal --target aarch64-unknown-none`; `cargo check -p wra-embedded --target aarch64-unknown-none` | Verification and Validation Engineer |
+| v0.7.0 Platform Profile Community Gate | Pass for PR creation | PR #90 opened with `Fixes #89`; protected CI and merge pending | GitHub Maintainer Specialist |
 
 ## Update Rules
 

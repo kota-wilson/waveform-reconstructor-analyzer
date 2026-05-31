@@ -8,7 +8,9 @@ Milestone: #9, `v0.7.0: Controller Simulation and Deployment Config System`
 
 Issue: #89, `M9-011 Define Apple Silicon desktop and Raspberry Pi 5 bare-metal platform profiles`
 
-Status: Local implementation complete; PR/CI/merge pending.
+Pull request: #90, `Define platform target profiles`
+
+Status: PR #90 open; protected CI and merge pending.
 
 ## Scope
 
@@ -129,6 +131,6 @@ Role: Software Architect / Embedded RTOS Engineer
 Goal: Complete M9-011 / issue #89 platform profile definition.
 Files changed: `docs/platform-targets.md`, architecture docs, requirements, traceability, risk register, project state, and this report.
 Checks run: `rustc --print target-list`; `rustup target list --installed`; `cargo check --workspace --target aarch64-apple-darwin`; `cargo check -p wra-signal --target aarch64-unknown-none`; `cargo check -p wra-embedded --target aarch64-unknown-none`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Local implementation complete; PR/CI/merge pending.
+Status: PR #90 open; protected CI and merge pending.
 Known gaps: CI target checks, Raspberry Pi 5 hardware boot, HALs, deployment loader, and parity test implementation remain future work.
-Next recommended step: Run full workspace validation, open PR for issue #89, wait for CI, and merge.
+Next recommended step: Wait for required CI and merge issue #89.
