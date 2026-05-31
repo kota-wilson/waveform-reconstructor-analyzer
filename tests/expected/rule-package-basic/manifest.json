@@ -1,0 +1,50 @@
+{
+  "manifest_version": "0.1.0",
+  "generated_by": "ferrisoxide-signal",
+  "schema_version": "0.1.0",
+  "package": {
+    "name": "basic-rule-package",
+    "version": "1.0.0"
+  },
+  "target": {
+    "kind": "controller_runtime",
+    "identifier": "test-controller"
+  },
+  "sources": {
+    "input": "../../examples/basic-waveform.csv",
+    "config": "../../examples/basic-dsl-config.toml"
+  },
+  "validation": {
+    "report_artifact": "validation-report.json",
+    "rule_package_validation": "passed_before_export"
+  },
+  "checksum": {
+    "algorithm": "fnv1a64",
+    "format": "hex",
+    "scope": "artifact_contents",
+    "security_note": "deterministic artifact drift detection only; not cryptographic signing or certification evidence"
+  },
+  "artifacts": [
+    {
+      "path": "rules.toml",
+      "role": "rule_package_toml",
+      "media_type": "application/toml",
+      "checksum": "fnv1a64:ac40974619dc28b1",
+      "byte_length": 1610
+    },
+    {
+      "path": "rules.json",
+      "role": "rule_package_json",
+      "media_type": "application/json",
+      "checksum": "fnv1a64:5909a93b81f9d172",
+      "byte_length": 2171
+    },
+    {
+      "path": "validation-report.json",
+      "role": "validation_report",
+      "media_type": "application/json",
+      "checksum": "fnv1a64:e4db162a9bf1f569",
+      "byte_length": 3115
+    }
+  ]
+}

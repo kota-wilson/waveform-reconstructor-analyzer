@@ -119,6 +119,18 @@ The M8-004 export branch adds no new third-party crates. It adds a local depende
 | Dependency tree | `cargo tree -p ferrisoxide-cli` is recorded in `docs/m8-004-rule-package-export-pipeline-report.md`. | Pass |
 | Future work boundary | Manifest/checksum generation remains #70; shared rule execution remains #73; no_std compatibility remains #72. | Pass |
 
+## M8-005 Rule Package Manifest And Checksum Dependency Review
+
+The M8-005 manifest/checksum branch adds no new third-party crates. It uses a small deterministic `fnv1a64` checksum helper in `ferrisoxide-rule-schema` for artifact drift evidence only.
+
+| Check | Evidence | Result |
+|---|---|---|
+| Dependency files | No new workspace or crate dependency entries are added. | Pass |
+| Algorithm scope | `fnv1a64` is deterministic and dependency-free, but explicitly non-cryptographic. | Pass |
+| Security boundary | Manifest/checksum docs and artifact metadata state that checksum evidence is not signing, tamper resistance, security certification, hardware qualification, or flight certification evidence. | Pass |
+| Mismatch behavior | `validate_artifact_checksum()` returns structured `ChecksumMismatch` errors for changed artifact contents. | Pass |
+| Future work boundary | Binary package serialization, cryptographic signing, runtime loaders, shared rule execution, no_std compatibility, and parity tests remain separate issues/gates. | Pass |
+
 ## Risk Assessment
 
 - Supply-chain risk: Medium; dependencies are common Rust ecosystem crates, but exact transitive dependencies must remain visible in `Cargo.lock`.
@@ -134,7 +146,7 @@ The M8-004 export branch adds no new third-party crates. It adds a local depende
 
 - Gate: Dependency Gate.
 - Decision: Pass.
-- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up, M6 measurement-engine work, M6 completion work, M8-001 rule-schema work, M8-002 package-format work, M8-003 validator work, and M8-004 export work add no new third-party dependencies.
+- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up, M6 measurement-engine work, M6 completion work, M8-001 rule-schema work, M8-002 package-format work, M8-003 validator work, M8-004 export work, and M8-005 manifest/checksum work add no new third-party dependencies.
 - Residual risk: Dependency license and advisory scanning is not automated yet.
 - Next owner: Core Software Engineer.
 

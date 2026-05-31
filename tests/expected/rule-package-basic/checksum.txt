@@ -1,0 +1,10 @@
+# FerrisOxide Rule Package checksums
+algorithm=fnv1a64
+format=hex
+scope=artifact_contents
+security_note=deterministic artifact drift detection only; not cryptographic signing or certification evidence
+
+fnv1a64:ac40974619dc28b1  rules.toml
+fnv1a64:5909a93b81f9d172  rules.json
+fnv1a64:e4db162a9bf1f569  validation-report.json
+fnv1a64:837985f13223e37c  manifest.json

@@ -2,9 +2,9 @@
 
 Date: 2026-05-31
 
-Status: Initial reviewable format for M8-002 / issue #71.
+Status: Reviewable format with M8-005 manifest/checksum evidence implemented locally.
 
-Related requirements: WRA-RQ-043, WRA-RQ-044.
+Related requirements: WRA-RQ-043, WRA-RQ-044, WRA-RQ-046, WRA-RQ-047.
 
 ## Purpose
 
@@ -32,12 +32,12 @@ deployment/
 | `rules.toml` | Initial format | Human reviewers, desktop tooling | Canonical human-authored rule package with package metadata, target profile, sample timing, channels, units, thresholds, filters, criteria, and timing limits. |
 | `rules.json` | Initial format | Automation, tests, future export tooling | Machine-readable representation of the same `ferrisoxide-rule-schema` model as `rules.toml`. |
 | `rules.bin` | Future | Embedded/controller runtime | Compact deterministic representation for constrained runtimes. Not implemented in M8-002. |
-| `manifest.json` | Future | Reviewers, automation, runtime loaders | Records package artifact names, schema version, target profile, generation metadata, and checksum metadata. Final fields are implemented in M8-005. |
-| `checksum.txt` | Future | Automation, runtime loaders | Records deterministic package checksum evidence. Algorithm and mismatch behavior are implemented in M8-005 after security/dependency review. |
+| `manifest.json` | M8-005 export | Reviewers, automation, runtime loaders | Records package artifact names, schema version, package version, target profile, source config, validation evidence link, and checksum metadata. |
+| `checksum.txt` | M8-005 export | Automation, runtime loaders | Records deterministic non-cryptographic package checksum evidence for exported artifacts. |
 | `validation-report.json` | Existing report family, future package role | Engineers, V&V, CI | Captures desktop validation evidence showing whether the rule package passed against known waveform data. |
 | `qualification-evidence.svg` | Existing plotting family, future package role | Human reviewers | Visual evidence output with waveform, thresholds, annotations, and pass/fail context. It is software evidence only. |
 
-M8-002 defines the artifact roles. It does not add an export command, checksum algorithm, binary format, runtime loader, DAQ integration, HAL, RTOS production integration, hardware qualification, or certification claim.
+M8-002 defines the artifact roles. M8-004 adds desktop export for reviewable rule/report artifacts. M8-005 adds deterministic manifest and checksum evidence. The package format still does not add a binary format, runtime loader, DAQ integration, HAL, RTOS production integration, hardware qualification, or certification claim.
 
 ## Canonical Schema Model
 
@@ -190,7 +190,7 @@ manifest.json
 checksum.txt
 ```
 
-Until M8-005 and M8-007 are implemented, this subset is a target architecture contract, not a working runtime package.
+M8-005 implements `manifest.json` and `checksum.txt` for desktop exports. `rules.bin` and the no_std runtime boundary remain future work, so this subset is not yet a working embedded runtime package.
 
 Embedded consumers must not require:
 
@@ -205,7 +205,7 @@ Embedded consumers must not require:
 
 ## CLI Export
 
-M8-004 adds a desktop-only export command:
+M8-004 adds a desktop-only export command, and M8-005 extends it with deterministic manifest/checksum evidence:
 
 ```bash
 cargo run --quiet --bin ferrisoxide-signal -- export-rule-package \
@@ -225,16 +225,38 @@ deployment/
   rules.toml
   rules.json
   validation-report.json
+  manifest.json
+  checksum.txt
 ```
 
-The command validates the analysis config, runs the analysis to produce evidence, builds a `RulePackage`, validates the package, and writes the artifacts only when the target files do not already exist.
+The command validates the analysis config, runs the analysis to produce evidence, builds a `RulePackage`, validates the package, renders deterministic manifest/checksum evidence, and writes the artifacts only when the target files do not already exist.
+
+`manifest.json` records:
+
+- manifest version,
+- generator name,
+- rule schema version,
+- package name and version,
+- target profile and target identifier,
+- source waveform input and source TOML config paths,
+- validation report artifact link,
+- package-validation status,
+- checksum algorithm, format, scope, and non-certification note,
+- artifact path, role, media type, checksum, and byte length for `rules.toml`, `rules.json`, and `validation-report.json`.
+
+`checksum.txt` records deterministic checksum lines for:
+
+- `rules.toml`,
+- `rules.json`,
+- `validation-report.json`,
+- `manifest.json`.
+
+The checksum algorithm is `fnv1a64`. It is used only for deterministic artifact drift detection in tests and review automation. It is not cryptographic signing, tamper resistance, security certification, hardware qualification, or flight certification evidence.
 
 Still out of scope for this command:
 
 - `rules.bin`,
-- `manifest.json`,
-- `checksum.txt`,
-- signing,
+- cryptographic signing,
 - GUI,
 - live DAQ,
 - controller SDK/HAL,
@@ -248,18 +270,17 @@ The format is validated by parse-testing `rules.toml` and `rules.json` into `fer
 
 Later issues add:
 
-- M8-005 manifest/checksum behavior,
 - M8-006 shared rule execution,
 - M8-007 no_std compatibility boundary,
 - M8-008 desktop-vs-embedded parity tests.
 
-The initial M8-003 validator returns structured errors for:
+The M8-003 validator and M8-005 checksum helpers return structured errors for:
 
 - missing channel definitions or references,
 - unsupported unit strings during parsing,
 - unknown filter or criterion tags during parsing,
 - invalid timing and sample-rate assumptions,
-- checksum mismatch when expected and actual checksum strings are provided,
+- checksum mismatch when expected and actual checksum strings or artifact contents disagree,
 - incompatible target profile expectations,
 - invalid filter, threshold, or criterion parameters.
 
@@ -269,6 +290,6 @@ Role: Software Architect / Documentation Engineer
 Goal: Define the initial portable rule package format and artifact roles.
 Files changed: `docs/rule-package-format.md`, `examples/rule-package/rules.toml`, `examples/rule-package/rules.json`.
 Checks run: Parse-tested examples and workspace validation recorded in `docs/validation-log.md`.
-Status: Initial format documented and examples added.
-Known gaps: Export command, manifest/checksum, binary package, shared rule engine, no_std boundary, and parity tests remain future M8 issues.
-Next recommended step: Add the package export command in M8-004.
+Status: Format documented; schema, validator, desktop export, manifest, and checksum evidence implemented locally.
+Known gaps: Binary package, shared rule engine, no_std boundary, and parity tests remain future M8 issues.
+Next recommended step: Add shared rule execution in M8-006 after M8-005 PR review.

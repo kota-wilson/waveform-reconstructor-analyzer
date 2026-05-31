@@ -923,3 +923,57 @@ Checks run: `cargo tree -p ferrisoxide-cli`; `cargo test -p ferrisoxide-cli`; `c
 Status: Pass locally; protected PR, CI, merge, and issue closure pending.
 Known gaps: Manifest/checksum generation, shared rule execution, no_std compatibility, and parity tests remain separate M8 issues.
 Next recommended step: Open a protected-branch PR with `Fixes #69`, wait for required `rust` CI, merge, then proceed to M8-005 / issue #70.
+
+## M8-005 Rule Package Manifest And Checksum Validation Update
+
+Date: 2026-05-31
+
+Stage: Testing deterministic manifest/checksum evidence
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, DAQ SDKs, HALs, RTOS toolchains, or controller SDKs installed.
+- New third-party dependencies: None. The checksum helper is dependency-free and non-cryptographic.
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo tree -p ferrisoxide-rule-schema` | Passed | Dependency tree remains approved `serde`, `serde_json`, and `toml`; no checksum, crypto, signing, binary, SDK, HAL, or runtime dependency appears. |
+| `cargo tree -p ferrisoxide-cli` | Passed | CLI still uses local schema/core/plot crates plus approved existing dependencies only. |
+| `cargo test -p ferrisoxide-rule-schema` | Passed | 15 schema tests passed, including manifest metadata, deterministic checksum, and mismatch validation. |
+| `cargo test -p ferrisoxide-cli` | Passed | 13 CLI tests passed, including exact export artifact comparison for `manifest.json` and `checksum.txt`. |
+| `cargo fmt --check` | Passed | Rust formatting clean. |
+| `cargo test --workspace` | Passed | 123 tests passed across CLI, core, criteria integration, embedded, measurements, plot, rule schema, signal, and doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Exact Tests Added Or Expanded
+
+| Test | Coverage |
+|---|---|
+| `ferrisoxide_rule_schema::tests::produces_deterministic_artifact_checksums` | Verifies the fixed `fnv1a64` checksum output for known contents and string/byte consistency. |
+| `ferrisoxide_rule_schema::tests::validates_artifact_checksum_with_clear_mismatch_error` | Verifies changed artifact contents return structured `ChecksumMismatch` errors. |
+| `ferrisoxide_rule_schema::tests::builds_manifest_with_artifact_metadata` | Verifies manifest version, package metadata, target, sources, validation evidence, checksum metadata, and artifact metadata. |
+| `ferrisoxide-cli::tests::exports_rule_package_artifacts_from_config_and_evidence` | Expanded to compare `manifest.json` and `checksum.txt` exactly in addition to rules and validation report artifacts. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M8-005.
+- Decision: Pass.
+- Reason: Deterministic checksum behavior, manifest metadata, mismatch errors, exact exported artifacts, workspace tests, formatting, clippy, dependency tree inspection, and whitespace checks all passed.
+- Residual risk: `fnv1a64` is intentionally non-cryptographic; binary package serialization, signing, runtime loading, shared rule execution, no_std compatibility, and parity tests remain future issues.
+- Owner for residual risk: Security Engineer / Core Software Engineer.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate M8-005 deterministic rule package manifest and checksum evidence.
+Files changed: `crates/ferrisoxide-rule-schema/src/lib.rs`, `crates/ferrisoxide-rule-schema/README.md`, `crates/ferrisoxide-cli/src/main.rs`, expected export artifacts under `tests/expected/rule-package-basic/`, README, docs, requirements, traceability, risk, dependency, validation, and project-state files.
+Checks run: `cargo tree -p ferrisoxide-rule-schema`; `cargo tree -p ferrisoxide-cli`; `cargo test -p ferrisoxide-rule-schema`; `cargo test -p ferrisoxide-cli`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally; protected PR, CI, merge, and issue closure pending.
+Known gaps: Binary package serialization, shared rule execution, no_std compatibility, desktop-vs-embedded parity tests, runtime loaders, and cryptographic signing remain out of scope.
+Next recommended step: Open a protected-branch PR with `Fixes #70`, wait for required `rust` CI, merge, then proceed to M8-006 / issue #73.

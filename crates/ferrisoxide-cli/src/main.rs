@@ -19,10 +19,11 @@ use ferrisoxide_core::model::{MetadataContext, TolerancePolicy};
 use ferrisoxide_core::report::{AnalysisReport, ReportEvidenceContext};
 use ferrisoxide_plot::{evidence_overlays, render_svg, PlotOptions};
 use ferrisoxide_rule_schema::{
-    ChannelDefinition, ComparisonOperator, CriterionDefinition, EngineeringUnit, FilterDefinition,
-    MeasurementDefinition, PackageMetadata, RequirementDefinition, RulePackage,
-    SampleTimingAssumption, TargetProfile, TargetProfileKind, ThresholdDefinition, ThresholdRole,
-    UnitValue,
+    checksum_str, ChannelDefinition, ChecksumMetadata, ComparisonOperator, CriterionDefinition,
+    EngineeringUnit, FilterDefinition, ManifestArtifact, ManifestSources,
+    ManifestValidationEvidence, MeasurementDefinition, PackageMetadata, RequirementDefinition,
+    RulePackage, RulePackageManifest, SampleTimingAssumption, TargetProfile, TargetProfileKind,
+    ThresholdDefinition, ThresholdRole, UnitValue,
 };
 
 fn main() -> ExitCode {
@@ -200,6 +201,8 @@ fn run_plot(args: &[String]) -> Result<String, String> {
 
 fn run_export_rule_package(args: &[String]) -> Result<String, String> {
     let input_path = value_after(args, "--input").ok_or("missing --input <csv>")?;
+    let config_path =
+        value_after(args, "--config").ok_or("export-rule-package requires --config <toml>")?;
     let output_dir = value_after(args, "--output-dir").ok_or("missing --output-dir <dir>")?;
     let package_name =
         value_after(args, "--package-name").ok_or("missing --package-name <name>")?;
@@ -243,14 +246,115 @@ fn run_export_rule_package(args: &[String]) -> Result<String, String> {
             .map_err(|error| format!("failed to render validation report: {error}"))?,
     );
 
-    write_new_file(&output_dir.join("rules.toml"), &rules_toml)?;
-    write_new_file(&output_dir.join("rules.json"), &rules_json)?;
-    write_new_file(&output_dir.join("validation-report.json"), &report_json)?;
+    let mut artifacts = vec![
+        ExportArtifact::new(
+            "rules.toml",
+            "rule_package_toml",
+            "application/toml",
+            rules_toml,
+        ),
+        ExportArtifact::new(
+            "rules.json",
+            "rule_package_json",
+            "application/json",
+            rules_json,
+        ),
+        ExportArtifact::new(
+            "validation-report.json",
+            "validation_report",
+            "application/json",
+            report_json,
+        ),
+    ];
+    let manifest = RulePackageManifest::new(
+        &package,
+        ManifestSources::new(input_path, config_path),
+        ManifestValidationEvidence::passed("validation-report.json"),
+        artifacts
+            .iter()
+            .map(ExportArtifact::manifest_artifact)
+            .collect(),
+    );
+    let manifest_json = with_trailing_newline(
+        serde_json::to_string_pretty(&manifest)
+            .map_err(|error| format!("failed to render manifest.json: {error}"))?,
+    );
+    let mut checksum_entries = artifacts
+        .iter()
+        .map(|artifact| (artifact.path.clone(), checksum_str(&artifact.contents)))
+        .collect::<Vec<_>>();
+    checksum_entries.push(("manifest.json".to_string(), checksum_str(&manifest_json)));
+    let checksum_text = checksum_file_contents(&manifest.checksum, &checksum_entries);
+    artifacts.push(ExportArtifact::new(
+        "manifest.json",
+        "package_manifest",
+        "application/json",
+        manifest_json,
+    ));
+    artifacts.push(ExportArtifact::new(
+        "checksum.txt",
+        "checksum_index",
+        "text/plain",
+        checksum_text,
+    ));
+
+    for artifact in &artifacts {
+        write_new_file(&output_dir.join(&artifact.path), &artifact.contents)?;
+    }
 
     Ok(format!(
-        "Rule package exported to {}\nArtifacts: rules.toml, rules.json, validation-report.json",
+        "Rule package exported to {}\nArtifacts: rules.toml, rules.json, validation-report.json, manifest.json, checksum.txt",
         output_dir.display()
     ))
+}
+
+struct ExportArtifact {
+    path: String,
+    role: String,
+    media_type: String,
+    contents: String,
+}
+
+impl ExportArtifact {
+    fn new(
+        path: impl Into<String>,
+        role: impl Into<String>,
+        media_type: impl Into<String>,
+        contents: String,
+    ) -> Self {
+        Self {
+            path: path.into(),
+            role: role.into(),
+            media_type: media_type.into(),
+            contents,
+        }
+    }
+
+    fn manifest_artifact(&self) -> ManifestArtifact {
+        ManifestArtifact::from_contents(
+            self.path.clone(),
+            self.role.clone(),
+            self.media_type.clone(),
+            &self.contents,
+        )
+    }
+}
+
+fn checksum_file_contents(metadata: &ChecksumMetadata, entries: &[(String, String)]) -> String {
+    let mut output = String::new();
+    output.push_str("# FerrisOxide Rule Package checksums\n");
+    output.push_str(&format!("algorithm={}\n", metadata.algorithm));
+    output.push_str(&format!("format={}\n", metadata.format));
+    output.push_str(&format!("scope={}\n", metadata.scope));
+    output.push_str(&format!("security_note={}\n", metadata.security_note));
+    output.push('\n');
+    for (path, checksum) in entries {
+        output.push_str(checksum);
+        output.push_str("  ");
+        output.push_str(path);
+        output.push('\n');
+    }
+    output
 }
 
 fn with_trailing_newline(mut contents: String) -> String {
@@ -1310,6 +1414,16 @@ mod tests {
             &output_dir,
             "validation-report.json",
             include_str!("../../../tests/expected/rule-package-basic/validation-report.json"),
+        );
+        assert_export_artifact(
+            &output_dir,
+            "manifest.json",
+            include_str!("../../../tests/expected/rule-package-basic/manifest.json"),
+        );
+        assert_export_artifact(
+            &output_dir,
+            "checksum.txt",
+            include_str!("../../../tests/expected/rule-package-basic/checksum.txt"),
         );
 
         let package = ferrisoxide_rule_schema::parse_rule_package_toml(

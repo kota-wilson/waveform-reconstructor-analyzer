@@ -1,8 +1,8 @@
 //! Versioned portable FerrisOxide Rule Package schema.
 //!
 //! This crate owns data structures only. It does not evaluate rules, parse CSV,
-//! render reports, export deployment packages, compute checksums, or bind any
-//! controller, DAQ, RTOS, SDK, or hardware HAL.
+//! render reports, export deployment packages, or bind any controller, DAQ,
+//! RTOS, SDK, or hardware HAL.
 
 use std::collections::BTreeSet;
 use std::fmt;
@@ -10,6 +10,12 @@ use std::fmt;
 use serde::{Deserialize, Serialize};
 
 pub const CURRENT_SCHEMA_VERSION: &str = "0.1.0";
+pub const CURRENT_MANIFEST_VERSION: &str = "0.1.0";
+pub const CHECKSUM_ALGORITHM: &str = "fnv1a64";
+pub const CHECKSUM_FORMAT: &str = "hex";
+pub const CHECKSUM_SCOPE: &str = "artifact_contents";
+pub const CHECKSUM_SECURITY_NOTE: &str =
+    "deterministic artifact drift detection only; not cryptographic signing or certification evidence";
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct RulePackage {
@@ -142,6 +148,20 @@ pub fn parse_rule_package_toml(input: &str) -> Result<RulePackage, RulePackageVa
     toml::from_str(input).map_err(|error| classify_parse_error("rules.toml", &error))
 }
 
+pub fn checksum_bytes(bytes: &[u8]) -> String {
+    let mut hash = 0xcbf2_9ce4_8422_2325_u64;
+    for byte in bytes {
+        hash ^= u64::from(*byte);
+        hash = hash.wrapping_mul(0x0000_0100_0000_01b3);
+    }
+
+    format!("{CHECKSUM_ALGORITHM}:{hash:016x}")
+}
+
+pub fn checksum_str(input: &str) -> String {
+    checksum_bytes(input.as_bytes())
+}
+
 pub fn validate_checksum_match(
     expected: &str,
     actual: &str,
@@ -155,6 +175,141 @@ pub fn validate_checksum_match(
         RulePackageValidationErrorKind::ChecksumMismatch,
         "expected checksum does not match actual checksum",
     ))
+}
+
+pub fn validate_artifact_checksum(
+    expected: &str,
+    contents: &str,
+) -> Result<(), RulePackageValidationError> {
+    validate_checksum_match(expected, &checksum_str(contents))
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct RulePackageManifest {
+    pub manifest_version: String,
+    pub generated_by: String,
+    pub schema_version: String,
+    pub package: ManifestPackageMetadata,
+    pub target: ManifestTargetProfile,
+    pub sources: ManifestSources,
+    pub validation: ManifestValidationEvidence,
+    pub checksum: ChecksumMetadata,
+    pub artifacts: Vec<ManifestArtifact>,
+}
+
+impl RulePackageManifest {
+    pub fn new(
+        package: &RulePackage,
+        sources: ManifestSources,
+        validation: ManifestValidationEvidence,
+        artifacts: Vec<ManifestArtifact>,
+    ) -> Self {
+        Self {
+            manifest_version: CURRENT_MANIFEST_VERSION.to_string(),
+            generated_by: "ferrisoxide-signal".to_string(),
+            schema_version: package.package.schema_version.clone(),
+            package: ManifestPackageMetadata {
+                name: package.package.name.clone(),
+                version: package.package.version.clone(),
+            },
+            target: ManifestTargetProfile {
+                kind: package.target.kind,
+                identifier: package.target.identifier.clone(),
+            },
+            sources,
+            validation,
+            checksum: ChecksumMetadata::default(),
+            artifacts,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ManifestPackageMetadata {
+    pub name: String,
+    pub version: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ManifestTargetProfile {
+    pub kind: TargetProfileKind,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub identifier: Option<String>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ManifestSources {
+    pub input: String,
+    pub config: String,
+}
+
+impl ManifestSources {
+    pub fn new(input: impl Into<String>, config: impl Into<String>) -> Self {
+        Self {
+            input: input.into(),
+            config: config.into(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ManifestValidationEvidence {
+    pub report_artifact: String,
+    pub rule_package_validation: String,
+}
+
+impl ManifestValidationEvidence {
+    pub fn passed(report_artifact: impl Into<String>) -> Self {
+        Self {
+            report_artifact: report_artifact.into(),
+            rule_package_validation: "passed_before_export".to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ChecksumMetadata {
+    pub algorithm: String,
+    pub format: String,
+    pub scope: String,
+    pub security_note: String,
+}
+
+impl Default for ChecksumMetadata {
+    fn default() -> Self {
+        Self {
+            algorithm: CHECKSUM_ALGORITHM.to_string(),
+            format: CHECKSUM_FORMAT.to_string(),
+            scope: CHECKSUM_SCOPE.to_string(),
+            security_note: CHECKSUM_SECURITY_NOTE.to_string(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct ManifestArtifact {
+    pub path: String,
+    pub role: String,
+    pub media_type: String,
+    pub checksum: String,
+    pub byte_length: usize,
+}
+
+impl ManifestArtifact {
+    pub fn from_contents(
+        path: impl Into<String>,
+        role: impl Into<String>,
+        media_type: impl Into<String>,
+        contents: &str,
+    ) -> Self {
+        Self {
+            path: path.into(),
+            role: role.into(),
+            media_type: media_type.into(),
+            checksum: checksum_str(contents),
+            byte_length: contents.len(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -1234,6 +1389,65 @@ mod tests {
 
         assert_eq!(error.kind, RulePackageValidationErrorKind::ChecksumMismatch);
         assert_eq!(error.field, "checksum");
+    }
+
+    #[test]
+    fn produces_deterministic_artifact_checksums() {
+        assert_eq!(
+            checksum_str("FerrisOxide Signal\n"),
+            "fnv1a64:427dde5372ab059f"
+        );
+        assert_eq!(
+            checksum_str("FerrisOxide Signal\n"),
+            checksum_bytes(b"FerrisOxide Signal\n")
+        );
+    }
+
+    #[test]
+    fn validates_artifact_checksum_with_clear_mismatch_error() {
+        let expected = checksum_str("rules.toml contents\n");
+
+        assert_eq!(
+            validate_artifact_checksum(&expected, "rules.toml contents\n"),
+            Ok(())
+        );
+
+        let error = validate_artifact_checksum(&expected, "changed rules.toml contents\n")
+            .expect_err("artifact checksum mismatch should be structured");
+
+        assert_eq!(error.kind, RulePackageValidationErrorKind::ChecksumMismatch);
+        assert_eq!(error.field, "checksum");
+        assert!(error.message.contains("expected checksum"));
+    }
+
+    #[test]
+    fn builds_manifest_with_artifact_metadata() {
+        let package = example_package();
+        let manifest = RulePackageManifest::new(
+            &package,
+            ManifestSources::new("waveform.csv", "rules-config.toml"),
+            ManifestValidationEvidence::passed("validation-report.json"),
+            vec![ManifestArtifact::from_contents(
+                "rules.toml",
+                "rule_package_toml",
+                "application/toml",
+                "rules",
+            )],
+        );
+
+        assert_eq!(manifest.manifest_version, CURRENT_MANIFEST_VERSION);
+        assert_eq!(manifest.schema_version, CURRENT_SCHEMA_VERSION);
+        assert_eq!(manifest.package.name, package.package.name);
+        assert_eq!(manifest.target.kind, TargetProfileKind::ControllerRuntime);
+        assert_eq!(manifest.sources.config, "rules-config.toml");
+        assert_eq!(
+            manifest.validation.rule_package_validation,
+            "passed_before_export"
+        );
+        assert_eq!(manifest.checksum.algorithm, CHECKSUM_ALGORITHM);
+        assert_eq!(manifest.artifacts[0].path, "rules.toml");
+        assert_eq!(manifest.artifacts[0].byte_length, 5);
+        assert_eq!(manifest.artifacts[0].checksum, checksum_str("rules"));
     }
 
     #[test]
