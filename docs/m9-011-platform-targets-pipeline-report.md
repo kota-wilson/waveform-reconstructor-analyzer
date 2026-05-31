@@ -10,7 +10,7 @@ Issue: #89, `M9-011 Define Apple Silicon desktop and Raspberry Pi 5 bare-metal p
 
 Pull request: #90, `Define platform target profiles`
 
-Status: PR #90 open; protected CI and merge pending.
+Status: Implemented and merged.
 
 ## Scope
 
@@ -121,9 +121,20 @@ Out of scope:
 - Owner role: Release Engineer
 - Artifact: Local validation evidence.
 - Gate: Release Gate.
-- Decision: Pending PR/CI/merge.
-- Residual risk: Branch work is not released until protected `rust` CI passes and the PR is merged.
+- Evidence: PR #90 required `rust` CI passed and merged on 2026-05-31 with merge commit `d55969ba4c7ca7115dd87f5b379afefbded1fc8a`.
+- Decision: Pass.
+- Residual risk: CI target checks for `aarch64-apple-darwin` and `aarch64-unknown-none` remain future workflow work.
 - Next owner: GitHub Maintainer Specialist.
+
+## Community
+
+- Owner role: GitHub Maintainer Specialist
+- Artifact: PR #90 and issue #89.
+- Evidence: PR #90 included `Fixes #89`; issue #89 closed after merge.
+- Gate: Community Gate.
+- Decision: Pass.
+- Residual risk: Milestone #9 remains open for issues #77 through #86.
+- Next owner: Project Coordinator.
 
 ## Hand-Off Note
 
@@ -131,6 +142,6 @@ Role: Software Architect / Embedded RTOS Engineer
 Goal: Complete M9-011 / issue #89 platform profile definition.
 Files changed: `docs/platform-targets.md`, architecture docs, requirements, traceability, risk register, project state, and this report.
 Checks run: `rustc --print target-list`; `rustup target list --installed`; `cargo check --workspace --target aarch64-apple-darwin`; `cargo check -p wra-signal --target aarch64-unknown-none`; `cargo check -p wra-embedded --target aarch64-unknown-none`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: PR #90 open; protected CI and merge pending.
+Status: Implemented and merged in PR #90.
 Known gaps: CI target checks, Raspberry Pi 5 hardware boot, HALs, deployment loader, and parity test implementation remain future work.
-Next recommended step: Wait for required CI and merge issue #89.
+Next recommended step: Return to M7-003 / issue #57 unless v0.6.0 or v0.7.0 is explicitly reprioritized.
