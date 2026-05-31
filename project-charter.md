@@ -1,6 +1,6 @@
 # Project Charter
 
-Project Name: Waveform Reconstructor and Analyzer
+Project Name: FerrisOxide Signal
 
 Project Type: Rust-centered open-source product repository
 
@@ -100,7 +100,7 @@ Out of scope:
 ## Development Environment
 
 - Isolation level: Level 1 project-local workspace.
-- Environment path: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`.
+- Environment path: `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`.
 - Dependency manager: Cargo.
 - Lockfile strategy: Commit `Cargo.lock` for CLI/application reproducibility.
 

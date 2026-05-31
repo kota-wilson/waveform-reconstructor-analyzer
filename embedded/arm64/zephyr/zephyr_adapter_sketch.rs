@@ -1,14 +1,14 @@
 #![no_std]
 
-//! Zephyr feasibility sketch for a future `wra-embedded` adapter.
+//! Zephyr feasibility sketch for a future `ferrisoxide-embedded` adapter.
 //!
 //! This file is not built by the workspace. It records the intended boundary
 //! without adding Zephyr SDK, CMake, west, bindings, or unsafe FFI.
 
 use core::convert::Infallible;
 
-use wra_embedded::{EventSink, RuntimeHooks, SampleSource};
-use wra_signal::{Sample, ThresholdEvaluation, TransientEventEvaluation};
+use ferrisoxide_embedded::{EventSink, RuntimeHooks, SampleSource};
+use ferrisoxide_signal::{Sample, ThresholdEvaluation, TransientEventEvaluation};
 
 pub struct ZephyrSampleSource;
 
@@ -17,7 +17,7 @@ impl SampleSource for ZephyrSampleSource {
 
     fn poll_sample(&mut self) -> Result<Option<Sample>, Self::Error> {
         // Future adapter work should read one timestamped value from a Zephyr
-        // driver or queue and convert it into `wra_signal::Sample`.
+        // driver or queue and convert it into `ferrisoxide_signal::Sample`.
         Ok(None)
     }
 }

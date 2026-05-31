@@ -39,7 +39,7 @@ Out of scope:
 ## Research
 
 - Owner role: Software Architect / Core Software Engineer
-- Artifact: Issue #55, `docs/v0.5.0-criteria-dsl-milestone-proposal.md`, `docs/v0.5.0-issue-planning-report.md`, and `crates/wra-core/src/config.rs`.
+- Artifact: Issue #55, `docs/v0.5.0-criteria-dsl-milestone-proposal.md`, `docs/v0.5.0-issue-planning-report.md`, and `crates/ferrisoxide-core/src/config.rs`.
 - Evidence: Existing config conversion already maps legacy TOML entries into `Criterion`; M7 needs a config-boundary adapter before evaluation behavior changes.
 - Gate: Intake Gate.
 - Decision: Pass.
@@ -59,7 +59,7 @@ Out of scope:
 ## Architecture
 
 - Owner role: Software Architect
-- Artifact: `crates/wra-core/src/config.rs`.
+- Artifact: `crates/ferrisoxide-core/src/config.rs`.
 - Design: Keep the evaluator unchanged; add config-layer DSL structs and shape validation around the existing legacy `CriterionConfig` conversion path.
 - Gate: Architecture Gate.
 - Decision: Pass.
@@ -69,7 +69,7 @@ Out of scope:
 ## Abstraction Review
 
 - Owner role: Abstraction Review Engineer
-- Artifact: This report and `crates/wra-core/src/config.rs`.
+- Artifact: This report and `crates/ferrisoxide-core/src/config.rs`.
 - Review: The slice is narrow enough for #55: schema, side-by-side deserialization, ambiguous-shape rejection, and legacy conversion preservation.
 - Gate: Granularity Gate.
 - Decision: Pass.
@@ -79,7 +79,7 @@ Out of scope:
 ## Implementation
 
 - Owner role: Core Software Engineer
-- Artifact: `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, and `tests/configs/invalid-mixed-legacy-dsl-criterion.toml`.
+- Artifact: `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-cli/src/main.rs`, and `tests/configs/invalid-mixed-legacy-dsl-criterion.toml`.
 - Behavior:
   - `CriterionConfig.kind` is optional so DSL-only criteria can deserialize.
   - `CriterionMeasurementConfig`, `CriterionRequirementConfig`, and `UnitValueConfig` represent the first DSL config shape.
@@ -211,7 +211,7 @@ Out of scope:
 
 Role: Core Software Engineer
 Goal: Complete M7-001 / issue #55.
-Files changed: `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, `tests/configs/invalid-mixed-legacy-dsl-criterion.toml`, requirements, traceability, project state, and this report.
+Files changed: `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-cli/src/main.rs`, `tests/configs/invalid-mixed-legacy-dsl-criterion.toml`, requirements, traceability, project state, and this report.
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
 Status: Complete; PR #63 merged and issue #55 closed.
 Known gaps: Runtime DSL evaluation, operator semantics, explicit unit validation, DSL parity golden tests, and full user docs remain in issues #56 through #61.

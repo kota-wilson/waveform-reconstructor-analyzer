@@ -132,17 +132,17 @@ Recommended future crate/module boundaries:
 
 | Crate | Responsibility | Status |
 |---|---|---|
-| `wra-core` | Desktop-capable waveform, criteria, analysis, and report models. | Exists. |
-| `wra-signal` | no_std signal primitives. | Exists. |
-| `wra-rule-schema` | Portable test verification rule package schema. | Planned in v0.6.0. |
-| `wra-rule-engine` | Shared test verification rule execution semantics. | Planned in v0.6.0. |
-| `wra-control-schema` | Production control config schema and state-machine model. | Future v0.7.0 work. |
-| `wra-simulator` | Desktop virtual controller simulation engine. | Future v0.7.0 work. |
-| `wra-deployment` | Deployment package manifest/export model. | Future v0.7.0 work. |
-| `wra-daq` | DAQ input abstraction, initially host/test double friendly. | Future v0.7.0 work. |
-| `wra-embedded` | no_std adapter boundaries for runtime integration. | Exists as foundation. |
-| `wra-pico-runtime` | Optional Pico 2 microcontroller adapter for compact configs, fixed buffers, threshold/timing criteria, simple filters, and GPIO/PWM actions. | Future issue #92 work; not implemented. |
-| `wra-cli` | CLI workflows for analysis, plotting, export, and future simulation commands. | Exists. |
+| `ferrisoxide-core` | Desktop-capable waveform, criteria, analysis, and report models. | Exists. |
+| `ferrisoxide-signal` | no_std signal primitives. | Exists. |
+| `ferrisoxide-rule-schema` | Portable test verification rule package schema. | Planned in v0.6.0. |
+| `ferrisoxide-rule-engine` | Shared test verification rule execution semantics. | Planned in v0.6.0. |
+| `ferrisoxide-control-schema` | Production control config schema and state-machine model. | Future v0.7.0 work. |
+| `ferrisoxide-simulator` | Desktop virtual controller simulation engine. | Future v0.7.0 work. |
+| `ferrisoxide-deployment` | Deployment package manifest/export model. | Future v0.7.0 work. |
+| `ferrisoxide-daq` | DAQ input abstraction, initially host/test double friendly. | Future v0.7.0 work. |
+| `ferrisoxide-embedded` | no_std adapter boundaries for runtime integration. | Exists as foundation. |
+| `ferrisoxide-pico-runtime` | Optional Pico 2 microcontroller adapter for compact configs, fixed buffers, threshold/timing criteria, simple filters, and GPIO/PWM actions. | Future issue #92 work; not implemented. |
+| `ferrisoxide-cli` | CLI workflows for analysis, plotting, export, and future simulation commands. | Exists. |
 
 Platform profiles are defined in `docs/platform-targets.md`. Controller-in-the-loop implementation should treat Apple Silicon macOS as the desktop authoring platform, Raspberry Pi 5 bare-metal ARM64 as the first-class richer embedded runtime target, and Raspberry Pi Pico 2 as a later optional microcontroller target for constrained deterministic rule execution.
 

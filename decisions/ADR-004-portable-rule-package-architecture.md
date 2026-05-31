@@ -26,14 +26,14 @@ WRA will treat RTOS/controller support as a deployment target for the same verif
 The architecture direction is:
 
 ```text
-Desktop WRA
+Desktop FerrisOxide Signal
   -> define criteria
   -> simulate filters
   -> validate against CSV/test data
   -> generate qualification evidence
-  -> export WRA Rule Package
+  -> export FerrisOxide Rule Package
 
-WRA Rule Package
+FerrisOxide Rule Package
   -> one portable schema
   -> versioned manifest
   -> explicit units and sample-rate assumptions
@@ -57,13 +57,13 @@ multiple frontends and runtimes
 
 | Crate | Responsibility | Constraints |
 |---|---|---|
-| `wra-rule-schema` | Versioned portable package model for filters, criteria, thresholds, timing limits, sample-rate assumptions, units, channel mapping, manifest fields, and checksum metadata. | Schema ownership only; no CSV parsing, plotting, controller I/O, or hardware claims. |
-| `wra-rule-engine` | Executes validated rule packages using shared measurement, criteria, and filter semantics. | Must be usable by desktop/CLI and by embedded-compatible paths without duplicating behavior. |
-| `wra-cli` | Desktop command entry point for analysis and future package export. | May read files and write reports; must not own rule semantics. |
-| `wra-embedded` | no_std adapter layer for streaming samples and runtime hooks. | No file I/O, CSV, plotting, report rendering, or heap requirement for basic evaluation where possible. |
-| `wra-controller-runtime` | Future deployment runtime adapter for controller/RTOS integration. | Target-specific work requires fresh environment, dependency, safety, and scope gates. |
+| `ferrisoxide-rule-schema` | Versioned portable package model for filters, criteria, thresholds, timing limits, sample-rate assumptions, units, channel mapping, manifest fields, and checksum metadata. | Schema ownership only; no CSV parsing, plotting, controller I/O, or hardware claims. |
+| `ferrisoxide-rule-engine` | Executes validated rule packages using shared measurement, criteria, and filter semantics. | Must be usable by desktop/CLI and by embedded-compatible paths without duplicating behavior. |
+| `ferrisoxide-cli` | Desktop command entry point for analysis and future package export. | May read files and write reports; must not own rule semantics. |
+| `ferrisoxide-embedded` | no_std adapter layer for streaming samples and runtime hooks. | No file I/O, CSV, plotting, report rendering, or heap requirement for basic evaluation where possible. |
+| `ferrisoxide-controller-runtime` | Future deployment runtime adapter for controller/RTOS integration. | Target-specific work requires fresh environment, dependency, safety, and scope gates. |
 
-`wra-desktop` is reserved as a possible future desktop application boundary. It is not introduced until a GUI or richer desktop host is separately approved.
+`ferrisoxide-desktop` is reserved as a possible future desktop application boundary. It is not introduced until a GUI or richer desktop host is separately approved.
 
 ## Rule Package Shape
 
@@ -154,5 +154,5 @@ Goal: Record the portable rule package architecture direction before implementat
 Files changed: `decisions/ADR-004-portable-rule-package-architecture.md`.
 Checks run: Architecture review by inspection.
 Status: Accepted for future milestone planning.
-Known gaps: No `wra-rule-schema`, `wra-rule-engine`, export command, binary package, checksum, or controller runtime exists yet.
+Known gaps: No `ferrisoxide-rule-schema`, `ferrisoxide-rule-engine`, export command, binary package, checksum, or controller runtime exists yet.
 Next recommended step: Plan v0.6.0 / M8 issues after the active v0.5.0 DSL milestone is completed or explicitly reprioritized.

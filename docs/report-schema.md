@@ -64,7 +64,7 @@ The `measurements` array separates measured signal evidence from pass/fail crite
 
 | Field | Type | Meaning |
 |---|---|---|
-| `source` | string | Current source is `wra-measurements`. |
+| `source` | string | Current source is `ferrisoxide-measurements`. |
 | `threshold_v` | number or null | Threshold used for state-based measurements. |
 | `low_threshold_v` | number or null | Lower edge threshold for rise/fall measurements. |
 | `high_threshold_v` | number or null | Upper edge threshold for rise/fall measurements. |

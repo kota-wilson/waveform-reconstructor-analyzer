@@ -12,7 +12,7 @@ This decision was requested as the next filter-pipeline ADR. `ADR-002` already r
 
 ## Context
 
-Waveform Reconstructor and Analyzer needs to apply one or more filters to parsed waveform data before criteria evaluation. The MVP already has concrete moving-average and first-order low-pass filters, plus TOML configuration for filter definitions.
+FerrisOxide Signal needs to apply one or more filters to parsed waveform data before criteria evaluation. The MVP already has concrete moving-average and first-order low-pass filters, plus TOML configuration for filter definitions.
 
 The next milestone needs a stable filter-chain abstraction without drifting into GUI, DAQ integration, plugin runtimes, or complex aerospace validation logic.
 
@@ -60,8 +60,8 @@ Trait-based extension remains allowed behind the implementation boundary, but th
 
 ## Implementation Notes
 
-- Put the enum and chain execution in `crates/wra-core/src/filter.rs` or a small adjacent module if the file grows too large.
-- Keep TOML deserialization in `crates/wra-core/src/config.rs`.
+- Put the enum and chain execution in `crates/ferrisoxide-core/src/filter.rs` or a small adjacent module if the file grows too large.
+- Keep TOML deserialization in `crates/ferrisoxide-core/src/config.rs`.
 - Convert config filter definitions into pipeline steps before analysis.
 - Add tests for ordering, invalid parameters, and raw waveform preservation.
 - Treat ADC quantization as an ordered derived transform, not DAQ integration or hardware validation.

@@ -8,10 +8,10 @@ Owner Role: Verification and Validation Engineer
 
 | Requirement Area | Evidence | Result |
 |---|---|---|
-| CSV import and channel mapping | `crates/wra-core/src/csv.rs`, `cargo test --workspace` | Pass |
-| Waveform model | `crates/wra-core/src/model.rs`, unit tests | Pass |
-| Filters | `crates/wra-core/src/filter.rs`, unit tests | Pass |
-| Criteria and reports | `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs`, unit tests | Pass |
+| CSV import and channel mapping | `crates/ferrisoxide-core/src/csv.rs`, `cargo test --workspace` | Pass |
+| Waveform model | `crates/ferrisoxide-core/src/model.rs`, unit tests | Pass |
+| Filters | `crates/ferrisoxide-core/src/filter.rs`, unit tests | Pass |
+| Criteria and reports | `crates/ferrisoxide-core/src/analysis.rs`, `crates/ferrisoxide-core/src/report.rs`, unit tests | Pass |
 | CLI analysis | CLI unit tests and smoke commands | Pass |
 | Traceability | `traceability-matrix.md` | Pass |
 
@@ -29,7 +29,7 @@ The MVP validates against the user request for a Rust-centered open-source wavef
 | Filter behavior docs | `docs/filter-behavior.md` linked from README and architecture | Pass |
 | Report evidence context | `docs/report-schema.md`, golden JSON tests, validation reports | Pass |
 | Metadata expansion | `MetadataContext`, validation TOML configs, validation reports | Pass |
-| Benchmark baseline | `wra-bench`, `scripts/benchmark-large-csv.sh`, `docs/benchmarking.md` | Pass |
+| Benchmark baseline | `ferrisoxide-signal-bench`, `scripts/benchmark-large-csv.sh`, `docs/benchmarking.md` | Pass |
 | Environmental examples | Dropout and contact-bounce fixture/config/report sets | Pass |
 
 ## M5 SVG Plotting Update
@@ -37,9 +37,9 @@ The MVP validates against the user request for a Rust-centered open-source wavef
 | M5 Area | Evidence | Result |
 |---|---|---|
 | Requirement traceability | WRA-RQ-027 in `requirements.md` and `traceability-matrix.md` | Pass |
-| Dependency boundary | `wra-plot` owns Plotters; `wra-core` and `wra-signal` do not depend on plotting | Pass |
-| 2D plot rendering | `wra_plot::tests::renders_2d_svg_for_selected_channel`; CLI 2D smoke SVG | Pass |
-| Optional third axis | `wra_plot::tests::renders_3d_svg_with_third_axis_channel`; CLI 3D smoke SVG | Pass |
+| Dependency boundary | `ferrisoxide-plot` owns Plotters; `ferrisoxide-core` and `ferrisoxide-signal` do not depend on plotting | Pass |
+| 2D plot rendering | `ferrisoxide_plot::tests::renders_2d_svg_for_selected_channel`; CLI 2D smoke SVG | Pass |
+| Optional third axis | `ferrisoxide_plot::tests::renders_3d_svg_with_third_axis_channel`; CLI 3D smoke SVG | Pass |
 | Error behavior | Missing channel, reused z-channel, missing z-column, and invalid output parent tests | Pass |
 | Scope control | README, `docs/plotting.md`, risk register, and dependency review state SVG-only desktop scope | Pass |
 
@@ -48,9 +48,9 @@ The MVP validates against the user request for a Rust-centered open-source wavef
 | M3 Area | Evidence | Result |
 |---|---|---|
 | ARM64 QEMU proof path | `embedded/arm64/qemu/`, `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml` | Pass |
-| RTOS adapter abstraction | `crates/wra-embedded`, adapter unit tests, `cargo tree -p wra-embedded` | Pass |
+| RTOS adapter abstraction | `crates/ferrisoxide-embedded`, adapter unit tests, `cargo tree -p ferrisoxide-embedded` | Pass |
 | Zephyr feasibility prototype | `embedded/arm64/zephyr/README.md`, `zephyr_adapter_sketch.rs` | Pass |
-| Embedded boundary | `wra-signal` remains runtime-independent; `wra-embedded` owns source/sink/runtime traits | Pass |
+| Embedded boundary | `ferrisoxide-signal` remains runtime-independent; `ferrisoxide-embedded` owns source/sink/runtime traits | Pass |
 | Scope control | No SDK, target install, HAL, unsafe FFI, file I/O, CSV parsing, plotting, DAQ, or certification claim | Pass |
 
 ## M6 Measurement Engine Update
@@ -58,8 +58,8 @@ The MVP validates against the user request for a Rust-centered open-source wavef
 | M6 Area | Evidence | Result |
 |---|---|---|
 | Requirement traceability | WRA-RQ-031 in `requirements.md` and `traceability-matrix.md`; issue #43 | Pass |
-| Measurement boundary | `crates/wra-measurements` is no_std, allocation-free, and has no third-party dependency | Pass |
-| Criteria integration | `crates/wra-core/src/analysis.rs` consumes measurement primitives while preserving criteria APIs | Pass |
+| Measurement boundary | `crates/ferrisoxide-measurements` is no_std, allocation-free, and has no third-party dependency | Pass |
+| Criteria integration | `crates/ferrisoxide-core/src/analysis.rs` consumes measurement primitives while preserving criteria APIs | Pass |
 | Compatibility | Existing exact golden JSON criteria reports pass unchanged | Pass |
 | Scope control | `docs/measurements.md` states no report schema, annotated SVG, DSL, GUI, DAQ, RTOS expansion, or certification claim in M6-001 | Pass |
 
@@ -68,7 +68,7 @@ The MVP validates against the user request for a Rust-centered open-source wavef
 | M6-003 Area | Evidence | Result |
 |---|---|---|
 | Requirement traceability | WRA-RQ-032 in `requirements.md` and `traceability-matrix.md`; issue #45 | Pass |
-| Measurement records | `MeasurementRecord`, `MeasurementMethodContext`, and `CriteriaEvaluation` in `crates/wra-core/src/analysis.rs` | Pass |
+| Measurement records | `MeasurementRecord`, `MeasurementMethodContext`, and `CriteriaEvaluation` in `crates/ferrisoxide-core/src/analysis.rs` | Pass |
 | Result references | `AnalysisResult.measurement_id`, report renderer tests, CLI output tests, exact golden JSON reports | Pass |
 | Schema documentation | `docs/report-schema.md`, `docs/measurements.md`, README, and `docs/usage-mvp.md` | Pass |
 | Confidence notes | Existing `evidence_context.confidence_notes` remain in text and JSON output | Pass |
@@ -78,7 +78,7 @@ The MVP validates against the user request for a Rust-centered open-source wavef
 
 | M6 Completion Area | Evidence | Result |
 |---|---|---|
-| Annotated SVG evidence overlays | `wra_plot::tests::renders_evidence_overlays_on_2d_svg`, CLI annotated SVG smoke output | Pass |
+| Annotated SVG evidence overlays | `ferrisoxide_plot::tests::renders_evidence_overlays_on_2d_svg`, CLI annotated SVG smoke output | Pass |
 | Criteria DSL direction | `docs/criteria-dsl.md` defines concepts, operators, explicit units, compatibility, and non-goals | Pass |
 | Measurement validation fixtures | `validation/measurement_engine/expected-measurements.md` and exact JSON test | Pass |
 | Requirement traceability | WRA-RQ-033 through WRA-RQ-035 in `requirements.md` and `traceability-matrix.md` | Pass |

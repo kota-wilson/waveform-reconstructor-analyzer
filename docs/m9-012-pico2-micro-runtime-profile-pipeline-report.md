@@ -56,7 +56,7 @@ Pico 2 is out of scope for:
 Future crate:
 
 ```text
-crates/wra-pico-runtime/
+crates/ferrisoxide-pico-runtime/
 ```
 
 Expected scope:
@@ -104,5 +104,5 @@ Goal: Document Raspberry Pi Pico 2 as an optional future microcontroller runtime
 Files changed: `docs/platform-targets.md`, `docs/embedded-roadmap.md`, `docs/controller-in-the-loop-workflow.md`, `docs/architecture.md`, `docs/v0.7.0-controller-simulation-deployment-config-milestone-proposal.md`, `requirements.md`, `traceability-matrix.md`, `risk-register.md`, `project-state.md`, and this report.
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
 Status: Documentation implementation validated locally and merged through PR #93.
-Known gaps: `wra-pico-runtime`, target triple selection, BSP/HAL selection, compact binary config loader, GPIO/PWM/ADC integration, Pico 2 hardware tests, and parity tests remain future work.
+Known gaps: `ferrisoxide-pico-runtime`, target triple selection, BSP/HAL selection, compact binary config loader, GPIO/PWM/ADC integration, Pico 2 hardware tests, and parity tests remain future work.
 Next recommended step: Continue M7-003 / issue #57 unless v0.6.0 or v0.7.0 is explicitly reprioritized.

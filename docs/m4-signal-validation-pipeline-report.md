@@ -2,7 +2,7 @@
 
 Date: 2026-05-31
 
-Project: Waveform Reconstructor and Analyzer
+Project: FerrisOxide Signal
 
 Milestone: `M4: Signal Accuracy and Validation`
 
@@ -79,12 +79,12 @@ Out of scope: GUI, DAQ integration, RTOS adapter expansion, Zephyr integration, 
 
 - Artifact: Core code, validation fixtures, benchmark helper, and documentation.
 - Evidence:
-  - `crates/wra-core/src/model.rs`: `TolerancePolicy`, `MetadataContext`, expanded waveform metadata.
-  - `crates/wra-core/src/config.rs`: TOML `[metadata]` and `[tolerances]` support.
-  - `crates/wra-core/src/analysis.rs`: tolerance-aware criteria evaluation and time-axis validation.
-  - `crates/wra-core/src/report.rs`: `ReportEvidenceContext` and `tolerance_used` evidence.
-  - `crates/wra-cli/src/main.rs`: config validation and tolerance-aware evaluation path.
-  - `crates/wra-cli/src/bin/wra-bench.rs`: no-dependency benchmark helper.
+  - `crates/ferrisoxide-core/src/model.rs`: `TolerancePolicy`, `MetadataContext`, expanded waveform metadata.
+  - `crates/ferrisoxide-core/src/config.rs`: TOML `[metadata]` and `[tolerances]` support.
+  - `crates/ferrisoxide-core/src/analysis.rs`: tolerance-aware criteria evaluation and time-axis validation.
+  - `crates/ferrisoxide-core/src/report.rs`: `ReportEvidenceContext` and `tolerance_used` evidence.
+  - `crates/ferrisoxide-cli/src/main.rs`: config validation and tolerance-aware evaluation path.
+  - `crates/ferrisoxide-cli/src/bin/ferrisoxide-signal-bench.rs`: no-dependency benchmark helper.
   - `validation/known_answer/`, `validation/environmental_cases/`, `validation/reports/`.
 - Gate: Implementation Gate.
 - Decision: Pass.
@@ -139,7 +139,7 @@ Out of scope: GUI, DAQ integration, RTOS adapter expansion, Zephyr integration, 
 
 ## Performance Stage
 
-- Artifact: `docs/benchmarking.md`, `scripts/benchmark-large-csv.sh`, `wra-bench`.
+- Artifact: `docs/benchmarking.md`, `scripts/benchmark-large-csv.sh`, `ferrisoxide-signal-bench`.
 - Evidence: `sh scripts/benchmark-large-csv.sh 100000 3` produced read, parse, transform, criteria, report, and total timing averages.
 - Gate: Performance Gate.
 - Decision: Pass for baseline measurement.

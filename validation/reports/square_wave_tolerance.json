@@ -5,7 +5,7 @@
     "test_run_id": "KA-SQUARE-TOL-001",
     "acquisition_notes": "Synthetic known-answer square wave for voltage and time tolerance boundary checks.",
     "environment": "software validation fixture",
-    "operator": "wra validation suite",
+    "operator": "FerrisOxide Signal validation suite",
     "time_unit": "s",
     "sample_count": 10,
     "channel_count": 1,
@@ -53,7 +53,7 @@
       "sample_index": 2,
       "timestamp": 0.002,
       "method_context": {
-        "source": "wra-measurements",
+        "source": "ferrisoxide-measurements",
         "threshold_v": 2.5,
         "low_threshold_v": null,
         "high_threshold_v": null,
@@ -73,7 +73,7 @@
       "sample_index": 2,
       "timestamp": 0.002,
       "method_context": {
-        "source": "wra-measurements",
+        "source": "ferrisoxide-measurements",
         "threshold_v": 2.5,
         "low_threshold_v": null,
         "high_threshold_v": null,
@@ -93,7 +93,7 @@
       "sample_index": 2,
       "timestamp": 0.002,
       "method_context": {
-        "source": "wra-measurements",
+        "source": "ferrisoxide-measurements",
         "threshold_v": null,
         "low_threshold_v": null,
         "high_threshold_v": null,

@@ -8,13 +8,13 @@ Benchmarks are repeatable engineering measurements for large CSV behavior. They 
 
 ## Repeatable Command
 
-The benchmark script generates a square-wave CSV and matching config under `target/wra-benchmark/`, then runs `wra-bench`:
+The benchmark script generates a square-wave CSV and matching config under `target/ferrisoxide-signal-benchmark/`, then runs `ferrisoxide-signal-bench`:
 
 ```bash
 sh scripts/benchmark-large-csv.sh 100000 3
 ```
 
-`wra-bench` reports average timings for:
+`ferrisoxide-signal-bench` reports average timings for:
 
 - CSV file read.
 - CSV parse and waveform reconstruction.
@@ -28,7 +28,7 @@ sh scripts/benchmark-large-csv.sh 100000 3
 Environment:
 
 - Date: 2026-05-31.
-- Working directory: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`.
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`.
 - Tooling: project-local Cargo workspace; no new benchmark dependencies.
 - Fixture strategy: generated `100000` sample, one-channel square wave with 1 kHz timestamps and a moving-average transform.
 
@@ -41,9 +41,9 @@ sh scripts/benchmark-large-csv.sh 100000 3
 Observed output:
 
 ```text
-wra_benchmark
-input=target/wra-benchmark/large_square_wave_100000.csv
-config=target/wra-benchmark/large_square_wave_100000.toml
+ferrisoxide_signal_benchmark
+input=target/ferrisoxide-signal-benchmark/large_square_wave_100000.csv
+config=target/ferrisoxide-signal-benchmark/large_square_wave_100000.toml
 iterations=3
 samples=100000
 channels=1

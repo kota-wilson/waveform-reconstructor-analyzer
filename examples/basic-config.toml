@@ -1,4 +1,4 @@
-# Example config for `wra analyze --config`.
+# Example config for `ferrisoxide-signal analyze --config`.
 
 [input]
 time_column = "time"

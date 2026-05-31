@@ -4,7 +4,7 @@ Date: 2026-05-31
 
 ## Purpose
 
-Waveform Reconstructor and Analyzer is meant to help review CSV waveform captures from environmental or bench testing. It is not certified validation software and does not replace equipment procedures or engineering judgment.
+FerrisOxide Signal is meant to help review CSV waveform captures from environmental or bench testing. It is not certified validation software and does not replace equipment procedures or engineering judgment.
 
 ## Fixture Intent
 
@@ -46,17 +46,17 @@ The v0.3.0 validation examples add audit-ready fixture/config/report sets under 
 ## Validation Commands
 
 ```bash
-cargo run --quiet --bin wra -- analyze \
+cargo run --quiet --bin ferrisoxide-signal -- analyze \
   --input validation/environmental_cases/dropout_event.csv \
   --config validation/environmental_cases/dropout_event.toml \
   --format json
 ```
 
 ```bash
-cargo run --quiet --bin wra -- analyze \
+cargo run --quiet --bin ferrisoxide-signal -- analyze \
   --input validation/environmental_cases/contact_bounce.csv \
   --config validation/environmental_cases/contact_bounce.toml \
   --format json
 ```
 
-The expected outputs are stored under `validation/reports/` and compared exactly by `crates/wra-core/tests/criteria_engine.rs`.
+The expected outputs are stored under `validation/reports/` and compared exactly by `crates/ferrisoxide-core/tests/criteria_engine.rs`.

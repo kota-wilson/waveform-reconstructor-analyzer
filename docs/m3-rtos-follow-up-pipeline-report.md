@@ -2,7 +2,7 @@
 
 Date: 2026-05-31
 
-Project: Waveform Reconstructor and Analyzer
+Project: FerrisOxide Signal
 
 Milestone: `M3: RTOS / embedded no_std foundation`
 
@@ -42,11 +42,11 @@ Out of scope: production Zephyr support, Embassy or RTIC implementation, hardwar
 
 ## Architecture Stage
 
-- Artifact: `docs/architecture.md`, `docs/embedded-roadmap.md`, `crates/wra-embedded/no_std-design.md`.
-- Evidence: Embedded boundaries are split into `wra-signal` primitives, `wra-embedded` adapter traits, QEMU proof folder, and Zephyr feasibility folder.
+- Artifact: `docs/architecture.md`, `docs/embedded-roadmap.md`, `crates/ferrisoxide-embedded/no_std-design.md`.
+- Evidence: Embedded boundaries are split into `ferrisoxide-signal` primitives, `ferrisoxide-embedded` adapter traits, QEMU proof folder, and Zephyr feasibility folder.
 - Gate: Architecture Gate.
 - Decision: Pass.
-- Reason: The design keeps runtime-specific concerns outside `wra-signal`, `wra-core`, `wra-cli`, and `wra-plot`.
+- Reason: The design keeps runtime-specific concerns outside `ferrisoxide-signal`, `ferrisoxide-core`, `ferrisoxide-cli`, and `ferrisoxide-plot`.
 - Residual risk: Future runtime crates may require feature flags, target CI, and unsafe FFI review.
 - Next owner: Abstraction Review Engineer.
 
@@ -72,10 +72,10 @@ Out of scope: production Zephyr support, Embassy or RTIC implementation, hardwar
 
 ## Implementation Stage
 
-- Artifact: `crates/wra-embedded/`, `embedded/arm64/qemu/`, `embedded/arm64/zephyr/`.
+- Artifact: `crates/ferrisoxide-embedded/`, `embedded/arm64/qemu/`, `embedded/arm64/zephyr/`.
 - Evidence:
   - `SampleSource`, `EventSink`, and `RuntimeHooks` define adapter boundaries.
-  - `run_threshold_stream` and `run_transient_event_stream` wrap `wra-signal`.
+  - `run_threshold_stream` and `run_transient_event_stream` wrap `ferrisoxide-signal`.
   - QEMU proof crate uses fixed sample data and no desktop file I/O.
   - Zephyr feasibility sketch documents intended source/sink/runtime mapping without SDK integration.
 - Gate: Implementation Gate.
@@ -92,7 +92,7 @@ Out of scope: production Zephyr support, Embassy or RTIC implementation, hardwar
   - `cargo test --workspace`
   - `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`
   - `cargo clippy --workspace --all-targets -- -D warnings`
-  - `cargo tree -p wra-embedded`
+  - `cargo tree -p ferrisoxide-embedded`
   - `cargo fmt --check`
   - `git diff --check`
 - Gate: Testing Gate.
@@ -143,7 +143,7 @@ Out of scope: production Zephyr support, Embassy or RTIC implementation, hardwar
 
 ## Documentation Stage
 
-- Artifact: README, `docs/embedded-roadmap.md`, `crates/wra-embedded/README.md`, `crates/wra-embedded/no_std-design.md`, QEMU README, Zephyr README.
+- Artifact: README, `docs/embedded-roadmap.md`, `crates/ferrisoxide-embedded/README.md`, `crates/ferrisoxide-embedded/no_std-design.md`, QEMU README, Zephyr README.
 - Evidence: Docs state build/check commands, target assumptions, unsupported areas, and production-readiness risks.
 - Gate: Documentation Gate.
 - Decision: Pass.
@@ -205,8 +205,8 @@ Out of scope: production Zephyr support, Embassy or RTIC implementation, hardwar
 
 Role: Project Orchestrator
 Goal: Funnel open M3 RTOS issues #17-#19 through the contribution pipeline.
-Files changed: `crates/wra-embedded/`, `embedded/arm64/qemu/`, `embedded/arm64/zephyr/`, README, docs, requirements, risk, traceability, `Cargo.toml`, and `Cargo.lock`.
-Checks run: `cargo fmt`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-embedded`; `cargo fmt --check`; `git diff --check`.
+Files changed: `crates/ferrisoxide-embedded/`, `embedded/arm64/qemu/`, `embedded/arm64/zephyr/`, README, docs, requirements, risk, traceability, `Cargo.toml`, and `Cargo.lock`.
+Checks run: `cargo fmt`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p ferrisoxide-embedded`; `cargo fmt --check`; `git diff --check`.
 Status: Complete for M3 mainline merge and milestone closure.
 Known gaps: No ARM64 target build, QEMU boot image, Zephyr SDK build, hardware HAL, unsafe FFI review, RTOS timing validation, or certification evidence.
 Next recommended step: Add target execution, SDK validation, or HAL work only after a fresh environment, dependency, security, and V&V gate.

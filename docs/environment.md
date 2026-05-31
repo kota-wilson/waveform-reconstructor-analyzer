@@ -2,7 +2,7 @@
 
 ## Project Root
 
-`/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`
+`/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`
 
 ## Isolation Level
 

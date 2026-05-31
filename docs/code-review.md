@@ -25,8 +25,8 @@ No blocking code-review findings for M4. Review notes:
 
 No blocking code-review findings for M5. Review notes:
 
-- Plotting is isolated in `wra-plot`; `wra-core` and `wra-signal` do not import Plotters.
-- `wra-cli` exposes plotting as a separate `plot` subcommand, preserving the existing `analyze` path.
+- Plotting is isolated in `ferrisoxide-plot`; `ferrisoxide-core` and `ferrisoxide-signal` do not import Plotters.
+- `ferrisoxide-cli` exposes plotting as a separate `plot` subcommand, preserving the existing `analyze` path.
 - Error handling returns structured plot errors and CLI strings instead of panics for missing channels, invalid dimensions, missing z-columns, and missing output parent directories.
 - Tests cover direct SVG rendering, CLI file output, optional third-axis behavior, and negative paths.
 - Dependency scope is constrained to Plotters SVG line rendering.
@@ -35,7 +35,7 @@ No blocking code-review findings for M5. Review notes:
 
 No blocking code-review findings for the M3 RTOS follow-up branch. Review notes:
 
-- `wra-embedded` is isolated from `wra-core`, `wra-cli`, and `wra-plot`; it depends only on `wra-signal`.
+- `ferrisoxide-embedded` is isolated from `ferrisoxide-core`, `ferrisoxide-cli`, and `ferrisoxide-plot`; it depends only on `ferrisoxide-signal`.
 - Adapter traits keep source, sink, and runtime concerns explicit without binding to a specific RTOS API.
 - QEMU proof code is host-checkable, fixed-data, and no_std.
 - Zephyr prototype is intentionally a non-built feasibility sketch with no SDK, HAL, unsafe FFI, or workspace dependency.
@@ -45,9 +45,9 @@ No blocking code-review findings for the M3 RTOS follow-up branch. Review notes:
 
 No blocking code-review findings for the M6 measurement-engine extraction. Review notes:
 
-- `wra-measurements` is isolated from CSV parsing, TOML config, plotting, reporting, file I/O, DAQ, RTOS SDKs, and plugin runtime concerns.
-- `wra-core` criteria evaluation now calls reusable measurement primitives while continuing to own pass/fail policy, tolerance application, and evidence wording.
-- `SignalState` and `EdgeDirection` are re-exported through `wra_core::criteria`, preserving the existing caller path.
+- `ferrisoxide-measurements` is isolated from CSV parsing, TOML config, plotting, reporting, file I/O, DAQ, RTOS SDKs, and plugin runtime concerns.
+- `ferrisoxide-core` criteria evaluation now calls reusable measurement primitives while continuing to own pass/fail policy, tolerance application, and evidence wording.
+- `SignalState` and `EdgeDirection` are re-exported through `ferrisoxide_core::criteria`, preserving the existing caller path.
 - Golden JSON reports pass unchanged, which protects evidence values and tie behavior.
 - No new third-party dependency or unsafe Rust is added.
 
@@ -66,7 +66,7 @@ No blocking code-review findings for the M6-003 report measurement schema branch
 No blocking code-review findings for the M6 completion branch. Review notes:
 
 - `EvidenceOverlay` is derived from existing `AnalysisResult` and `MeasurementRecord` values.
-- `wra plot --config` reuses the same config/filter/criteria evaluation path as analysis before rendering annotations.
+- `ferrisoxide-signal plot --config` reuses the same config/filter/criteria evaluation path as analysis before rendering annotations.
 - The criteria DSL work is documentation-only and does not alter runtime TOML parsing.
 - The measurement-engine fixture is exact-report tested and documents expected values independently.
 - No new third-party dependency or unsafe Rust is added.

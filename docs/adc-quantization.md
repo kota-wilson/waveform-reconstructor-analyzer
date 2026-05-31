@@ -50,6 +50,6 @@ This is an ideal quantizer only. It does not model sample-and-hold behavior, ape
 
 Coverage lives in:
 
-- `crates/wra-core/src/filter.rs` for quantizer behavior, clipping, raw-data preservation, and ordered chain execution.
-- `crates/wra-core/src/config.rs` for TOML conversion and missing-field validation.
-- `crates/wra-cli/src/main.rs` for CLI parsing and pre-criteria execution.
+- `crates/ferrisoxide-core/src/filter.rs` for quantizer behavior, clipping, raw-data preservation, and ordered chain execution.
+- `crates/ferrisoxide-core/src/config.rs` for TOML conversion and missing-field validation.
+- `crates/ferrisoxide-cli/src/main.rs` for CLI parsing and pre-criteria execution.

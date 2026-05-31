@@ -29,8 +29,8 @@ No blocking QA defects found for the M4 branch. The review scope includes:
 
 No blocking QA defects found for the M5 plotting branch. The review scope includes:
 
-- `wra plot` 2D SVG output from `examples/basic-waveform.csv`.
-- `wra plot --z-column` 3D SVG output from `tests/fixtures/plot_three_axis.csv`.
+- `ferrisoxide-signal plot` 2D SVG output from `examples/basic-waveform.csv`.
+- `ferrisoxide-signal plot --z-column` 3D SVG output from `tests/fixtures/plot_three_axis.csv`.
 - Clear errors for missing auxiliary-axis columns and invalid output paths.
 - User-facing docs that state plotting is SVG-only desktop CLI output, not GUI, DAQ, embedded, or certification scope.
 
@@ -38,7 +38,7 @@ No blocking QA defects found for the M5 plotting branch. The review scope includ
 
 No blocking QA defects found for the M3 RTOS follow-up branch. The review scope includes:
 
-- `wra-embedded` adapter traits and no_std streaming helper tests.
+- `ferrisoxide-embedded` adapter traits and no_std streaming helper tests.
 - Host-checkable QEMU proof slice under `embedded/arm64/qemu/`.
 - Zephyr feasibility documentation and adapter sketch under `embedded/arm64/zephyr/`.
 - Explicit limits around SDKs, target installs, HALs, unsafe FFI, DAQ, GUI, and certification claims.
@@ -47,9 +47,9 @@ No blocking QA defects found for the M3 RTOS follow-up branch. The review scope 
 
 No blocking QA defects found for the M6 measurement-engine extraction. The review scope includes:
 
-- `wra-measurements` no_std measurement primitive tests.
+- `ferrisoxide-measurements` no_std measurement primitive tests.
 - Existing exact golden JSON criteria reports passing unchanged.
-- `wra-core` re-export compatibility for `SignalState` and `EdgeDirection`.
+- `ferrisoxide-core` re-export compatibility for `SignalState` and `EdgeDirection`.
 - User-facing docs that state M6-001 does not add report schema changes, annotated SVG overlays, batch analysis, plugin runtime, GUI, DAQ, RTOS expansion, or certification scope.
 
 ## M6-003 Report Measurement Schema Update
@@ -67,7 +67,7 @@ No blocking QA defects found for the M6-003 report measurement schema branch. Th
 No blocking QA defects found for the M6 completion branch. The review scope includes:
 
 - 2D SVG evidence overlays with pass/fail status, threshold labels, and failed-criterion markers.
-- `wra plot --config` CLI behavior.
+- `ferrisoxide-signal plot --config` CLI behavior.
 - Measurement-engine known-answer fixture and exact JSON comparison.
 - Criteria DSL direction documentation without runtime syntax changes.
 - Scope boundaries excluding GUI, DAQ, plugin runtime, RTOS expansion, hardware qualification, and certification claims.

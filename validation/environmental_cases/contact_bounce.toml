@@ -8,7 +8,7 @@ signal_unit = "V"
 test_run_id = "ENV-BOUNCE-001"
 acquisition_notes = "Synthetic environmental-style contact-bounce case with two known 1 ms low events."
 environment = "software validation fixture"
-operator = "wra validation suite"
+operator = "FerrisOxide Signal validation suite"
 
 [tolerances]
 voltage_v = 0.0

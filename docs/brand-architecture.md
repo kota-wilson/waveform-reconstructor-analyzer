@@ -2,13 +2,13 @@
 
 Date: 2026-05-31
 
-Status: Proposed and merged through PR #96. No repository, crate, binary, organization, domain, or package rename has been performed.
+Status: Adopted for in-repository identity through BRAND-002 / issue #98. External organization, domain, crates.io publishing or reservation, trademark, legal-suitability, and logo work remain separate gates.
 
 ## Summary
 
-FerrisOxide is the preferred umbrella brand candidate for the broader platform direction.
+FerrisOxide is the preferred umbrella brand for the broader platform direction.
 
-The current repository name, Waveform Reconstructor and Analyzer, describes the original MVP. It is still accurate for the current CLI/core scope, but it is becoming narrow as the roadmap expands into signal analysis, qualification testing, controller simulation, rule authoring, embedded deployment, DAQ abstraction, and runtime targets.
+The current product identity is FerrisOxide Signal. It is accurate for the current CLI/core scope and leaves room for the roadmap to expand into signal analysis, qualification testing, controller simulation, rule authoring, embedded deployment, DAQ abstraction, and runtime targets.
 
 The brand decision should separate:
 
@@ -21,7 +21,7 @@ The brand decision should separate:
 - domains
 - documentation language
 
-This avoids a disruptive rename before external availability, trademark, domain, crates.io, and migration checks are complete.
+This keeps the source repository aligned with the product direction while keeping external availability, trademark, domain, crates.io, and migration checks explicit.
 
 ## Recommended Umbrella
 
@@ -39,7 +39,7 @@ Rationale:
 - Broad enough for signal, control, DAQ, desktop, embedded, and runtime work.
 - More durable than a narrow waveform-specific name.
 
-Important caveat: availability and legal suitability have not been verified. Before adoption, perform GitHub organization, domain, crates.io, trademark, and Rust-affiliation review.
+Important caveat: source-level adoption does not verify legal or package-namespace suitability. Before organization creation, crate publication, domain registration, or broader marketing, perform GitHub organization, domain, crates.io, trademark, and Rust-affiliation review.
 
 ## Product Family
 
@@ -56,19 +56,28 @@ Recommended public product names:
 
 ## Crate And Repository Direction
 
-Current crate names such as `wra-core`, `wra-cli`, `wra-signal`, `wra-embedded`, and `wra-plot` should remain unchanged until a formal migration plan exists.
-
-Candidate future crate prefix:
+Current crate names use the FerrisOxide Signal identity:
 
 ```text
 ferrisoxide-*
 ```
 
+Current implemented crates:
+
+| Crate | Role |
+|---|---|
+| `ferrisoxide-core` | Waveform model, CSV parsing, config, transforms, criteria, report model. |
+| `ferrisoxide-cli` | Desktop command-line entry point and orchestration. |
+| `ferrisoxide-embedded` | no_std adapter boundary for future embedded runtimes. |
+| `ferrisoxide-measurements` | no_std measurement primitives used by criteria evidence. |
+| `ferrisoxide-plot` | Desktop SVG plotting support. |
+| `ferrisoxide-signal` | no_std signal primitives. |
+
 Candidate future crates or repositories:
 
 | Candidate | Role |
 |---|---|
-| `ferrisoxide-signal` | Main signal-analysis product and likely successor name for this repository if the repo remains focused on signal validation. |
+| `ferrisoxide-signal` | Main signal-analysis product repository target. |
 | `ferrisoxide-runtime` | Shared embedded/controller runtime components. |
 | `ferrisoxide-daq` | DAQ abstraction and adapters after dependency and environment gates. |
 | `ferrisoxide-control` | Controller config, simulation, and I/O abstraction. |
@@ -80,18 +89,18 @@ Avoid using `ferrisoxide-platform` as the first rename unless the repository has
 
 ### Phase 0: Proposal Only
 
-Current phase.
+Complete through BRAND-001 / PR #96.
 
 - Document FerrisOxide as a proposed umbrella brand.
-- Keep the current repository URL.
-- Keep all crate names.
-- Keep the `wra` binary.
+- Keep the then-current repository URL.
+- Keep then-current crate names.
+- Keep the then-current CLI binary.
 - Keep README title unchanged.
 - Do not claim domain, trademark, or organization availability.
 
 ### Phase 1: Availability And Suitability Review
 
-Required before adoption:
+Required before external brand expansion:
 
 - Check GitHub organization availability.
 - Check repository-name availability.
@@ -101,34 +110,33 @@ Required before adoption:
 - Check whether Rust/Ferris references could imply affiliation with the Rust Project, Rust Foundation, or Rust language maintainers.
 - Record findings in a new decision document.
 
-### Phase 2: Public Naming Transition
+### Phase 2: In-Repository Naming Transition
 
-Only after approval:
+Current BRAND-002 scope:
 
-- Add README language such as `FerrisOxide Signal, currently hosted as waveform-reconstructor-analyzer`.
-- Keep old name visible for searchability.
+- Rename Cargo workspace packages to `ferrisoxide-*`.
+- Rename the CLI binary to `ferrisoxide-signal`.
+- Update README, docs, validation fixtures, examples, and scripts.
 - Add changelog entry.
-- Add issue/PR template note for the transition.
-- Keep CLI and crate names stable.
+- Keep old `WRA-*` requirement and risk IDs as stable audit identifiers.
+- Do not publish crates or claim external namespaces.
 
 ### Phase 3: Repository Rename
 
-Only after explicit approval:
+After protected-branch PR merge and explicit maintainer approval:
 
-- Rename repository to the approved target, likely `ferrisoxide-signal`.
+- Rename repository host to the approved target, `ferrisoxide-signal`.
 - Verify GitHub redirects.
 - Update README badges, clone URLs, docs, examples, CI references, issue templates, and project memory.
 - Keep compatibility language for the old name.
-- Avoid crate renames in the same PR.
 
-### Phase 4: Crate And Binary Migration
+### Phase 4: External Package Migration
 
-Only after external user impact is understood:
+Only after external user impact and namespace checks are understood:
 
-- Decide whether `wra-*` crate names should remain as internal implementation names.
-- If renamed, publish or reserve `ferrisoxide-*` crates only after crates.io and compatibility review.
+- Publish or reserve `ferrisoxide-*` crates only after crates.io, license, security, and compatibility review.
 - Keep deprecated aliases or migration guidance where practical.
-- Avoid breaking CLI scripts without a release plan.
+- Avoid breaking released CLI scripts without a release plan.
 
 ## Naming Recommendation
 
@@ -153,18 +161,15 @@ FerrisOxide/
 
 ## Non-Goals
 
-- No immediate repository rename.
 - No immediate GitHub organization creation.
-- No immediate crate rename.
-- No immediate binary rename.
 - No logo or mascot work.
 - No domain registration.
 - No trademark claim.
 - No Rust Project, Rust Foundation, or Rust language affiliation claim.
 
-## Approval Gates Before Adoption
+## External Gates After Source Adoption
 
-Required gates:
+Required before organization creation, crate publication, domain registration, or broader public marketing:
 
 - Product naming approval.
 - Maintainer approval.
@@ -177,9 +182,9 @@ Required gates:
 ## Hand-Off Note
 
 Role: Product Architect / GitHub Maintainer Specialist
-Goal: Capture FerrisOxide as a proposed umbrella brand without performing a rename.
+Goal: Capture FerrisOxide as the adopted in-repository identity and retain external namespace gates.
 Files changed: `docs/brand-architecture.md`.
-Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Proposal validated locally and merged through PR #96.
-Known gaps: GitHub organization availability, domain availability, crates.io availability, trademark/legal suitability, Rust-affiliation risk, logo/assets, and migration timeline are not verified.
-Next recommended step: Keep current repository identity until a formal naming adoption issue and approval gate are opened.
+Checks run: `cargo metadata --format-version 1 --no-deps`; `cargo clean`; `cargo fmt --check`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; CLI analyze smoke; CLI plot smoke; SVG overlay scan; benchmark smoke; `git diff --check`; identifier scan.
+Status: In-repository adoption locally validated through issue #98; protected-branch PR pending.
+Known gaps: GitHub organization availability, domain availability, crates.io availability, trademark/legal suitability, Rust-affiliation risk, logo/assets, external package migration, and broad public communication are not verified.
+Next recommended step: Merge the BRAND-002 source-level rename before any external namespace action.

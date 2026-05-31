@@ -14,12 +14,12 @@ The product needs a Rust core library, CLI MVP, and future GUI or language bindi
 
 Use a Cargo workspace with:
 
-- `crates/wra-core` for reusable data, parser, filter, criteria, analysis, and report APIs.
-- `crates/wra-cli` for command-line orchestration.
+- `crates/ferrisoxide-core` for reusable data, parser, filter, criteria, analysis, and report APIs.
+- `crates/ferrisoxide-cli` for command-line orchestration.
 
 ## Consequences
 
-- Future UI and bindings can reuse `wra-core`.
+- Future UI and bindings can reuse `ferrisoxide-core`.
 - CLI remains thin.
 - Workspace validation can use standard Cargo commands.
 

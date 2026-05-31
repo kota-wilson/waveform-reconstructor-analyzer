@@ -20,7 +20,7 @@ No blocking performance issue found for the small-fixture MVP. No production per
 
 M4 adds repeatable large-CSV measurement tooling without new dependencies:
 
-- Helper binary: `crates/wra-cli/src/bin/wra-bench.rs`
+- Helper binary: `crates/ferrisoxide-cli/src/bin/ferrisoxide-signal-bench.rs`
 - Fixture script: `scripts/benchmark-large-csv.sh`
 - Baseline notes: `docs/benchmarking.md`
 
@@ -36,8 +36,8 @@ Observed average timings are recorded in `docs/benchmarking.md`. Parse/reconstru
 
 M5 plotting is validated as a small-fixture desktop SVG renderer only:
 
-- 2D smoke output: `/private/tmp/wra-plot-2d.svg`, 21,670 bytes from `examples/basic-waveform.csv`.
-- 3D smoke output: `/private/tmp/wra-plot-3d.svg`, 21,782 bytes from `tests/fixtures/plot_three_axis.csv`.
+- 2D smoke output: `/private/tmp/ferrisoxide-plot-2d.svg`, 21,670 bytes from `examples/basic-waveform.csv`.
+- 3D smoke output: `/private/tmp/ferrisoxide-plot-3d.svg`, 21,782 bytes from `tests/fixtures/plot_three_axis.csv`.
 - No large-file plotting benchmark, interactivity benchmark, GUI frame-rate claim, DAQ throughput claim, or embedded performance claim is made.
 - Plotting uses full in-memory parsed waveform data through the existing CLI parser path; streaming plot generation is future work if large-capture visualization becomes a requirement.
 
@@ -45,7 +45,7 @@ M5 plotting is validated as a small-fixture desktop SVG renderer only:
 
 M3 RTOS follow-up work is validated as a host-checkable adapter/prototype slice only:
 
-- `wra-embedded` streaming helpers keep O(1) adapter state and reuse `wra-signal` streaming primitives.
+- `ferrisoxide-embedded` streaming helpers keep O(1) adapter state and reuse `ferrisoxide-signal` streaming primitives.
 - QEMU proof data is fixed in memory and does not use file I/O or heap-backed buffers.
 - No ARM64 runtime timing, interrupt latency, scheduler jitter, QEMU boot-time, Zephyr timing, DAQ throughput, or hardware performance claim is made.
 
@@ -53,7 +53,7 @@ M3 RTOS follow-up work is validated as a host-checkable adapter/prototype slice 
 
 M6 measurement extraction is validated as a small, deterministic code-organization slice only:
 
-- `wra-measurements` uses caller-owned slices and no heap allocation.
+- `ferrisoxide-measurements` uses caller-owned slices and no heap allocation.
 - State-run and edge measurements are linear scans over a single channel.
 - Criteria behavior remains unchanged for M6-001.
 - No large-file measurement benchmark, streaming redesign, batch-analysis throughput claim, DAQ timing claim, or certification performance claim is made.

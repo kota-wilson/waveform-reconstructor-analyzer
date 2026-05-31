@@ -4,16 +4,16 @@ Date: 2026-05-31
 
 ## Scope
 
-`wra plot` renders local CSV waveform data to an SVG file. Plotting is a desktop CLI feature only. It does not add GUI windows, DAQ integration, embedded or RTOS plotting, interactive controls, hardware validation, or certification evidence.
+`ferrisoxide-signal plot` renders local CSV waveform data to an SVG file. Plotting is a desktop CLI feature only. It does not add GUI windows, DAQ integration, embedded or RTOS plotting, interactive controls, hardware validation, or certification evidence.
 
-Plotting code lives in `crates/wra-plot`, so `wra-core` and `wra-signal` stay free of plotting dependencies.
+Plotting code lives in `crates/ferrisoxide-plot`, so `ferrisoxide-core` and `ferrisoxide-signal` stay free of plotting dependencies.
 
 ## 2D Waveform Plot
 
 Use 2D plotting when the CSV has time plus one or more signal channels:
 
 ```bash
-cargo run --quiet --bin wra -- plot \
+cargo run --quiet --bin ferrisoxide-signal -- plot \
   --input examples/basic-waveform.csv \
   --time-column time \
   --channels input_v,output_v \
@@ -28,10 +28,10 @@ The output uses:
 
 ## 2D Evidence Overlays
 
-Use `--config` with `wra plot` to render measurement-backed evidence on a 2D SVG plot:
+Use `--config` with `ferrisoxide-signal plot` to render measurement-backed evidence on a 2D SVG plot:
 
 ```bash
-cargo run --quiet --bin wra -- plot \
+cargo run --quiet --bin ferrisoxide-signal -- plot \
   --input tests/fixtures/dropout_event.csv \
   --config tests/configs/transient-event-dropout-fail.toml \
   --output dropout-evidence.svg \
@@ -45,14 +45,14 @@ Evidence overlays currently render:
 - Failed-criterion markers at the evidence sample.
 - Labels containing criterion ID, sample index, timestamp, channel, measured value, and required value.
 
-The overlay path reuses `wra-core` criteria evaluation and report measurement IDs. It does not recalculate separate plotting-only measurements.
+The overlay path reuses `ferrisoxide-core` criteria evaluation and report measurement IDs. It does not recalculate separate plotting-only measurements.
 
 ## 3D Waveform Plot With Third Axis
 
 Use `--z-column` when a CSV includes an auxiliary axis such as temperature, pressure, sweep position, or another synchronized measurement:
 
 ```bash
-cargo run --quiet --bin wra -- plot \
+cargo run --quiet --bin ferrisoxide-signal -- plot \
   --input tests/fixtures/plot_three_axis.csv \
   --time-column time_s \
   --channels signal_v \

@@ -4,7 +4,7 @@ Date: 2026-05-31
 
 ## Scope
 
-The v0.4.0 measurement engine starts with `wra-measurements`, a reusable `#![no_std]` crate for deterministic measurements over time/sample slices.
+The v0.4.0 measurement engine starts with `ferrisoxide-measurements`, a reusable `#![no_std]` crate for deterministic measurements over time/sample slices.
 
 This is the first step toward measurement-backed engineering evidence:
 
@@ -22,11 +22,11 @@ CSV
 
 | Item | Owner | Notes |
 |---|---|---|
-| Measurement primitives | `crates/wra-measurements` | No CSV, TOML, plotting, reporting, file I/O, allocation, or third-party dependencies. |
-| Criteria decisions | `crates/wra-core/src/analysis.rs` | Calls `wra-measurements` and applies tolerances, operators, pass/fail, and evidence wording. |
-| Criteria definitions | `crates/wra-core/src/criteria.rs` | Re-exports `SignalState` and `EdgeDirection` so existing callers can keep using `wra_core::criteria`. |
-| Reports | `crates/wra-core/src/report.rs` | M6-003 adds reusable measurement records and per-result `measurement_id` links. |
-| SVG evidence overlays | `crates/wra-plot` | Deferred to issue #44. |
+| Measurement primitives | `crates/ferrisoxide-measurements` | No CSV, TOML, plotting, reporting, file I/O, allocation, or third-party dependencies. |
+| Criteria decisions | `crates/ferrisoxide-core/src/analysis.rs` | Calls `ferrisoxide-measurements` and applies tolerances, operators, pass/fail, and evidence wording. |
+| Criteria definitions | `crates/ferrisoxide-core/src/criteria.rs` | Re-exports `SignalState` and `EdgeDirection` so existing callers can keep using `ferrisoxide_core::criteria`. |
+| Reports | `crates/ferrisoxide-core/src/report.rs` | M6-003 adds reusable measurement records and per-result `measurement_id` links. |
+| SVG evidence overlays | `crates/ferrisoxide-plot` | Deferred to issue #44. |
 
 ## Supported Measurements
 

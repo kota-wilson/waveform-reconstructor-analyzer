@@ -64,8 +64,8 @@ Out of scope:
   - `rustup target list --installed` includes `aarch64-apple-darwin`.
   - `rustup target list --installed` includes `aarch64-unknown-none`.
   - `cargo check --workspace --target aarch64-apple-darwin`: Pass.
-  - `cargo check -p wra-signal --target aarch64-unknown-none`: Pass.
-  - `cargo check -p wra-embedded --target aarch64-unknown-none`: Pass.
+  - `cargo check -p ferrisoxide-signal --target aarch64-unknown-none`: Pass.
+  - `cargo check -p ferrisoxide-embedded --target aarch64-unknown-none`: Pass.
   - `cargo fmt --check`: Pass.
   - `cargo test --workspace`: Pass.
   - `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
@@ -141,7 +141,7 @@ Out of scope:
 Role: Software Architect / Embedded RTOS Engineer
 Goal: Complete M9-011 / issue #89 platform profile definition.
 Files changed: `docs/platform-targets.md`, architecture docs, requirements, traceability, risk register, project state, and this report.
-Checks run: `rustc --print target-list`; `rustup target list --installed`; `cargo check --workspace --target aarch64-apple-darwin`; `cargo check -p wra-signal --target aarch64-unknown-none`; `cargo check -p wra-embedded --target aarch64-unknown-none`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Checks run: `rustc --print target-list`; `rustup target list --installed`; `cargo check --workspace --target aarch64-apple-darwin`; `cargo check -p ferrisoxide-signal --target aarch64-unknown-none`; `cargo check -p ferrisoxide-embedded --target aarch64-unknown-none`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
 Status: Implemented and merged in PR #90.
 Known gaps: CI target checks, Raspberry Pi 5 hardware boot, HALs, deployment loader, and parity test implementation remain future work.
 Next recommended step: Return to M7-003 / issue #57 unless v0.6.0 or v0.7.0 is explicitly reprioritized.

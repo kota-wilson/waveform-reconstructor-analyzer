@@ -4,7 +4,7 @@ Date: 2026-05-30
 
 Updated: 2026-05-31
 
-Project: Waveform Reconstructor and Analyzer
+Project: FerrisOxide Signal
 
 Stage: Validation audit trail
 
@@ -16,11 +16,48 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 
 ## Environment
 
-- Working directory: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`
 - Cargo: `cargo 1.95.0 (f2d3ce0bd 2026-03-21)`
 - Rust: `rustc 1.95.0 (59807616e 2026-04-14)`
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
-- Local workspace dependencies include `wra-measurements`, `wra-signal`, `wra-embedded`, `wra-plot`, `wra-core`, and `wra-cli`.
+- Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-core`, and `ferrisoxide-cli`.
+
+## BRAND-002 FerrisOxide Signal Rename Branch
+
+Current as of the BRAND-002 rename branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo metadata --format-version 1 --no-deps` | Passed | Confirmed `ferrisoxide-*` workspace packages, `ferrisoxide-signal` and `ferrisoxide-signal-bench` binary targets, repository URL `https://github.com/kota-wilson/ferrisoxide-signal`, and workspace root `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`. |
+| `cargo clean` | Passed | Removed stale build artifacts after the local working-copy folder was renamed so compile-time manifest paths would rebuild from the new path. |
+| `cargo test --workspace` | Passed | 95 tests passed: 10 CLI, 50 core, 10 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 4 `ferrisoxide-embedded`, 5 `ferrisoxide-measurements`, 6 `ferrisoxide-plot`, 9 `ferrisoxide-signal`, plus doctests. |
+| `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml` | Passed | 1 host-checkable QEMU proof-slice test passed under package `ferrisoxide-arm64-qemu-demo`. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `cargo run --quiet --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format text` | Passed | Produced `Overall: Pass` text report through the renamed CLI binary. |
+| `cargo run --quiet --bin ferrisoxide-signal -- plot --input tests/fixtures/dropout_event.csv --config tests/configs/transient-event-dropout-fail.toml --output /private/tmp/ferrisoxide-signal-dropout-evidence.svg --title "Dropout Evidence"` | Passed | Wrote the annotated SVG through the renamed CLI binary. |
+| `rg -n "Evidence status\|FAIL supply_dropout\|threshold 2.500000" /private/tmp/ferrisoxide-signal-dropout-evidence.svg` | Passed | Confirmed expected SVG overlay labels. |
+| `sh scripts/benchmark-large-csv.sh 1000 1` | Passed | Ran the renamed benchmark helper and printed `ferrisoxide_signal_benchmark`. |
+| `cargo fmt --check` | Passed | Formatting remained clean after final rename edits. |
+| `git diff --check` | Passed | No whitespace errors. |
+| Legacy identifier scan | Passed with reviewed findings | Remaining matches are intentional historical references in ADR-005/BRAND-001 and the ADR-006 no-alias note; stable `WRA-*` traceability IDs are intentionally preserved. |
+
+### Gate Decision
+
+- Gate: Testing Gate for BRAND-002.
+- Decision: Pass locally.
+- Reason: Workspace metadata, formatting, tests, clippy, QEMU-demo host test, CLI analyze/plot smokes, benchmark smoke, whitespace, and identifier scans pass from the renamed local working-copy path.
+- Residual risk: Protected GitHub CI and repository-host rename are still pending; external organization, crates.io, domain, trademark, logo, and legal-suitability checks remain separate gates.
+- Owner for residual risk: GitHub Maintainer Specialist / Product Architect.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer
+Goal: Validate the FerrisOxide Signal source, crate, CLI, doc, and local working-copy rename.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo metadata --format-version 1 --no-deps`; `cargo clean`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; CLI analyze smoke; CLI plot smoke; SVG overlay scan; `sh scripts/benchmark-large-csv.sh 1000 1`; `cargo fmt --check`; `git diff --check`; identifier scan.
+Status: Pass locally; protected-branch PR and CI pending.
+Known gaps: Repository-host rename, GitHub redirect verification, external namespace checks, legal/trademark review, and public communication remain future gates.
+Next recommended step: Open the BRAND-002 PR and merge through protected `main`.
 
 ## M6 Completion Branch
 
@@ -29,9 +66,9 @@ Current as of the M6 completion branch on 2026-05-31.
 | Command | Result | Notes |
 |---|---|---|
 | `cargo fmt` | Passed | Rust sources formatted after annotated SVG and validation fixture edits. |
-| `cargo test --workspace` | Passed | 84 tests passed: 10 CLI, 39 core, 10 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 4 `wra-embedded`, 5 `wra-measurements`, 6 `wra-plot`, 9 `wra-signal`, plus doctests. |
-| `cargo run -q -p wra-cli --bin wra -- plot --input tests/fixtures/dropout_event.csv --config tests/configs/transient-event-dropout-fail.toml --output /private/tmp/wra-dropout-evidence.svg --title "Dropout Evidence"` | Passed | Wrote a 19,405-byte annotated SVG with evidence status, threshold label, and failed-criterion label. |
-| `rg -n "Evidence status\|FAIL supply_dropout\|threshold 2.500000" /private/tmp/wra-dropout-evidence.svg` | Passed | Confirmed expected SVG overlay labels. |
+| `cargo test --workspace` | Passed | 84 tests passed: 10 CLI, 39 core, 10 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 4 `ferrisoxide-embedded`, 5 `ferrisoxide-measurements`, 6 `ferrisoxide-plot`, 9 `ferrisoxide-signal`, plus doctests. |
+| `cargo run -q -p ferrisoxide-cli --bin ferrisoxide-signal -- plot --input tests/fixtures/dropout_event.csv --config tests/configs/transient-event-dropout-fail.toml --output /private/tmp/ferrisoxide-signal-dropout-evidence.svg --title "Dropout Evidence"` | Passed | Wrote a 19,405-byte annotated SVG with evidence status, threshold label, and failed-criterion label. |
+| `rg -n "Evidence status\|FAIL supply_dropout\|threshold 2.500000" /private/tmp/ferrisoxide-signal-dropout-evidence.svg` | Passed | Confirmed expected SVG overlay labels. |
 | `cargo fmt --check` | Passed | Formatting remained clean after final edits. |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
 | `git diff --check` | Passed | No whitespace errors in the branch diff. |
@@ -40,8 +77,8 @@ Current as of the M6 completion branch on 2026-05-31.
 
 | Test | Coverage |
 |---|---|
-| `wra_plot::tests::renders_evidence_overlays_on_2d_svg` | SVG output includes evidence status, threshold label, and failed-criterion label. |
-| `wra_cli::tests::renders_2d_plot_with_configured_evidence_overlays` | `wra plot --config` renders annotated SVG output through the CLI. |
+| `ferrisoxide_plot::tests::renders_evidence_overlays_on_2d_svg` | SVG output includes evidence status, threshold label, and failed-criterion label. |
+| `ferrisoxide_cli::tests::renders_2d_plot_with_configured_evidence_overlays` | `ferrisoxide-signal plot --config` renders annotated SVG output through the CLI. |
 | `validation_measurement_engine_known_answer_matches_expected_report` | Known-answer measurement fixture matches exact JSON output. |
 
 ### Gate Decision
@@ -69,7 +106,7 @@ Current as of the M6-003 report measurement schema branch on 2026-05-31.
 | Command | Result | Notes |
 |---|---|---|
 | `cargo fmt` | Passed | Rust sources formatted after report schema edits. |
-| `cargo test --workspace` | Passed | 81 tests passed: 9 CLI, 39 core, 9 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 4 `wra-embedded`, 5 `wra-measurements`, 5 `wra-plot`, 9 `wra-signal`, plus doctests. |
+| `cargo test --workspace` | Passed | 81 tests passed: 9 CLI, 39 core, 9 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 4 `ferrisoxide-embedded`, 5 `ferrisoxide-measurements`, 5 `ferrisoxide-plot`, 9 `ferrisoxide-signal`, plus doctests. |
 | `cargo fmt --check` | Passed | Formatting remained clean after final edits. |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
 | `git diff --check` | Passed | No whitespace errors in the branch diff. |
@@ -112,10 +149,10 @@ Current as of the M6 measurement-engine branch on 2026-05-31.
 
 | Command | Result | Notes |
 |---|---|---|
-| `cargo fmt` | Passed | Rust sources formatted after adding `wra-measurements` and criteria integration. |
-| `cargo test --workspace` | Passed | 80 tests passed: 9 CLI, 38 core, 9 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 4 `wra-embedded`, 5 `wra-measurements`, 5 `wra-plot`, 9 `wra-signal`, plus doctests. |
+| `cargo fmt` | Passed | Rust sources formatted after adding `ferrisoxide-measurements` and criteria integration. |
+| `cargo test --workspace` | Passed | 80 tests passed: 9 CLI, 38 core, 9 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 4 `ferrisoxide-embedded`, 5 `ferrisoxide-measurements`, 5 `ferrisoxide-plot`, 9 `ferrisoxide-signal`, plus doctests. |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings after replacing an indexed measurement loop with iterator/enumerate style. |
-| `cargo tree -p wra-measurements` | Passed | Dependency tree is limited to `wra-measurements`; no external crates added. |
+| `cargo tree -p ferrisoxide-measurements` | Passed | Dependency tree is limited to `ferrisoxide-measurements`; no external crates added. |
 | `cargo fmt --check` | Passed | Formatting remained clean after final edits. |
 | `git diff --check` | Passed | No whitespace errors in the branch diff. |
 
@@ -123,11 +160,11 @@ Current as of the M6 measurement-engine branch on 2026-05-31.
 
 | Test | Coverage |
 |---|---|
-| `wra_measurements::tests::measures_voltage_extrema` | Minimum and maximum sample evidence includes sample index, timestamp, and value. |
-| `wra_measurements::tests::counts_state_transitions` | Threshold-based state transition counts include first transition evidence. |
-| `wra_measurements::tests::selects_shortest_and_longest_state_runs` | State-run duration selection covers shortest and longest run behavior. |
-| `wra_measurements::tests::measures_rise_and_fall_time` | Rise/fall measurements return start/end evidence and duration. |
-| `wra_measurements::tests::rejects_non_monotonic_time_for_duration_measurements` | Duration measurements reject duplicate or decreasing timestamps. |
+| `ferrisoxide_measurements::tests::measures_voltage_extrema` | Minimum and maximum sample evidence includes sample index, timestamp, and value. |
+| `ferrisoxide_measurements::tests::counts_state_transitions` | Threshold-based state transition counts include first transition evidence. |
+| `ferrisoxide_measurements::tests::selects_shortest_and_longest_state_runs` | State-run duration selection covers shortest and longest run behavior. |
+| `ferrisoxide_measurements::tests::measures_rise_and_fall_time` | Rise/fall measurements return start/end evidence and duration. |
+| `ferrisoxide_measurements::tests::rejects_non_monotonic_time_for_duration_measurements` | Duration measurements reject duplicate or decreasing timestamps. |
 
 ### Compatibility Evidence
 
@@ -146,7 +183,7 @@ Existing exact golden JSON tests still pass without updating expected reports. T
 Role: Test Automation Engineer
 Goal: Validate reusable measurement extraction without changing current report behavior.
 Files changed: `docs/validation-log.md`
-Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-measurements`; `git diff --check`.
+Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p ferrisoxide-measurements`; `git diff --check`.
 Status: Pass.
 Known gaps: Report measurement schema, annotated SVG evidence overlays, criteria DSL refinement, and validation fixture expansion remain in issues #44-#47.
 Next recommended step: Protected-branch PR.
@@ -157,11 +194,11 @@ Current as of the M3 RTOS adapter/prototype branch on 2026-05-31.
 
 | Command | Result | Notes |
 |---|---|---|
-| `cargo fmt` | Passed | Rust sources formatted after adding `wra-embedded` and the QEMU proof crate. |
-| `cargo test --workspace` | Passed | 75 tests passed: 9 CLI, 38 core, 9 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 4 `wra-embedded`, 5 `wra-plot`, 9 `wra-signal`, plus doctests. |
-| `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml` | Passed | 1 QEMU proof-slice test passed, exercising the no_std threshold path through `wra-embedded` and `wra-signal`. |
+| `cargo fmt` | Passed | Rust sources formatted after adding `ferrisoxide-embedded` and the QEMU proof crate. |
+| `cargo test --workspace` | Passed | 75 tests passed: 9 CLI, 38 core, 9 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 4 `ferrisoxide-embedded`, 5 `ferrisoxide-plot`, 9 `ferrisoxide-signal`, plus doctests. |
+| `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml` | Passed | 1 QEMU proof-slice test passed, exercising the no_std threshold path through `ferrisoxide-embedded` and `ferrisoxide-signal`. |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings after factoring the embedded stream result type. |
-| `cargo tree -p wra-embedded` | Passed | Dependency tree is limited to `wra-embedded` -> `wra-signal`; no external crates added. |
+| `cargo tree -p ferrisoxide-embedded` | Passed | Dependency tree is limited to `ferrisoxide-embedded` -> `ferrisoxide-signal`; no external crates added. |
 | `cargo fmt --check` | Passed | Formatting remained clean after documentation updates. |
 | `git diff --check` | Passed | No whitespace errors in the branch diff. |
 
@@ -169,11 +206,11 @@ Current as of the M3 RTOS adapter/prototype branch on 2026-05-31.
 
 | Test | Coverage |
 |---|---|
-| `wra_embedded::tests::threshold_stream_uses_source_runtime_sink_and_signal_core` | Verifies sample source, runtime hooks, event sink, and threshold primitive integration. |
-| `wra_embedded::tests::transient_event_stream_records_longest_event` | Verifies transient-event streaming through the adapter boundary. |
-| `wra_embedded::tests::empty_threshold_stream_returns_signal_error_without_sink_record` | Empty source returns `SignalError::EmptyInput` and does not record sink evidence. |
-| `wra_embedded::tests::non_monotonic_stream_propagates_signal_error` | Non-monotonic timestamps propagate as signal errors. |
-| `wra_arm64_qemu_demo::tests::qemu_demo_exercises_no_std_threshold_path` | Host-checkable QEMU proof slice uses fixed samples and no desktop file I/O. |
+| `ferrisoxide_embedded::tests::threshold_stream_uses_source_runtime_sink_and_signal_core` | Verifies sample source, runtime hooks, event sink, and threshold primitive integration. |
+| `ferrisoxide_embedded::tests::transient_event_stream_records_longest_event` | Verifies transient-event streaming through the adapter boundary. |
+| `ferrisoxide_embedded::tests::empty_threshold_stream_returns_signal_error_without_sink_record` | Empty source returns `SignalError::EmptyInput` and does not record sink evidence. |
+| `ferrisoxide_embedded::tests::non_monotonic_stream_propagates_signal_error` | Non-monotonic timestamps propagate as signal errors. |
+| `ferrisoxide_arm64_qemu_demo::tests::qemu_demo_exercises_no_std_threshold_path` | Host-checkable QEMU proof slice uses fixed samples and no desktop file I/O. |
 
 ### Gate Decision
 
@@ -188,7 +225,7 @@ Current as of the M3 RTOS adapter/prototype branch on 2026-05-31.
 Role: Test Automation Engineer
 Goal: Validate M3 RTOS adapter, ARM64 QEMU proof slice, and Zephyr feasibility prototype.
 Files changed: `docs/validation-log.md`
-Checks run: `cargo fmt`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-embedded`; `cargo fmt --check`; `git diff --check`.
+Checks run: `cargo fmt`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p ferrisoxide-embedded`; `cargo fmt --check`; `git diff --check`.
 Status: Pass.
 Known gaps: No ARM64 target build, QEMU boot image, Zephyr SDK build, hardware HAL, unsafe FFI review, or RTOS timing validation.
 Next recommended step: V&V and protected-branch PR review.
@@ -199,28 +236,28 @@ Current as of the M5 plotting branch on 2026-05-31.
 
 | Command | Result | Notes |
 |---|---|---|
-| `cargo fmt` | Passed | Rust sources formatted after adding `wra-plot` and CLI plotting tests. |
-| `cargo test --workspace` | Passed | 71 tests passed: 9 CLI, 38 core, 9 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 5 `wra-plot`, 9 `wra-signal`, plus doctests. |
+| `cargo fmt` | Passed | Rust sources formatted after adding `ferrisoxide-plot` and CLI plotting tests. |
+| `cargo test --workspace` | Passed | 71 tests passed: 9 CLI, 38 core, 9 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 5 `ferrisoxide-plot`, 9 `ferrisoxide-signal`, plus doctests. |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
-| `cargo run --quiet --bin wra -- plot --input examples/basic-waveform.csv --time-column time --channels input_v,output_v --output /private/tmp/wra-plot-2d.svg` | Passed | Wrote a 21,670 byte SVG containing `<svg`, `input_v`, and `output_v`. |
-| `cargo run --quiet --bin wra -- plot --input tests/fixtures/plot_three_axis.csv --time-column time_s --channels signal_v --z-column temperature_c --output /private/tmp/wra-plot-3d.svg --title "Three Axis Validation Plot"` | Passed | Wrote a 21,782 byte SVG containing `<svg`, `Three Axis Validation Plot`, and `signal_v vs temperature_c`. |
+| `cargo run --quiet --bin ferrisoxide-signal -- plot --input examples/basic-waveform.csv --time-column time --channels input_v,output_v --output /private/tmp/ferrisoxide-plot-2d.svg` | Passed | Wrote a 21,670 byte SVG containing `<svg`, `input_v`, and `output_v`. |
+| `cargo run --quiet --bin ferrisoxide-signal -- plot --input tests/fixtures/plot_three_axis.csv --time-column time_s --channels signal_v --z-column temperature_c --output /private/tmp/ferrisoxide-plot-3d.svg --title "Three Axis Validation Plot"` | Passed | Wrote a 21,782 byte SVG containing `<svg`, `Three Axis Validation Plot`, and `signal_v vs temperature_c`. |
 | `cargo fmt --check` | Passed | Formatting remained clean after validation commands. |
 | `git diff --check` | Passed | No whitespace errors in the branch diff. |
-| `cargo metadata --format-version 1 --no-deps` | Passed | Confirms `wra-plot` depends on `plotters` with `default-features = false` and features `svg_backend`, `line_series`. |
-| `cargo tree -p wra-plot` | Passed | Native plotting dependency tree is limited to `plotters`, `plotters-backend`, `plotters-svg`, `num-traits`, `autocfg`, and existing `wra-core` dependencies. |
+| `cargo metadata --format-version 1 --no-deps` | Passed | Confirms `ferrisoxide-plot` depends on `plotters` with `default-features = false` and features `svg_backend`, `line_series`. |
+| `cargo tree -p ferrisoxide-plot` | Passed | Native plotting dependency tree is limited to `plotters`, `plotters-backend`, `plotters-svg`, `num-traits`, `autocfg`, and existing `ferrisoxide-core` dependencies. |
 
 ### Exact Tests Added
 
 | Test | Coverage |
 |---|---|
-| `wra_plot::tests::renders_2d_svg_for_selected_channel` | SVG string renderer includes the selected 2D channel and default title. |
-| `wra_plot::tests::renders_3d_svg_with_third_axis_channel` | SVG string renderer includes a 3D line-series label using the auxiliary axis channel. |
-| `wra_plot::tests::rejects_missing_plot_channel` | Missing plotted channels produce a structured `PlotError::MissingChannel`. |
-| `wra_plot::tests::rejects_z_channel_reuse_as_plot_channel` | Third-axis channel must be separate from plotted channels. |
-| `wra_plot::tests::rejects_output_path_with_missing_parent_directory` | Missing output parent directories return clear errors before rendering. |
-| `wra_cli::tests::renders_2d_plot_to_svg_file` | `wra plot` renders a local 2D SVG file from the basic example CSV. |
-| `wra_cli::tests::renders_3d_plot_with_z_column_to_svg_file` | `wra plot --z-column` renders a local 3D SVG file from the three-axis fixture. |
-| `wra_cli::tests::plot_reports_missing_z_column` | Missing auxiliary axis columns fail with a clear parser error. |
+| `ferrisoxide_plot::tests::renders_2d_svg_for_selected_channel` | SVG string renderer includes the selected 2D channel and default title. |
+| `ferrisoxide_plot::tests::renders_3d_svg_with_third_axis_channel` | SVG string renderer includes a 3D line-series label using the auxiliary axis channel. |
+| `ferrisoxide_plot::tests::rejects_missing_plot_channel` | Missing plotted channels produce a structured `PlotError::MissingChannel`. |
+| `ferrisoxide_plot::tests::rejects_z_channel_reuse_as_plot_channel` | Third-axis channel must be separate from plotted channels. |
+| `ferrisoxide_plot::tests::rejects_output_path_with_missing_parent_directory` | Missing output parent directories return clear errors before rendering. |
+| `ferrisoxide_cli::tests::renders_2d_plot_to_svg_file` | `ferrisoxide-signal plot` renders a local 2D SVG file from the basic example CSV. |
+| `ferrisoxide_cli::tests::renders_3d_plot_with_z_column_to_svg_file` | `ferrisoxide-signal plot --z-column` renders a local 3D SVG file from the three-axis fixture. |
+| `ferrisoxide_cli::tests::plot_reports_missing_z_column` | Missing auxiliary axis columns fail with a clear parser error. |
 
 ### Gate Decision
 
@@ -235,7 +272,7 @@ Current as of the M5 plotting branch on 2026-05-31.
 Role: Test Automation Engineer
 Goal: Validate optional desktop SVG plotting with an optional third axis.
 Files changed: `docs/validation-log.md`
-Checks run: `cargo fmt`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; 2D/3D `wra plot` smoke commands; `cargo fmt --check`; `git diff --check`; `cargo metadata --format-version 1 --no-deps`; `cargo tree -p wra-plot`.
+Checks run: `cargo fmt`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; 2D/3D `ferrisoxide-signal plot` smoke commands; `cargo fmt --check`; `git diff --check`; `cargo metadata --format-version 1 --no-deps`; `cargo tree -p ferrisoxide-plot`.
 Status: Pass.
 Known gaps: No visual regression testing or browser/SVG raster comparison yet.
 Next recommended step: V&V and protected-branch PR review.
@@ -247,13 +284,13 @@ Current as of the M4 signal-validation branch on 2026-05-31.
 | Command | Result | Notes |
 |---|---|---|
 | `cargo fmt --check` | Passed | Rust formatting clean. |
-| `cargo test --workspace` | Passed | 63 tests passed: 6 CLI, 38 core, 9 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 9 `wra-signal`, plus doctests. |
+| `cargo test --workspace` | Passed | 63 tests passed: 6 CLI, 38 core, 9 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 9 `ferrisoxide-signal`, plus doctests. |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
 | `git diff --check` | Passed | No whitespace errors in the branch diff. |
-| `cargo run --quiet --bin wra -- analyze --input validation/known_answer/square_wave_tolerance.csv --config validation/known_answer/square_wave_tolerance.toml --format json` | Passed | Known-answer tolerance case produced the expected pass report with metadata, tolerance policy, and evidence context. |
-| `cargo run --quiet --bin wra -- analyze --input validation/environmental_cases/dropout_event.csv --config validation/environmental_cases/dropout_event.toml --format json` | Passed | Dropout validation case produced the expected fail report with 2 ms dropout evidence. |
-| `cargo run --quiet --bin wra -- analyze --input examples/basic-waveform.csv --config tests/configs/invalid-negative-tolerance.toml --format json` | Passed | Command exited with code 2 and clear error: `invalid config tolerances: invalid parameter \`tolerances.time_s\`: must be greater than or equal to zero`. |
-| `sh scripts/benchmark-large-csv.sh 100000 3` | Passed | Generated a 100k-sample CSV under `target/wra-benchmark/` and recorded read, parse, transform, criteria, report, and total timing averages in `docs/benchmarking.md`. |
+| `cargo run --quiet --bin ferrisoxide-signal -- analyze --input validation/known_answer/square_wave_tolerance.csv --config validation/known_answer/square_wave_tolerance.toml --format json` | Passed | Known-answer tolerance case produced the expected pass report with metadata, tolerance policy, and evidence context. |
+| `cargo run --quiet --bin ferrisoxide-signal -- analyze --input validation/environmental_cases/dropout_event.csv --config validation/environmental_cases/dropout_event.toml --format json` | Passed | Dropout validation case produced the expected fail report with 2 ms dropout evidence. |
+| `cargo run --quiet --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --config tests/configs/invalid-negative-tolerance.toml --format json` | Passed | Command exited with code 2 and clear error: `invalid config tolerances: invalid parameter \`tolerances.time_s\`: must be greater than or equal to zero`. |
+| `sh scripts/benchmark-large-csv.sh 100000 3` | Passed | Generated a 100k-sample CSV under `target/ferrisoxide-signal-benchmark/` and recorded read, parse, transform, criteria, report, and total timing averages in `docs/benchmarking.md`. |
 
 ### Exact Tests Added
 
@@ -272,9 +309,9 @@ Current as of the M4 signal-validation branch on 2026-05-31.
 ### Benchmark Snapshot
 
 ```text
-wra_benchmark
-input=target/wra-benchmark/large_square_wave_100000.csv
-config=target/wra-benchmark/large_square_wave_100000.toml
+ferrisoxide_signal_benchmark
+input=target/ferrisoxide-signal-benchmark/large_square_wave_100000.csv
+config=target/ferrisoxide-signal-benchmark/large_square_wave_100000.toml
 iterations=3
 samples=100000
 channels=1
@@ -312,13 +349,13 @@ Current as of M1 metadata and README usage review on 2026-05-31.
 | Command | Result | Notes |
 |---|---|---|
 | `cargo fmt --check` | Passed | Rust formatting clean. |
-| `cargo test --workspace` | Passed | 53 tests passed: 6 CLI, 31 core, 6 criteria-engine fixture/golden tests, 1 CSV fixture integration test, 9 `wra-signal`, plus doctests. |
+| `cargo test --workspace` | Passed | 53 tests passed: 6 CLI, 31 core, 6 criteria-engine fixture/golden tests, 1 CSV fixture integration test, 9 `ferrisoxide-signal`, plus doctests. |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
 | `git diff --check` | Passed | No whitespace errors in the branch diff. |
-| `cargo run --quiet --bin wra -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format text` | Passed | Text output includes metadata, transform history, overall outcome, and criterion evidence matching README. |
-| `cargo run --quiet --bin wra -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format json` | Passed | JSON output includes `waveform_metadata` and criterion evidence matching README. |
-| `cargo run --quiet --bin wra -- analyze --input examples/basic-waveform.csv --config examples/adc-quantized-config.toml --format text` | Passed | ADC usage output includes metadata, transform history, overall outcome, and criterion evidence matching `docs/usage-mvp.md`. |
-| `cargo run --quiet --bin wra -- analyze --input tests/fixtures/dropout_event.csv --config tests/configs/transient-event-dropout-fail.toml --format text` | Passed | Dropout report includes waveform metadata and failed criterion evidence. |
+| `cargo run --quiet --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format text` | Passed | Text output includes metadata, transform history, overall outcome, and criterion evidence matching README. |
+| `cargo run --quiet --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format json` | Passed | JSON output includes `waveform_metadata` and criterion evidence matching README. |
+| `cargo run --quiet --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --config examples/adc-quantized-config.toml --format text` | Passed | ADC usage output includes metadata, transform history, overall outcome, and criterion evidence matching `docs/usage-mvp.md`. |
+| `cargo run --quiet --bin ferrisoxide-signal -- analyze --input tests/fixtures/dropout_event.csv --config tests/configs/transient-event-dropout-fail.toml --format text` | Passed | Dropout report includes waveform metadata and failed criterion evidence. |
 | M4 milestone and issue inspection | Passed | Milestone `M4: Signal Accuracy and Validation` created with issues #27-#34. |
 
 ## Documentation Accuracy Branch Validation
@@ -328,7 +365,7 @@ Current as of documentation accuracy review on 2026-05-31.
 | Command | Result | Notes |
 |---|---|---|
 | `cargo fmt --check` | Passed | Rust formatting clean. |
-| `cargo test --workspace` | Passed | 50 tests passed: 6 CLI, 28 core, 6 criteria-engine fixture/golden tests, 1 CSV fixture integration test, 9 `wra-signal`, plus doctests. |
+| `cargo test --workspace` | Passed | 50 tests passed: 6 CLI, 28 core, 6 criteria-engine fixture/golden tests, 1 CSV fixture integration test, 9 `ferrisoxide-signal`, plus doctests. |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
 | `git diff --check` | Passed | No whitespace errors in the documentation review diff. |
 | README local-link target checks | Passed | `docs/adc-quantization.md` and `docs/environmental-test-use-cases.md` exist. |
@@ -341,9 +378,9 @@ Current as of PR #25 merge on 2026-05-31.
 | Command | Result | Notes |
 |---|---|---|
 | `cargo fmt --check` | Passed | Rust formatting clean. |
-| `cargo test --workspace` | Passed | 50 tests passed: 6 CLI, 28 core, 6 criteria-engine fixture/golden tests, 1 CSV fixture integration test, 9 `wra-signal`, plus doctests. |
+| `cargo test --workspace` | Passed | 50 tests passed: 6 CLI, 28 core, 6 criteria-engine fixture/golden tests, 1 CSV fixture integration test, 9 `ferrisoxide-signal`, plus doctests. |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
-| `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --config examples/adc-quantized-config.toml --format text` | Passed | Config-driven ADC quantization produced `Overall: Pass` with `input_max_after_adc` evidence. |
+| `cargo run --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --config examples/adc-quantized-config.toml --format text` | Passed | Config-driven ADC quantization produced `Overall: Pass` with `input_max_after_adc` evidence. |
 | GitHub Actions `rust` check for PR #25 | Passed | Required status check passed before merge. |
 
 ## Historical MVP Commands And Results
@@ -353,10 +390,10 @@ Current as of PR #25 merge on 2026-05-31.
 | `cargo fmt --check` | Passed | Rustfmt formatting clean after applying `cargo fmt`. |
 | `cargo test --workspace` | Passed | 26 tests passed: 19 unit tests, 6 criteria-engine fixture/golden tests, and 1 CSV fixture integration test. |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
-| `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --time-column time --channels input_v --moving-average 2 --min input_v:0.0 --max input_v:5.5` | Passed | CLI produced a text report with overall `Pass`. |
-| `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format text` | Passed | Config-driven CLI produced a text report with overall `Pass`. |
-| `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format json` | Passed | Config-driven CLI produced JSON with `overall_outcome: pass`. |
-| `cargo run --bin wra -- analyze --input tests/fixtures/dropout_event.csv --config tests/configs/transient-event-dropout-fail.toml --format text` | Passed | Transient event report includes failed criterion, measured duration, required duration, sample index, timestamp, and channel. |
+| `cargo run --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --time-column time --channels input_v --moving-average 2 --min input_v:0.0 --max input_v:5.5` | Passed | CLI produced a text report with overall `Pass`. |
+| `cargo run --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format text` | Passed | Config-driven CLI produced a text report with overall `Pass`. |
+| `cargo run --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format json` | Passed | Config-driven CLI produced JSON with `overall_outcome: pass`. |
+| `cargo run --bin ferrisoxide-signal -- analyze --input tests/fixtures/dropout_event.csv --config tests/configs/transient-event-dropout-fail.toml --format text` | Passed | Transient event report includes failed criterion, measured duration, required duration, sample index, timestamp, and channel. |
 | Golden JSON tests | Passed | `criteria_engine_pass.json`, `transient_event_dropout_fail.json`, and `slow_rise_fail.json` matched exactly. |
 
 ## Gate Decision
@@ -385,7 +422,7 @@ Owner Role: Test Automation Engineer
 
 | Command | Result | Notes |
 |---|---|---|
-| `cargo test -p wra-core csv::tests -- --nocapture` | Passed | 10 CSV parser unit tests passed. |
+| `cargo test -p ferrisoxide-core csv::tests -- --nocapture` | Passed | 10 CSV parser unit tests passed. |
 | `cargo fmt --check` | Passed | Rust formatting clean. |
 | `cargo test --workspace` | Passed | 24 tests passed: 3 CLI unit tests, 20 core unit tests, and 1 CSV fixture integration test. |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
@@ -416,8 +453,8 @@ Owner Role: Test Automation Engineer
 
 Role: Test Automation Engineer
 Goal: Validate M1-001 CSV parser edge cases.
-Files changed: `crates/wra-core/src/csv.rs`, `docs/validation-log.md`
-Checks run: `cargo test -p wra-core csv::tests -- --nocapture`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`
+Files changed: `crates/ferrisoxide-core/src/csv.rs`, `docs/validation-log.md`
+Checks run: `cargo test -p ferrisoxide-core csv::tests -- --nocapture`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`
 Status: Pass.
 Known gaps: No external DAQ export corpus included.
 Next recommended step: Historical M1-001 validation handoff is complete; use future parser issues for broader CSV dialect coverage.
@@ -432,7 +469,7 @@ Owner Role: Test Automation Engineer
 
 ### Environment
 
-- Working directory: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`
 - Isolation: Project-local Cargo workspace; no Python packages or global tools installed.
 - New dependencies: None.
 
@@ -441,15 +478,15 @@ Owner Role: Test Automation Engineer
 | Command | Result | Notes |
 |---|---|---|
 | `cargo fmt --check` | Passed | Rust formatting clean. |
-| `cargo test --workspace` | Passed | 24 tests passed: 3 CLI, 11 core, 1 integration fixture, 9 `wra-signal`, plus doctests. |
+| `cargo test --workspace` | Passed | 24 tests passed: 3 CLI, 11 core, 1 integration fixture, 9 `ferrisoxide-signal`, plus doctests. |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
-| `cargo tree -p wra-signal` | Passed | Output shows only `wra-signal v0.1.0`, confirming no crate dependencies. |
+| `cargo tree -p ferrisoxide-signal` | Passed | Output shows only `ferrisoxide-signal v0.1.0`, confirming no crate dependencies. |
 
 ### Gate Decision
 
 - Gate: Testing Gate.
 - Decision: Pass.
-- Reason: Formatting, tests, clippy, and dependency-tree inspection passed for the new `wra-signal` crate and existing workspace.
+- Reason: Formatting, tests, clippy, and dependency-tree inspection passed for the new `ferrisoxide-signal` crate and existing workspace.
 - Residual risk: Desktop unit tests prove the `no_std` crate compiles and behaves locally, but embedded target builds are future M3 issues.
 - Owner for residual risk: Test Automation Engineer / Embedded Systems Engineer.
 
@@ -458,7 +495,7 @@ Owner Role: Test Automation Engineer
 Role: Test Automation Engineer
 Goal: Validate M3-RTOS-001 against workspace checks and no-dependency expectations.
 Files changed: `docs/validation-log.md`
-Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-signal`
+Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p ferrisoxide-signal`
 Status: Pass.
 Known gaps: No ARM64 QEMU or embedded-target compile yet; tracked by follow-up issues.
 Next recommended step: V&V Gate for M3-RTOS-001.
@@ -473,7 +510,7 @@ Owner Role: Test Automation Engineer
 
 ### Environment
 
-- Working directory: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`
 - Isolation: Project-local Cargo workspace; no Python packages or global tools installed.
 - New dependencies: None.
 
@@ -482,9 +519,9 @@ Owner Role: Test Automation Engineer
 | Command | Result | Notes |
 |---|---|---|
 | `cargo fmt --check` | Passed | Rust formatting clean. |
-| `cargo test --workspace` | Passed | 50 tests passed: 6 CLI, 28 core, 6 criteria-engine, 1 CSV fixture, 9 `wra-signal`, plus doctests. |
+| `cargo test --workspace` | Passed | 50 tests passed: 6 CLI, 28 core, 6 criteria-engine, 1 CSV fixture, 9 `ferrisoxide-signal`, plus doctests. |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
-| `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --config examples/adc-quantized-config.toml --format text` | Passed | Config-driven ADC quantization produced `Overall: Pass` with `input_max_after_adc` evidence. |
+| `cargo run --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --config examples/adc-quantized-config.toml --format text` | Passed | Config-driven ADC quantization produced `Overall: Pass` with `input_max_after_adc` evidence. |
 | `git diff --check` | Passed | No whitespace errors. |
 | Conflict-marker and terminology scan | Passed | `rg` found no conflict markers or informal event wording. |
 
@@ -497,7 +534,7 @@ Owner Role: Test Automation Engineer
 | `filter::tests::filter_chain_applies_steps_in_order` | Proves ordered pre-criteria pipeline execution with moving average followed by ADC quantization. |
 | `config::tests::converts_adc_quantizer_config_to_filter_step` | Converts TOML-style config into the enum-backed filter step. |
 | `config::tests::rejects_incomplete_adc_quantizer_config` | Returns a structured missing-field error for incomplete ADC config. |
-| `wra-cli::tests::runs_analysis_with_adc_quantization_before_criteria` | Proves CLI criteria evaluate the derived quantized waveform. |
+| `ferrisoxide-cli::tests::runs_analysis_with_adc_quantization_before_criteria` | Proves CLI criteria evaluate the derived quantized waveform. |
 
 ### Gate Decision
 

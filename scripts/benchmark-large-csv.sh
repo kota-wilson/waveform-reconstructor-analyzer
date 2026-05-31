@@ -3,7 +3,7 @@ set -eu
 
 samples="${1:-100000}"
 iterations="${2:-3}"
-work_dir="target/wra-benchmark"
+work_dir="target/ferrisoxide-signal-benchmark"
 input_path="${work_dir}/large_square_wave_${samples}.csv"
 config_path="${work_dir}/large_square_wave_${samples}.toml"
 
@@ -57,5 +57,5 @@ threshold_v = 2.5
 expected_count = ${transition_count}
 EOF
 
-cargo build --quiet --bin wra-bench
-target/debug/wra-bench --input "${input_path}" --config "${config_path}" --iterations "${iterations}"
+cargo build --quiet --bin ferrisoxide-signal-bench
+target/debug/ferrisoxide-signal-bench --input "${input_path}" --config "${config_path}" --iterations "${iterations}"

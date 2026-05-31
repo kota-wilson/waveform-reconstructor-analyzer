@@ -4,7 +4,7 @@
 
 Deliver a CLI-driven Rust MVP that can parse CSV waveform fixtures into typed waveform data, apply derived transform interfaces, evaluate configurable waveform criteria, and produce text/JSON reports.
 
-Current status: The dependency-reviewed MVP slice is implemented, public, and validated on protected `main`. Follow-up work has added v0.2.0 criteria, real fixtures, golden JSON reports, `wra-signal`, domain review, ADC quantization, waveform metadata, and README expected-output evidence. The next maturity target is v0.3.0 signal accuracy validation.
+Current status: The dependency-reviewed MVP slice is implemented, public, and validated on protected `main`. Follow-up work has added v0.2.0 criteria, real fixtures, golden JSON reports, `ferrisoxide-signal`, domain review, ADC quantization, waveform metadata, and README expected-output evidence. The next maturity target is v0.3.0 signal accuracy validation.
 
 ## Milestone M1: Foundation
 
@@ -12,10 +12,10 @@ Owner: Core Software Engineer
 
 Files:
 
-- `crates/wra-core/src/model.rs`
-- `crates/wra-core/src/csv.rs`
-- `crates/wra-core/src/error.rs`
-- `crates/wra-cli/src/main.rs`
+- `crates/ferrisoxide-core/src/model.rs`
+- `crates/ferrisoxide-core/src/csv.rs`
+- `crates/ferrisoxide-core/src/error.rs`
+- `crates/ferrisoxide-cli/src/main.rs`
 - `tests/fixtures/basic_waveform.csv`
 
 Acceptance criteria:
@@ -31,8 +31,8 @@ Owner: Systems Engineer
 
 Files:
 
-- `crates/wra-core/src/filter.rs`
-- `crates/wra-core/src/filter.rs` unit tests
+- `crates/ferrisoxide-core/src/filter.rs`
+- `crates/ferrisoxide-core/src/filter.rs` unit tests
 
 Acceptance criteria:
 
@@ -48,9 +48,9 @@ Owner: Core Software Engineer / Documentation Engineer
 
 Files:
 
-- `crates/wra-core/src/criteria.rs`
-- `crates/wra-core/src/analysis.rs`
-- `crates/wra-core/src/report.rs`
+- `crates/ferrisoxide-core/src/criteria.rs`
+- `crates/ferrisoxide-core/src/analysis.rs`
+- `crates/ferrisoxide-core/src/report.rs`
 - `examples/basic-config.toml`
 
 Acceptance criteria:

@@ -8,7 +8,7 @@ signal_unit = "V"
 test_run_id = "MEAS-KA-001"
 acquisition_notes = "Synthetic known-answer fixture for measurement-engine validation."
 environment = "software validation fixture"
-operator = "wra validation suite"
+operator = "FerrisOxide Signal validation suite"
 
 [tolerances]
 voltage_v = 0.0

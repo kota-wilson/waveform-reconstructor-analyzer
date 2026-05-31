@@ -6,6 +6,10 @@ The format follows Keep a Changelog principles, and the project intends to use s
 
 ## Unreleased
 
+### Changed
+
+- Adopted FerrisOxide Signal as the in-repository product identity, including `ferrisoxide-*` workspace packages and the `ferrisoxide-signal` CLI binary.
+
 ### Added
 
 - Initial repository skeleton.
@@ -21,7 +25,7 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - Waveform criteria for state transitions, pulse width, transient duration, transient event detection, stable-state duration, and rise/fall time.
 - Report evidence fields for failed criterion, measured/required values, sample index, timestamp, and channel.
 - Golden JSON report tests and invalid config validation tests.
-- `wra-signal` `no_std` crate with fixed-size buffers, streaming threshold checks, and transient event detection for future embedded adapters.
+- `ferrisoxide-signal` `no_std` crate with fixed-size buffers, streaming threshold checks, and transient event detection for future embedded adapters.
 - Simulated ADC quantization as an ordered pre-criteria waveform transform for CLI and TOML workflows.
 - Waveform metadata for source, units, sample interval, sample rate, lineage, and transform history in text and JSON reports.
 - v0.3.0 validation roadmap and validation dataset folder structure.
@@ -33,5 +37,5 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - Filter behavior documentation with moving-average, first-order low-pass, and ideal ADC quantization equations.
 - Project-local large-CSV benchmark helper and baseline benchmark documentation.
 - Optional desktop SVG plotting with 2D waveform plots and 3D line plots using a configured third-axis column.
-- `wra-embedded` `no_std` adapter boundary plus ARM64 QEMU and Zephyr feasibility prototype artifacts.
-- `wra-measurements` `no_std` crate with reusable extrema, state-transition, state-run duration, and rise/fall measurement primitives used by criteria evidence.
+- `ferrisoxide-embedded` `no_std` adapter boundary plus ARM64 QEMU and Zephyr feasibility prototype artifacts.
+- `ferrisoxide-measurements` `no_std` crate with reusable extrema, state-transition, state-run duration, and rise/fall measurement primitives used by criteria evidence.
