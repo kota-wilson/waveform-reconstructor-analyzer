@@ -3,11 +3,12 @@ use std::fs;
 use std::process::ExitCode;
 
 use wra_core::analysis::evaluate_criteria;
-use wra_core::config::{AnalysisConfig, FilterConfig};
+use wra_core::config::AnalysisConfig;
 use wra_core::criteria::Criterion;
 use wra_core::csv::{CsvParseOptions, SimpleCsvParser, WaveformParser};
-use wra_core::filter::{Filter, LowPassFilter, MovingAverageFilter};
-use wra_core::model::Waveform;
+use wra_core::filter::{
+    apply_filter_chain, AdcQuantizer, FilterStep, LowPassFilter, MovingAverageFilter,
+};
 use wra_core::report::AnalysisReport;
 
 fn main() -> ExitCode {
@@ -38,7 +39,9 @@ fn run(args: Vec<String>) -> Result<String, String> {
     let (options, filters, criteria) = match config {
         Some(config) => (
             config.csv_options(),
-            filters_from_config(&config)?,
+            config
+                .filters()
+                .map_err(|error| format!("invalid config filters: {error}"))?,
             config
                 .criteria()
                 .map_err(|error| format!("invalid config criteria: {error}"))?,
@@ -72,9 +75,8 @@ fn run(args: Vec<String>) -> Result<String, String> {
         .parse_str(&input, &options)
         .map_err(|error| format!("failed to parse waveform: {error}"))?;
 
-    for filter in filters {
-        waveform = filter.apply(&waveform)?;
-    }
+    waveform = apply_filter_chain(&waveform, &filters)
+        .map_err(|error| format!("filter pipeline failed: {error}"))?;
 
     let results = evaluate_criteria(&waveform, &criteria)
         .map_err(|error| format!("analysis failed: {error}"))?;
@@ -112,56 +114,7 @@ fn load_config(args: &[String]) -> Result<Option<AnalysisConfig>, String> {
     Ok(Some(config))
 }
 
-#[derive(Debug, Clone, PartialEq)]
-enum CliFilter {
-    MovingAverage(usize),
-    LowPass(f64),
-}
-
-impl CliFilter {
-    fn apply(&self, waveform: &Waveform) -> Result<Waveform, String> {
-        match self {
-            Self::MovingAverage(window_samples) => MovingAverageFilter {
-                window_samples: *window_samples,
-            }
-            .apply(waveform)
-            .map_err(|error| format!("moving average filter failed: {error}")),
-            Self::LowPass(cutoff_hz) => LowPassFilter {
-                cutoff_hz: *cutoff_hz,
-            }
-            .apply(waveform)
-            .map_err(|error| format!("low-pass filter failed: {error}")),
-        }
-    }
-}
-
-fn filters_from_config(config: &AnalysisConfig) -> Result<Vec<CliFilter>, String> {
-    config.filters.iter().map(CliFilter::try_from).collect()
-}
-
-impl TryFrom<&FilterConfig> for CliFilter {
-    type Error = String;
-
-    fn try_from(config: &FilterConfig) -> Result<Self, Self::Error> {
-        match config.kind.as_str() {
-            "moving_average" => {
-                let window_samples = config
-                    .window_samples
-                    .ok_or("moving_average filter requires window_samples")?;
-                Ok(Self::MovingAverage(window_samples))
-            }
-            "low_pass" => {
-                let cutoff_hz = config
-                    .cutoff_hz
-                    .ok_or("low_pass filter requires cutoff_hz")?;
-                Ok(Self::LowPass(cutoff_hz))
-            }
-            _ => Err(format!("unsupported filter type `{}`", config.kind)),
-        }
-    }
-}
-
-fn parse_filters(args: &[String]) -> Result<Vec<CliFilter>, String> {
+fn parse_filters(args: &[String]) -> Result<Vec<FilterStep>, String> {
     let mut filters = Vec::new();
     let mut index = 0;
     while index < args.len() {
@@ -173,7 +126,9 @@ fn parse_filters(args: &[String]) -> Result<Vec<CliFilter>, String> {
                 let window_samples = value
                     .parse::<usize>()
                     .map_err(|_| format!("invalid moving average window `{value}`"))?;
-                filters.push(CliFilter::MovingAverage(window_samples));
+                filters.push(FilterStep::MovingAverage(MovingAverageFilter {
+                    window_samples,
+                }));
                 index += 2;
             }
             "--low-pass" => {
@@ -183,13 +138,39 @@ fn parse_filters(args: &[String]) -> Result<Vec<CliFilter>, String> {
                 let cutoff_hz = value
                     .parse::<f64>()
                     .map_err(|_| format!("invalid low-pass cutoff `{value}`"))?;
-                filters.push(CliFilter::LowPass(cutoff_hz));
+                filters.push(FilterStep::LowPass(LowPassFilter { cutoff_hz }));
+                index += 2;
+            }
+            "--adc-quantize" => {
+                let value = args
+                    .get(index + 1)
+                    .ok_or("missing value after --adc-quantize")?;
+                filters.push(parse_adc_quantize(value)?);
                 index += 2;
             }
             _ => index += 1,
         }
     }
     Ok(filters)
+}
+
+fn parse_adc_quantize(value: &str) -> Result<FilterStep, String> {
+    let parts = value.split(':').collect::<Vec<_>>();
+    if parts.len() != 3 {
+        return Err("ADC quantization must use bits:min_v:max_v syntax".to_string());
+    }
+
+    let bits = parts[0]
+        .parse::<u8>()
+        .map_err(|_| format!("invalid ADC bit depth `{}`", parts[0]))?;
+    let min_v = parts[1]
+        .parse::<f64>()
+        .map_err(|_| format!("invalid ADC min voltage `{}`", parts[1]))?;
+    let max_v = parts[2]
+        .parse::<f64>()
+        .map_err(|_| format!("invalid ADC max voltage `{}`", parts[2]))?;
+
+    Ok(FilterStep::AdcQuantize(AdcQuantizer { bits, min_v, max_v }))
 }
 
 fn render_report(report: &AnalysisReport, output_format: &str) -> Result<String, String> {
@@ -258,8 +239,9 @@ fn help() -> String {
         "",
         "Usage:",
         "  wra analyze --input <csv> --config examples/basic-config.toml --format text",
-        "  wra analyze --input <csv> --time-column time --channels input_v --moving-average 3 --low-pass 25 --min input_v:0.0 --max input_v:5.5 --format json",
+        "  wra analyze --input <csv> --time-column time --channels input_v --moving-average 3 --low-pass 25 --adc-quantize 12:0.0:5.0 --min input_v:0.0 --max input_v:5.5 --format json",
         "",
+        "ADC quantization syntax: --adc-quantize bits:min_v:max_v",
         "Formats: text, json",
     ]
     .join("\n")
@@ -275,6 +257,8 @@ mod tests {
             "analyze".to_string(),
             "--low-pass".to_string(),
             "10.5".to_string(),
+            "--adc-quantize".to_string(),
+            "2:0.0:3.0".to_string(),
             "--moving-average".to_string(),
             "3".to_string(),
         ];
@@ -283,7 +267,15 @@ mod tests {
 
         assert_eq!(
             filters,
-            vec![CliFilter::LowPass(10.5), CliFilter::MovingAverage(3)]
+            vec![
+                FilterStep::LowPass(LowPassFilter { cutoff_hz: 10.5 }),
+                FilterStep::AdcQuantize(AdcQuantizer {
+                    bits: 2,
+                    min_v: 0.0,
+                    max_v: 3.0,
+                }),
+                FilterStep::MovingAverage(MovingAverageFilter { window_samples: 3 }),
+            ]
         );
     }
 
@@ -313,6 +305,31 @@ mod tests {
         assert!(output.contains("Waveform Analysis Report"));
         assert!(output.contains("Overall: Pass"));
         assert!(output.contains("max_voltage_input_v"));
+    }
+
+    #[test]
+    fn runs_analysis_with_adc_quantization_before_criteria() {
+        let input_path = format!(
+            "{}/../../examples/basic-waveform.csv",
+            env!("CARGO_MANIFEST_DIR")
+        );
+        let output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--time-column".to_string(),
+            "time".to_string(),
+            "--channels".to_string(),
+            "input_v".to_string(),
+            "--adc-quantize".to_string(),
+            "2:0.0:3.0".to_string(),
+            "--max".to_string(),
+            "input_v:4.0".to_string(),
+        ])
+        .expect("analysis should run");
+
+        assert!(output.contains("Overall: Pass"));
+        assert!(output.contains("measured=3.000000 V required=4.000000 V"));
     }
 
     #[test]
@@ -375,6 +392,10 @@ mod tests {
             (
                 "invalid-missing-transient-event-field.toml",
                 "invalid parameter `criteria.max_duration_s`",
+            ),
+            (
+                "invalid-missing-adc-field.toml",
+                "invalid config filters: invalid parameter `filters.max_v`",
             ),
         ] {
             let config_path = format!("{manifest_dir}/../../tests/configs/{config_file}");

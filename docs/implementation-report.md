@@ -177,3 +177,55 @@ Checks run: See `docs/validation-log.md`.
 Status: Pass.
 Known gaps: ARM64 QEMU and RTOS adapters remain future issues.
 Next recommended step: Testing Gate for M3-RTOS-001.
+
+## ADC Quantization Implementation Update
+
+Date: 2026-05-31
+
+Owner Role: Core Software Engineer
+
+### Inputs
+
+- User request: add a simulated ADC quantization option/module that transforms waveform values into a digitized representation before pass/fail criteria.
+- GitHub issue: #24, `M1-008 Add simulated ADC quantization transform`.
+- Architecture decision: `decisions/ADR-003-filter-pipeline-architecture.md` calls for config-driven enum pipeline steps before criteria evaluation.
+
+### Work Performed
+
+- What: Added an ideal ADC quantization transform as an ordered filter-pipeline step.
+- Where: `crates/wra-core/src/filter.rs`, `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`.
+- How: Added `AdcQuantizer`, `FilterStep`, and `apply_filter_chain`; wired TOML `[[filters]] type = "adc_quantize"` and CLI `--adc-quantize bits:min_v:max_v` into the same pre-criteria execution path.
+- Why: ADC quantization is a derived waveform transform that should preserve raw input data while allowing criteria to evaluate digitized code-level behavior.
+
+### Behavior Added
+
+- Ideal endpoint-inclusive quantization with bit depth, `min_v`, and `max_v`.
+- Clipping for samples outside the configured ADC input range.
+- Voltage-domain output values so existing voltage criteria continue to work after digitization.
+- Config validation for missing ADC fields and runtime validation for invalid bit depth or range.
+- Ordered chain execution so users can choose whether quantization happens before or after smoothing filters.
+
+### Out Of Scope Preserved
+
+- No DAQ integration or hardware control.
+- No ADC nonlinearity, jitter, sample-and-hold, aliasing, calibration, or conversion-latency model.
+- No certification or hardware validation claim.
+- No new dependencies.
+
+### Gate Decision
+
+- Gate: Implementation Gate.
+- Decision: Pass.
+- Reason: The implementation adds the requested pre-criteria ADC transform through existing project abstractions with focused tests and docs.
+- Residual risk: Users may choose unrealistic ADC ranges or resolutions and mask analog excursions through clipping.
+- Owner for residual risk: Electrical Signal Integrity Engineer / Documentation Engineer.
+
+### Hand-Off Note
+
+Role: Core Software Engineer
+Goal: Add simulated ADC quantization before criteria evaluation.
+Files changed: `crates/wra-core/src/filter.rs`, `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, `examples/adc-quantized-config.toml`, `tests/configs/invalid-missing-adc-field.toml`, docs and traceability files
+Checks run: See `docs/validation-log.md`.
+Status: Pass.
+Known gaps: Ideal quantization only; richer ADC hardware effects are out of scope.
+Next recommended step: Testing Gate for ADC quantization.

@@ -22,3 +22,4 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - Report evidence fields for failed criterion, measured/required values, sample index, timestamp, and channel.
 - Golden JSON report tests and invalid config validation tests.
 - `wra-signal` `no_std` crate with fixed-size buffers, streaming threshold checks, and transient event detection for future embedded adapters.
+- Simulated ADC quantization as an ordered pre-criteria waveform transform for CLI and TOML workflows.

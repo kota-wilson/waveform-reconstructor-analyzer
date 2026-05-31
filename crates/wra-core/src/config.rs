@@ -3,6 +3,7 @@ use serde::Deserialize;
 use crate::criteria::{Criterion, EdgeDirection, SignalState, TransientEventKind};
 use crate::csv::CsvParseOptions;
 use crate::error::{Result, WaveformError};
+use crate::filter::{AdcQuantizer, FilterStep, LowPassFilter, MovingAverageFilter};
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct AnalysisConfig {
@@ -24,6 +25,13 @@ impl AnalysisConfig {
             .map(CriterionConfig::to_criterion)
             .collect()
     }
+
+    pub fn filters(&self) -> Result<Vec<FilterStep>> {
+        self.filters
+            .iter()
+            .map(FilterConfig::to_filter_step)
+            .collect()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -42,6 +50,35 @@ pub struct FilterConfig {
     pub kind: String,
     pub window_samples: Option<usize>,
     pub cutoff_hz: Option<f64>,
+    pub bits: Option<u8>,
+    pub min_v: Option<f64>,
+    pub max_v: Option<f64>,
+}
+
+impl FilterConfig {
+    fn to_filter_step(&self) -> Result<FilterStep> {
+        match self.kind.as_str() {
+            "moving_average" => Ok(FilterStep::MovingAverage(MovingAverageFilter {
+                window_samples: self
+                    .window_samples
+                    .ok_or_else(|| missing_filter_field("window_samples"))?,
+            })),
+            "low_pass" => Ok(FilterStep::LowPass(LowPassFilter {
+                cutoff_hz: self
+                    .cutoff_hz
+                    .ok_or_else(|| missing_filter_field("cutoff_hz"))?,
+            })),
+            "adc_quantize" => Ok(FilterStep::AdcQuantize(AdcQuantizer {
+                bits: self.bits.ok_or_else(|| missing_filter_field("bits"))?,
+                min_v: self.min_v.ok_or_else(|| missing_filter_field("min_v"))?,
+                max_v: self.max_v.ok_or_else(|| missing_filter_field("max_v"))?,
+            })),
+            _ => Err(WaveformError::InvalidParameter {
+                name: "filters.type".to_string(),
+                reason: format!("unsupported filter type `{}`", self.kind),
+            }),
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -186,6 +223,13 @@ fn missing_field(field: &str) -> WaveformError {
     }
 }
 
+fn missing_filter_field(field: &str) -> WaveformError {
+    WaveformError::InvalidParameter {
+        name: format!("filters.{field}"),
+        reason: "field is required for this filter type".to_string(),
+    }
+}
+
 fn default_time_unit() -> String {
     "s".to_string()
 }
@@ -211,6 +255,9 @@ mod tests {
                 kind: "moving_average".to_string(),
                 window_samples: Some(2),
                 cutoff_hz: None,
+                bits: None,
+                min_v: None,
+                max_v: None,
             }],
             criteria: vec![CriterionConfig {
                 id: "max".to_string(),
@@ -232,10 +279,60 @@ mod tests {
         };
 
         let options = config.csv_options();
+        let filters = config.filters().expect("filters should convert");
         let criteria = config.criteria().expect("criteria should convert");
 
         assert_eq!(options.time_column, "time");
         assert_eq!(options.channel_columns, vec!["input_v"]);
+        assert_eq!(
+            filters[0],
+            FilterStep::MovingAverage(MovingAverageFilter { window_samples: 2 })
+        );
         assert_eq!(criteria[0].id, "max");
+    }
+
+    #[test]
+    fn converts_adc_quantizer_config_to_filter_step() {
+        let config = FilterConfig {
+            kind: "adc_quantize".to_string(),
+            window_samples: None,
+            cutoff_hz: None,
+            bits: Some(12),
+            min_v: Some(0.0),
+            max_v: Some(5.0),
+        };
+
+        let filter = config.to_filter_step().expect("filter should convert");
+
+        assert_eq!(
+            filter,
+            FilterStep::AdcQuantize(AdcQuantizer {
+                bits: 12,
+                min_v: 0.0,
+                max_v: 5.0,
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_incomplete_adc_quantizer_config() {
+        let config = FilterConfig {
+            kind: "adc_quantize".to_string(),
+            window_samples: None,
+            cutoff_hz: None,
+            bits: Some(12),
+            min_v: Some(0.0),
+            max_v: None,
+        };
+
+        let result = config.to_filter_step();
+
+        assert_eq!(
+            result,
+            Err(WaveformError::InvalidParameter {
+                name: "filters.max_v".to_string(),
+                reason: "field is required for this filter type".to_string(),
+            })
+        );
     }
 }

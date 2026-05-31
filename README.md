@@ -1,8 +1,8 @@
 # Waveform Reconstructor and Analyzer
 
-Waveform Reconstructor and Analyzer is a Rust-centered open-source tool for importing CSV time-series waveform data, reconstructing analog signal channels, applying simulated filters, and evaluating waveform behavior against configurable pass/fail criteria.
+Waveform Reconstructor and Analyzer is a Rust-centered open-source tool for importing CSV time-series waveform data, reconstructing analog signal channels, applying simulated filters and ADC quantization, and evaluating waveform behavior against configurable pass/fail criteria.
 
-The first MVP is a CLI and core library slice. It focuses on CSV waveform loading, channel mapping, waveform data structures, low-pass and moving-average filters, waveform criteria, TOML config files, and text/JSON report output.
+The first MVP is a CLI and core library slice. It focuses on CSV waveform loading, channel mapping, waveform data structures, low-pass and moving-average filters, ideal ADC quantization, waveform criteria, TOML config files, and text/JSON report output.
 
 ## Current Status
 
@@ -13,7 +13,7 @@ This repository is in MVP implementation stage. The Rust workspace builds a smal
 - Load CSV waveform data.
 - Map one time column and one or more signal channels.
 - Reconstruct typed waveform objects.
-- Apply basic low-pass and moving-average filters as derived waveform outputs.
+- Apply basic low-pass, moving-average, and ideal ADC quantization transforms as derived waveform outputs.
 - Define pass/fail criteria for voltage limits, state transitions, pulse width, transient event duration, stable-state duration, and rise/fall time.
 - Run analysis from a CLI.
 - Produce text and JSON reports.
@@ -88,11 +88,24 @@ cargo run --bin wra -- analyze \
   --time-column time \
   --channels input_v \
   --moving-average 2 \
+  --adc-quantize 8:0.0:5.0 \
   --min input_v:0.0 \
   --max input_v:5.5
 ```
 
 The current CSV/config/report surface is intentionally small and should be expanded through focused issues.
+
+ADC quantization can also be configured as an ordered TOML filter step:
+
+```toml
+[[filters]]
+type = "adc_quantize"
+bits = 8
+min_v = 0.0
+max_v = 5.0
+```
+
+The quantizer clips samples outside the configured range, snaps in-range samples to the nearest ideal ADC code level, and keeps output samples in volts so normal voltage criteria can evaluate the digitized waveform. See [ADC quantization transform](docs/adc-quantization.md) for assumptions and limits.
 
 ## Waveform Criteria Example
 

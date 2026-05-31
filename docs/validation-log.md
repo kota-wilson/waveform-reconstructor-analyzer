@@ -133,3 +133,57 @@ Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --works
 Status: Pass.
 Known gaps: No ARM64 QEMU or embedded-target compile yet; tracked by follow-up issues.
 Next recommended step: V&V Gate for M3-RTOS-001.
+
+## ADC Quantization Validation Update
+
+Date: 2026-05-31
+
+Stage: Testing simulated ADC quantization transform
+
+Owner Role: Test Automation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`
+- Isolation: Project-local Cargo workspace; no Python packages or global tools installed.
+- New dependencies: None.
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo fmt --check` | Passed | Rust formatting clean. |
+| `cargo test --workspace` | Passed | 50 tests passed: 6 CLI, 28 core, 6 criteria-engine, 1 CSV fixture, 9 `wra-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --config examples/adc-quantized-config.toml --format text` | Passed | Config-driven ADC quantization produced `Overall: Pass` with `input_max_after_adc` evidence. |
+| `git diff --check` | Passed | No whitespace errors. |
+| Conflict-marker and terminology scan | Passed | `rg` found no conflict markers or informal event wording. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `filter::tests::adc_quantizer_snaps_samples_to_code_levels_without_mutating_input` | Quantizes to ideal code levels, clips outside range, and preserves raw samples. |
+| `filter::tests::adc_quantizer_rejects_invalid_parameters` | Rejects zero bit depth, excessive bit depth, and invalid voltage range. |
+| `filter::tests::filter_chain_applies_steps_in_order` | Proves ordered pre-criteria pipeline execution with moving average followed by ADC quantization. |
+| `config::tests::converts_adc_quantizer_config_to_filter_step` | Converts TOML-style config into the enum-backed filter step. |
+| `config::tests::rejects_incomplete_adc_quantizer_config` | Returns a structured missing-field error for incomplete ADC config. |
+| `wra-cli::tests::runs_analysis_with_adc_quantization_before_criteria` | Proves CLI criteria evaluate the derived quantized waveform. |
+
+### Gate Decision
+
+- Gate: Testing Gate.
+- Decision: Pass.
+- Reason: Unit, config, CLI, and workspace tests validate the requested ADC quantization behavior with no new dependencies.
+- Residual risk: This validates ideal quantization behavior only, not hardware-specific ADC effects.
+- Owner for residual risk: Test Automation Engineer / Electrical Signal Integrity Engineer.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer
+Goal: Validate simulated ADC quantization before pass/fail criteria.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; ADC config CLI smoke; `git diff --check`; conflict-marker and terminology scan.
+Status: Pass.
+Known gaps: No hardware ADC model validation.
+Next recommended step: Documentation and final workspace validation.

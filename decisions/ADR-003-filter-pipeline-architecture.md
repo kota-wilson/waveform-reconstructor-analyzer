@@ -26,6 +26,7 @@ The pipeline should be represented as ordered config steps that deserialize from
 pub enum FilterStep {
     MovingAverage { window_samples: usize },
     LowPass { cutoff_hz: f64 },
+    AdcQuantize { bits: u8, min_v: f64, max_v: f64 },
 }
 ```
 
@@ -54,7 +55,7 @@ Trait-based extension remains allowed behind the implementation boundary, but th
 - Config parsing becomes the source of truth for user-facing filter selection.
 - Unsupported filters fail early with clear errors.
 - Tests can assert filter ordering through a small fixture.
-- Future filter additions require adding an enum variant, docs, tests, and traceability updates.
+- Future transform additions require adding an enum variant, docs, tests, and traceability updates.
 - Trait-based extension can still be introduced later without exposing a plugin system.
 
 ## Implementation Notes
@@ -63,6 +64,7 @@ Trait-based extension remains allowed behind the implementation boundary, but th
 - Keep TOML deserialization in `crates/wra-core/src/config.rs`.
 - Convert config filter definitions into pipeline steps before analysis.
 - Add tests for ordering, invalid parameters, and raw waveform preservation.
+- Treat ADC quantization as an ordered derived transform, not DAQ integration or hardware validation.
 - Do not add GUI, DAQ integration, certification claims, or plugin runtime behavior.
 
 ## Related Work

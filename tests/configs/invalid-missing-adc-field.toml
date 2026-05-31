@@ -1,0 +1,14 @@
+[input]
+time_column = "time"
+channels = ["input_v"]
+
+[[filters]]
+type = "adc_quantize"
+bits = 12
+min_v = 0.0
+
+[[criteria]]
+id = "max_after_adc"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 5.0

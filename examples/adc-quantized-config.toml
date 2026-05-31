@@ -1,0 +1,19 @@
+# Example config that simulates ideal ADC quantization before criteria.
+
+[input]
+time_column = "time"
+channels = ["input_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[filters]]
+type = "adc_quantize"
+bits = 8
+min_v = 0.0
+max_v = 5.0
+
+[[criteria]]
+id = "input_max_after_adc"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 5.0

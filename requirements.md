@@ -17,6 +17,7 @@
 | WRA-RQ-011 | The project shall preserve raw data and make transformations derived artifacts. | Signal-processing standards | High | Filter APIs return new waveform data or transformed channel data, not destructive mutation of source fixtures. | Systems Engineer | MVP implemented |
 | WRA-RQ-012 | The project shall remain open-source ready. | User request | High | README, LICENSE, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG, GitHub templates, and CI exist. | GitHub Maintainer Specialist | Implemented; external publication blocked on license confirmation |
 | WRA-RQ-017 | The project shall provide an embedded foundation separate from the desktop CLI path. | User request | High | A dependency-free `wra-signal` crate builds with `#![no_std]`, has fixed-size sample buffers, streaming ingestion, min/max threshold checks, transient event detection, and desktop unit tests. | Core Software Engineer | M3-RTOS-001 implemented |
+| WRA-RQ-018 | The desktop analysis path shall support simulated ADC quantization before pass/fail criteria. | User request | High | Users can configure or pass an ordered ADC quantization transform with bit depth, minimum voltage, and maximum voltage; raw samples are preserved; criteria evaluate the derived quantized waveform; invalid parameters return clear errors. | Core Software Engineer | Implemented |
 
 ## Assumptions
 
@@ -44,6 +45,7 @@
 | WRA-RQ-011 | Code review | Raw data fixtures untouched; APIs return derived outputs. |
 | WRA-RQ-012 | File inspection and CI | Repository metadata and workflow files exist. |
 | WRA-RQ-017 | Unit tests and workspace checks | `wra-signal` unit tests, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `cargo tree -p wra-signal`. |
+| WRA-RQ-018 | Unit, CLI, and config tests | ADC quantizer unit tests, filter-chain ordering tests, config conversion tests, invalid config tests, CLI pre-criteria analysis test, and workspace checks. |
 
 ## Rules
 
