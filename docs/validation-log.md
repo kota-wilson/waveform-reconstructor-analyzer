@@ -22,6 +22,45 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-core`, and `ferrisoxide-cli`.
 
+## M8-003 Rule Package Validator Branch
+
+Current as of the M8-003 branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo tree -p ferrisoxide-rule-schema` | Passed | Runtime dependencies are approved `serde`, `serde_json`, and `toml`; no CLI, CSV, plotting, report, controller I/O, HAL, SDK, or RTOS dependency appears. |
+| `cargo test -p ferrisoxide-rule-schema` | Passed | 12 schema/validator tests passed plus doctests. |
+| `cargo fmt --check` | Passed | Formatting remained clean. |
+| `cargo test --workspace` | Passed | 118 tests passed: 11 CLI, 55 core, 15 criteria-engine fixture/golden/parity tests, 1 CSV fixture integration test, 4 `ferrisoxide-embedded`, 5 `ferrisoxide-measurements`, 6 `ferrisoxide-plot`, 12 `ferrisoxide-rule-schema`, 9 `ferrisoxide-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+
+### Validator Evidence
+
+| Artifact | Coverage |
+|---|---|
+| `crates/ferrisoxide-rule-schema/src/lib.rs` | Parse helpers, structured validation report/errors, package validation, target-profile validation, checksum comparison, and accepted/rejected tests. |
+| `docs/rule-package-format.md` | Validator behavior summary and remaining future M8 work. |
+| `docs/m8-003-rule-package-validator-pipeline-report.md` | Pipeline gates, acceptance mapping, validation evidence, and handoff. |
+
+### Gate Decision
+
+- Gate: Testing and V&V Gates for M8-003.
+- Decision: Pass locally.
+- Reason: Validator tests cover accepted packages plus every issue-listed invalid class; workspace tests, clippy, formatting, dependency boundary, and whitespace checks pass.
+- Residual risk: Protected GitHub CI is pending until PR creation; export, manifest/checksum algorithm, binary package, shared rule engine, no_std boundary, and parity tests remain open M8 issues.
+- Owner for residual risk: GitHub Maintainer Specialist / Project Orchestrator.
+
+### Hand-Off Note
+
+Role: Verification and Validation Engineer
+Goal: Validate structured rule package validation for issue #68.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo tree -p ferrisoxide-rule-schema`; `cargo test -p ferrisoxide-rule-schema`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally; protected-branch PR and CI pending.
+Known gaps: No export command, manifest/checksum algorithm, binary package, shared rule execution, no_std rule-engine boundary, or parity tests yet.
+Next recommended step: Open the M8-003 PR with `Fixes #68`.
+
 ## M8-002 Rule Package Format Branch
 
 Current as of the M8-002 branch on 2026-05-31.

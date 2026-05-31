@@ -2,7 +2,7 @@
 
 `ferrisoxide-rule-schema` owns the versioned portable FerrisOxide Rule Package model.
 
-It is a schema crate only. It deliberately does not parse CSV, evaluate rules, render reports, plot SVGs, export deployment packages, compute checksums, talk to DAQ/controller I/O, bind hardware HALs, or claim hardware qualification/certification suitability.
+It is a schema and validation crate only. It deliberately does not parse CSV, evaluate rules, render reports, plot SVGs, export deployment packages, compute checksum algorithms, talk to DAQ/controller I/O, bind hardware HALs, or claim hardware qualification/certification suitability.
 
 ## Current Scope
 
@@ -15,9 +15,10 @@ The initial schema covers:
 - filter definitions,
 - measurement-backed criteria definitions,
 - timing limits through unit-bearing criterion requirements,
-- explicit requirement units.
+- explicit requirement units,
+- structured validation errors before export or execution.
 
-Future issues add validation, export commands, checksums/manifests, shared execution, no_std boundaries, and parity tests.
+Future issues add export commands, checksums/manifests, shared execution, no_std boundaries, and parity tests.
 
 The initial reviewable package format is documented in `../../docs/rule-package-format.md`, with parse-tested examples in `../../examples/rule-package/`.
 

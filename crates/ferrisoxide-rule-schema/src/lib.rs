@@ -4,6 +4,9 @@
 //! render reports, export deployment packages, compute checksums, or bind any
 //! controller, DAQ, RTOS, SDK, or hardware HAL.
 
+use std::collections::BTreeSet;
+use std::fmt;
+
 use serde::{Deserialize, Serialize};
 
 pub const CURRENT_SCHEMA_VERSION: &str = "0.1.0";
@@ -35,6 +38,244 @@ impl RulePackage {
             channels,
             filters: Vec::new(),
             criteria,
+        }
+    }
+
+    pub fn validate(&self) -> Result<(), RulePackageValidationReport> {
+        self.validate_with_expected_target(None)
+    }
+
+    pub fn validate_for_target(
+        &self,
+        expected: TargetProfileKind,
+    ) -> Result<(), RulePackageValidationReport> {
+        self.validate_with_expected_target(Some(expected))
+    }
+
+    fn validate_with_expected_target(
+        &self,
+        expected: Option<TargetProfileKind>,
+    ) -> Result<(), RulePackageValidationReport> {
+        let mut report = RulePackageValidationReport::new();
+
+        validate_non_empty("package.name", &self.package.name, &mut report);
+        validate_non_empty("package.version", &self.package.version, &mut report);
+        if self.package.schema_version != CURRENT_SCHEMA_VERSION {
+            report.push(RulePackageValidationError::new(
+                "package.schema_version",
+                RulePackageValidationErrorKind::SchemaVersionMismatch,
+                format!(
+                    "expected schema version `{CURRENT_SCHEMA_VERSION}`, got `{}`",
+                    self.package.schema_version
+                ),
+            ));
+        }
+
+        if let Some(expected) = expected {
+            if self.target.kind != expected {
+                report.push(RulePackageValidationError::new(
+                    "target.kind",
+                    RulePackageValidationErrorKind::IncompatibleTargetProfile,
+                    format!(
+                        "expected target `{}`, got `{}`",
+                        expected.as_str(),
+                        self.target.kind.as_str()
+                    ),
+                ));
+            }
+        }
+
+        validate_sample_timing(&self.sample_timing, &mut report);
+
+        if self.channels.is_empty() {
+            report.push(RulePackageValidationError::new(
+                "channels",
+                RulePackageValidationErrorKind::MissingChannel,
+                "at least one channel is required",
+            ));
+        }
+
+        let mut channel_names = BTreeSet::new();
+        for (index, channel) in self.channels.iter().enumerate() {
+            let field = format!("channels[{index}]");
+            validate_non_empty(&format!("{field}.name"), &channel.name, &mut report);
+            if !channel.name.is_empty() && !channel_names.insert(channel.name.clone()) {
+                report.push(RulePackageValidationError::new(
+                    format!("{field}.name"),
+                    RulePackageValidationErrorKind::DuplicateIdentifier,
+                    format!("duplicate channel `{}`", channel.name),
+                ));
+            }
+            validate_optional_positive_finite(
+                &format!("{field}.sample_rate_hz"),
+                channel.sample_rate_hz,
+                &mut report,
+            );
+            validate_thresholds(index, channel, &mut report);
+        }
+
+        let mut filter_ids = BTreeSet::new();
+        for (index, filter) in self.filters.iter().enumerate() {
+            validate_filter(index, filter, &channel_names, &mut filter_ids, &mut report);
+        }
+
+        let mut criterion_ids = BTreeSet::new();
+        for (index, criterion) in self.criteria.iter().enumerate() {
+            validate_criterion(
+                index,
+                criterion,
+                &channel_names,
+                &mut criterion_ids,
+                &mut report,
+            );
+        }
+
+        report.into_result()
+    }
+}
+
+pub fn parse_rule_package_json(input: &str) -> Result<RulePackage, RulePackageValidationError> {
+    serde_json::from_str(input).map_err(|error| classify_parse_error("rules.json", &error))
+}
+
+pub fn parse_rule_package_toml(input: &str) -> Result<RulePackage, RulePackageValidationError> {
+    toml::from_str(input).map_err(|error| classify_parse_error("rules.toml", &error))
+}
+
+pub fn validate_checksum_match(
+    expected: &str,
+    actual: &str,
+) -> Result<(), RulePackageValidationError> {
+    if expected == actual {
+        return Ok(());
+    }
+
+    Err(RulePackageValidationError::new(
+        "checksum",
+        RulePackageValidationErrorKind::ChecksumMismatch,
+        "expected checksum does not match actual checksum",
+    ))
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RulePackageValidationReport {
+    pub errors: Vec<RulePackageValidationError>,
+}
+
+impl RulePackageValidationReport {
+    pub fn new() -> Self {
+        Self { errors: Vec::new() }
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.errors.is_empty()
+    }
+
+    fn push(&mut self, error: RulePackageValidationError) {
+        self.errors.push(error);
+    }
+
+    fn into_result(self) -> Result<(), Self> {
+        if self.errors.is_empty() {
+            Ok(())
+        } else {
+            Err(self)
+        }
+    }
+}
+
+impl Default for RulePackageValidationReport {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl fmt::Display for RulePackageValidationReport {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.errors.is_empty() {
+            return write!(formatter, "rule package validation passed");
+        }
+
+        writeln!(
+            formatter,
+            "rule package validation failed with {} error(s):",
+            self.errors.len()
+        )?;
+        for error in &self.errors {
+            writeln!(formatter, "- {error}")?;
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RulePackageValidationError {
+    pub field: String,
+    pub kind: RulePackageValidationErrorKind,
+    pub message: String,
+}
+
+impl RulePackageValidationError {
+    pub fn new(
+        field: impl Into<String>,
+        kind: RulePackageValidationErrorKind,
+        message: impl Into<String>,
+    ) -> Self {
+        Self {
+            field: field.into(),
+            kind,
+            message: message.into(),
+        }
+    }
+}
+
+impl fmt::Display for RulePackageValidationError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            formatter,
+            "{}: {} ({})",
+            self.field,
+            self.message,
+            self.kind.as_str()
+        )
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RulePackageValidationErrorKind {
+    ParseError,
+    MissingChannel,
+    UnsupportedUnit,
+    UnknownFilter,
+    UnknownCriterion,
+    InvalidTimingAssumption,
+    ChecksumMismatch,
+    IncompatibleTargetProfile,
+    InvalidPackageMetadata,
+    SchemaVersionMismatch,
+    DuplicateIdentifier,
+    InvalidFilter,
+    InvalidCriterion,
+    InvalidThreshold,
+}
+
+impl RulePackageValidationErrorKind {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::ParseError => "parse_error",
+            Self::MissingChannel => "missing_channel",
+            Self::UnsupportedUnit => "unsupported_unit",
+            Self::UnknownFilter => "unknown_filter",
+            Self::UnknownCriterion => "unknown_criterion",
+            Self::InvalidTimingAssumption => "invalid_timing_assumption",
+            Self::ChecksumMismatch => "checksum_mismatch",
+            Self::IncompatibleTargetProfile => "incompatible_target_profile",
+            Self::InvalidPackageMetadata => "invalid_package_metadata",
+            Self::SchemaVersionMismatch => "schema_version_mismatch",
+            Self::DuplicateIdentifier => "duplicate_identifier",
+            Self::InvalidFilter => "invalid_filter",
+            Self::InvalidCriterion => "invalid_criterion",
+            Self::InvalidThreshold => "invalid_threshold",
         }
     }
 }
@@ -85,6 +326,17 @@ pub enum TargetProfileKind {
     EmbeddedRuntime,
     ControllerRuntime,
     TestVerification,
+}
+
+impl TargetProfileKind {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::DesktopAuthoring => "desktop_authoring",
+            Self::EmbeddedRuntime => "embedded_runtime",
+            Self::ControllerRuntime => "controller_runtime",
+            Self::TestVerification => "test_verification",
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
@@ -294,6 +546,475 @@ pub enum TransientEventKind {
     ThresholdCrossingEvent,
 }
 
+fn classify_parse_error(
+    field: &'static str,
+    error: &impl fmt::Display,
+) -> RulePackageValidationError {
+    let message = error.to_string();
+    let kind = if message.contains("unknown variant")
+        && message.contains("V")
+        && message.contains("Hz")
+        && message.contains("count")
+    {
+        RulePackageValidationErrorKind::UnsupportedUnit
+    } else if message.contains("unknown variant")
+        && message.contains("moving_average")
+        && message.contains("adc_quantize")
+    {
+        RulePackageValidationErrorKind::UnknownFilter
+    } else if message.contains("unknown variant")
+        && message.contains("minimum_sample")
+        && message.contains("transient_event_duration")
+    {
+        RulePackageValidationErrorKind::UnknownCriterion
+    } else {
+        RulePackageValidationErrorKind::ParseError
+    };
+
+    RulePackageValidationError::new(field, kind, message)
+}
+
+fn validate_non_empty(field: &str, value: &str, report: &mut RulePackageValidationReport) {
+    if value.trim().is_empty() {
+        report.push(RulePackageValidationError::new(
+            field,
+            RulePackageValidationErrorKind::InvalidPackageMetadata,
+            "value must not be empty",
+        ));
+    }
+}
+
+fn validate_sample_timing(
+    timing: &SampleTimingAssumption,
+    report: &mut RulePackageValidationReport,
+) {
+    if timing.timestamp_unit != EngineeringUnit::Second {
+        report.push(RulePackageValidationError::new(
+            "sample_timing.timestamp_unit",
+            RulePackageValidationErrorKind::InvalidTimingAssumption,
+            "timestamp unit must be `s`",
+        ));
+    }
+
+    validate_optional_positive_finite(
+        "sample_timing.nominal_sample_rate_hz",
+        timing.nominal_sample_rate_hz,
+        report,
+    );
+    validate_optional_non_negative_finite(
+        "sample_timing.sample_rate_tolerance_hz",
+        timing.sample_rate_tolerance_hz,
+        RulePackageValidationErrorKind::InvalidTimingAssumption,
+        report,
+    );
+    validate_optional_positive_finite(
+        "sample_timing.nominal_sample_interval_s",
+        timing.nominal_sample_interval_s,
+        report,
+    );
+    validate_optional_non_negative_finite(
+        "sample_timing.timestamp_tolerance_s",
+        timing.timestamp_tolerance_s,
+        RulePackageValidationErrorKind::InvalidTimingAssumption,
+        report,
+    );
+
+    if let (Some(rate), Some(interval)) = (
+        timing.nominal_sample_rate_hz,
+        timing.nominal_sample_interval_s,
+    ) {
+        if rate.is_finite() && rate > 0.0 && interval.is_finite() && interval > 0.0 {
+            let expected_interval = 1.0 / rate;
+            if (interval - expected_interval).abs() > expected_interval * 0.001 {
+                report.push(RulePackageValidationError::new(
+                    "sample_timing.nominal_sample_interval_s",
+                    RulePackageValidationErrorKind::InvalidTimingAssumption,
+                    "sample interval must match nominal sample rate within 0.1%",
+                ));
+            }
+        }
+    }
+}
+
+fn validate_thresholds(
+    channel_index: usize,
+    channel: &ChannelDefinition,
+    report: &mut RulePackageValidationReport,
+) {
+    let mut names = BTreeSet::new();
+    for (index, threshold) in channel.thresholds.iter().enumerate() {
+        let field = format!("channels[{channel_index}].thresholds[{index}]");
+        validate_non_empty(&format!("{field}.name"), &threshold.name, report);
+        if !threshold.name.is_empty() && !names.insert(threshold.name.as_str()) {
+            report.push(RulePackageValidationError::new(
+                format!("{field}.name"),
+                RulePackageValidationErrorKind::DuplicateIdentifier,
+                format!("duplicate threshold `{}`", threshold.name),
+            ));
+        }
+        validate_unit_value(
+            &format!("{field}.value"),
+            threshold.value,
+            Some(channel.unit),
+            RulePackageValidationErrorKind::InvalidThreshold,
+            report,
+        );
+    }
+}
+
+fn validate_filter(
+    index: usize,
+    filter: &FilterDefinition,
+    channel_names: &BTreeSet<String>,
+    filter_ids: &mut BTreeSet<String>,
+    report: &mut RulePackageValidationReport,
+) {
+    let field = format!("filters[{index}]");
+    let id = filter.id();
+    validate_non_empty(&format!("{field}.id"), id, report);
+    if !id.is_empty() && !filter_ids.insert(id.to_string()) {
+        report.push(RulePackageValidationError::new(
+            format!("{field}.id"),
+            RulePackageValidationErrorKind::DuplicateIdentifier,
+            format!("duplicate filter `{id}`"),
+        ));
+    }
+    validate_channel_reference(
+        &format!("{field}.channel"),
+        filter.channel(),
+        channel_names,
+        report,
+    );
+
+    match filter {
+        FilterDefinition::MovingAverage { window_samples, .. } => {
+            if *window_samples == 0 {
+                report.push(RulePackageValidationError::new(
+                    format!("{field}.window_samples"),
+                    RulePackageValidationErrorKind::InvalidFilter,
+                    "window_samples must be greater than zero",
+                ));
+            }
+        }
+        FilterDefinition::LowPass { cutoff, .. } => validate_unit_value(
+            &format!("{field}.cutoff"),
+            *cutoff,
+            Some(EngineeringUnit::Hertz),
+            RulePackageValidationErrorKind::InvalidFilter,
+            report,
+        ),
+        FilterDefinition::AdcQuantize { bits, min, max, .. } => {
+            if *bits == 0 || *bits > 32 {
+                report.push(RulePackageValidationError::new(
+                    format!("{field}.bits"),
+                    RulePackageValidationErrorKind::InvalidFilter,
+                    "bits must be between 1 and 32",
+                ));
+            }
+            validate_unit_value(
+                &format!("{field}.min"),
+                *min,
+                Some(EngineeringUnit::Volt),
+                RulePackageValidationErrorKind::InvalidFilter,
+                report,
+            );
+            validate_unit_value(
+                &format!("{field}.max"),
+                *max,
+                Some(EngineeringUnit::Volt),
+                RulePackageValidationErrorKind::InvalidFilter,
+                report,
+            );
+            if min.unit == max.unit && min.value >= max.value {
+                report.push(RulePackageValidationError::new(
+                    format!("{field}.max"),
+                    RulePackageValidationErrorKind::InvalidFilter,
+                    "max must be greater than min",
+                ));
+            }
+        }
+    }
+}
+
+fn validate_criterion(
+    index: usize,
+    criterion: &CriterionDefinition,
+    channel_names: &BTreeSet<String>,
+    criterion_ids: &mut BTreeSet<String>,
+    report: &mut RulePackageValidationReport,
+) {
+    let field = format!("criteria[{index}]");
+    validate_non_empty(&format!("{field}.id"), &criterion.id, report);
+    if !criterion.id.is_empty() && !criterion_ids.insert(criterion.id.clone()) {
+        report.push(RulePackageValidationError::new(
+            format!("{field}.id"),
+            RulePackageValidationErrorKind::DuplicateIdentifier,
+            format!("duplicate criterion `{}`", criterion.id),
+        ));
+    }
+    validate_channel_reference(
+        &format!("{field}.channel"),
+        &criterion.channel,
+        channel_names,
+        report,
+    );
+    validate_measurement(
+        &field,
+        &criterion.measurement,
+        &criterion.requirement,
+        report,
+    );
+}
+
+fn validate_measurement(
+    field: &str,
+    measurement: &MeasurementDefinition,
+    requirement: &RequirementDefinition,
+    report: &mut RulePackageValidationReport,
+) {
+    match measurement {
+        MeasurementDefinition::MinimumSample | MeasurementDefinition::MaximumSample => {
+            validate_requirement(
+                &format!("{field}.requirement"),
+                requirement,
+                EngineeringUnit::Volt,
+                report,
+            );
+        }
+        MeasurementDefinition::StateTransitionCount { threshold } => {
+            validate_unit_value(
+                &format!("{field}.measurement.threshold"),
+                *threshold,
+                Some(EngineeringUnit::Volt),
+                RulePackageValidationErrorKind::InvalidCriterion,
+                report,
+            );
+            validate_requirement(
+                &format!("{field}.requirement"),
+                requirement,
+                EngineeringUnit::Count,
+                report,
+            );
+        }
+        MeasurementDefinition::PulseWidth {
+            threshold,
+            selection,
+            ..
+        } => {
+            validate_unit_value(
+                &format!("{field}.measurement.threshold"),
+                *threshold,
+                Some(EngineeringUnit::Volt),
+                RulePackageValidationErrorKind::InvalidCriterion,
+                report,
+            );
+            validate_requirement(
+                &format!("{field}.requirement"),
+                requirement,
+                EngineeringUnit::Second,
+                report,
+            );
+            if requirement.operator == ComparisonOperator::EqualTo && selection.is_none() {
+                report.push(RulePackageValidationError::new(
+                    format!("{field}.measurement.selection"),
+                    RulePackageValidationErrorKind::InvalidCriterion,
+                    "equal_to pulse_width criteria must select shortest or longest",
+                ));
+            }
+        }
+        MeasurementDefinition::StableStateDuration { threshold, .. }
+        | MeasurementDefinition::TransientEventDuration { threshold, .. } => {
+            validate_unit_value(
+                &format!("{field}.measurement.threshold"),
+                *threshold,
+                Some(EngineeringUnit::Volt),
+                RulePackageValidationErrorKind::InvalidCriterion,
+                report,
+            );
+            validate_requirement(
+                &format!("{field}.requirement"),
+                requirement,
+                EngineeringUnit::Second,
+                report,
+            );
+        }
+        MeasurementDefinition::RiseTime {
+            low_threshold,
+            high_threshold,
+        }
+        | MeasurementDefinition::FallTime {
+            low_threshold,
+            high_threshold,
+        } => {
+            validate_unit_value(
+                &format!("{field}.measurement.low_threshold"),
+                *low_threshold,
+                Some(EngineeringUnit::Volt),
+                RulePackageValidationErrorKind::InvalidCriterion,
+                report,
+            );
+            validate_unit_value(
+                &format!("{field}.measurement.high_threshold"),
+                *high_threshold,
+                Some(EngineeringUnit::Volt),
+                RulePackageValidationErrorKind::InvalidCriterion,
+                report,
+            );
+            if low_threshold.unit == high_threshold.unit
+                && low_threshold.value >= high_threshold.value
+            {
+                report.push(RulePackageValidationError::new(
+                    format!("{field}.measurement.high_threshold"),
+                    RulePackageValidationErrorKind::InvalidCriterion,
+                    "high_threshold must be greater than low_threshold",
+                ));
+            }
+            validate_requirement(
+                &format!("{field}.requirement"),
+                requirement,
+                EngineeringUnit::Second,
+                report,
+            );
+        }
+    }
+}
+
+fn validate_requirement(
+    field: &str,
+    requirement: &RequirementDefinition,
+    expected_unit: EngineeringUnit,
+    report: &mut RulePackageValidationReport,
+) {
+    validate_unit_value(
+        &format!("{field}.value"),
+        requirement.value,
+        Some(expected_unit),
+        RulePackageValidationErrorKind::InvalidCriterion,
+        report,
+    );
+
+    if matches!(
+        requirement.value.unit,
+        EngineeringUnit::Count | EngineeringUnit::Sample
+    ) && requirement.value.value.fract() != 0.0
+    {
+        report.push(RulePackageValidationError::new(
+            format!("{field}.value"),
+            RulePackageValidationErrorKind::InvalidCriterion,
+            "count and sample requirements must be whole numbers",
+        ));
+    }
+
+    if requirement.value.value < 0.0 {
+        report.push(RulePackageValidationError::new(
+            format!("{field}.value"),
+            RulePackageValidationErrorKind::InvalidCriterion,
+            "requirement value must be non-negative",
+        ));
+    }
+}
+
+fn validate_channel_reference(
+    field: &str,
+    channel: &str,
+    channel_names: &BTreeSet<String>,
+    report: &mut RulePackageValidationReport,
+) {
+    validate_non_empty(field, channel, report);
+    if !channel.is_empty() && !channel_names.contains(channel) {
+        report.push(RulePackageValidationError::new(
+            field,
+            RulePackageValidationErrorKind::MissingChannel,
+            format!("channel `{channel}` is not defined"),
+        ));
+    }
+}
+
+fn validate_optional_positive_finite(
+    field: &str,
+    value: Option<f64>,
+    report: &mut RulePackageValidationReport,
+) {
+    let Some(value) = value else {
+        return;
+    };
+
+    if !value.is_finite() || value <= 0.0 {
+        report.push(RulePackageValidationError::new(
+            field,
+            RulePackageValidationErrorKind::InvalidTimingAssumption,
+            "value must be finite and greater than zero",
+        ));
+    }
+}
+
+fn validate_optional_non_negative_finite(
+    field: &str,
+    value: Option<f64>,
+    kind: RulePackageValidationErrorKind,
+    report: &mut RulePackageValidationReport,
+) {
+    let Some(value) = value else {
+        return;
+    };
+
+    if !value.is_finite() || value < 0.0 {
+        report.push(RulePackageValidationError::new(
+            field,
+            kind,
+            "value must be finite and non-negative",
+        ));
+    }
+}
+
+fn validate_unit_value(
+    field: &str,
+    unit_value: UnitValue,
+    expected_unit: Option<EngineeringUnit>,
+    kind: RulePackageValidationErrorKind,
+    report: &mut RulePackageValidationReport,
+) {
+    if !unit_value.value.is_finite() {
+        report.push(RulePackageValidationError::new(
+            field,
+            kind,
+            "value must be finite",
+        ));
+    }
+
+    if let Some(expected_unit) = expected_unit {
+        if unit_value.unit != expected_unit {
+            report.push(RulePackageValidationError::new(
+                format!("{field}.unit"),
+                kind,
+                format!(
+                    "expected unit `{}`, got `{}`",
+                    expected_unit.symbol(),
+                    unit_value.unit.symbol()
+                ),
+            ));
+        }
+    }
+}
+
+impl FilterDefinition {
+    fn id(&self) -> &str {
+        match self {
+            Self::MovingAverage { id, .. }
+            | Self::LowPass { id, .. }
+            | Self::AdcQuantize { id, .. } => id,
+        }
+    }
+
+    fn channel(&self) -> &str {
+        match self {
+            Self::MovingAverage { channel, .. }
+            | Self::LowPass { channel, .. }
+            | Self::AdcQuantize { channel, .. } => channel,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -414,10 +1135,10 @@ mod tests {
         let rules_toml = include_str!("../../../examples/rule-package/rules.toml");
         let rules_json = include_str!("../../../examples/rule-package/rules.json");
 
-        let toml_package: RulePackage =
-            toml::from_str(rules_toml).expect("rules.toml should match the schema");
-        let json_package: RulePackage =
-            serde_json::from_str(rules_json).expect("rules.json should match the schema");
+        let toml_package =
+            parse_rule_package_toml(rules_toml).expect("rules.toml should match the schema");
+        let json_package =
+            parse_rule_package_json(rules_json).expect("rules.json should match the schema");
 
         assert_eq!(toml_package, json_package);
         assert_eq!(toml_package.package.schema_version, CURRENT_SCHEMA_VERSION);
@@ -425,5 +1146,136 @@ mod tests {
         assert_eq!(toml_package.channels[0].thresholds.len(), 3);
         assert_eq!(toml_package.filters.len(), 2);
         assert_eq!(toml_package.criteria.len(), 3);
+        assert_eq!(toml_package.validate(), Ok(()));
+    }
+
+    #[test]
+    fn validates_accepted_package_for_expected_target() {
+        let package = example_package();
+
+        assert_eq!(package.validate(), Ok(()));
+        assert_eq!(
+            package.validate_for_target(TargetProfileKind::ControllerRuntime),
+            Ok(())
+        );
+    }
+
+    #[test]
+    fn rejects_missing_channel_references() {
+        let mut package = example_package();
+        package.criteria[0].channel = "missing_signal".to_string();
+
+        let report = package
+            .validate()
+            .expect_err("missing channel should be rejected");
+
+        assert!(report.errors.iter().any(|error| {
+            error.kind == RulePackageValidationErrorKind::MissingChannel
+                && error.field == "criteria[0].channel"
+        }));
+    }
+
+    #[test]
+    fn classifies_unsupported_unit_during_parse() {
+        let invalid = include_str!("../../../examples/rule-package/rules.toml")
+            .replace("unit = \"V\"", "unit = \"mV\"");
+
+        let error = parse_rule_package_toml(&invalid).expect_err("unsupported unit should fail");
+
+        assert_eq!(error.kind, RulePackageValidationErrorKind::UnsupportedUnit);
+    }
+
+    #[test]
+    fn classifies_unknown_filter_during_parse() {
+        let invalid = include_str!("../../../examples/rule-package/rules.toml")
+            .replace("type = \"moving_average\"", "type = \"median\"");
+
+        let error = parse_rule_package_toml(&invalid).expect_err("unknown filter should fail");
+
+        assert_eq!(error.kind, RulePackageValidationErrorKind::UnknownFilter);
+    }
+
+    #[test]
+    fn classifies_unknown_criterion_measurement_during_parse() {
+        let invalid = include_str!("../../../examples/rule-package/rules.toml").replace(
+            "type = \"transient_event_duration\"",
+            "type = \"glitch_duration\"",
+        );
+
+        let error = parse_rule_package_toml(&invalid).expect_err("unknown criterion should fail");
+
+        assert_eq!(error.kind, RulePackageValidationErrorKind::UnknownCriterion);
+    }
+
+    #[test]
+    fn rejects_invalid_timing_assumptions() {
+        let mut package = example_package();
+        package.sample_timing.nominal_sample_rate_hz = Some(0.0);
+        package.sample_timing.sample_rate_tolerance_hz = Some(-1.0);
+
+        let report = package
+            .validate()
+            .expect_err("invalid timing should be rejected");
+
+        assert!(report.errors.iter().any(|error| {
+            error.kind == RulePackageValidationErrorKind::InvalidTimingAssumption
+                && error.field == "sample_timing.nominal_sample_rate_hz"
+        }));
+        assert!(report.errors.iter().any(|error| {
+            error.kind == RulePackageValidationErrorKind::InvalidTimingAssumption
+                && error.field == "sample_timing.sample_rate_tolerance_hz"
+        }));
+    }
+
+    #[test]
+    fn rejects_checksum_mismatch() {
+        let error = validate_checksum_match("abc123", "def456")
+            .expect_err("checksum mismatch should be structured");
+
+        assert_eq!(error.kind, RulePackageValidationErrorKind::ChecksumMismatch);
+        assert_eq!(error.field, "checksum");
+    }
+
+    #[test]
+    fn rejects_incompatible_target_profile() {
+        let package = example_package();
+
+        let report = package
+            .validate_for_target(TargetProfileKind::EmbeddedRuntime)
+            .expect_err("target mismatch should be rejected");
+
+        assert!(report.errors.iter().any(|error| {
+            error.kind == RulePackageValidationErrorKind::IncompatibleTargetProfile
+                && error.field == "target.kind"
+        }));
+    }
+
+    #[test]
+    fn rejects_invalid_filter_and_criterion_parameters() {
+        let mut package = example_package();
+        package.filters[0] = FilterDefinition::MovingAverage {
+            id: "switch_moving_average".to_string(),
+            channel: "switch_signal".to_string(),
+            window_samples: 0,
+        };
+        package.criteria[2].requirement.value = UnitValue::new(2.5, EngineeringUnit::Count);
+
+        let report = package
+            .validate()
+            .expect_err("invalid filter and criterion should fail");
+
+        assert!(report.errors.iter().any(|error| {
+            error.kind == RulePackageValidationErrorKind::InvalidFilter
+                && error.field == "filters[0].window_samples"
+        }));
+        assert!(report.errors.iter().any(|error| {
+            error.kind == RulePackageValidationErrorKind::InvalidCriterion
+                && error.field == "criteria[2].requirement.value"
+        }));
+    }
+
+    fn example_package() -> RulePackage {
+        parse_rule_package_toml(include_str!("../../../examples/rule-package/rules.toml"))
+            .expect("example package should parse")
     }
 }

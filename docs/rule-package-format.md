@@ -205,16 +205,25 @@ Embedded consumers must not require:
 
 ## Validation Expectations
 
-M8-002 validates the format by parse-testing `rules.toml` and `rules.json` into `ferrisoxide-rule-schema::RulePackage` and verifying that both examples describe the same package.
+The format is validated by parse-testing `rules.toml` and `rules.json` into `ferrisoxide-rule-schema::RulePackage`, verifying that both examples describe the same package, and running `RulePackage::validate()` before export or execution.
 
 Later issues add:
 
-- M8-003 structured validation errors,
 - M8-004 CLI export,
 - M8-005 manifest/checksum behavior,
 - M8-006 shared rule execution,
 - M8-007 no_std compatibility boundary,
 - M8-008 desktop-vs-embedded parity tests.
+
+The initial M8-003 validator returns structured errors for:
+
+- missing channel definitions or references,
+- unsupported unit strings during parsing,
+- unknown filter or criterion tags during parsing,
+- invalid timing and sample-rate assumptions,
+- checksum mismatch when expected and actual checksum strings are provided,
+- incompatible target profile expectations,
+- invalid filter, threshold, or criterion parameters.
 
 ## Hand-Off Note
 
@@ -223,5 +232,5 @@ Goal: Define the initial portable rule package format and artifact roles.
 Files changed: `docs/rule-package-format.md`, `examples/rule-package/rules.toml`, `examples/rule-package/rules.json`.
 Checks run: Parse-tested examples and workspace validation recorded in `docs/validation-log.md`.
 Status: Initial format documented and examples added.
-Known gaps: Export command, validator, manifest/checksum, binary package, shared rule engine, no_std boundary, and parity tests remain future M8 issues.
-Next recommended step: Implement rule package validation in M8-003.
+Known gaps: Export command, manifest/checksum, binary package, shared rule engine, no_std boundary, and parity tests remain future M8 issues.
+Next recommended step: Add the package export command in M8-004.

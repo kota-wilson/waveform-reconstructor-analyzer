@@ -73,7 +73,7 @@ The embedded track now has a host-checkable ARM64 QEMU proof slice under `embedd
 
 ## Portable Rule Packages
 
-`crates/ferrisoxide-rule-schema` defines the initial versioned FerrisOxide Rule Package schema. The reviewable package format is documented in `docs/rule-package-format.md`, with parse-tested examples in `examples/rule-package/`. Export commands, validators, checksums, binary packages, shared execution, no_std rule-engine behavior, and desktop-vs-embedded parity tests remain future M8 issues.
+`crates/ferrisoxide-rule-schema` defines the initial versioned FerrisOxide Rule Package schema and validator. The reviewable package format is documented in `docs/rule-package-format.md`, with parse-tested examples in `examples/rule-package/`. Export commands, checksums, binary packages, shared execution, no_std rule-engine behavior, and desktop-vs-embedded parity tests remain future M8 issues.
 
 ## MVP Usage
 
