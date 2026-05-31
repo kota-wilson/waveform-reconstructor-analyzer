@@ -12,5 +12,6 @@ The validation area is not a production qualification package and does not provi
 | `environmental_cases/` | Environmental-style examples with stated intent and limits. |
 | `filter_response/` | Filter behavior fixtures and equation-backed expected outputs. |
 | `reports/` | Expected reports generated from validation fixtures. |
+| `benchmarks/` | Repeatable large-CSV benchmark strategy and baseline notes. |
 
 Each future validation case should include source notes, expected values, tolerance policy, analyzer command, expected output, and scope limits.

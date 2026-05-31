@@ -17,6 +17,14 @@ Waveform Reconstructor and Analyzer is meant to help review CSV waveform capture
 | `tests/fixtures/slow_rise_fall_signal.csv` | Analog signal with slow rise and fall transitions. |
 | `tests/fixtures/multi_channel.csv` | Multi-channel capture with supply, control, and output channels. |
 
+The v0.3.0 validation examples add audit-ready fixture/config/report sets under `validation/`:
+
+| Validation Case | Fixture | Expected Report | Interpretation Notes |
+|---|---|---|---|
+| Known-answer square wave with tolerances | `validation/known_answer/square_wave_tolerance.csv` | `validation/reports/square_wave_tolerance.json` | `validation/known_answer/expected-measurements.md` |
+| Dropout event | `validation/environmental_cases/dropout_event.csv` | `validation/reports/environmental_dropout_fail.json` | `validation/environmental_cases/expected-measurements.md` |
+| Contact bounce event | `validation/environmental_cases/contact_bounce.csv` | `validation/reports/environmental_contact_bounce_fail.json` | `validation/environmental_cases/expected-measurements.md` |
+
 ## Criteria Mapping
 
 | Criterion | Example Use |
@@ -34,3 +42,21 @@ Waveform Reconstructor and Analyzer is meant to help review CSV waveform capture
 - Equipment control.
 - Aerospace certification logic.
 - Regulatory or safety qualification claims.
+
+## Validation Commands
+
+```bash
+cargo run --quiet --bin wra -- analyze \
+  --input validation/environmental_cases/dropout_event.csv \
+  --config validation/environmental_cases/dropout_event.toml \
+  --format json
+```
+
+```bash
+cargo run --quiet --bin wra -- analyze \
+  --input validation/environmental_cases/contact_bounce.csv \
+  --config validation/environmental_cases/contact_bounce.toml \
+  --format json
+```
+
+The expected outputs are stored under `validation/reports/` and compared exactly by `crates/wra-core/tests/criteria_engine.rs`.

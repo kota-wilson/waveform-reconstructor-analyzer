@@ -1,5 +1,5 @@
 use crate::error::{Result, WaveformError};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(transparent)]
@@ -60,9 +60,43 @@ pub struct SampleIntervalSummary {
     pub uniform: bool,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub struct TolerancePolicy {
+    pub voltage_v: f64,
+    pub time_s: f64,
+}
+
+impl TolerancePolicy {
+    pub fn validate(&self) -> Result<()> {
+        validate_tolerance("tolerances.voltage_v", self.voltage_v)?;
+        validate_tolerance("tolerances.time_s", self.time_s)
+    }
+}
+
+impl Default for TolerancePolicy {
+    fn default() -> Self {
+        Self {
+            voltage_v: 0.0,
+            time_s: 0.0,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+pub struct MetadataContext {
+    pub test_run_id: Option<String>,
+    pub acquisition_notes: Option<String>,
+    pub environment: Option<String>,
+    pub operator: Option<String>,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize)]
 pub struct WaveformMetadata {
     pub source_name: Option<String>,
+    pub test_run_id: Option<String>,
+    pub acquisition_notes: Option<String>,
+    pub environment: Option<String>,
+    pub operator: Option<String>,
     pub time_unit: Unit,
     pub sample_count: usize,
     pub channel_count: usize,
@@ -71,6 +105,7 @@ pub struct WaveformMetadata {
     pub nominal_sample_rate_hz: Option<f64>,
     pub lineage: WaveformLineage,
     pub transform_history: Vec<String>,
+    pub tolerance_policy: Option<TolerancePolicy>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -124,12 +159,30 @@ impl Waveform {
         self
     }
 
+    pub fn with_metadata_context(mut self, context: &MetadataContext) -> Self {
+        self.metadata.test_run_id = context.test_run_id.clone();
+        self.metadata.acquisition_notes = context.acquisition_notes.clone();
+        self.metadata.environment = context.environment.clone();
+        self.metadata.operator = context.operator.clone();
+        self
+    }
+
+    pub fn with_tolerance_policy(mut self, policy: TolerancePolicy) -> Self {
+        self.metadata.tolerance_policy = Some(policy);
+        self
+    }
+
     pub fn as_derived_from(mut self, source: &Waveform, transform: impl Into<String>) -> Self {
         let mut history = source.metadata.transform_history.clone();
         history.push(transform.into());
         self.metadata.source_name = source.metadata.source_name.clone();
+        self.metadata.test_run_id = source.metadata.test_run_id.clone();
+        self.metadata.acquisition_notes = source.metadata.acquisition_notes.clone();
+        self.metadata.environment = source.metadata.environment.clone();
+        self.metadata.operator = source.metadata.operator.clone();
         self.metadata.lineage = WaveformLineage::Derived;
         self.metadata.transform_history = history;
+        self.metadata.tolerance_policy = source.metadata.tolerance_policy;
         self
     }
 }
@@ -147,6 +200,10 @@ impl WaveformMetadata {
             .and_then(|summary| sample_rate_hz(summary, &time_unit));
         Self {
             source_name,
+            test_run_id: None,
+            acquisition_notes: None,
+            environment: None,
+            operator: None,
             time_unit,
             sample_count: time.len(),
             channel_count: channels.len(),
@@ -161,6 +218,7 @@ impl WaveformMetadata {
             nominal_sample_rate_hz,
             lineage: WaveformLineage::Raw,
             transform_history: Vec::new(),
+            tolerance_policy: None,
         }
     }
 }
@@ -208,6 +266,22 @@ fn sample_rate_hz(summary: &SampleIntervalSummary, time_unit: &Unit) -> Option<f
     }
 }
 
+fn validate_tolerance(name: &str, value: f64) -> Result<()> {
+    if !value.is_finite() {
+        return Err(WaveformError::InvalidParameter {
+            name: name.to_string(),
+            reason: "must be finite".to_string(),
+        });
+    }
+    if value < 0.0 {
+        return Err(WaveformError::InvalidParameter {
+            name: name.to_string(),
+            reason: "must be greater than or equal to zero".to_string(),
+        });
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -227,6 +301,7 @@ mod tests {
         assert_eq!(waveform.metadata.channels[0].unit, Unit::volts());
         assert_eq!(waveform.metadata.lineage, WaveformLineage::Raw);
         assert_eq!(waveform.metadata.transform_history, Vec::<String>::new());
+        assert_eq!(waveform.metadata.tolerance_policy, None);
     }
 
     #[test]
@@ -273,6 +348,43 @@ mod tests {
             derived.metadata.transform_history,
             vec!["moving_average(window_samples=2)"]
         );
+    }
+
+    #[test]
+    fn stores_optional_validation_context_and_tolerances() {
+        let context = MetadataContext {
+            test_run_id: Some("run-42".to_string()),
+            acquisition_notes: Some("known-answer synthetic case".to_string()),
+            environment: Some("desktop validation".to_string()),
+            operator: Some("automation".to_string()),
+        };
+        let policy = TolerancePolicy {
+            voltage_v: 0.01,
+            time_s: 0.0005,
+        };
+        let waveform = Waveform::new(
+            vec![0.0, 0.1],
+            vec![Channel::new("input_v", Unit::volts(), vec![0.0, 5.0])],
+        )
+        .expect("waveform should be valid")
+        .with_metadata_context(&context)
+        .with_tolerance_policy(policy);
+
+        assert_eq!(waveform.metadata.test_run_id.as_deref(), Some("run-42"));
+        assert_eq!(waveform.metadata.tolerance_policy, Some(policy));
+    }
+
+    #[test]
+    fn rejects_invalid_tolerance_values() {
+        let invalid = TolerancePolicy {
+            voltage_v: -0.1,
+            time_s: 0.0,
+        };
+
+        assert!(matches!(
+            invalid.validate(),
+            Err(WaveformError::InvalidParameter { .. })
+        ));
     }
 
     #[test]

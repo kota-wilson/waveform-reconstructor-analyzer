@@ -1,0 +1,24 @@
+[input]
+time_column = "time_s"
+channels = ["switch_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[metadata]
+test_run_id = "ENV-BOUNCE-001"
+acquisition_notes = "Synthetic environmental-style contact-bounce case with two known 1 ms low events."
+environment = "software validation fixture"
+operator = "wra validation suite"
+
+[tolerances]
+voltage_v = 0.0
+time_s = 0.0
+
+[[criteria]]
+id = "switch_contact_bounce_max_0p5ms"
+type = "transient_event"
+event_kind = "contact_bounce"
+channel = "switch_v"
+expected_state = "high"
+threshold_v = 2.5
+max_duration_s = 0.0005

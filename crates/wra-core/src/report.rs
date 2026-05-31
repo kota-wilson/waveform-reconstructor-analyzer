@@ -1,13 +1,42 @@
 use crate::analysis::{AnalysisResult, Outcome};
 use crate::error::{Result, WaveformError};
-use crate::model::WaveformMetadata;
+use crate::model::{TolerancePolicy, WaveformMetadata};
 use serde::Serialize;
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct AnalysisReport {
     pub input_name: String,
     pub waveform_metadata: WaveformMetadata,
+    pub evidence_context: ReportEvidenceContext,
     pub results: Vec<AnalysisResult>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct ReportEvidenceContext {
+    pub validation_profile: String,
+    pub evidence_source: String,
+    pub tolerance_policy: TolerancePolicy,
+    pub confidence_notes: Vec<String>,
+}
+
+impl ReportEvidenceContext {
+    pub fn engineering_validation(tolerance_policy: TolerancePolicy) -> Self {
+        Self {
+            validation_profile: "engineering_validation".to_string(),
+            evidence_source: "local_file_analysis".to_string(),
+            tolerance_policy,
+            confidence_notes: vec![
+                "software validation evidence only".to_string(),
+                "not hardware qualification or certification evidence".to_string(),
+            ],
+        }
+    }
+}
+
+impl Default for ReportEvidenceContext {
+    fn default() -> Self {
+        Self::engineering_validation(TolerancePolicy::default())
+    }
 }
 
 impl AnalysisReport {
@@ -48,12 +77,31 @@ impl AnalysisReport {
                 self.waveform_metadata.transform_history.join(" -> ")
             ));
         }
+        output.push_str(&format!(
+            "Validation Profile: {}\n",
+            self.evidence_context.validation_profile
+        ));
+        output.push_str(&format!(
+            "Evidence Source: {}\n",
+            self.evidence_context.evidence_source
+        ));
+        output.push_str(&format!(
+            "Tolerance Policy: voltage={:.6} V time={:.9} s\n",
+            self.evidence_context.tolerance_policy.voltage_v,
+            self.evidence_context.tolerance_policy.time_s
+        ));
+        if !self.evidence_context.confidence_notes.is_empty() {
+            output.push_str(&format!(
+                "Confidence Notes: {}\n",
+                self.evidence_context.confidence_notes.join("; ")
+            ));
+        }
         output.push_str(&format!("Overall: {:?}\n", self.overall_outcome()));
         output.push_str("Criteria:\n");
 
         for result in &self.results {
             output.push_str(&format!(
-                "- {}: {:?} channel={} measured={:.6} {} required={:.6} {} sample_index={} timestamp={:.6} reason={}\n",
+                "- {}: {:?} channel={} measured={:.6} {} required={:.6} {} tolerance={:.6} sample_index={} timestamp={:.6} reason={}\n",
                 result.criterion_id,
                 result.outcome,
                 result.channel,
@@ -61,6 +109,7 @@ impl AnalysisReport {
                 result.unit,
                 result.required_value,
                 result.unit,
+                result.tolerance_used,
                 result.sample_index,
                 result.timestamp,
                 result.reason
@@ -74,6 +123,7 @@ impl AnalysisReport {
         let document = JsonReport {
             input_name: &self.input_name,
             waveform_metadata: &self.waveform_metadata,
+            evidence_context: &self.evidence_context,
             overall_outcome: self.overall_outcome(),
             results: &self.results,
         };
@@ -89,6 +139,7 @@ impl AnalysisReport {
 struct JsonReport<'a> {
     input_name: &'a str,
     waveform_metadata: &'a WaveformMetadata,
+    evidence_context: &'a ReportEvidenceContext,
     overall_outcome: Outcome,
     results: &'a [AnalysisResult],
 }
@@ -112,6 +163,7 @@ mod tests {
         let report = AnalysisReport {
             input_name: "fixture.csv".to_string(),
             waveform_metadata: metadata(),
+            evidence_context: ReportEvidenceContext::default(),
             results: vec![AnalysisResult {
                 criterion_id: "max".to_string(),
                 outcome: Outcome::Pass,
@@ -119,6 +171,7 @@ mod tests {
                 channel: "input_v".to_string(),
                 measured_value: 5.0,
                 required_value: 5.5,
+                tolerance_used: 0.0,
                 unit: "V".to_string(),
                 sample_index: 1,
                 timestamp: 0.001,
@@ -131,6 +184,8 @@ mod tests {
         assert!(rendered.contains("Waveform Analysis Report"));
         assert!(rendered.contains("Samples: 2 Channels: 1 Lineage: Raw"));
         assert!(rendered.contains("Nominal Sample Rate: 1000.000000 Hz"));
+        assert!(rendered.contains("Validation Profile: engineering_validation"));
+        assert!(rendered.contains("Tolerance Policy: voltage=0.000000 V time=0.000000000 s"));
         assert!(rendered.contains("Overall: Pass"));
         assert!(rendered.contains("max"));
     }
@@ -140,6 +195,7 @@ mod tests {
         let report = AnalysisReport {
             input_name: "fixture.csv".to_string(),
             waveform_metadata: metadata(),
+            evidence_context: ReportEvidenceContext::default(),
             results: vec![AnalysisResult {
                 criterion_id: "max".to_string(),
                 outcome: Outcome::Pass,
@@ -147,6 +203,7 @@ mod tests {
                 channel: "input_v".to_string(),
                 measured_value: 5.0,
                 required_value: 5.5,
+                tolerance_used: 0.0,
                 unit: "V".to_string(),
                 sample_index: 1,
                 timestamp: 0.001,
@@ -157,6 +214,8 @@ mod tests {
         let rendered = report.render_json_pretty().expect("json should render");
 
         assert!(rendered.contains("\"waveform_metadata\""));
+        assert!(rendered.contains("\"evidence_context\""));
+        assert!(rendered.contains("\"tolerance_policy\""));
         assert!(rendered.contains("\"sample_count\": 2"));
         assert!(rendered.contains("\"overall_outcome\": \"pass\""));
         assert!(rendered.contains("\"criterion_id\": \"max\""));

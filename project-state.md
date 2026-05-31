@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Route v0.3.0 signal accuracy validation work after completing foundational M1 metadata and README usage evidence.
+Prepare the M4 signal accuracy and validation branch for PR review, CI, and merge.
 
 ## Current Stage
 
-The repository now includes M1 waveform metadata and README usage evidence. This work addresses issues #4 and #6, creates the v0.3.0 validation roadmap, creates M4 issues #27-#34, and keeps RTOS/Zephyr work parked until the signal-analysis core has stronger validation evidence.
+The repository now includes an M4 signal accuracy and validation branch addressing issues #27-#34. The branch adds known-answer validation data, time-axis validation, configurable tolerances, report evidence context, validation metadata, filter equation docs, environmental validation examples, and repeatable large-CSV benchmark tooling. RTOS/Zephyr work remains parked.
 
 ## Open Risks
 
@@ -28,6 +28,10 @@ The repository now includes M1 waveform metadata and README usage evidence. This
   Owner: Electrical Signal Integrity Engineer / Documentation Engineer
 - Risk: Feature completion may be mistaken for scientifically validated signal-analysis accuracy.
   Owner: Verification and Validation Engineer / Software Architect
+- Risk: Software validation fixtures may be mistaken for hardware qualification or certification evidence.
+  Owner: Verification and Validation Engineer / Documentation Engineer
+- Risk: Benchmark results may be overread as production performance guarantees.
+  Owner: Performance Engineer
 
 ## Pending Decisions
 
@@ -48,16 +52,16 @@ The repository now includes M1 waveform metadata and README usage evidence. This
 
 Role: Project Coordinator / GitHub Maintainer Specialist
 
-Expected deliverable: Start M4 validation work with known-answer waveform validation before expanding GUI, DAQ, RTOS, or Zephyr paths.
+Expected deliverable: Open the M4 validation PR, verify protected-branch CI, and merge if branch protection allows.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: M1 completion and v0.3.0 validation planning.
+- Current milestone: M4 signal accuracy and validation.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`.
-- Next gate: M4-001 known-answer validation readiness.
+- Next gate: Protected-branch PR and CI for M4 issues #27-#34.
 - Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/certification work.
 
 ## Granularity Status
@@ -77,7 +81,7 @@ Expected deliverable: Start M4 validation work with known-answer waveform valida
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, and M1 metadata evidence.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, and M4 requirements WRA-RQ-019 through WRA-RQ-026.
 
 ## Gate Decisions
 
@@ -132,6 +136,19 @@ Expected deliverable: Start M4 validation work with known-answer waveform valida
 | Documentation Accuracy Gate | Pass | `docs/documentation-audit-2026-05-31.md`; fmt, workspace tests, clippy, whitespace, link-target, and stale-status scans passed | Project Coordinator |
 | M1 Metadata / README Implementation Gate | Pass | `crates/wra-core/src/model.rs`, `crates/wra-core/src/report.rs`, README, golden JSON reports, `docs/report-schema.md` | Test Automation Engineer |
 | v0.3.0 Planning Gate | Pass | `docs/v0.3.0-validation-roadmap.md`, `validation/`, M4 issues #27-#34 | GitHub Maintainer Specialist |
+| M4 Requirements Gate | Pass | `requirements.md`, `traceability-matrix.md` | Software Architect |
+| M4 Architecture Gate | Pass | `docs/architecture.md`, `docs/filter-behavior.md`, `docs/time-axis-and-tolerances.md` | Abstraction Review Engineer |
+| M4 Implementation Gate | Pass | `docs/implementation-report.md`, core/CLI code, validation fixtures, benchmark helper | Test Automation Engineer |
+| M4 Testing Gate | Pass | `docs/validation-log.md`; fmt, workspace tests, clippy, diff check, CLI smokes, benchmark command | Verification and Validation Engineer |
+| M4 V&V Gate | Pass | `docs/verification-validation-report.md`, known-answer expected measurements, exact-report tests | QA Engineer |
+| M4 QA Gate | Pass | `docs/qa-review.md` | Security Engineer |
+| M4 Security Gate | Pass | `docs/security-review.md`; no new dependencies or unsafe/network surface | Performance Engineer |
+| M4 Performance Gate | Pass | `docs/performance-review.md`, `docs/benchmarking.md`, `wra-bench` | Documentation Engineer |
+| M4 Documentation Gate | Pass | `docs/documentation-review.md`, README, report schema, validation docs | Code Reviewer |
+| M4 Code Review Gate | Pass for PR creation | `docs/code-review.md`, `docs/m4-signal-validation-pipeline-report.md` | Evaluation Engineer |
+| M4 Evaluation Gate | Pass | `docs/evaluation-report.md` | Release Engineer |
+| M4 Release Gate | Pending | PR and protected-branch CI pending | GitHub Maintainer Specialist |
+| M4 Community Gate | Pending | PR body, issue closure, and milestone closure pending | Project Coordinator |
 
 ## Update Rules
 

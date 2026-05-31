@@ -1,0 +1,24 @@
+[input]
+time_column = "time_s"
+channels = ["supply_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[metadata]
+test_run_id = "ENV-DROPOUT-001"
+acquisition_notes = "Synthetic environmental-style dropout case with a known 2 ms low event."
+environment = "software validation fixture"
+operator = "wra validation suite"
+
+[tolerances]
+voltage_v = 0.0
+time_s = 0.0
+
+[[criteria]]
+id = "supply_dropout_max_1ms"
+type = "transient_event"
+event_kind = "dropout"
+channel = "supply_v"
+expected_state = "high"
+threshold_v = 2.5
+max_duration_s = 0.001

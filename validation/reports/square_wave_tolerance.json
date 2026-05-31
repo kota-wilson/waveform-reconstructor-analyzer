@@ -1,11 +1,11 @@
 {
-  "input_name": "tests/fixtures/clean_square_wave.csv",
+  "input_name": "validation/known_answer/square_wave_tolerance.csv",
   "waveform_metadata": {
-    "source_name": "tests/fixtures/clean_square_wave.csv",
-    "test_run_id": null,
-    "acquisition_notes": null,
-    "environment": null,
-    "operator": null,
+    "source_name": "validation/known_answer/square_wave_tolerance.csv",
+    "test_run_id": "KA-SQUARE-TOL-001",
+    "acquisition_notes": "Synthetic known-answer square wave for voltage and time tolerance boundary checks.",
+    "environment": "software validation fixture",
+    "operator": "wra validation suite",
     "time_unit": "s",
     "sample_count": 10,
     "channel_count": 1,
@@ -26,16 +26,16 @@
     "lineage": "raw",
     "transform_history": [],
     "tolerance_policy": {
-      "voltage_v": 0.0,
-      "time_s": 0.0
+      "voltage_v": 0.02,
+      "time_s": 0.0005
     }
   },
   "evidence_context": {
     "validation_profile": "engineering_validation",
     "evidence_source": "local_file_analysis",
     "tolerance_policy": {
-      "voltage_v": 0.0,
-      "time_s": 0.0
+      "voltage_v": 0.02,
+      "time_s": 0.0005
     },
     "confidence_notes": [
       "software validation evidence only",
@@ -58,30 +58,30 @@
       "reason": "observed 4 state transitions at 2.500000 V"
     },
     {
-      "criterion_id": "control_high_pulse_width",
+      "criterion_id": "control_high_pulse_width_tolerance",
       "outcome": "pass",
       "failed_criterion": null,
       "channel": "control_v",
       "measured_value": 0.002,
-      "required_value": 0.002,
-      "tolerance_used": 0.0,
+      "required_value": 0.0025,
+      "tolerance_used": 0.0005,
       "unit": "s",
-      "sample_index": 7,
-      "timestamp": 0.007,
+      "sample_index": 2,
+      "timestamp": 0.002,
       "reason": "high pulse width met configured limits; measured 0.002000 s"
     },
     {
-      "criterion_id": "control_stable_low",
+      "criterion_id": "control_max_voltage_tolerance",
       "outcome": "pass",
       "failed_criterion": null,
       "channel": "control_v",
-      "measured_value": 0.002,
-      "required_value": 0.002,
-      "tolerance_used": 0.0,
-      "unit": "s",
-      "sample_index": 5,
-      "timestamp": 0.005,
-      "reason": "longest stable low duration was 0.002000 s"
+      "measured_value": 5.01,
+      "required_value": 5.0,
+      "tolerance_used": 0.02,
+      "unit": "V",
+      "sample_index": 2,
+      "timestamp": 0.002,
+      "reason": "maximum observed voltage was 5.010000 V"
     }
   ]
 }

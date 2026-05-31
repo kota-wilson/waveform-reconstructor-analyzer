@@ -16,6 +16,16 @@ Review dependency, file-input, and publication security posture for the initial 
 
 No blocking security issues found.
 
+## M4 Signal Accuracy And Validation Update
+
+No blocking security issues found for M4:
+
+- No new third-party dependencies.
+- No unsafe Rust.
+- No network access or credential handling added to the product code.
+- Benchmark-generated CSV/config files are written under `target/wra-benchmark/`.
+- CLI and benchmark helper continue to read local file paths supplied by the user.
+
 ## Evidence
 
 | Area | Evidence | Result |
@@ -25,12 +35,14 @@ No blocking security issues found.
 | Secret handling | No credentials or tokens in repository files by inspection of project scope | Pass |
 | File handling | CLI reads local user-supplied CSV/config paths only | Pass |
 | Unsafe Rust | Workspace lint forbids unsafe code | Pass |
+| M4 dependency surface | No new crates added | Pass |
+| M4 generated files | Benchmark script writes under `target/wra-benchmark/` | Pass |
 
 ## Gate Decision
 
 - Gate: Security Gate.
 - Decision: Pass.
-- Reason: Dependencies were explicitly approved, lockfile is committed, and no secret-bearing files were added.
+- Reason: Dependencies were explicitly approved, lockfile is committed, no secret-bearing files were added, and M4 adds no new dependency/network/unsafe surface.
 - Residual risk: Formal dependency license/security scanning is not automated yet.
 - Next owner: Performance Engineer.
 

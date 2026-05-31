@@ -8,7 +8,7 @@ Owner Role: Documentation Engineer
 
 Review public-facing repository documentation for the validated MVP and the post-PR #25 feature baseline.
 
-Current review update: `docs/documentation-audit-2026-05-31.md` records a documentation accuracy pass for the PR #25 feature baseline.
+Current review update: M4 adds validation, tolerance, report evidence, filter equation, and benchmark documentation while preserving the "software validation only" scope.
 
 ## Evidence
 
@@ -21,13 +21,18 @@ Current review update: `docs/documentation-audit-2026-05-31.md` records a docume
 | `CHANGELOG.md` | Pass |
 | `.github/` templates | Pass |
 | `docs/documentation-audit-2026-05-31.md` | Pass |
+| `docs/filter-behavior.md` | Pass |
+| `docs/time-axis-and-tolerances.md` | Pass |
+| `docs/benchmarking.md` | Pass |
+| `docs/report-schema.md` | Pass |
+| `validation/` READMEs and expected measurement notes | Pass |
 
 ## Gate Decision
 
 - Gate: Documentation Gate.
 - Decision: Pass.
-- Reason: Public usage, contribution, security, change, validation, traceability, and current-state documentation exist.
-- Residual risk: API docs, config schema reference, and automated Markdown link checking are still thin.
+- Reason: Public usage, contribution, security, change, validation, traceability, current-state, and M4 validation documentation exist and are human-readable.
+- Residual risk: API docs, a formal config schema reference, and automated Markdown link checking are still thin.
 - Next owner: Code Reviewer.
 
 ## Hand-Off Note
@@ -38,4 +43,4 @@ Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05
 Checks run: Documentation inspection plus the validation commands recorded in `docs/documentation-audit-2026-05-31.md`.
 Status: Pass.
 Known gaps: Add API docs, config schema reference, and automated docs/link checking later.
-Next recommended step: Code review for documentation accuracy PR.
+Next recommended step: Code review for M4 validation PR.

@@ -10,3 +10,9 @@ Each case should record:
 - Command used to run the analyzer.
 - Expected text or JSON report.
 - Review notes and scope limits.
+
+Current cases:
+
+| Case | Fixture | Config | Expected Report | Expected Values |
+|---|---|---|---|---|
+| Tolerance-boundary square wave | `square_wave_tolerance.csv` | `square_wave_tolerance.toml` | `../reports/square_wave_tolerance.json` | `expected-measurements.md` |

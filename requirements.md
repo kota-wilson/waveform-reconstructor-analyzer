@@ -18,7 +18,14 @@
 | WRA-RQ-012 | The project shall remain open-source ready. | User request | High | README, LICENSE, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG, GitHub templates, and CI exist. | GitHub Maintainer Specialist | Implemented; public repository published after license decision |
 | WRA-RQ-017 | The project shall provide an embedded foundation separate from the desktop CLI path. | User request | High | A dependency-free `wra-signal` crate builds with `#![no_std]`, has fixed-size sample buffers, streaming ingestion, min/max threshold checks, transient event detection, and desktop unit tests. | Core Software Engineer | M3-RTOS-001 implemented |
 | WRA-RQ-018 | The desktop analysis path shall support simulated ADC quantization before pass/fail criteria. | User request | High | Users can configure or pass an ordered ADC quantization transform with bit depth, minimum voltage, and maximum voltage; raw samples are preserved; criteria evaluate the derived quantized waveform; invalid parameters return clear errors. | Core Software Engineer | Implemented |
-| WRA-RQ-019 | The project shall add known-answer signal accuracy validation before stronger engineering-analysis claims. | User review | High | v0.3.0 tracks known-answer datasets, sampling/time-axis validation, tolerances, filter equations, report confidence/evidence fields, metadata expansion, benchmarks, and environmental validation examples. | Verification and Validation Engineer | Planned for M4 |
+| WRA-RQ-019 | The project shall add known-answer signal accuracy validation before stronger engineering-analysis claims. | User review / M4-001 | High | Known-answer fixtures under `validation/known_answer/` record source method, independently calculated expected measurements, tolerance policy, analyzer command, and exact expected report artifacts. | Verification and Validation Engineer | Implemented |
+| WRA-RQ-020 | The project shall validate time-axis assumptions for duration-dependent criteria. | M4-002 | High | Duration criteria reject duplicate or decreasing timestamps with clear errors; non-uniform increasing timestamps are accepted and metadata records sample interval uniformity and nominal sample rate. | Core Software Engineer | Implemented |
+| WRA-RQ-021 | The project shall support explicit voltage and time tolerances for pass/fail criteria. | M4-003 | High | TOML `[tolerances]` supports `voltage_v` and `time_s`, defaults to zero, validates finite non-negative values, applies tolerances to voltage/duration decisions, and reports applied tolerance. | Core Software Engineer | Implemented |
+| WRA-RQ-022 | The project shall document implemented transform equations and limitations. | M4-004 | Medium | Moving average, first-order low-pass, and ideal ADC quantization equations, edge behavior, assumptions, and limitations are documented and linked from README/architecture docs. | Systems Engineer | Implemented |
+| WRA-RQ-023 | The project shall include report-level engineering evidence context. | M4-005 | High | JSON and text reports include validation profile, evidence source, tolerance policy, confidence notes, and unchanged per-criterion pass/fail evidence with documented schema migration. | Documentation Engineer | Implemented |
+| WRA-RQ-024 | The project shall support optional validation metadata context. | M4-006 | Medium | Config metadata can populate optional test-run ID, acquisition notes, environment, and operator fields while preserving source, units, time-axis, sample rate, lineage, transform history, and tolerance policy. | Core Software Engineer | Implemented |
+| WRA-RQ-025 | The project shall provide repeatable large-CSV benchmark evidence before performance claims. | M4-007 | Medium | A project-local generated-fixture benchmark records read, parse, transform, criteria, report, and total timings without new dependencies. | Performance Engineer | Implemented |
+| WRA-RQ-026 | The project shall provide environmental-style validation examples with known outcomes. | M4-008 | High | Dropout and contact-bounce validation cases include fixture, config, expected measurement, tolerance policy, analyzer command, expected report artifact, and scope limits. | Verification and Validation Engineer | Implemented |
 
 ## Assumptions
 
@@ -47,7 +54,14 @@
 | WRA-RQ-012 | File inspection and CI | Repository metadata and workflow files exist. |
 | WRA-RQ-017 | Unit tests and workspace checks | `wra-signal` unit tests, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `cargo tree -p wra-signal`. |
 | WRA-RQ-018 | Unit, CLI, and config tests | ADC quantizer unit tests, filter-chain ordering tests, config conversion tests, invalid config tests, CLI pre-criteria analysis test, and workspace checks. |
-| WRA-RQ-019 | Known-answer validation suite | Planned M4 issues and `validation/` dataset area. |
+| WRA-RQ-019 | Known-answer validation tests | `validation_known_answer_square_wave_matches_expected_report`, expected measurement docs, and `validation/reports/square_wave_tolerance.json`. |
+| WRA-RQ-020 | Unit tests | Duplicate/decreasing time-axis rejection tests, non-uniform increasing time-axis test, and sample interval metadata test. |
+| WRA-RQ-021 | Unit, config, and golden tests | Tolerance pass/fail unit tests, invalid tolerance config test, CLI invalid config test, and expected validation report tolerance fields. |
+| WRA-RQ-022 | Documentation and unit tests | `docs/filter-behavior.md` plus filter unit tests named in the document. |
+| WRA-RQ-023 | Golden tests and schema docs | Golden JSON tests and `docs/report-schema.md` include `evidence_context` and `tolerance_used`. |
+| WRA-RQ-024 | Unit and report tests | Metadata context unit test and validation reports with populated metadata fields. |
+| WRA-RQ-025 | Benchmark command | `sh scripts/benchmark-large-csv.sh 100000 3` and `docs/benchmarking.md`. |
+| WRA-RQ-026 | Validation report tests | Environmental dropout/contact-bounce expected report tests and `docs/environmental-test-use-cases.md`. |
 
 ## Rules
 

@@ -57,12 +57,12 @@ CSV input
 | `WaveformMetadata` | `model.rs` | Records source name, units, sample count, channel count, channel units, sample interval summary, nominal sample rate, raw/derived lineage, and transform history. |
 | `Channel` | `model.rs` | Named signal channel with unit and samples. |
 | `CsvParseOptions` | `csv.rs` | Defines delimiter, header behavior, time column, and channel columns. |
-| `AnalysisConfig` | `config.rs` | Defines input mapping, filters, and criteria parsed from TOML by the CLI. |
+| `AnalysisConfig` | `config.rs` | Defines input mapping, optional metadata context, tolerance policy, filters, and criteria parsed from TOML by the CLI. |
 | `WaveformParser` | `csv.rs` | Parses input into `Waveform`. |
 | `Filter` | `filter.rs` | Applies a transformation to a waveform and returns derived output. |
 | `FilterStep` | `filter.rs` | Enum-backed ordered pipeline step for config-driven transforms. |
 | `Criterion` | `criteria.rs` | Defines a measurable pass/fail rule. |
-| `AnalysisResult` | `analysis.rs` | Records criterion outcome, measured value, threshold, and reason. |
+| `AnalysisResult` | `analysis.rs` | Records criterion outcome, measured value, threshold, applied tolerance, sample index, timestamp, channel, and reason. |
 
 ## MVP Error Handling
 
@@ -87,6 +87,8 @@ CSV input
 - ADC quantization uses an ideal endpoint-inclusive code model, clips outside the configured voltage range, and keeps output values in volts for downstream criteria.
 - M1 filter chains use config-driven enum pipeline steps; trait-based extension is deferred behind the implementation boundary.
 - Edge behavior, latency, and sample-rate assumptions must be documented before filter algorithms are considered production-stable.
+- Implemented transform equations are documented in `docs/filter-behavior.md`.
+- Time-axis validation and tolerance semantics are documented in `docs/time-axis-and-tolerances.md`.
 
 ## Test Plan
 
@@ -98,6 +100,8 @@ CSV input
 | Basic CSV fixture | `tests/fixtures/basic_waveform.csv` integration test | Parsed time and channels match expected values. |
 | Filter chain preserves raw data | `filter.rs` tests | Input waveform remains unchanged. |
 | ADC quantization | `filter.rs`, `config.rs`, and `wra-cli` tests | Samples quantize to ideal code levels before criteria evaluation. |
+| Time-axis validation | `analysis.rs`, `model.rs`, and validation fixture tests | Duplicate/decreasing duration inputs are rejected; increasing non-uniform inputs are accepted and recorded in metadata. |
+| Tolerance policy | `analysis.rs`, `config.rs`, and validation reports | Voltage/time tolerances affect criteria decisions and are recorded in result/report metadata. |
 | CLI smoke | `crates/wra-cli` tests and `cargo run --bin wra -- analyze ...` | CLI loads a fixture, applies optional filters, evaluates criteria, and renders text. |
 
 ## Dependency Strategy

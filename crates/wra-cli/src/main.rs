@@ -2,14 +2,15 @@ use std::env;
 use std::fs;
 use std::process::ExitCode;
 
-use wra_core::analysis::evaluate_criteria;
+use wra_core::analysis::evaluate_criteria_with_tolerances;
 use wra_core::config::AnalysisConfig;
 use wra_core::criteria::Criterion;
 use wra_core::csv::{CsvParseOptions, SimpleCsvParser, WaveformParser};
 use wra_core::filter::{
     apply_filter_chain, AdcQuantizer, FilterStep, LowPassFilter, MovingAverageFilter,
 };
-use wra_core::report::AnalysisReport;
+use wra_core::model::{MetadataContext, TolerancePolicy};
+use wra_core::report::{AnalysisReport, ReportEvidenceContext};
 
 fn main() -> ExitCode {
     match run(env::args().skip(1).collect()) {
@@ -36,7 +37,7 @@ fn run(args: Vec<String>) -> Result<String, String> {
     let input_path = value_after(&args, "--input").ok_or("missing --input <path>")?;
     let output_format = value_after(&args, "--format").unwrap_or("text");
     let config = load_config(&args)?;
-    let (options, filters, criteria) = match config {
+    let (options, filters, criteria, tolerances, metadata) = match config {
         Some(config) => (
             config.csv_options(),
             config
@@ -45,6 +46,8 @@ fn run(args: Vec<String>) -> Result<String, String> {
             config
                 .criteria()
                 .map_err(|error| format!("invalid config criteria: {error}"))?,
+            config.tolerances,
+            config.metadata,
         ),
         None => {
             let time_column = value_after(&args, "--time-column").unwrap_or("time");
@@ -64,6 +67,8 @@ fn run(args: Vec<String>) -> Result<String, String> {
                 CsvParseOptions::new(time_column, channel_columns),
                 parse_filters(&args)?,
                 parse_criteria(&args)?,
+                TolerancePolicy::default(),
+                MetadataContext::default(),
             )
         }
     };
@@ -74,16 +79,19 @@ fn run(args: Vec<String>) -> Result<String, String> {
     let mut waveform = parser
         .parse_str(&input, &options)
         .map_err(|error| format!("failed to parse waveform: {error}"))?
-        .with_source_name(input_path.to_string());
+        .with_source_name(input_path.to_string())
+        .with_metadata_context(&metadata)
+        .with_tolerance_policy(tolerances);
 
     waveform = apply_filter_chain(&waveform, &filters)
         .map_err(|error| format!("filter pipeline failed: {error}"))?;
 
-    let results = evaluate_criteria(&waveform, &criteria)
+    let results = evaluate_criteria_with_tolerances(&waveform, &criteria, tolerances)
         .map_err(|error| format!("analysis failed: {error}"))?;
     let report = AnalysisReport {
         input_name: input_path.to_string(),
         waveform_metadata: waveform.metadata.clone(),
+        evidence_context: ReportEvidenceContext::engineering_validation(tolerances),
         results,
     };
 
@@ -112,6 +120,9 @@ fn load_config(args: &[String]) -> Result<Option<AnalysisConfig>, String> {
     if config.criteria.is_empty() {
         return Err("config must include at least one [[criteria]] entry".to_string());
     }
+    config
+        .validate()
+        .map_err(|error| format!("invalid config tolerances: {error}"))?;
 
     Ok(Some(config))
 }
@@ -398,6 +409,10 @@ mod tests {
             (
                 "invalid-missing-adc-field.toml",
                 "invalid config filters: invalid parameter `filters.max_v`",
+            ),
+            (
+                "invalid-negative-tolerance.toml",
+                "invalid config tolerances: invalid parameter `tolerances.time_s`",
             ),
         ] {
             let config_path = format!("{manifest_dir}/../../tests/configs/{config_file}");

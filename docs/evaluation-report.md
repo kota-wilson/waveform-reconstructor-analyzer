@@ -13,13 +13,14 @@ Owner Role: Evaluation Engineer
 | Verification evidence | Pass | Local and CI validation pass. |
 | Risk visibility | Pass | `risk-register.md`, gate reports, residual risks. |
 | Maintainability | Pass for MVP | Crate split, docs, CI, lockfile. |
+| M4 issue fit | Pass | M4 issues #27-#34 each map to code, docs, tests, or benchmark evidence. |
 
 ## Gate Decision
 
 - Gate: Evaluation Gate.
 - Decision: Pass.
-- Reason: MVP satisfies the approved scope and has evidence for major claims.
-- Residual risk: Product maturity remains early; future issues should target parser coverage, schema stability, and signal-processing validation.
+- Reason: MVP and M4 validation work satisfy the approved scope and have evidence for major claims without overclaiming hardware or certification confidence.
+- Residual risk: Product maturity remains early; future issues should target parser coverage, schema stability, external capture validation, and signal-processing validation depth.
 - Next owner: Release Engineer / Community Engineering Lead.
 
 ## Hand-Off Note

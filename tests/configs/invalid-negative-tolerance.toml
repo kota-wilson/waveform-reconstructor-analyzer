@@ -1,0 +1,15 @@
+[input]
+time_column = "time"
+channels = ["input_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[tolerances]
+voltage_v = 0.0
+time_s = -0.001
+
+[[criteria]]
+id = "input_max_voltage"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 5.5

@@ -1,11 +1,11 @@
 {
-  "input_name": "tests/fixtures/dropout_event.csv",
+  "input_name": "validation/environmental_cases/dropout_event.csv",
   "waveform_metadata": {
-    "source_name": "tests/fixtures/dropout_event.csv",
-    "test_run_id": null,
-    "acquisition_notes": null,
-    "environment": null,
-    "operator": null,
+    "source_name": "validation/environmental_cases/dropout_event.csv",
+    "test_run_id": "ENV-DROPOUT-001",
+    "acquisition_notes": "Synthetic environmental-style dropout case with a known 2 ms low event.",
+    "environment": "software validation fixture",
+    "operator": "wra validation suite",
     "time_unit": "s",
     "sample_count": 7,
     "channel_count": 1,

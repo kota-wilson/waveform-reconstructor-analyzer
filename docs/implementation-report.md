@@ -32,6 +32,13 @@ Owner Role: Core Software Engineer
 - How: Implemented criteria variants for state transitions, pulse width, transient duration, transient event detection, stable-state duration, and rise/fall time without adding new dependencies.
 - Why: v0.2.0 moves the project from repository skeleton to validated waveform criteria engine.
 
+## M4 Signal Accuracy And Validation Update
+
+- What: Added known-answer validation data, time-axis validation, explicit criteria tolerances, expanded report evidence, validation metadata context, filter equation docs, environmental validation examples, and a repeatable large-CSV benchmark helper.
+- Where: `crates/wra-core/src/model.rs`, `config.rs`, `analysis.rs`, `report.rs`; `crates/wra-cli/src/main.rs`; `crates/wra-cli/src/bin/wra-bench.rs`; `validation/`; `scripts/benchmark-large-csv.sh`; `docs/filter-behavior.md`; `docs/time-axis-and-tolerances.md`; `docs/benchmarking.md`.
+- How: Extended existing config-driven models and report schemas without new dependencies, preserving the raw/derived waveform boundary and local-file CLI scope.
+- Why: M4 moves the project from feature-complete criteria behavior toward a validated engineering-analysis core while avoiding hardware or certification claims.
+
 ## Changed Areas
 
 | Area | Files |
@@ -53,6 +60,7 @@ Owner Role: Core Software Engineer
 - CLI criteria can be supplied with `--min channel:value` and `--max channel:value`.
 - Text and JSON reports include input, overall outcome, measured values, thresholds, and units.
 - v0.2.0 criteria reports include failed criterion, channel, measured value, required value, sample index, and timestamp evidence.
+- M4 reports include validation profile, evidence source, tolerance policy, confidence notes, optional test-run metadata, and per-criterion applied tolerance.
 
 ## Out Of Scope Preserved
 
@@ -61,6 +69,7 @@ Owner Role: Core Software Engineer
 - No cloud features.
 - No certification claims.
 - No GUI, DAQ, plugin runtime, or production certification surface.
+- No hardware validation, tool qualification, DAQ throughput claim, or production performance guarantee.
 
 ## Gate Decision
 

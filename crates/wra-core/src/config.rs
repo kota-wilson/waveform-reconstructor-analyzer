@@ -4,11 +4,15 @@ use crate::criteria::{Criterion, EdgeDirection, SignalState, TransientEventKind}
 use crate::csv::CsvParseOptions;
 use crate::error::{Result, WaveformError};
 use crate::filter::{AdcQuantizer, FilterStep, LowPassFilter, MovingAverageFilter};
-use crate::model::Unit;
+use crate::model::{MetadataContext, TolerancePolicy, Unit};
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct AnalysisConfig {
     pub input: InputConfig,
+    #[serde(default)]
+    pub metadata: MetadataContext,
+    #[serde(default)]
+    pub tolerances: TolerancePolicy,
     #[serde(default)]
     pub filters: Vec<FilterConfig>,
     #[serde(default)]
@@ -36,6 +40,10 @@ impl AnalysisConfig {
             .iter()
             .map(FilterConfig::to_filter_step)
             .collect()
+    }
+
+    pub fn validate(&self) -> Result<()> {
+        self.tolerances.validate()
     }
 }
 
@@ -256,6 +264,8 @@ mod tests {
                 time_unit: "s".to_string(),
                 signal_unit: "V".to_string(),
             },
+            metadata: MetadataContext::default(),
+            tolerances: TolerancePolicy::default(),
             filters: vec![FilterConfig {
                 kind: "moving_average".to_string(),
                 window_samples: Some(2),
@@ -291,6 +301,7 @@ mod tests {
         assert_eq!(options.channel_columns, vec!["input_v"]);
         assert_eq!(options.time_unit, Unit::seconds());
         assert_eq!(options.signal_unit, Unit::volts());
+        assert_eq!(config.tolerances, TolerancePolicy::default());
         assert_eq!(
             filters[0],
             FilterStep::MovingAverage(MovingAverageFilter { window_samples: 2 })
@@ -319,6 +330,30 @@ mod tests {
                 max_v: 5.0,
             })
         );
+    }
+
+    #[test]
+    fn rejects_invalid_tolerance_config() {
+        let config = AnalysisConfig {
+            input: InputConfig {
+                time_column: "time".to_string(),
+                channels: vec!["input_v".to_string()],
+                time_unit: "s".to_string(),
+                signal_unit: "V".to_string(),
+            },
+            metadata: MetadataContext::default(),
+            tolerances: TolerancePolicy {
+                voltage_v: 0.0,
+                time_s: -0.001,
+            },
+            filters: Vec::new(),
+            criteria: Vec::new(),
+        };
+
+        assert!(matches!(
+            config.validate(),
+            Err(WaveformError::InvalidParameter { .. })
+        ));
     }
 
     #[test]

@@ -1,7 +1,7 @@
-use wra_core::analysis::evaluate_criteria;
+use wra_core::analysis::evaluate_criteria_with_tolerances;
 use wra_core::config::AnalysisConfig;
 use wra_core::csv::{SimpleCsvParser, WaveformParser};
-use wra_core::report::AnalysisReport;
+use wra_core::report::{AnalysisReport, ReportEvidenceContext};
 
 fn render_report(input_name: &str, csv_input: &str, config_input: &str) -> String {
     let config: AnalysisConfig = toml::from_str(config_input).expect("config should parse");
@@ -9,12 +9,16 @@ fn render_report(input_name: &str, csv_input: &str, config_input: &str) -> Strin
     let waveform = parser
         .parse_str(csv_input, &config.csv_options())
         .expect("waveform should parse")
-        .with_source_name(input_name.to_string());
+        .with_source_name(input_name.to_string())
+        .with_metadata_context(&config.metadata)
+        .with_tolerance_policy(config.tolerances);
     let criteria = config.criteria().expect("criteria should convert");
-    let results = evaluate_criteria(&waveform, &criteria).expect("criteria should evaluate");
+    let results = evaluate_criteria_with_tolerances(&waveform, &criteria, config.tolerances)
+        .expect("criteria should evaluate");
     let report = AnalysisReport {
         input_name: input_name.to_string(),
         waveform_metadata: waveform.metadata.clone(),
+        evidence_context: ReportEvidenceContext::engineering_validation(config.tolerances),
         results,
     };
 
@@ -76,7 +80,8 @@ fn multi_channel_fixture_targets_configured_channels() {
         )
         .expect("multi-channel waveform should parse");
     let criteria = config.criteria().expect("criteria should convert");
-    let results = evaluate_criteria(&waveform, &criteria).expect("criteria should evaluate");
+    let results = evaluate_criteria_with_tolerances(&waveform, &criteria, config.tolerances)
+        .expect("criteria should evaluate");
 
     assert_eq!(waveform.channels.len(), 3);
     assert_eq!(results[0].channel, "supply_v");
@@ -115,8 +120,52 @@ fn noisy_square_wave_transition_count_is_stable() {
         )
         .expect("noisy waveform should parse");
     let criteria = config.criteria().expect("criteria should convert");
-    let results = evaluate_criteria(&waveform, &criteria).expect("criteria should evaluate");
+    let results = evaluate_criteria_with_tolerances(&waveform, &criteria, config.tolerances)
+        .expect("criteria should evaluate");
 
     assert_eq!(results[0].measured_value, 4.0);
     assert_eq!(results[0].failed_criterion, None);
+}
+
+#[test]
+fn validation_known_answer_square_wave_matches_expected_report() {
+    let rendered = render_report(
+        "validation/known_answer/square_wave_tolerance.csv",
+        include_str!("../../../validation/known_answer/square_wave_tolerance.csv"),
+        include_str!("../../../validation/known_answer/square_wave_tolerance.toml"),
+    );
+
+    assert_eq!(
+        rendered,
+        include_str!("../../../validation/reports/square_wave_tolerance.json").trim_end()
+    );
+}
+
+#[test]
+fn validation_dropout_environmental_case_matches_expected_report() {
+    let rendered = render_report(
+        "validation/environmental_cases/dropout_event.csv",
+        include_str!("../../../validation/environmental_cases/dropout_event.csv"),
+        include_str!("../../../validation/environmental_cases/dropout_event.toml"),
+    );
+
+    assert_eq!(
+        rendered,
+        include_str!("../../../validation/reports/environmental_dropout_fail.json").trim_end()
+    );
+}
+
+#[test]
+fn validation_contact_bounce_environmental_case_matches_expected_report() {
+    let rendered = render_report(
+        "validation/environmental_cases/contact_bounce.csv",
+        include_str!("../../../validation/environmental_cases/contact_bounce.csv"),
+        include_str!("../../../validation/environmental_cases/contact_bounce.toml"),
+    );
+
+    assert_eq!(
+        rendered,
+        include_str!("../../../validation/reports/environmental_contact_bounce_fail.json")
+            .trim_end()
+    );
 }

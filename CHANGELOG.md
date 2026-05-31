@@ -25,3 +25,10 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - Simulated ADC quantization as an ordered pre-criteria waveform transform for CLI and TOML workflows.
 - Waveform metadata for source, units, sample interval, sample rate, lineage, and transform history in text and JSON reports.
 - v0.3.0 validation roadmap and validation dataset folder structure.
+- Known-answer validation fixtures, environmental dropout/contact-bounce examples, and exact expected validation report tests.
+- Configurable voltage/time tolerance policy with report evidence.
+- Report evidence context fields for validation profile, evidence source, tolerance policy, and confidence notes.
+- Optional validation metadata context for test-run ID, acquisition notes, environment, and operator.
+- Time-axis validation for duration criteria plus sample interval and nominal sample-rate documentation.
+- Filter behavior documentation with moving-average, first-order low-pass, and ideal ADC quantization equations.
+- Project-local large-CSV benchmark helper and baseline benchmark documentation.

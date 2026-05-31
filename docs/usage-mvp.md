@@ -18,10 +18,14 @@ Samples: 5 Channels: 2 Lineage: Derived
 Sample Interval: nominal=0.001000000 s min=0.001000000 max=0.001000000 uniform=true
 Nominal Sample Rate: 1000.000000 Hz
 Transforms: moving_average(window_samples=2)
+Validation Profile: engineering_validation
+Evidence Source: local_file_analysis
+Tolerance Policy: voltage=0.000000 V time=0.000000000 s
+Confidence Notes: software validation evidence only; not hardware qualification or certification evidence
 Overall: Pass
 Criteria:
-- input_min_voltage: Pass channel=input_v measured=0.000000 V required=0.000000 V sample_index=0 timestamp=0.000000 reason=minimum observed voltage was 0.000000 V
-- input_max_voltage: Pass channel=input_v measured=5.000000 V required=5.500000 V sample_index=4 timestamp=0.004000 reason=maximum observed voltage was 5.000000 V
+- input_min_voltage: Pass channel=input_v measured=0.000000 V required=0.000000 V tolerance=0.000000 sample_index=0 timestamp=0.000000 reason=minimum observed voltage was 0.000000 V
+- input_max_voltage: Pass channel=input_v measured=5.000000 V required=5.500000 V tolerance=0.000000 sample_index=4 timestamp=0.004000 reason=maximum observed voltage was 5.000000 V
 ```
 
 Supported MVP filters:
@@ -39,7 +43,7 @@ cargo run --quiet --bin wra -- analyze \
   --format json
 ```
 
-The JSON report includes `waveform_metadata`, `overall_outcome`, and the same per-criterion evidence shown in the text report.
+The JSON report includes `waveform_metadata`, `evidence_context`, `overall_outcome`, and the same per-criterion evidence shown in the text report.
 
 Explicit CLI criteria remain available for one-off checks:
 
@@ -72,9 +76,13 @@ Samples: 5 Channels: 1 Lineage: Derived
 Sample Interval: nominal=0.001000000 s min=0.001000000 max=0.001000000 uniform=true
 Nominal Sample Rate: 1000.000000 Hz
 Transforms: adc_quantize(bits=8,min_v=0,max_v=5)
+Validation Profile: engineering_validation
+Evidence Source: local_file_analysis
+Tolerance Policy: voltage=0.000000 V time=0.000000000 s
+Confidence Notes: software validation evidence only; not hardware qualification or certification evidence
 Overall: Pass
 Criteria:
-- input_max_after_adc: Pass channel=input_v measured=5.000000 V required=5.000000 V sample_index=3 timestamp=0.003000 reason=maximum observed voltage was 5.000000 V
+- input_max_after_adc: Pass channel=input_v measured=5.000000 V required=5.000000 V tolerance=0.000000 sample_index=3 timestamp=0.003000 reason=maximum observed voltage was 5.000000 V
 ```
 
-Richer CSV dialect support and stable numerical filter guarantees remain planned.
+Richer CSV dialect support and stable numerical filter guarantees remain planned. See `docs/filter-behavior.md` and `docs/time-axis-and-tolerances.md` for current transform and tolerance semantics.

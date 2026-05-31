@@ -16,6 +16,15 @@ Initial public MVP repository quality review after local validation and GitHub A
 
 No blocking QA defects found.
 
+## M4 Signal Accuracy And Validation Update
+
+No blocking QA defects found for the M4 branch. The review scope includes:
+
+- Known-answer and environmental validation fixture/config/report sets.
+- Exact JSON report comparisons for new validation reports.
+- Clear invalid tolerance config error behavior.
+- Documentation updates for report schema, tolerances, time-axis assumptions, filter equations, and benchmark limits.
+
 ## Checks
 
 | Check | Evidence | Result |
@@ -25,13 +34,14 @@ No blocking QA defects found.
 | Local linting | `cargo clippy --workspace --all-targets -- -D warnings` | Pass |
 | CLI smoke | Config text and JSON smoke commands | Pass |
 | CI | GitHub Actions runs `26699230596` and `26699270456` | Pass |
+| M4 branch validation | `docs/validation-log.md` M4 section | Pass |
 
 ## Gate Decision
 
 - Gate: QA Gate.
 - Decision: Pass.
-- Reason: No blocking defects found in local or CI validation.
-- Residual risk: Additional negative-path tests are needed for malformed CSV/config inputs.
+- Reason: No blocking defects found in local, CI, or M4 validation evidence.
+- Residual risk: Additional malformed CSV dialect coverage and external capture validation remain future work.
 - Next owner: Security Engineer.
 
 ## Hand-Off Note

@@ -21,6 +21,71 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - Rust: `rustc 1.95.0 (59807616e 2026-04-14)`
 - Dependencies: `csv`, `serde`, `serde_json`, `toml`; resolved versions are pinned in `Cargo.lock`.
 
+## M4 Signal Accuracy And Validation Branch
+
+Current as of the M4 signal-validation branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo fmt --check` | Passed | Rust formatting clean. |
+| `cargo test --workspace` | Passed | 63 tests passed: 6 CLI, 38 core, 9 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 9 `wra-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+| `cargo run --quiet --bin wra -- analyze --input validation/known_answer/square_wave_tolerance.csv --config validation/known_answer/square_wave_tolerance.toml --format json` | Passed | Known-answer tolerance case produced the expected pass report with metadata, tolerance policy, and evidence context. |
+| `cargo run --quiet --bin wra -- analyze --input validation/environmental_cases/dropout_event.csv --config validation/environmental_cases/dropout_event.toml --format json` | Passed | Dropout validation case produced the expected fail report with 2 ms dropout evidence. |
+| `cargo run --quiet --bin wra -- analyze --input examples/basic-waveform.csv --config tests/configs/invalid-negative-tolerance.toml --format json` | Passed | Command exited with code 2 and clear error: `invalid config tolerances: invalid parameter \`tolerances.time_s\`: must be greater than or equal to zero`. |
+| `sh scripts/benchmark-large-csv.sh 100000 3` | Passed | Generated a 100k-sample CSV under `target/wra-benchmark/` and recorded read, parse, transform, criteria, report, and total timing averages in `docs/benchmarking.md`. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `analysis::tests::applies_voltage_and_time_tolerances` | Pass-at-boundary voltage and duration tolerance behavior. |
+| `analysis::tests::still_fails_beyond_configured_tolerance` | Fail-beyond-tolerance voltage behavior. |
+| `analysis::tests::rejects_duplicate_or_decreasing_time_for_duration_criteria` | Duplicate and decreasing timestamps return structured errors before duration criteria evaluation. |
+| `analysis::tests::allows_non_uniform_but_increasing_time_axis` | Non-uniform increasing timestamps are accepted and measured using actual sample times. |
+| `config::tests::rejects_invalid_tolerance_config` | Invalid TOML tolerance values are rejected without panics. |
+| `model::tests::stores_optional_validation_context_and_tolerances` | Optional metadata context and tolerance policy are preserved in waveform metadata. |
+| `validation_known_answer_square_wave_matches_expected_report` | Known-answer square-wave tolerance fixture matches exact JSON report. |
+| `validation_dropout_environmental_case_matches_expected_report` | Environmental dropout fixture matches exact JSON report. |
+| `validation_contact_bounce_environmental_case_matches_expected_report` | Environmental contact-bounce fixture matches exact JSON report. |
+
+### Benchmark Snapshot
+
+```text
+wra_benchmark
+input=target/wra-benchmark/large_square_wave_100000.csv
+config=target/wra-benchmark/large_square_wave_100000.toml
+iterations=3
+samples=100000
+channels=1
+report_bytes=2395
+read_ms_avg=0.316
+parse_ms_avg=157.890
+transform_ms_avg=5.725
+criteria_ms_avg=5.084
+report_ms_avg=0.070
+total_ms_avg=169.084
+```
+
+### Gate Decision
+
+- Gate: Testing Gate for M4.
+- Decision: Pass.
+- Reason: Formatting, workspace tests, clippy, whitespace check, known-answer CLI smoke, environmental validation CLI smoke, invalid tolerance error check, and repeatable benchmark command passed.
+- Residual risk: Validation remains software-only and does not prove hardware, DAQ, environmental qualification, or certification behavior.
+- Owner for residual risk: Verification and Validation Engineer / Documentation Engineer.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer
+Goal: Validate M4 signal accuracy and validation branch.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`; validation CLI smoke commands; invalid tolerance CLI command; `sh scripts/benchmark-large-csv.sh 100000 3`
+Status: Pass.
+Known gaps: No external hardware capture corpus, DAQ integration, or certification evidence.
+Next recommended step: Protected-branch PR review and CI.
+
 ## M1 Metadata And README Usage Branch Validation
 
 Current as of M1 metadata and README usage review on 2026-05-31.

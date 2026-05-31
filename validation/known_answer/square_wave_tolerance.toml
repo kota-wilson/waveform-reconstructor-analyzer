@@ -1,0 +1,36 @@
+[input]
+time_column = "time_s"
+channels = ["control_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[metadata]
+test_run_id = "KA-SQUARE-TOL-001"
+acquisition_notes = "Synthetic known-answer square wave for voltage and time tolerance boundary checks."
+environment = "software validation fixture"
+operator = "wra validation suite"
+
+[tolerances]
+voltage_v = 0.02
+time_s = 0.0005
+
+[[criteria]]
+id = "control_transition_count"
+type = "state_transitions"
+channel = "control_v"
+threshold_v = 2.5
+expected_count = 4
+
+[[criteria]]
+id = "control_high_pulse_width_tolerance"
+type = "pulse_width"
+channel = "control_v"
+state = "high"
+threshold_v = 2.5
+min_width_s = 0.0025
+
+[[criteria]]
+id = "control_max_voltage_tolerance"
+type = "maximum_voltage"
+channel = "control_v"
+threshold_v = 5.0
