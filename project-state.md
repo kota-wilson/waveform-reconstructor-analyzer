@@ -8,7 +8,7 @@ Address M1-001 by validating CSV parser edge cases on a main-based feature branc
 
 ## Current Stage
 
-M1-001 implementation and full local validation complete on `feature/m1-001-csv-parser-edge-cases`; PR creation pending.
+M1-001 implementation and full local validation complete; PR #22 opened from `feature/m1-001-csv-parser-edge-cases` to protected `main`.
 
 ## Open Risks
 
@@ -37,7 +37,7 @@ M1-001 implementation and full local validation complete on `feature/m1-001-csv-
 
 Role: Project Orchestrator
 
-Expected deliverable: Run final validation, push `feature/m1-001-csv-parser-edge-cases`, and open a PR for issue #1.
+Expected deliverable: Monitor PR #22 CI and wait for protected-branch review.
 
 ## Orchestration Status
 
@@ -46,7 +46,7 @@ Expected deliverable: Run final validation, push `feature/m1-001-csv-parser-edge
 - Current milestone: Dependency-reviewed MVP slice complete.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
 - Current milestone: `M1: Validated MVP`.
-- Next gate: Release Gate for M1-001 pull request creation.
+- Next gate: Required CI and review for PR #22.
 - Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/certification work.
 
 ## Granularity Status
@@ -95,6 +95,8 @@ Expected deliverable: Run final validation, push `feature/m1-001-csv-parser-edge
 | M1-001 Requirements Gate | Pass | Issue #1 acceptance criteria captured in `docs/m1-001-csv-parser-edge-cases.md` | Software Architect |
 | M1-001 Implementation Gate | Pass | `crates/wra-core/src/csv.rs`, `docs/implementation-report.md` | Test Automation Engineer |
 | M1-001 Testing Gate | Pass | `docs/validation-log.md`; targeted parser tests, workspace tests, fmt, and clippy passed | Project Orchestrator |
+| M1-001 Release Gate | Pass | PR #22 opened: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/22` | Community Engineering Lead |
+| M1-001 Community Gate | Pass | PR #22 body links issue #1 and validation commands | Project Coordinator |
 
 ## Update Rules
 
