@@ -12,7 +12,7 @@ Primary issues:
 - #46, `M6-004 Document criteria DSL direction for engineering measurements`
 - #47, `M6-005 Add measurement-engine validation fixtures`
 
-PR: pending
+PR: #52, `Complete M6 evidence and validation work`
 
 Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime, batch analysis, RTOS expansion, hardware qualification, production performance claims, and certification evidence.
 
@@ -151,9 +151,9 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 
 - Owner role: Release Engineer
 - Artifact: `docs/release-readiness.md`.
-- Evidence: local `cargo fmt`, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, annotated SVG CLI smoke, and `git diff --check` passed; PR creation and protected `rust` CI are pending.
+- Evidence: local `cargo fmt`, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, annotated SVG CLI smoke, and `git diff --check` passed; PR #52 is open and protected `rust` CI is pending.
 - Gate: Release Gate.
-- Decision: Pending.
+- Decision: Pending CI/merge.
 - Residual risk: branch work is not released until CI passes and the PR is merged.
 - Next owner: GitHub Maintainer Specialist.
 
@@ -161,9 +161,9 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 
 - Owner role: Community Engineering Lead
 - Artifact: `docs/community-report.md`.
-- Evidence: PR body should close #44, #46, and #47. If merged, milestone #6 should have no remaining open issues.
+- Evidence: PR #52 body closes #44, #46, and #47 on merge. If merged, milestone #6 should have no remaining open issues.
 - Gate: Community Gate.
-- Decision: Pending PR creation.
+- Decision: Pending merge.
 - Residual risk: external user feedback is not yet available.
 - Next owner: Project Coordinator.
 
@@ -182,7 +182,7 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 Role: Project Orchestrator / Core Software Engineer
 Goal: Complete remaining M6 issues #44, #46, and #47.
 Files changed: plotting, CLI, validation fixtures/reports, criteria DSL docs, README, docs, requirements, traceability, risk, and project state.
-Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; annotated SVG CLI smoke; `git diff --check`. Remaining check: protected GitHub CI after PR creation.
-Status: Local implementation, documentation, and validation complete; PR pending.
+Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; annotated SVG CLI smoke; `git diff --check`. Remaining check: protected GitHub CI for PR #52.
+Status: Local implementation, documentation, and validation complete; PR #52 open.
 Known gaps: External visual review, visual regression automation, external capture corpora, and future DSL parser implementation remain out of scope.
-Next recommended step: Run final validation, open PR, wait for required CI, merge, and close milestone #6.
+Next recommended step: Wait for required CI on PR #52, merge, and verify issue/milestone closure.
