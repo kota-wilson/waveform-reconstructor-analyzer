@@ -7,6 +7,9 @@
 //! parsing, file I/O, allocation, plotting, hardware HALs, and RTOS-specific
 //! APIs so adapters can be added without changing the signal core.
 
+#[cfg(test)]
+extern crate std;
+
 use core::convert::Infallible;
 
 use ferrisoxide_signal::{
@@ -192,7 +195,12 @@ where
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ferrisoxide_rule_engine::{
+        evaluate_rule_set, RuleChannel, RuleCriterion, RuleCriterionCheck, RuleOutcome,
+        RuleTolerances, RuleWaveform,
+    };
     use ferrisoxide_signal::{SignalState, ThresholdCheck, TransientEventKind};
+    use std::string::String;
 
     #[test]
     fn threshold_stream_uses_source_runtime_sink_and_signal_core() {
@@ -285,5 +293,35 @@ mod tests {
             AdapterError::Signal(SignalError::NonMonotonicTimestamp)
         ));
         assert_eq!(sink.threshold, None);
+    }
+
+    #[test]
+    fn shared_rule_engine_evaluates_embedded_compatible_slices() {
+        let time = [0.0, 0.001, 0.002, 0.003, 0.004];
+        let switch_v = [0.0, 0.0, 5.0, 5.0, 0.0];
+        let channels = [RuleChannel {
+            name: "switch_v",
+            samples: &switch_v,
+        }];
+        let waveform = RuleWaveform {
+            time: &time,
+            channels: &channels,
+        };
+        let criteria = [RuleCriterion {
+            id: String::from("switch_transition_count"),
+            check: RuleCriterionCheck::StateTransitions {
+                channel: String::from("switch_v"),
+                threshold_v: 2.5,
+                expected_count: 2,
+            },
+        }];
+
+        let evaluation = evaluate_rule_set(waveform, &criteria, RuleTolerances::default())
+            .expect("embedded-compatible slices should evaluate");
+
+        assert_eq!(evaluation.results.len(), 1);
+        assert_eq!(evaluation.results[0].outcome, RuleOutcome::Pass);
+        assert_eq!(evaluation.results[0].measured_value, 2.0);
+        assert_eq!(evaluation.measurements[0].method, "state_transition_count");
     }
 }

@@ -106,7 +106,7 @@ The M8-003 validator branch adds no new third-party crates. It promotes approved
 | Dependency files | `crates/ferrisoxide-rule-schema/Cargo.toml` depends on approved `serde`, `serde_json`, and `toml`. | Pass |
 | Scope boundary | The validator parses strings and validates in-memory packages only; it does not add file I/O, export commands, checksum algorithms, binary serialization, rule execution, CLI behavior, DAQ, HAL, SDK, GUI, or RTOS integration. | Pass |
 | Dependency tree | `cargo tree -p ferrisoxide-rule-schema` is recorded in `docs/m8-003-rule-package-validator-pipeline-report.md`. | Pass |
-| Future work boundary | Export remains #69; manifest/checksum generation remains #70; shared rule execution remains #73. | Pass |
+| Future work boundary | Export (#69), manifest/checksum generation (#70), and shared rule execution (#73) were implemented in later M8 PRs; no_std compatibility and parity tests remain separate issues/gates. | Pass |
 
 ## M8-004 Rule Package Export Dependency Review
 
@@ -117,7 +117,7 @@ The M8-004 export branch adds no new third-party crates. It adds a local depende
 | Dependency files | `crates/ferrisoxide-cli/Cargo.toml` adds local `ferrisoxide-rule-schema` and approved `serde_json.workspace = true`. | Pass |
 | Scope boundary | The command writes desktop package artifacts only; it does not add GUI, DAQ, controller SDK, HAL, RTOS production integration, signing, checksum algorithms, binary serialization, hardware qualification, or certification claims. | Pass |
 | Dependency tree | `cargo tree -p ferrisoxide-cli` is recorded in `docs/m8-004-rule-package-export-pipeline-report.md`. | Pass |
-| Future work boundary | Manifest/checksum generation remains #70; shared rule execution remains #73; no_std compatibility remains #72. | Pass |
+| Future work boundary | Manifest/checksum generation (#70) and shared rule execution (#73) were implemented in later M8 PRs; no_std compatibility remains #72. | Pass |
 
 ## M8-005 Rule Package Manifest And Checksum Dependency Review
 
@@ -129,7 +129,18 @@ The M8-005 manifest/checksum branch adds no new third-party crates. It uses a sm
 | Algorithm scope | `fnv1a64` is deterministic and dependency-free, but explicitly non-cryptographic. | Pass |
 | Security boundary | Manifest/checksum docs and artifact metadata state that checksum evidence is not signing, tamper resistance, security certification, hardware qualification, or flight certification evidence. | Pass |
 | Mismatch behavior | `validate_artifact_checksum()` returns structured `ChecksumMismatch` errors for changed artifact contents. | Pass |
-| Future work boundary | Binary package serialization, cryptographic signing, runtime loaders, shared rule execution, no_std compatibility, and parity tests remain separate issues/gates. | Pass |
+| Future work boundary | Binary package serialization, cryptographic signing, runtime loaders, no_std compatibility, and parity tests remain separate issues/gates; shared rule execution is covered by M8-006. | Pass |
+
+## M8-006 Shared Rule Engine Dependency Review
+
+The M8-006 shared rule engine branch adds no new third-party crates. It adds local workspace crate `ferrisoxide-rule-engine`, keeps it dependent only on local `ferrisoxide-measurements`, and wires `ferrisoxide-core` plus embedded-compatible host tests through that shared semantics crate.
+
+| Check | Evidence | Result |
+|---|---|---|
+| Dependency files | `crates/ferrisoxide-rule-engine/Cargo.toml` depends only on local `ferrisoxide-measurements`; `ferrisoxide-core` adds local `ferrisoxide-rule-engine`; `ferrisoxide-embedded` adds it as a dev-dependency for host tests only. | Pass |
+| Scope boundary | The shared engine operates over caller-provided slices and does not add CSV parsing, TOML parsing, plotting, report rendering, file I/O, DAQ/controller I/O, HALs, SDKs, RTOS integration, signing, binary serialization, or certification claims. | Pass |
+| Dependency tree | `cargo tree -p ferrisoxide-rule-engine` is recorded in `docs/m8-006-shared-rule-engine-pipeline-report.md`. | Pass |
+| Future work boundary | no_std rule-engine compatibility remains #72; exact desktop-vs-embedded parity fixtures remain #74. | Pass |
 
 ## Risk Assessment
 
@@ -140,7 +151,7 @@ The M8-005 manifest/checksum branch adds no new third-party crates. It uses a sm
 - Plotting risk: Low/Medium; SVG output is local-file only, but future plotting backends could expand native or GUI dependencies if not gated.
 - Embedded toolchain risk: Medium; future RTOS SDKs, HALs, FFI, or target CI require fresh review before adoption.
 - Measurement extraction risk: Medium; evidence values and tie behavior must remain guarded by exact golden reports.
-- Rule package drift risk: Medium; the schema crate, parse-tested examples, validator, and export command reduce duplicated shapes, but engine, no_std, and parity tests are still required before runtime claims.
+- Rule package drift risk: Medium; the schema crate, parse-tested examples, validator, export command, manifest/checksum evidence, and shared rule engine reduce duplicated shapes and semantics, but no_std and exact parity tests are still required before runtime claims.
 
 ## Gate Decision
 

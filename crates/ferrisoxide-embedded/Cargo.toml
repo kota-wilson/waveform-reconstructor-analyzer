@@ -10,5 +10,8 @@ publish = false
 [dependencies]
 ferrisoxide-signal = { path = "../ferrisoxide-signal" }
 
+[dev-dependencies]
+ferrisoxide-rule-engine = { path = "../ferrisoxide-rule-engine" }
+
 [lints]
 workspace = true

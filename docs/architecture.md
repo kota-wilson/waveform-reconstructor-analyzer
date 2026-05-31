@@ -26,10 +26,11 @@ Current status: This proposal has been implemented through the validated MVP fea
 | `ferrisoxide-embedded` | `crates/ferrisoxide-embedded` | `no_std` adapter traits and streaming helpers for ARM64/RTOS wrappers. | Embedded adapters around `ferrisoxide-signal`. |
 | `ferrisoxide-measurements` | `crates/ferrisoxide-measurements` | `no_std` measurement primitives over time/sample slices. | Extrema, transition count, state-run duration, and rise/fall measurements used by criteria evidence. |
 | `ferrisoxide-plot` | `crates/ferrisoxide-plot` | Desktop SVG plotting for waveform data and 2D evidence overlays. | SVG plot renderer used by the CLI. |
+| `ferrisoxide-rule-engine` | `crates/ferrisoxide-rule-engine` | Shared rule execution semantics over caller-provided time/sample slices. | Rule criteria, tolerances, pass/fail results, and measurement evidence used by desktop and embedded-compatible paths. |
 | `ferrisoxide-rule-schema` | `crates/ferrisoxide-rule-schema` | Versioned portable FerrisOxide Rule Package data model and validator. | Package metadata, target profile, sample timing, channels, units, thresholds, filters, measurement-backed criteria definitions, parse helpers, and structured validation errors. |
 | `ferrisoxide-signal` | `crates/ferrisoxide-signal` | `no_std` signal primitives for future embedded adapters. | Dependency-free embedded-oriented primitives. |
 
-Future portable rule package validator, export, checksum, shared-engine, no_std-boundary, and parity-test work is planned in `decisions/ADR-004-portable-rule-package-architecture.md` and `docs/v0.6.0-portable-rule-package-milestone-proposal.md`.
+Portable rule package validator, export, checksum, and shared-engine work is implemented through M8-006. no_std-boundary and parity-test work remains planned in `decisions/ADR-004-portable-rule-package-architecture.md` and `docs/v0.6.0-portable-rule-package-milestone-proposal.md`.
 
 Future controller-in-the-loop simulation and deployment config modules are planned in `docs/controller-in-the-loop-workflow.md` and `docs/v0.7.0-controller-simulation-deployment-config-milestone-proposal.md`. They are not implemented yet.
 
@@ -44,12 +45,13 @@ Platform targets are documented in `docs/platform-targets.md`. The desktop autho
 | `config` | `crates/ferrisoxide-core/src/config.rs` | TOML-deserializable analysis configuration model. |
 | `filter` | `crates/ferrisoxide-core/src/filter.rs` | Filter trait, ordered filter-step enum, low-pass filter, moving-average filter, and ADC quantization transform. |
 | `criteria` | `crates/ferrisoxide-core/src/criteria.rs` | Pass/fail criteria definitions. |
-| `analysis` | `crates/ferrisoxide-core/src/analysis.rs` | Analysis results, measurement records, and evaluator interface. |
+| `analysis` | `crates/ferrisoxide-core/src/analysis.rs` | Analysis results, measurement records, and adapter from desktop waveform/config types into `ferrisoxide-rule-engine`. |
 | `report` | `crates/ferrisoxide-core/src/report.rs` | Report model with text and JSON rendering, including reusable measurement evidence. |
 | `error` | `crates/ferrisoxide-core/src/error.rs` | Project error types. |
 | `ferrisoxide-embedded` | `crates/ferrisoxide-embedded/src/lib.rs` | `SampleSource`, `EventSink`, `RuntimeHooks`, and no_std streaming helper loops. |
 | `ferrisoxide-measurements` | `crates/ferrisoxide-measurements/src/lib.rs` | Slice-based measurement functions with no allocation, file I/O, parsing, plotting, or reporting. |
 | `ferrisoxide-plot` | `crates/ferrisoxide-plot/src/lib.rs` | SVG plotting with 2D evidence overlays and optional third-axis 3D line rendering. |
+| `ferrisoxide-rule-engine` | `crates/ferrisoxide-rule-engine/src/lib.rs` | Shared criteria execution over slices; avoids CSV parsing, TOML parsing, plotting, report rendering, file I/O, DAQ/controller I/O, HALs, and SDKs. |
 | `ferrisoxide-rule-schema` | `crates/ferrisoxide-rule-schema/src/lib.rs` | Versioned portable rule package schema types and validation helpers; no CSV, CLI, plotting, report rendering, package export, checksum algorithm, controller I/O, HAL, SDK, or rule execution behavior. |
 
 ## Core Data Flow
@@ -109,6 +111,7 @@ Platform split
 | `FilterStep` | `filter.rs` | Enum-backed ordered pipeline step for config-driven transforms. |
 | `minimum_sample`, `maximum_sample`, `count_state_transitions`, `state_run_extremum`, `measure_rise_time`, `measure_fall_time` | `ferrisoxide-measurements/src/lib.rs` | Reusable measurement primitives used by `ferrisoxide-core` criteria evaluation. |
 | `Criterion` | `criteria.rs` | Defines a measurable pass/fail rule. |
+| `evaluate_rule_set` | `ferrisoxide-rule-engine/src/lib.rs` | Executes shared rule criteria over time/sample slices and returns pass/fail plus measurement evidence for desktop and embedded-compatible adapters. |
 | `MeasurementRecord` | `analysis.rs` | Records reusable measurement evidence with stable ID, method context, measured value, unit, channel, sample index, and timestamp. |
 | `AnalysisResult` | `analysis.rs` | Records criterion outcome, linked `measurement_id`, measured value, threshold, applied tolerance, sample index, timestamp, channel, and reason. |
 | `EvidenceOverlay` | `ferrisoxide-plot/src/lib.rs` | Plot-facing annotation data derived from report measurement evidence. |
@@ -145,7 +148,7 @@ Platform split
 - Reports expose top-level measurement records and per-result `measurement_id` links so measured evidence and pass/fail decisions remain auditable separately.
 - Plotting is a desktop-only SVG renderer in `ferrisoxide-plot`; 2D evidence overlays reuse report measurement evidence; `ferrisoxide-core` and `ferrisoxide-signal` do not depend on Plotters.
 - Criteria DSL direction is documented in `docs/criteria-dsl.md`; existing `[[criteria]]` entries remain the runtime compatibility baseline.
-- Portable rule package direction is documented in `decisions/ADR-004-portable-rule-package-architecture.md`; the initial package format is documented in `docs/rule-package-format.md`; future desktop and embedded/controller paths must use one rule schema and one shared rule engine rather than duplicate rule semantics.
+- Portable rule package direction is documented in `decisions/ADR-004-portable-rule-package-architecture.md`; the initial package format is documented in `docs/rule-package-format.md`; `ferrisoxide-rule-engine` now owns shared rule semantics for desktop and embedded-compatible paths.
 - Controller-in-the-loop direction is documented in `docs/controller-in-the-loop-workflow.md`; production control config and test verification config remain separate but linked through manifests and parity evidence.
 - Platform target direction is documented in `docs/platform-targets.md`; RTOS compatibility is a later layer around the Raspberry Pi 5 bare-metal ARM64 first-class embedded target, and Pico 2 support is a later optional microcontroller subset rather than a full runtime replacement.
 
@@ -167,6 +170,7 @@ Platform split
 | Measurement-engine validation fixture | `validation/measurement_engine/` and exact report test | Known-answer values cover transition count, pulse width, transient duration, stable-state duration, and rise/fall time. |
 | CLI smoke | `crates/ferrisoxide-cli` tests and `cargo run --bin ferrisoxide-signal -- analyze ...` | CLI loads a fixture, applies optional filters, evaluates criteria, and renders text. |
 | Embedded adapter boundary | `crates/ferrisoxide-embedded` tests and QEMU demo manifest check | no_std source/sink/runtime traits wrap `ferrisoxide-signal` without desktop file I/O. |
+| Shared rule engine | `crates/ferrisoxide-rule-engine`, `crates/ferrisoxide-core`, and `crates/ferrisoxide-embedded` tests | Desktop analysis delegates criteria semantics to the shared engine, and embedded-compatible tests evaluate fixed slices through the same engine. |
 | SVG plotting | `crates/ferrisoxide-plot` tests and `ferrisoxide-cli` plot tests | CLI writes 2D and 3D SVG files from CSV fixtures. |
 
 ## Dependency Strategy

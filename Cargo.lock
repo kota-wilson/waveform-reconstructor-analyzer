@@ -64,6 +64,7 @@ version = "0.1.0"
 dependencies = [
  "csv",
  "ferrisoxide-measurements",
+ "ferrisoxide-rule-engine",
  "serde",
  "serde_json",
  "toml",
@@ -73,6 +74,7 @@ dependencies = [
 name = "ferrisoxide-embedded"
 version = "0.1.0"
 dependencies = [
+ "ferrisoxide-rule-engine",
  "ferrisoxide-signal",
 ]
 
@@ -86,6 +88,13 @@ version = "0.1.0"
 dependencies = [
  "ferrisoxide-core",
  "plotters",
+]
+
+[[package]]
+name = "ferrisoxide-rule-engine"
+version = "0.1.0"
+dependencies = [
+ "ferrisoxide-measurements",
 ]
 
 [[package]]

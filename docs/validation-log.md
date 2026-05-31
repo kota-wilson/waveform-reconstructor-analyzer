@@ -1022,3 +1022,60 @@ Checks run: `gh repo view kota-wilson/ferrisoxide --json nameWithOwner,url`; `gi
 Status: Pass locally; protected PR, CI, merge, and issue #111 closure pending.
 Known gaps: External organization, domain, crates.io, trademark, logo, legal-suitability, and crate publication checks remain separate gates.
 Next recommended step: Open a protected-branch PR with `Fixes #111`, wait for required `rust` CI, merge, then resume M8 shared rule-engine work.
+
+## M8-006 Shared Rule Engine Validation Update
+
+Date: 2026-05-31
+
+Stage: Testing shared rule execution semantics
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, DAQ SDKs, HALs, RTOS toolchains, or controller SDKs installed.
+- New third-party dependencies: None. `ferrisoxide-rule-engine` depends only on local `ferrisoxide-measurements`.
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo tree -p ferrisoxide-rule-engine` | Passed | Shows local `ferrisoxide-measurements` dependency only. |
+| `cargo tree -p ferrisoxide-embedded` | Passed | Runtime dependency remains `ferrisoxide-signal`; `ferrisoxide-rule-engine` appears only under dev-dependencies for host tests. |
+| `cargo test -p ferrisoxide-rule-engine` | Passed | 4 shared engine tests passed plus doctests. |
+| `cargo test -p ferrisoxide-core` | Passed | 55 unit tests, 15 criteria/golden tests, 1 CSV fixture test, and doctests passed. |
+| `cargo test -p ferrisoxide-embedded` | Passed | 5 embedded tests passed, including `shared_rule_engine_evaluates_embedded_compatible_slices`. |
+| `cargo fmt --check` | Passed | Rust formatting clean. |
+| `cargo test --workspace` | Passed | 128 workspace tests passed across CLI, core, embedded, measurements, plot, rule engine, rule schema, signal, and doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Exact Tests Added Or Preserved
+
+| Test | Coverage |
+|---|---|
+| `ferrisoxide_rule_engine::tests::evaluates_minimum_and_maximum_voltage` | Verifies voltage criteria in the shared engine. |
+| `ferrisoxide_rule_engine::tests::detects_state_transitions_and_transient_events` | Verifies transition and transient semantics in the shared engine. |
+| `ferrisoxide_rule_engine::tests::evaluates_measurement_backed_criteria_with_tolerance` | Verifies DSL-style measurement criteria and tolerance handling in the shared engine. |
+| `ferrisoxide_rule_engine::tests::rejects_decreasing_time_for_time_dependent_criteria` | Verifies duration criteria keep strict time-axis validation. |
+| `ferrisoxide_embedded::tests::shared_rule_engine_evaluates_embedded_compatible_slices` | Verifies embedded-compatible fixed slices call the same shared engine. |
+| Existing `ferrisoxide-core` criteria and golden tests | Verifies desktop report behavior remains stable after delegating to the shared engine. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M8-006.
+- Decision: Pass locally.
+- Reason: The shared engine, desktop adapter, embedded-compatible host test, exact golden tests, workspace tests, formatting, clippy, dependency tree inspection, and whitespace checks all passed.
+- Residual risk: no_std compatibility, allocation-free embedded execution, exact desktop-vs-embedded parity fixtures, protected GitHub CI, PR merge, and issue closure remain pending.
+- Owner for residual risk: Embedded RTOS Engineer / Verification and Validation Engineer / GitHub Maintainer Specialist.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate M8-006 shared rule execution engine.
+Files changed: `Cargo.toml`, `Cargo.lock`, `README.md`, `crates/ferrisoxide-rule-engine/`, `crates/ferrisoxide-core/Cargo.toml`, `crates/ferrisoxide-core/src/analysis.rs`, `crates/ferrisoxide-embedded/Cargo.toml`, `crates/ferrisoxide-embedded/src/lib.rs`, docs, requirements, traceability, risk register, validation log, and project state.
+Checks run: `cargo tree -p ferrisoxide-rule-engine`; `cargo tree -p ferrisoxide-embedded`; `cargo test -p ferrisoxide-rule-engine`; `cargo test -p ferrisoxide-core`; `cargo test -p ferrisoxide-embedded`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally; protected PR, CI, merge, and issue #73 closure pending.
+Known gaps: no_std rule-engine boundary, allocation-free embedded execution, exact desktop-vs-embedded parity fixtures, runtime package loaders, and certification evidence remain out of scope.
+Next recommended step: Open a protected-branch PR with `Fixes #73`, wait for required `rust` CI, merge, then proceed to M8-007 / issue #72.

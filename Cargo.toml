@@ -5,6 +5,7 @@ members = [
     "crates/ferrisoxide-embedded",
     "crates/ferrisoxide-measurements",
     "crates/ferrisoxide-plot",
+    "crates/ferrisoxide-rule-engine",
     "crates/ferrisoxide-rule-schema",
     "crates/ferrisoxide-signal",
 ]

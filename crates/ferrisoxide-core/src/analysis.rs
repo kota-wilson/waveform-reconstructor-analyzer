@@ -1,16 +1,16 @@
 use crate::criteria::{
-    Criterion, CriterionCheck, CriterionOperator, EdgeDirection, MeasurementRequirement,
-    MeasurementSpec, RunSelectionConfig, SignalState,
+    Criterion, CriterionCheck, CriterionOperator, MeasurementRequirement, MeasurementSpec,
+    RunSelectionConfig,
 };
 use crate::error::{Result, WaveformError};
-use crate::model::{Channel, TolerancePolicy, Waveform};
-use ferrisoxide_measurements::{
-    count_state_transitions, maximum_sample, measure_fall_time, measure_rise_time, minimum_sample,
-    state_run_extremum, MeasurementError, RunSelection,
+use crate::model::{TolerancePolicy, Waveform};
+use ferrisoxide_rule_engine::{
+    evaluate_rule_set, RuleChannel, RuleCriterion, RuleCriterionCheck, RuleCriterionOperator,
+    RuleEngineError, RuleMeasurementMethodContext, RuleMeasurementRecord,
+    RuleMeasurementRequirement, RuleMeasurementSpec, RuleOutcome, RuleRunSelectionConfig,
+    RuleTolerances, RuleWaveform,
 };
 use serde::Serialize;
-
-const FLOAT_TOLERANCE: f64 = 1.0e-12;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
@@ -102,1106 +102,282 @@ pub fn evaluate_criteria_with_measurements(
     criteria: &[Criterion],
     tolerances: TolerancePolicy,
 ) -> Result<CriteriaEvaluation> {
-    tolerances.validate()?;
-    validate_time_axis_for_criteria(waveform, criteria)?;
-    let evaluated = criteria
+    let rule_channels = waveform
+        .channels
         .iter()
-        .map(|criterion| evaluate_criterion(waveform, criterion, tolerances))
-        .collect::<Result<Vec<_>>>()?;
+        .map(|channel| RuleChannel {
+            name: channel.name.as_str(),
+            samples: channel.samples.as_slice(),
+        })
+        .collect::<Vec<_>>();
+    let rule_criteria = criteria.iter().map(to_rule_criterion).collect::<Vec<_>>();
+    let rule_waveform = RuleWaveform {
+        time: waveform.time.as_slice(),
+        channels: rule_channels.as_slice(),
+    };
+    let rule_tolerances = RuleTolerances {
+        voltage_v: tolerances.voltage_v,
+        time_s: tolerances.time_s,
+    };
+
+    let evaluation = evaluate_rule_set(rule_waveform, rule_criteria.as_slice(), rule_tolerances)
+        .map_err(rule_engine_error)?;
+
     Ok(CriteriaEvaluation {
-        results: evaluated
-            .iter()
-            .map(|evaluation| evaluation.result.clone())
-            .collect(),
-        measurements: evaluated
+        results: evaluation
+            .results
             .into_iter()
-            .map(|evaluation| evaluation.measurement)
+            .map(from_rule_result)
+            .collect(),
+        measurements: evaluation
+            .measurements
+            .into_iter()
+            .map(from_rule_measurement)
             .collect(),
     })
 }
 
-fn validate_time_axis_for_criteria(waveform: &Waveform, criteria: &[Criterion]) -> Result<()> {
-    if !criteria.iter().any(is_time_dependent) {
-        return Ok(());
+fn to_rule_criterion(criterion: &Criterion) -> RuleCriterion {
+    RuleCriterion {
+        id: criterion.id.clone(),
+        check: to_rule_check(&criterion.check),
     }
-
-    for (index, pair) in waveform.time.windows(2).enumerate() {
-        if pair[1] <= pair[0] {
-            return Err(WaveformError::InvalidWaveform {
-                reason: format!(
-                    "time samples must be strictly increasing for duration criteria; sample {}={} is not greater than sample {}={}",
-                    index + 1,
-                    pair[1],
-                    index,
-                    pair[0]
-                ),
-            });
-        }
-    }
-    Ok(())
 }
 
-fn is_time_dependent(criterion: &Criterion) -> bool {
-    matches!(
-        &criterion.check,
-        CriterionCheck::PulseWidth { .. }
-            | CriterionCheck::TransientDuration { .. }
-            | CriterionCheck::TransientEvent { .. }
-            | CriterionCheck::StableStateDuration { .. }
-            | CriterionCheck::RiseFallTime { .. }
-    ) || matches!(
-        &criterion.check,
-        CriterionCheck::Measurement { measurement, .. } if measurement.is_time_dependent()
-    )
-}
-
-fn evaluate_criterion(
-    waveform: &Waveform,
-    criterion: &Criterion,
-    tolerances: TolerancePolicy,
-) -> Result<EvaluatedCriterion> {
-    let channel =
-        waveform
-            .channel(criterion.channel())
-            .ok_or_else(|| WaveformError::MissingColumn {
-                column: criterion.channel().to_string(),
-            })?;
-
-    match &criterion.check {
-        CriterionCheck::MinimumVoltage { threshold_v, .. } => {
-            let measurement =
-                minimum_sample(&waveform.time, &channel.samples).map_err(measurement_error)?;
-            let outcome = if measurement.value + tolerances.voltage_v >= *threshold_v {
-                Outcome::Pass
-            } else {
-                Outcome::Fail
-            };
-            Ok(result(
-                criterion,
-                outcome,
-                Evidence {
-                    measured_value: measurement.value,
-                    required_value: *threshold_v,
-                    tolerance_used: tolerances.voltage_v,
-                    unit: "V",
-                    sample_index: measurement.sample_index,
-                    timestamp: measurement.timestamp,
-                    reason: format!("minimum observed voltage was {:.6} V", measurement.value),
-                    method: "minimum_sample",
-                    method_context: MeasurementMethodContext::default(),
-                },
-            ))
-        }
-        CriterionCheck::MaximumVoltage { threshold_v, .. } => {
-            let measurement =
-                maximum_sample(&waveform.time, &channel.samples).map_err(measurement_error)?;
-            let outcome = if measurement.value - tolerances.voltage_v <= *threshold_v {
-                Outcome::Pass
-            } else {
-                Outcome::Fail
-            };
-            Ok(result(
-                criterion,
-                outcome,
-                Evidence {
-                    measured_value: measurement.value,
-                    required_value: *threshold_v,
-                    tolerance_used: tolerances.voltage_v,
-                    unit: "V",
-                    sample_index: measurement.sample_index,
-                    timestamp: measurement.timestamp,
-                    reason: format!("maximum observed voltage was {:.6} V", measurement.value),
-                    method: "maximum_sample",
-                    method_context: MeasurementMethodContext::default(),
-                },
-            ))
-        }
+fn to_rule_check(check: &CriterionCheck) -> RuleCriterionCheck {
+    match check {
+        CriterionCheck::MinimumVoltage {
+            channel,
+            threshold_v,
+        } => RuleCriterionCheck::MinimumVoltage {
+            channel: channel.clone(),
+            threshold_v: *threshold_v,
+        },
+        CriterionCheck::MaximumVoltage {
+            channel,
+            threshold_v,
+        } => RuleCriterionCheck::MaximumVoltage {
+            channel: channel.clone(),
+            threshold_v: *threshold_v,
+        },
         CriterionCheck::StateTransitions {
+            channel,
             threshold_v,
             expected_count,
-            ..
-        } => evaluate_state_transitions(
-            waveform,
-            channel,
-            criterion,
-            *threshold_v,
-            *expected_count,
-            tolerances,
-        ),
+        } => RuleCriterionCheck::StateTransitions {
+            channel: channel.clone(),
+            threshold_v: *threshold_v,
+            expected_count: *expected_count,
+        },
         CriterionCheck::PulseWidth {
+            channel,
             state,
             threshold_v,
             min_width_s,
             max_width_s,
-            ..
-        } => evaluate_pulse_width(
-            waveform,
-            channel,
-            criterion,
-            PulseWidthSpec {
-                state: *state,
-                threshold_v: *threshold_v,
-                min_width_s: *min_width_s,
-                max_width_s: *max_width_s,
-            },
-            tolerances,
-        ),
+        } => RuleCriterionCheck::PulseWidth {
+            channel: channel.clone(),
+            state: *state,
+            threshold_v: *threshold_v,
+            min_width_s: *min_width_s,
+            max_width_s: *max_width_s,
+        },
         CriterionCheck::TransientDuration {
+            channel,
             expected_state,
             threshold_v,
             max_duration_s,
-            ..
-        } => evaluate_transient_duration(
-            waveform,
-            channel,
-            criterion,
-            TransientDurationSpec {
-                expected_state: *expected_state,
-                threshold_v: *threshold_v,
-                max_duration_s: *max_duration_s,
-                event_kind: "transient",
-            },
-            tolerances,
-        ),
+        } => RuleCriterionCheck::TransientDuration {
+            channel: channel.clone(),
+            expected_state: *expected_state,
+            threshold_v: *threshold_v,
+            max_duration_s: *max_duration_s,
+        },
         CriterionCheck::TransientEvent {
+            channel,
             event_kind,
             expected_state,
             threshold_v,
             max_duration_s,
-            ..
-        } => evaluate_transient_duration(
-            waveform,
-            channel,
-            criterion,
-            TransientDurationSpec {
-                expected_state: *expected_state,
-                threshold_v: *threshold_v,
-                max_duration_s: *max_duration_s,
-                event_kind: event_kind.as_str(),
-            },
-            tolerances,
-        ),
+        } => RuleCriterionCheck::TransientEvent {
+            channel: channel.clone(),
+            event_kind: event_kind.as_str().to_string(),
+            expected_state: *expected_state,
+            threshold_v: *threshold_v,
+            max_duration_s: *max_duration_s,
+        },
         CriterionCheck::StableStateDuration {
+            channel,
             state,
             threshold_v,
             min_duration_s,
-            ..
-        } => evaluate_stable_state_duration(
-            waveform,
-            channel,
-            criterion,
-            *state,
-            *threshold_v,
-            *min_duration_s,
-            tolerances,
-        ),
+        } => RuleCriterionCheck::StableStateDuration {
+            channel: channel.clone(),
+            state: *state,
+            threshold_v: *threshold_v,
+            min_duration_s: *min_duration_s,
+        },
         CriterionCheck::RiseFallTime {
+            channel,
             direction,
             low_threshold_v,
             high_threshold_v,
             max_duration_s,
-            ..
-        } => evaluate_rise_fall_time(
-            waveform,
-            channel,
-            criterion,
-            RiseFallTimeSpec {
-                direction: *direction,
-                low_threshold_v: *low_threshold_v,
-                high_threshold_v: *high_threshold_v,
-                max_duration_s: *max_duration_s,
-            },
-            tolerances,
-        ),
+        } => RuleCriterionCheck::RiseFallTime {
+            channel: channel.clone(),
+            direction: *direction,
+            low_threshold_v: *low_threshold_v,
+            high_threshold_v: *high_threshold_v,
+            max_duration_s: *max_duration_s,
+        },
         CriterionCheck::Measurement {
-            measurement,
-            requirement,
-            ..
-        } => evaluate_measurement_criterion(
-            waveform,
             channel,
-            criterion,
             measurement,
             requirement,
-            tolerances,
-        ),
-    }
-}
-
-#[derive(Debug, Clone, PartialEq)]
-struct EvaluatedCriterion {
-    result: AnalysisResult,
-    measurement: MeasurementRecord,
-}
-
-fn result(criterion: &Criterion, outcome: Outcome, evidence: Evidence) -> EvaluatedCriterion {
-    let measurement_id = format!("{}_measurement", criterion.id);
-    let measured_value = round_evidence(evidence.measured_value);
-    let timestamp = round_evidence(evidence.timestamp);
-    let result = AnalysisResult {
-        criterion_id: criterion.id.clone(),
-        outcome,
-        failed_criterion: (outcome == Outcome::Fail).then(|| criterion.id.clone()),
-        measurement_id: measurement_id.clone(),
-        channel: criterion.channel().to_string(),
-        measured_value,
-        required_value: round_evidence(evidence.required_value),
-        tolerance_used: round_evidence(evidence.tolerance_used),
-        unit: evidence.unit.to_string(),
-        sample_index: evidence.sample_index,
-        timestamp,
-        reason: evidence.reason,
-    };
-    let measurement = MeasurementRecord {
-        id: measurement_id,
-        channel: criterion.channel().to_string(),
-        method: evidence.method.to_string(),
-        measured_value,
-        unit: evidence.unit.to_string(),
-        sample_index: evidence.sample_index,
-        timestamp,
-        method_context: evidence.method_context,
-    };
-    EvaluatedCriterion {
-        result,
-        measurement,
-    }
-}
-
-struct Evidence {
-    measured_value: f64,
-    required_value: f64,
-    tolerance_used: f64,
-    unit: &'static str,
-    sample_index: usize,
-    timestamp: f64,
-    reason: String,
-    method: &'static str,
-    method_context: MeasurementMethodContext,
-}
-
-fn round_evidence(value: f64) -> f64 {
-    if value.is_finite() {
-        (value * 1_000_000_000.0).round() / 1_000_000_000.0
-    } else {
-        value
-    }
-}
-
-fn threshold_context(threshold_v: f64) -> MeasurementMethodContext {
-    MeasurementMethodContext {
-        threshold_v: Some(round_evidence(threshold_v)),
-        ..MeasurementMethodContext::default()
-    }
-}
-
-fn state_run_context(
-    threshold_v: f64,
-    state: SignalState,
-    selection: &'static str,
-) -> MeasurementMethodContext {
-    MeasurementMethodContext {
-        threshold_v: Some(round_evidence(threshold_v)),
-        state: Some(state.as_str().to_string()),
-        selection: Some(selection.to_string()),
-        ..MeasurementMethodContext::default()
-    }
-}
-
-fn transient_context(
-    threshold_v: f64,
-    transient_state: SignalState,
-    expected_state: SignalState,
-    event_kind: &str,
-) -> MeasurementMethodContext {
-    MeasurementMethodContext {
-        threshold_v: Some(round_evidence(threshold_v)),
-        state: Some(transient_state.as_str().to_string()),
-        expected_state: Some(expected_state.as_str().to_string()),
-        event_kind: Some(event_kind.to_string()),
-        selection: Some("longest".to_string()),
-        ..MeasurementMethodContext::default()
-    }
-}
-
-fn edge_context(
-    low_threshold_v: f64,
-    high_threshold_v: f64,
-    direction: EdgeDirection,
-) -> MeasurementMethodContext {
-    MeasurementMethodContext {
-        low_threshold_v: Some(round_evidence(low_threshold_v)),
-        high_threshold_v: Some(round_evidence(high_threshold_v)),
-        direction: Some(direction.as_str().to_string()),
-        ..MeasurementMethodContext::default()
-    }
-}
-
-fn evaluate_state_transitions(
-    waveform: &Waveform,
-    channel: &Channel,
-    criterion: &Criterion,
-    threshold_v: f64,
-    expected_count: usize,
-    tolerances: TolerancePolicy,
-) -> Result<EvaluatedCriterion> {
-    let transitions = count_state_transitions(
-        &waveform.time,
-        &channel.samples,
-        threshold_v,
-        tolerances.voltage_v,
-    )
-    .map_err(measurement_error)?;
-    let measured = transitions.count;
-    let sample_index = transitions.first_index.unwrap_or(0);
-    let timestamp = transitions.first_timestamp.unwrap_or(waveform.time[0]);
-    let outcome = if measured == expected_count {
-        Outcome::Pass
-    } else {
-        Outcome::Fail
-    };
-
-    Ok(result(
-        criterion,
-        outcome,
-        Evidence {
-            measured_value: measured as f64,
-            required_value: expected_count as f64,
-            tolerance_used: 0.0,
-            unit: "transitions",
-            sample_index,
-            timestamp,
-            reason: format!("observed {measured} state transitions at {threshold_v:.6} V"),
-            method: "state_transition_count",
-            method_context: threshold_context(threshold_v),
+        } => RuleCriterionCheck::Measurement {
+            channel: channel.clone(),
+            measurement: to_rule_measurement(measurement),
+            requirement: to_rule_requirement(requirement),
         },
-    ))
-}
-
-#[derive(Debug, Clone, Copy)]
-struct PulseWidthSpec {
-    state: SignalState,
-    threshold_v: f64,
-    min_width_s: Option<f64>,
-    max_width_s: Option<f64>,
-}
-
-fn evaluate_pulse_width(
-    waveform: &Waveform,
-    channel: &Channel,
-    criterion: &Criterion,
-    spec: PulseWidthSpec,
-    tolerances: TolerancePolicy,
-) -> Result<EvaluatedCriterion> {
-    if spec.min_width_s.is_none() && spec.max_width_s.is_none() {
-        return Err(WaveformError::InvalidParameter {
-            name: "criteria.pulse_width".to_string(),
-            reason: "min_width_s or max_width_s is required".to_string(),
-        });
     }
-
-    let shortest = if spec.min_width_s.is_some() {
-        state_run_extremum(
-            &waveform.time,
-            &channel.samples,
-            spec.state,
-            spec.threshold_v,
-            tolerances.voltage_v,
-            RunSelection::Shortest,
-        )
-        .map_err(measurement_error)?
-    } else {
-        None
-    };
-    let longest = if spec.max_width_s.is_some() {
-        state_run_extremum(
-            &waveform.time,
-            &channel.samples,
-            spec.state,
-            spec.threshold_v,
-            tolerances.voltage_v,
-            RunSelection::Longest,
-        )
-        .map_err(measurement_error)?
-    } else {
-        None
-    };
-
-    if shortest.or(longest).is_none() {
-        return Ok(result(
-            criterion,
-            Outcome::Fail,
-            Evidence {
-                measured_value: 0.0,
-                required_value: spec.min_width_s.or(spec.max_width_s).unwrap_or_default(),
-                tolerance_used: tolerances.time_s,
-                unit: "s",
-                sample_index: 0,
-                timestamp: waveform.time[0],
-                reason: format!("no {} pulse was observed", spec.state.as_str()),
-                method: "state_run_duration",
-                method_context: state_run_context(
-                    spec.threshold_v,
-                    spec.state,
-                    if spec.min_width_s.is_some() {
-                        "shortest"
-                    } else {
-                        "longest"
-                    },
-                ),
-            },
-        ));
-    }
-
-    if let Some(min_width_s) = spec.min_width_s {
-        let shortest = shortest.expect("state run should exist after empty check");
-        if shortest.duration_s + tolerances.time_s + FLOAT_TOLERANCE < min_width_s {
-            return Ok(result(
-                criterion,
-                Outcome::Fail,
-                Evidence {
-                    measured_value: shortest.duration_s,
-                    required_value: min_width_s,
-                    tolerance_used: tolerances.time_s,
-                    unit: "s",
-                    sample_index: shortest.start_index,
-                    timestamp: shortest.start_time,
-                    reason: format!(
-                        "shortest {} pulse width was {:.6} s",
-                        spec.state.as_str(),
-                        shortest.duration_s
-                    ),
-                    method: "state_run_duration",
-                    method_context: state_run_context(spec.threshold_v, spec.state, "shortest"),
-                },
-            ));
-        }
-    }
-
-    if let Some(max_width_s) = spec.max_width_s {
-        let longest = longest.expect("state run should exist after empty check");
-        if longest.duration_s - tolerances.time_s - FLOAT_TOLERANCE > max_width_s {
-            return Ok(result(
-                criterion,
-                Outcome::Fail,
-                Evidence {
-                    measured_value: longest.duration_s,
-                    required_value: max_width_s,
-                    tolerance_used: tolerances.time_s,
-                    unit: "s",
-                    sample_index: longest.start_index,
-                    timestamp: longest.start_time,
-                    reason: format!(
-                        "longest {} pulse width was {:.6} s",
-                        spec.state.as_str(),
-                        longest.duration_s
-                    ),
-                    method: "state_run_duration",
-                    method_context: state_run_context(spec.threshold_v, spec.state, "longest"),
-                },
-            ));
-        }
-    }
-
-    let measured = shortest
-        .or(longest)
-        .expect("state run should exist after empty check");
-    Ok(result(
-        criterion,
-        Outcome::Pass,
-        Evidence {
-            measured_value: measured.duration_s,
-            required_value: spec.min_width_s.or(spec.max_width_s).unwrap_or_default(),
-            tolerance_used: tolerances.time_s,
-            unit: "s",
-            sample_index: measured.start_index,
-            timestamp: measured.start_time,
-            reason: format!(
-                "{} pulse width met configured limits; measured {:.6} s",
-                spec.state.as_str(),
-                measured.duration_s
-            ),
-            method: "state_run_duration",
-            method_context: state_run_context(
-                spec.threshold_v,
-                spec.state,
-                if spec.min_width_s.is_some() {
-                    "shortest"
-                } else {
-                    "longest"
-                },
-            ),
-        },
-    ))
 }
 
-#[derive(Debug, Clone, Copy)]
-struct TransientDurationSpec<'a> {
-    expected_state: SignalState,
-    threshold_v: f64,
-    max_duration_s: f64,
-    event_kind: &'a str,
-}
-
-fn evaluate_transient_duration(
-    waveform: &Waveform,
-    channel: &Channel,
-    criterion: &Criterion,
-    spec: TransientDurationSpec<'_>,
-    tolerances: TolerancePolicy,
-) -> Result<EvaluatedCriterion> {
-    let transient_state = opposite_state(spec.expected_state);
-    let longest = state_run_extremum(
-        &waveform.time,
-        &channel.samples,
-        transient_state,
-        spec.threshold_v,
-        tolerances.voltage_v,
-        RunSelection::Longest,
-    )
-    .map_err(measurement_error)?;
-
-    let (measured, sample_index, timestamp) = longest
-        .map(|run| (run.duration_s, run.start_index, run.start_time))
-        .unwrap_or((0.0, 0, waveform.time[0]));
-    let outcome = if measured <= spec.max_duration_s + tolerances.time_s + FLOAT_TOLERANCE {
-        Outcome::Pass
-    } else {
-        Outcome::Fail
-    };
-
-    Ok(result(
-        criterion,
-        outcome,
-        Evidence {
-            measured_value: measured,
-            required_value: spec.max_duration_s,
-            tolerance_used: tolerances.time_s,
-            unit: "s",
-            sample_index,
-            timestamp,
-            reason: format!(
-                "longest unintended {} {} duration was {:.6} s",
-                transient_state.as_str(),
-                spec.event_kind,
-                measured
-            ),
-            method: "state_run_duration",
-            method_context: transient_context(
-                spec.threshold_v,
-                transient_state,
-                spec.expected_state,
-                spec.event_kind,
-            ),
-        },
-    ))
-}
-
-fn evaluate_stable_state_duration(
-    waveform: &Waveform,
-    channel: &Channel,
-    criterion: &Criterion,
-    state: SignalState,
-    threshold_v: f64,
-    min_duration_s: f64,
-    tolerances: TolerancePolicy,
-) -> Result<EvaluatedCriterion> {
-    let longest = state_run_extremum(
-        &waveform.time,
-        &channel.samples,
-        state,
-        threshold_v,
-        tolerances.voltage_v,
-        RunSelection::Longest,
-    )
-    .map_err(measurement_error)?;
-    let (measured, sample_index, timestamp) = longest
-        .map(|run| (run.duration_s, run.start_index, run.start_time))
-        .unwrap_or((0.0, 0, waveform.time[0]));
-    let outcome = if measured + tolerances.time_s + FLOAT_TOLERANCE >= min_duration_s {
-        Outcome::Pass
-    } else {
-        Outcome::Fail
-    };
-
-    Ok(result(
-        criterion,
-        outcome,
-        Evidence {
-            measured_value: measured,
-            required_value: min_duration_s,
-            tolerance_used: tolerances.time_s,
-            unit: "s",
-            sample_index,
-            timestamp,
-            reason: format!(
-                "longest stable {} duration was {:.6} s",
-                state.as_str(),
-                measured
-            ),
-            method: "state_run_duration",
-            method_context: state_run_context(threshold_v, state, "longest"),
-        },
-    ))
-}
-
-#[derive(Debug, Clone, Copy)]
-struct RiseFallTimeSpec {
-    direction: EdgeDirection,
-    low_threshold_v: f64,
-    high_threshold_v: f64,
-    max_duration_s: f64,
-}
-
-fn evaluate_rise_fall_time(
-    waveform: &Waveform,
-    channel: &Channel,
-    criterion: &Criterion,
-    spec: RiseFallTimeSpec,
-    tolerances: TolerancePolicy,
-) -> Result<EvaluatedCriterion> {
-    if spec.low_threshold_v >= spec.high_threshold_v {
-        return Err(WaveformError::InvalidParameter {
-            name: "criteria.low_threshold_v".to_string(),
-            reason: "must be lower than high_threshold_v".to_string(),
-        });
-    }
-
-    let measurement = match spec.direction {
-        EdgeDirection::Rise => measure_rise_time(
-            &waveform.time,
-            &channel.samples,
-            spec.low_threshold_v,
-            spec.high_threshold_v,
-            tolerances.voltage_v,
-        ),
-        EdgeDirection::Fall => measure_fall_time(
-            &waveform.time,
-            &channel.samples,
-            spec.low_threshold_v,
-            spec.high_threshold_v,
-            tolerances.voltage_v,
-        ),
-    }
-    .map_err(measurement_error)?;
-
-    let (measured, sample_index, timestamp, observed) = measurement
-        .map(|transition| {
-            (
-                transition.duration_s,
-                transition.end_index,
-                transition.end_time,
-                true,
-            )
-        })
-        .unwrap_or((f64::INFINITY, 0, waveform.time[0], false));
-    let outcome =
-        if observed && measured <= spec.max_duration_s + tolerances.time_s + FLOAT_TOLERANCE {
-            Outcome::Pass
-        } else {
-            Outcome::Fail
-        };
-
-    Ok(result(
-        criterion,
-        outcome,
-        Evidence {
-            measured_value: measured,
-            required_value: spec.max_duration_s,
-            tolerance_used: tolerances.time_s,
-            unit: "s",
-            sample_index,
-            timestamp,
-            reason: if observed {
-                format!(
-                    "{} time from {:.6} V to {:.6} V was {:.6} s",
-                    spec.direction.as_str(),
-                    spec.low_threshold_v,
-                    spec.high_threshold_v,
-                    measured
-                )
-            } else {
-                format!("{} transition was not observed", spec.direction.as_str())
-            },
-            method: "edge_time",
-            method_context: edge_context(
-                spec.low_threshold_v,
-                spec.high_threshold_v,
-                spec.direction,
-            ),
-        },
-    ))
-}
-
-fn evaluate_measurement_criterion(
-    waveform: &Waveform,
-    channel: &Channel,
-    criterion: &Criterion,
-    measurement: &MeasurementSpec,
-    requirement: &MeasurementRequirement,
-    tolerances: TolerancePolicy,
-) -> Result<EvaluatedCriterion> {
-    let measured = measure_dsl_criterion(waveform, channel, measurement, tolerances)?;
-    let outcome = if measured.observed
-        && requirement_satisfied(
-            measured.evidence.measured_value,
-            requirement.value,
-            requirement.operator,
-            measured.evidence.tolerance_used,
-        ) {
-        Outcome::Pass
-    } else {
-        Outcome::Fail
-    };
-
-    Ok(result(
-        criterion,
-        outcome,
-        Evidence {
-            required_value: requirement.value,
-            ..measured.evidence
-        },
-    ))
-}
-
-struct DslMeasurementEvidence {
-    evidence: Evidence,
-    observed: bool,
-}
-
-fn measure_dsl_criterion(
-    waveform: &Waveform,
-    channel: &Channel,
-    measurement: &MeasurementSpec,
-    tolerances: TolerancePolicy,
-) -> Result<DslMeasurementEvidence> {
+fn to_rule_measurement(measurement: &MeasurementSpec) -> RuleMeasurementSpec {
     match measurement {
-        MeasurementSpec::MinimumSample => {
-            let measurement =
-                minimum_sample(&waveform.time, &channel.samples).map_err(measurement_error)?;
-            Ok(DslMeasurementEvidence {
-                evidence: Evidence {
-                    measured_value: measurement.value,
-                    required_value: 0.0,
-                    tolerance_used: tolerances.voltage_v,
-                    unit: "V",
-                    sample_index: measurement.sample_index,
-                    timestamp: measurement.timestamp,
-                    reason: format!("minimum observed voltage was {:.6} V", measurement.value),
-                    method: "minimum_sample",
-                    method_context: MeasurementMethodContext::default(),
-                },
-                observed: true,
-            })
-        }
-        MeasurementSpec::MaximumSample => {
-            let measurement =
-                maximum_sample(&waveform.time, &channel.samples).map_err(measurement_error)?;
-            Ok(DslMeasurementEvidence {
-                evidence: Evidence {
-                    measured_value: measurement.value,
-                    required_value: 0.0,
-                    tolerance_used: tolerances.voltage_v,
-                    unit: "V",
-                    sample_index: measurement.sample_index,
-                    timestamp: measurement.timestamp,
-                    reason: format!("maximum observed voltage was {:.6} V", measurement.value),
-                    method: "maximum_sample",
-                    method_context: MeasurementMethodContext::default(),
-                },
-                observed: true,
-            })
-        }
+        MeasurementSpec::MinimumSample => RuleMeasurementSpec::MinimumSample,
+        MeasurementSpec::MaximumSample => RuleMeasurementSpec::MaximumSample,
         MeasurementSpec::StateTransitionCount { threshold_v } => {
-            let transitions = count_state_transitions(
-                &waveform.time,
-                &channel.samples,
-                *threshold_v,
-                tolerances.voltage_v,
-            )
-            .map_err(measurement_error)?;
-            let measured = transitions.count;
-            Ok(DslMeasurementEvidence {
-                evidence: Evidence {
-                    measured_value: measured as f64,
-                    required_value: 0.0,
-                    tolerance_used: 0.0,
-                    unit: "transitions",
-                    sample_index: transitions.first_index.unwrap_or(0),
-                    timestamp: transitions.first_timestamp.unwrap_or(waveform.time[0]),
-                    reason: format!("observed {measured} state transitions at {threshold_v:.6} V"),
-                    method: "state_transition_count",
-                    method_context: threshold_context(*threshold_v),
-                },
-                observed: true,
-            })
+            RuleMeasurementSpec::StateTransitionCount {
+                threshold_v: *threshold_v,
+            }
         }
         MeasurementSpec::PulseWidth {
             state,
             threshold_v,
             selection,
-        } => {
-            let selection = *selection;
-            let run = state_run_extremum(
-                &waveform.time,
-                &channel.samples,
-                *state,
-                *threshold_v,
-                tolerances.voltage_v,
-                run_selection(selection),
-            )
-            .map_err(measurement_error)?;
-
-            let Some(run) = run else {
-                return Ok(DslMeasurementEvidence {
-                    evidence: Evidence {
-                        measured_value: 0.0,
-                        required_value: 0.0,
-                        tolerance_used: tolerances.time_s,
-                        unit: "s",
-                        sample_index: 0,
-                        timestamp: waveform.time[0],
-                        reason: format!("no {} pulse was observed", state.as_str()),
-                        method: "state_run_duration",
-                        method_context: state_run_context(*threshold_v, *state, selection.as_str()),
-                    },
-                    observed: false,
-                });
-            };
-
-            Ok(DslMeasurementEvidence {
-                evidence: Evidence {
-                    measured_value: run.duration_s,
-                    required_value: 0.0,
-                    tolerance_used: tolerances.time_s,
-                    unit: "s",
-                    sample_index: run.start_index,
-                    timestamp: run.start_time,
-                    reason: format!(
-                        "{} pulse width met configured limits; measured {:.6} s",
-                        state.as_str(),
-                        run.duration_s
-                    ),
-                    method: "state_run_duration",
-                    method_context: state_run_context(*threshold_v, *state, selection.as_str()),
-                },
-                observed: true,
-            })
-        }
+        } => RuleMeasurementSpec::PulseWidth {
+            state: *state,
+            threshold_v: *threshold_v,
+            selection: to_rule_selection(*selection),
+        },
         MeasurementSpec::StableStateDuration { state, threshold_v } => {
-            let longest = state_run_extremum(
-                &waveform.time,
-                &channel.samples,
-                *state,
-                *threshold_v,
-                tolerances.voltage_v,
-                RunSelection::Longest,
-            )
-            .map_err(measurement_error)?;
-            let (measured, sample_index, timestamp) = longest
-                .map(|run| (run.duration_s, run.start_index, run.start_time))
-                .unwrap_or((0.0, 0, waveform.time[0]));
-            Ok(DslMeasurementEvidence {
-                evidence: Evidence {
-                    measured_value: measured,
-                    required_value: 0.0,
-                    tolerance_used: tolerances.time_s,
-                    unit: "s",
-                    sample_index,
-                    timestamp,
-                    reason: format!(
-                        "longest stable {} duration was {:.6} s",
-                        state.as_str(),
-                        measured
-                    ),
-                    method: "state_run_duration",
-                    method_context: state_run_context(*threshold_v, *state, "longest"),
-                },
-                observed: true,
-            })
+            RuleMeasurementSpec::StableStateDuration {
+                state: *state,
+                threshold_v: *threshold_v,
+            }
         }
         MeasurementSpec::TransientEventDuration {
             event_kind,
             expected_state,
             threshold_v,
-        } => {
-            let transient_state = opposite_state(*expected_state);
-            let longest = state_run_extremum(
-                &waveform.time,
-                &channel.samples,
-                transient_state,
-                *threshold_v,
-                tolerances.voltage_v,
-                RunSelection::Longest,
-            )
-            .map_err(measurement_error)?;
-
-            let (measured, sample_index, timestamp) = longest
-                .map(|run| (run.duration_s, run.start_index, run.start_time))
-                .unwrap_or((0.0, 0, waveform.time[0]));
-            Ok(DslMeasurementEvidence {
-                evidence: Evidence {
-                    measured_value: measured,
-                    required_value: 0.0,
-                    tolerance_used: tolerances.time_s,
-                    unit: "s",
-                    sample_index,
-                    timestamp,
-                    reason: format!(
-                        "longest unintended {} {} duration was {:.6} s",
-                        transient_state.as_str(),
-                        event_kind.as_str(),
-                        measured
-                    ),
-                    method: "state_run_duration",
-                    method_context: transient_context(
-                        *threshold_v,
-                        transient_state,
-                        *expected_state,
-                        event_kind.as_str(),
-                    ),
-                },
-                observed: true,
-            })
-        }
+        } => RuleMeasurementSpec::TransientEventDuration {
+            event_kind: event_kind.as_str().to_string(),
+            expected_state: *expected_state,
+            threshold_v: *threshold_v,
+        },
         MeasurementSpec::RiseTime {
             low_threshold_v,
             high_threshold_v,
-        } => measure_dsl_edge_time(
-            waveform,
-            channel,
-            EdgeDirection::Rise,
-            *low_threshold_v,
-            *high_threshold_v,
-            tolerances,
-        ),
+        } => RuleMeasurementSpec::RiseTime {
+            low_threshold_v: *low_threshold_v,
+            high_threshold_v: *high_threshold_v,
+        },
         MeasurementSpec::FallTime {
             low_threshold_v,
             high_threshold_v,
-        } => measure_dsl_edge_time(
-            waveform,
-            channel,
-            EdgeDirection::Fall,
-            *low_threshold_v,
-            *high_threshold_v,
-            tolerances,
-        ),
-    }
-}
-
-fn measure_dsl_edge_time(
-    waveform: &Waveform,
-    channel: &Channel,
-    direction: EdgeDirection,
-    low_threshold_v: f64,
-    high_threshold_v: f64,
-    tolerances: TolerancePolicy,
-) -> Result<DslMeasurementEvidence> {
-    if low_threshold_v >= high_threshold_v {
-        return Err(WaveformError::InvalidParameter {
-            name: "criteria.measurement.low_threshold".to_string(),
-            reason: "must be lower than high_threshold".to_string(),
-        });
-    }
-
-    let measurement = match direction {
-        EdgeDirection::Rise => measure_rise_time(
-            &waveform.time,
-            &channel.samples,
-            low_threshold_v,
-            high_threshold_v,
-            tolerances.voltage_v,
-        ),
-        EdgeDirection::Fall => measure_fall_time(
-            &waveform.time,
-            &channel.samples,
-            low_threshold_v,
-            high_threshold_v,
-            tolerances.voltage_v,
-        ),
-    }
-    .map_err(measurement_error)?;
-
-    let (measured, sample_index, timestamp, observed) = measurement
-        .map(|transition| {
-            (
-                transition.duration_s,
-                transition.end_index,
-                transition.end_time,
-                true,
-            )
-        })
-        .unwrap_or((f64::INFINITY, 0, waveform.time[0], false));
-
-    Ok(DslMeasurementEvidence {
-        evidence: Evidence {
-            measured_value: measured,
-            required_value: 0.0,
-            tolerance_used: tolerances.time_s,
-            unit: "s",
-            sample_index,
-            timestamp,
-            reason: if observed {
-                format!(
-                    "{} time from {:.6} V to {:.6} V was {:.6} s",
-                    direction.as_str(),
-                    low_threshold_v,
-                    high_threshold_v,
-                    measured
-                )
-            } else {
-                format!("{} transition was not observed", direction.as_str())
-            },
-            method: "edge_time",
-            method_context: edge_context(low_threshold_v, high_threshold_v, direction),
+        } => RuleMeasurementSpec::FallTime {
+            low_threshold_v: *low_threshold_v,
+            high_threshold_v: *high_threshold_v,
         },
-        observed,
-    })
+    }
 }
 
-fn requirement_satisfied(
-    measured: f64,
-    required: f64,
-    operator: CriterionOperator,
-    tolerance: f64,
-) -> bool {
+fn to_rule_requirement(requirement: &MeasurementRequirement) -> RuleMeasurementRequirement {
+    RuleMeasurementRequirement {
+        operator: to_rule_operator(requirement.operator),
+        value: requirement.value,
+    }
+}
+
+fn to_rule_operator(operator: CriterionOperator) -> RuleCriterionOperator {
     match operator {
-        CriterionOperator::LessThan => {
-            measured < required
-                || (tolerance > 0.0 && measured - tolerance < required + FLOAT_TOLERANCE)
-        }
-        CriterionOperator::LessThanOrEqual => measured - tolerance <= required + FLOAT_TOLERANCE,
-        CriterionOperator::GreaterThan => {
-            measured > required
-                || (tolerance > 0.0 && measured + tolerance > required - FLOAT_TOLERANCE)
-        }
-        CriterionOperator::GreaterThanOrEqual => measured + tolerance + FLOAT_TOLERANCE >= required,
-        CriterionOperator::EqualTo => (measured - required).abs() <= tolerance + FLOAT_TOLERANCE,
+        CriterionOperator::LessThan => RuleCriterionOperator::LessThan,
+        CriterionOperator::LessThanOrEqual => RuleCriterionOperator::LessThanOrEqual,
+        CriterionOperator::GreaterThan => RuleCriterionOperator::GreaterThan,
+        CriterionOperator::GreaterThanOrEqual => RuleCriterionOperator::GreaterThanOrEqual,
+        CriterionOperator::EqualTo => RuleCriterionOperator::EqualTo,
     }
 }
 
-fn run_selection(selection: RunSelectionConfig) -> RunSelection {
+fn to_rule_selection(selection: RunSelectionConfig) -> RuleRunSelectionConfig {
     match selection {
-        RunSelectionConfig::Shortest => RunSelection::Shortest,
-        RunSelectionConfig::Longest => RunSelection::Longest,
+        RunSelectionConfig::Shortest => RuleRunSelectionConfig::Shortest,
+        RunSelectionConfig::Longest => RuleRunSelectionConfig::Longest,
     }
 }
 
-fn measurement_error(error: MeasurementError) -> WaveformError {
+fn from_rule_result(result: ferrisoxide_rule_engine::RuleResult) -> AnalysisResult {
+    AnalysisResult {
+        criterion_id: result.criterion_id,
+        outcome: from_rule_outcome(result.outcome),
+        failed_criterion: result.failed_criterion,
+        measurement_id: result.measurement_id,
+        channel: result.channel,
+        measured_value: result.measured_value,
+        required_value: result.required_value,
+        tolerance_used: result.tolerance_used,
+        unit: result.unit,
+        sample_index: result.sample_index,
+        timestamp: result.timestamp,
+        reason: result.reason,
+    }
+}
+
+fn from_rule_outcome(outcome: RuleOutcome) -> Outcome {
+    match outcome {
+        RuleOutcome::Pass => Outcome::Pass,
+        RuleOutcome::Fail => Outcome::Fail,
+    }
+}
+
+fn from_rule_measurement(record: RuleMeasurementRecord) -> MeasurementRecord {
+    MeasurementRecord {
+        id: record.id,
+        channel: record.channel,
+        method: record.method,
+        measured_value: record.measured_value,
+        unit: record.unit,
+        sample_index: record.sample_index,
+        timestamp: record.timestamp,
+        method_context: from_rule_context(record.method_context),
+    }
+}
+
+fn from_rule_context(context: RuleMeasurementMethodContext) -> MeasurementMethodContext {
+    MeasurementMethodContext {
+        source: context.source,
+        threshold_v: context.threshold_v,
+        low_threshold_v: context.low_threshold_v,
+        high_threshold_v: context.high_threshold_v,
+        state: context.state,
+        expected_state: context.expected_state,
+        event_kind: context.event_kind,
+        direction: context.direction,
+        selection: context.selection,
+    }
+}
+
+fn rule_engine_error(error: RuleEngineError) -> WaveformError {
     match error {
-        MeasurementError::EmptyInput => WaveformError::EmptyInput,
-        MeasurementError::MismatchedLength => WaveformError::InvalidWaveform {
-            reason: "measurement time and sample arrays must have the same length".to_string(),
-        },
-        MeasurementError::NonMonotonicTimeAxis => WaveformError::InvalidWaveform {
-            reason: "time samples must be strictly increasing for duration measurements"
-                .to_string(),
-        },
+        RuleEngineError::EmptyInput => WaveformError::EmptyInput,
+        RuleEngineError::MissingChannel { channel } => {
+            WaveformError::MissingColumn { column: channel }
+        }
+        RuleEngineError::InvalidWaveform { reason } => WaveformError::InvalidWaveform { reason },
+        RuleEngineError::InvalidParameter { name, reason } => {
+            WaveformError::InvalidParameter { name, reason }
+        }
     }
-}
-
-fn opposite_state(state: SignalState) -> SignalState {
-    state.opposite()
 }
 
 #[cfg(test)]

@@ -41,6 +41,7 @@ crates/ferrisoxide-cli/         CLI entry point
 crates/ferrisoxide-embedded/    no_std RTOS/ARM64 adapter boundaries
 crates/ferrisoxide-measurements/no_std measurement primitives used by criteria evidence
 crates/ferrisoxide-plot/        Desktop SVG plotting support
+crates/ferrisoxide-rule-engine/ Shared rule execution semantics
 crates/ferrisoxide-rule-schema/ Portable rule package schema types
 crates/ferrisoxide-signal/      no_std signal primitives
 docs/                  Product, architecture, and MVP docs
@@ -73,7 +74,7 @@ The embedded track now has a host-checkable ARM64 QEMU proof slice under `embedd
 
 ## Portable Rule Packages
 
-`crates/ferrisoxide-rule-schema` defines the initial versioned FerrisOxide Rule Package schema, validator, deterministic manifest model, and non-cryptographic artifact checksum helper. The reviewable package format is documented in `docs/rule-package-format.md`, with parse-tested examples in `examples/rule-package/`. The CLI can export `rules.toml`, `rules.json`, `validation-report.json`, `manifest.json`, and `checksum.txt` from validated config and analysis evidence. Binary packages, shared execution, no_std rule-engine behavior, and desktop-vs-embedded parity tests remain future M8 issues.
+`crates/ferrisoxide-rule-schema` defines the initial versioned FerrisOxide Rule Package schema, validator, deterministic manifest model, and non-cryptographic artifact checksum helper. `crates/ferrisoxide-rule-engine` owns the shared rule execution semantics used by the desktop core adapter and embedded-compatible host tests. The reviewable package format is documented in `docs/rule-package-format.md`, with parse-tested examples in `examples/rule-package/`. The CLI can export `rules.toml`, `rules.json`, `validation-report.json`, `manifest.json`, and `checksum.txt` from validated config and analysis evidence. Binary packages, no_std rule-engine behavior, and exact desktop-vs-embedded parity fixtures remain future M8 issues.
 
 ## MVP Usage
 

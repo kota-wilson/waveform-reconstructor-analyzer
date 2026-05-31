@@ -2,9 +2,9 @@
 
 Date: 2026-05-31
 
-Status: Reviewable format with M8-005 manifest/checksum evidence implemented locally.
+Status: Reviewable format with M8-006 shared rule-engine semantics implemented locally.
 
-Related requirements: WRA-RQ-043, WRA-RQ-044, WRA-RQ-046, WRA-RQ-047.
+Related requirements: WRA-RQ-043, WRA-RQ-044, WRA-RQ-046, WRA-RQ-047, WRA-RQ-048.
 
 ## Purpose
 
@@ -37,7 +37,7 @@ deployment/
 | `validation-report.json` | Existing report family, future package role | Engineers, V&V, CI | Captures desktop validation evidence showing whether the rule package passed against known waveform data. |
 | `qualification-evidence.svg` | Existing plotting family, future package role | Human reviewers | Visual evidence output with waveform, thresholds, annotations, and pass/fail context. It is software evidence only. |
 
-M8-002 defines the artifact roles. M8-004 adds desktop export for reviewable rule/report artifacts. M8-005 adds deterministic manifest and checksum evidence. The package format still does not add a binary format, runtime loader, DAQ integration, HAL, RTOS production integration, hardware qualification, or certification claim.
+M8-002 defines the artifact roles. M8-004 adds desktop export for reviewable rule/report artifacts. M8-005 adds deterministic manifest and checksum evidence. M8-006 adds shared rule execution semantics through `ferrisoxide-rule-engine`. The package format still does not add a binary format, runtime loader, DAQ integration, HAL, RTOS production integration, hardware qualification, or certification claim.
 
 ## Canonical Schema Model
 
@@ -268,9 +268,9 @@ Still out of scope for this command:
 
 The format is validated by parse-testing `rules.toml` and `rules.json` into `ferrisoxide-rule-schema::RulePackage`, verifying that both examples describe the same package, and running `RulePackage::validate()` before export or execution.
 
-Later issues add:
+Implemented and remaining issue boundaries:
 
-- M8-006 shared rule execution,
+- M8-006 shared rule execution is implemented locally through `ferrisoxide-rule-engine`,
 - M8-007 no_std compatibility boundary,
 - M8-008 desktop-vs-embedded parity tests.
 
@@ -290,6 +290,6 @@ Role: Software Architect / Documentation Engineer
 Goal: Define the initial portable rule package format and artifact roles.
 Files changed: `docs/rule-package-format.md`, `examples/rule-package/rules.toml`, `examples/rule-package/rules.json`.
 Checks run: Parse-tested examples and workspace validation recorded in `docs/validation-log.md`.
-Status: Format documented; schema, validator, desktop export, manifest, and checksum evidence implemented locally.
-Known gaps: Binary package, shared rule engine, no_std boundary, and parity tests remain future M8 issues.
-Next recommended step: Add shared rule execution in M8-006 after M8-005 PR review.
+Status: Format documented; schema, validator, desktop export, manifest, checksum evidence, and shared rule-engine semantics implemented locally.
+Known gaps: Binary package, no_std boundary, and parity tests remain future M8 issues.
+Next recommended step: Complete M8-006 PR review, then add the no_std compatibility boundary in M8-007.
