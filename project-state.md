@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Continue v0.5.0 criteria DSL implementation after planning v0.7.0 controller-in-the-loop workflows.
+Continue v0.5.0 criteria DSL implementation after planning v0.7.0 controller-in-the-loop workflows and documenting platform target profiles.
 
 ## Current Stage
 
-Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 and #56 closed and issues #57 through #61 open. PR #65 merged M7-002: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. PR #75 planned milestone #8, `v0.6.0: Portable Rule Package System`, with issues #67 through #74 for desktop rule authoring/export and embedded/controller deployment through one schema and one shared rule engine. PR #87 planned milestone #9, `v0.7.0: Controller Simulation and Deployment Config System`, with issues #77 through #86 for desktop digital-twin simulation, separate production control and test verification configs, deployment packages, and RTOS verification mode. PR #90 closed issue #89 and defined Apple Silicon desktop authoring plus Raspberry Pi 5 bare-metal ARM64 embedded runtime platform profiles. GUI, live DAQ vendor SDKs, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
+Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 and #56 closed and issues #57 through #61 open. PR #65 merged M7-002: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. PR #75 planned milestone #8, `v0.6.0: Portable Rule Package System`, with issues #67 through #74 for desktop rule authoring/export and embedded/controller deployment through one schema and one shared rule engine. PR #87 planned milestone #9, `v0.7.0: Controller Simulation and Deployment Config System`, with issues #77 through #86 for desktop digital-twin simulation, separate production control and test verification configs, deployment packages, and RTOS verification mode. PR #90 closed issue #89 and defined Apple Silicon desktop authoring plus Raspberry Pi 5 bare-metal ARM64 embedded runtime platform profiles. Issue #92 defines Raspberry Pi Pico 2 as a future optional microcontroller runtime profile for compact deterministic rule execution. GUI, live DAQ vendor SDKs, embedded plotting, hardware HALs, Pico 2 runtime implementation, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -62,6 +62,8 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55
   Owner: Embedded RTOS Engineer / Core Software Engineer
 - Risk: Treating the embedded target as generic RTOS may obscure Raspberry Pi 5 bare-metal constraints.
   Owner: Embedded RTOS Engineer / DX Engineer
+- Risk: Pico 2 may be over-scoped as a full controller-computer runtime despite microcontroller memory and I/O constraints.
+  Owner: Embedded RTOS Engineer / Documentation Engineer
 
 ## Pending Decisions
 
@@ -95,6 +97,9 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55
 - Decision: Define Apple Silicon macOS as the desktop authoring platform and Raspberry Pi 5 bare-metal ARM64 as the first-class embedded runtime target.
   Owner: Software Architect / Embedded RTOS Engineer
   Status: Accepted for future milestone planning in `docs/platform-targets.md`.
+- Decision: Define Raspberry Pi Pico 2 as an optional future microcontroller runtime profile, not a replacement for the Raspberry Pi 5 embedded runtime.
+  Owner: Software Architect / Embedded RTOS Engineer
+  Status: Accepted for future milestone planning in `docs/platform-targets.md`; runtime crate remains deferred.
 
 ## Next Responsible Role
 
@@ -107,10 +112,10 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`; future milestones #8, `v0.6.0: Portable Rule Package System`, and #9, `v0.7.0: Controller Simulation and Deployment Config System`, are planned; issue #89 adds platform profiles to milestone #9.
+- Current milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`; future milestones #8, `v0.6.0: Portable Rule Package System`, and #9, `v0.7.0: Controller Simulation and Deployment Config System`, are planned; issue #89 adds platform profiles to milestone #9 and issue #92 adds the optional Pico 2 micro-runtime profile.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
 - Next gate: Implement DSL criteria evaluation through existing measurement evidence for issue #57 unless v0.6.0 or v0.7.0 is explicitly reprioritized.
-- Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, unit shorthand parsing, new measurements, or expanded annotated SVG features without a fresh issue/gate.
+- Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, Pico 2 runtime crate work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, unit shorthand parsing, new measurements, or expanded annotated SVG features without a fresh issue/gate.
 
 ## Granularity Status
 
@@ -129,7 +134,7 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, WRA-RQ-036 release evidence for issue #55, WRA-RQ-037 and WRA-RQ-038 release evidence for issue #56, remaining v0.5.0 requirements WRA-RQ-039 through WRA-RQ-042 mapped to issues #57 through #61, planned v0.6.0 requirements WRA-RQ-043 through WRA-RQ-050 mapped to issues #67 through #74, WRA-RQ-051 through WRA-RQ-060 mapped to issues #77 through #86, and WRA-RQ-061 release evidence for issue #89.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, WRA-RQ-036 release evidence for issue #55, WRA-RQ-037 and WRA-RQ-038 release evidence for issue #56, remaining v0.5.0 requirements WRA-RQ-039 through WRA-RQ-042 mapped to issues #57 through #61, planned v0.6.0 requirements WRA-RQ-043 through WRA-RQ-050 mapped to issues #67 through #74, WRA-RQ-051 through WRA-RQ-060 mapped to issues #77 through #86, WRA-RQ-061 release evidence for issue #89, and WRA-RQ-062 evidence for issue #92.
 
 ## Gate Decisions
 

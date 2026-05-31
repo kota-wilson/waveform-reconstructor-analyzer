@@ -61,6 +61,7 @@
 | WRA-RQ-059 | The project shall add config and behavior parity tests. | v0.7.0 / issue #85 | High | Same configs and waveform inputs produce matching desktop and embedded-compatible state, pass/fail, timing, channel, and evidence outputs, or document approved schema differences. | Verification and Validation Engineer | Planned |
 | WRA-RQ-060 | The project shall define a qualification evidence report format for controller-in-the-loop workflows. | v0.7.0 / issue #86 | Medium | Reports link config versions, channel map, simulation trace, criteria evidence, deployment package metadata, checksum evidence, and explicit non-certification scope notes. | Documentation Engineer / Flight Certification Assurance Engineer | Planned |
 | WRA-RQ-061 | The project shall define first-class desktop and embedded platform profiles. | v0.7.0 / issue #89 | High | `docs/platform-targets.md` defines Apple Silicon macOS desktop authoring on `aarch64-apple-darwin`, Raspberry Pi 5 bare-metal ARM64 embedded runtime on `aarch64-unknown-none`, `std` vs `no_std` crate boundaries, target compile checks, and desktop/embedded parity-test expectations. | Software Architect / Embedded RTOS Engineer | Implemented |
+| WRA-RQ-062 | The project shall define Raspberry Pi Pico 2 as an optional microcontroller runtime profile. | v0.7.0 / issue #92 | Medium | `docs/platform-targets.md` defines Pico 2/RP2350 constraints, good uses, non-goals, future `wra-pico-runtime` scope, Pi 5 boundary, and target-profile validation expectations without creating the runtime crate yet. | Software Architect / Embedded RTOS Engineer | Implemented |
 
 ## Assumptions
 
@@ -132,6 +133,7 @@
 | WRA-RQ-059 | Parity tests | Same configs and waveform inputs produce matching desktop and embedded-compatible state and evidence outputs. |
 | WRA-RQ-060 | Exact report tests and docs review | Controller-in-the-loop reports link config versions, channel map, simulation trace, criteria evidence, deployment metadata, checksum evidence, and non-certification notes. |
 | WRA-RQ-061 | Documentation and target compile checks | `docs/platform-targets.md`; `cargo check --workspace --target aarch64-apple-darwin`; `cargo check -p wra-signal --target aarch64-unknown-none`; `cargo check -p wra-embedded --target aarch64-unknown-none`; parity test definitions. |
+| WRA-RQ-062 | Documentation review and future target-profile validation tests | `docs/platform-targets.md`, `docs/embedded-roadmap.md`, and `docs/controller-in-the-loop-workflow.md`; future package validation rejects unsupported Pico 2 features with clear target-profile errors. |
 
 ## Rules
 
