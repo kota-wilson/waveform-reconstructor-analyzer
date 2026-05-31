@@ -34,6 +34,15 @@ No blocking QA defects found for the M5 plotting branch. The review scope includ
 - Clear errors for missing auxiliary-axis columns and invalid output paths.
 - User-facing docs that state plotting is SVG-only desktop CLI output, not GUI, DAQ, embedded, or certification scope.
 
+## M3 RTOS Adapter And Prototype Update
+
+No blocking QA defects found for the M3 RTOS follow-up branch. The review scope includes:
+
+- `wra-embedded` adapter traits and no_std streaming helper tests.
+- Host-checkable QEMU proof slice under `embedded/arm64/qemu/`.
+- Zephyr feasibility documentation and adapter sketch under `embedded/arm64/zephyr/`.
+- Explicit limits around SDKs, target installs, HALs, unsafe FFI, DAQ, GUI, and certification claims.
+
 ## Checks
 
 | Check | Evidence | Result |
@@ -45,13 +54,14 @@ No blocking QA defects found for the M5 plotting branch. The review scope includ
 | CI | GitHub Actions runs `26699230596` and `26699270456` | Pass |
 | M4 branch validation | `docs/validation-log.md` M4 section | Pass |
 | M5 plotting validation | `docs/validation-log.md` M5 section | Pass |
+| M3 RTOS follow-up validation | `docs/validation-log.md` M3 adapter/prototype section | Pass |
 
 ## Gate Decision
 
 - Gate: QA Gate.
 - Decision: Pass.
-- Reason: No blocking defects found in local, CI, M4 validation, or M5 plotting evidence.
-- Residual risk: Additional malformed CSV dialect coverage, external capture validation, and visual regression coverage remain future work.
+- Reason: No blocking defects found in local, CI, M4 validation, M5 plotting, or M3 adapter/prototype evidence.
+- Residual risk: Additional malformed CSV dialect coverage, external capture validation, visual regression coverage, ARM64 target execution, and Zephyr SDK validation remain future work.
 - Next owner: Security Engineer.
 
 ## Hand-Off Note
@@ -61,5 +71,5 @@ Goal: Review MVP repository quality for the initial public publication gate.
 Files changed: `docs/qa-review.md`
 Checks run: Reviewed local and CI validation evidence.
 Status: Pass.
-Known gaps: Negative-path matrix and visual regression coverage are intentionally light.
+Known gaps: Negative-path matrix, visual regression coverage, target execution, and RTOS SDK validation are intentionally light.
 Next recommended step: Security review.

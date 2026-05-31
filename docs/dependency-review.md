@@ -42,6 +42,18 @@ Reviewed sources:
 - Plotters feature-control docs: `https://docs.rs/plotters/`
 - Plotters package metadata: `https://raw.githubusercontent.com/plotters-rs/plotters/master/plotters/Cargo.toml`
 
+## M3 RTOS Follow-Up Dependency Review
+
+The M3 RTOS adapter/prototype branch adds no new third-party crates.
+
+| Item | Evidence | Result |
+|---|---|---|
+| Adapter crate | `crates/wra-embedded/Cargo.toml` depends only on local `wra-signal`. | Pass |
+| QEMU proof crate | `embedded/arm64/qemu/Cargo.toml` depends only on local `wra-embedded` and `wra-signal`. | Pass |
+| Zephyr prototype | `embedded/arm64/zephyr/` is not wired into Cargo and adds no SDK dependency. | Pass |
+| Dependency tree | `cargo tree -p wra-embedded` shows only `wra-embedded` -> `wra-signal`. | Pass |
+| Toolchain scope | No ARM64 target, QEMU binary, Zephyr SDK, west workspace, CMake, HAL, or unsafe FFI is added. | Pass |
+
 ## Risk Assessment
 
 - Supply-chain risk: Medium; dependencies are common Rust ecosystem crates, but exact transitive dependencies must remain visible in `Cargo.lock`.
@@ -49,12 +61,13 @@ Reviewed sources:
 - Maintenance risk: Low/Medium; these crates are widely used and reduce custom parser surface.
 - Security risk: Medium; malformed input parsing expands attack surface and needs tests.
 - Plotting risk: Low/Medium; SVG output is local-file only, but future plotting backends could expand native or GUI dependencies if not gated.
+- Embedded toolchain risk: Medium; future RTOS SDKs, HALs, FFI, or target CI require fresh review before adoption.
 
 ## Gate Decision
 
 - Gate: Dependency Gate.
 - Decision: Pass.
-- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering.
+- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up work adds no third-party dependencies.
 - Residual risk: Dependency license and advisory scanning is not automated yet.
 - Next owner: Core Software Engineer.
 

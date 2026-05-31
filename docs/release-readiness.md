@@ -10,7 +10,7 @@ Owner Role: Release Engineer / GitHub Maintainer Specialist
 
 ## Current Status
 
-This review records the initial public-repository publication gate. Since publication, PR #16, #21, #22, #23, #25, #36, #37, and #39 have merged into protected `main` with required `rust` CI passing. The release notes below describe the initial publication slice, not the full current feature set.
+This review records the initial public-repository publication gate. Since publication, PR #16, #21, #22, #23, #25, #36, #37, #39, and #40 have merged into protected `main` with required `rust` CI passing. The release notes below describe the initial publication slice, not the full current feature set.
 
 ## Scope
 
@@ -81,6 +81,18 @@ Residual risk: This is mainline repository evidence, not a tagged product releas
 Gate: Release Gate for M5.
 Decision: Pass.
 Residual risk: This is mainline repository evidence, not a tagged product release, visual-quality certification, hardware validation, or certification artifact.
+
+## M3 RTOS Adapter Release Readiness Update
+
+- Branch: `feature/m3-rtos-adapter-prototypes`
+- Issues: #17 `M3-RTOS-002 Add ARM64 QEMU embedded demo`; #18 `M3-RTOS-003 Add RTOS adapter abstraction`; #19 `M3-RTOS-004 Add Zephyr feasibility prototype`.
+- Scope: no_std adapter boundary, host-checkable QEMU proof slice, and isolated Zephyr feasibility prototype.
+- Validation: `cargo fmt`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-embedded`; `cargo fmt --check`; `git diff --check`.
+- Dependency evidence: no new third-party dependencies; `wra-embedded` depends only on local `wra-signal`.
+
+Gate: Release Gate for M3 RTOS follow-up.
+Decision: Pass for protected-branch PR creation.
+Residual risk: Mainline merge, CI result, issue closure, and milestone closure must be recorded after PR merge.
 
 ## Hand-Off Note
 

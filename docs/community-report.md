@@ -30,12 +30,19 @@ Owner Role: Community Engineering Lead
 - Milestone `M5: Plotting and Visualization` is closed with 1 closed issue and 0 open issues.
 - Follow-up community messaging should describe the feature as desktop SVG output only and avoid GUI, DAQ, embedded plotting, surface-plotting, or certification claims.
 
+## M3 RTOS Follow-Up Community Update
+
+- Issues #17, #18, and #19 record the remaining M3 RTOS acceptance criteria.
+- PR handoff should describe this work as no_std adapter/prototype evidence only.
+- Follow-up community messaging should avoid claiming ARM64 target execution, Zephyr support, RTOS production readiness, hardware validation, or certification evidence.
+- Issue and milestone closure should be verified after protected-branch merge.
+
 ## Gate Decision
 
 - Gate: Community Gate.
-- Decision: Pass for initial publication and M5 issue/milestone closure.
-- Reason: Public repository exists with templates, contribution docs, CI, clear scope, M4 issue/milestone closure evidence, and M5 issue/milestone closure evidence.
-- Residual risk: Community onboarding quality and plotting usability are untested until external issue/PR feedback.
+- Decision: Pass for initial publication, M5 issue/milestone closure, and M3 RTOS follow-up PR handoff.
+- Reason: Public repository exists with templates, contribution docs, CI, clear scope, M4/M5 issue closure evidence, and M3 issue handoff evidence.
+- Residual risk: Community onboarding quality, plotting usability, and embedded adapter usability are untested until external issue/PR feedback.
 - Next owner: Project Coordinator.
 
 ## Hand-Off Note

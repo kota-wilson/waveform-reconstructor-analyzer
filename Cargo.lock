@@ -390,6 +390,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "wra-embedded"
+version = "0.1.0"
+dependencies = [
+ "wra-signal",
+]
+
+[[package]]
 name = "wra-plot"
 version = "0.1.0"
 dependencies = [

@@ -21,6 +21,48 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - Rust: `rustc 1.95.0 (59807616e 2026-04-14)`
 - Dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 
+## M3 RTOS Adapter And Prototype Branch
+
+Current as of the M3 RTOS adapter/prototype branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo fmt` | Passed | Rust sources formatted after adding `wra-embedded` and the QEMU proof crate. |
+| `cargo test --workspace` | Passed | 75 tests passed: 9 CLI, 38 core, 9 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 4 `wra-embedded`, 5 `wra-plot`, 9 `wra-signal`, plus doctests. |
+| `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml` | Passed | 1 QEMU proof-slice test passed, exercising the no_std threshold path through `wra-embedded` and `wra-signal`. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings after factoring the embedded stream result type. |
+| `cargo tree -p wra-embedded` | Passed | Dependency tree is limited to `wra-embedded` -> `wra-signal`; no external crates added. |
+| `cargo fmt --check` | Passed | Formatting remained clean after documentation updates. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `wra_embedded::tests::threshold_stream_uses_source_runtime_sink_and_signal_core` | Verifies sample source, runtime hooks, event sink, and threshold primitive integration. |
+| `wra_embedded::tests::transient_event_stream_records_longest_event` | Verifies transient-event streaming through the adapter boundary. |
+| `wra_embedded::tests::empty_threshold_stream_returns_signal_error_without_sink_record` | Empty source returns `SignalError::EmptyInput` and does not record sink evidence. |
+| `wra_embedded::tests::non_monotonic_stream_propagates_signal_error` | Non-monotonic timestamps propagate as signal errors. |
+| `wra_arm64_qemu_demo::tests::qemu_demo_exercises_no_std_threshold_path` | Host-checkable QEMU proof slice uses fixed samples and no desktop file I/O. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M3-RTOS-002 through M3-RTOS-004.
+- Decision: Pass.
+- Reason: Workspace tests, standalone QEMU demo test, clippy, and dependency inspection pass without adding external dependencies, target toolchains, RTOS SDKs, or desktop path coupling.
+- Residual risk: This is host-checkable software evidence, not an ARM64 target execution, QEMU image boot, Zephyr build, hardware qualification, RTOS readiness, or certification artifact.
+- Owner for residual risk: Embedded RTOS Engineer / Verification and Validation Engineer.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer
+Goal: Validate M3 RTOS adapter, ARM64 QEMU proof slice, and Zephyr feasibility prototype.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo fmt`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-embedded`; `cargo fmt --check`; `git diff --check`.
+Status: Pass.
+Known gaps: No ARM64 target build, QEMU boot image, Zephyr SDK build, hardware HAL, unsafe FFI review, or RTOS timing validation.
+Next recommended step: V&V and protected-branch PR review.
+
 ## M5 SVG Plotting Branch
 
 Current as of the M5 plotting branch on 2026-05-31.

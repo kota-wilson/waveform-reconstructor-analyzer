@@ -12,6 +12,8 @@ Current review update: M4 adds validation, tolerance, report evidence, filter eq
 
 M5 review update: M5 adds optional desktop SVG plotting docs while preserving no-GUI, no-DAQ, no-embedded-plotting, and no-certification scope.
 
+M3 review update: M3 follow-up work adds embedded adapter, QEMU proof, and Zephyr feasibility docs while preserving no-SDK, no-HAL, no-unsafe-FFI, no-DAQ, no-production-RTOS, and no-certification scope.
+
 ## Evidence
 
 | Artifact | Result |
@@ -31,21 +33,26 @@ M5 review update: M5 adds optional desktop SVG plotting docs while preserving no
 | `docs/plotting.md` | Pass |
 | M5 README and usage plotting examples | Pass |
 | M5 dependency, risk, and traceability updates | Pass |
+| `crates/wra-embedded/README.md` | Pass |
+| `crates/wra-embedded/no_std-design.md` | Pass |
+| `embedded/arm64/qemu/README.md` | Pass |
+| `embedded/arm64/zephyr/README.md` | Pass |
+| M3 embedded roadmap, risk, and traceability updates | Pass |
 
 ## Gate Decision
 
 - Gate: Documentation Gate.
 - Decision: Pass.
-- Reason: Public usage, contribution, security, change, validation, plotting, traceability, current-state, and M4/M5 documentation exist and are human-readable.
-- Residual risk: API docs, a formal config schema reference, visual-output examples, and automated Markdown link checking are still thin.
+- Reason: Public usage, contribution, security, change, validation, plotting, embedded adapter/prototype, traceability, current-state, and M4/M5/M3 follow-up documentation exist and are human-readable.
+- Residual risk: API docs, a formal config schema reference, visual-output examples, embedded target build docs, and automated Markdown link checking are still thin.
 - Next owner: Code Reviewer.
 
 ## Hand-Off Note
 
 Role: Documentation Engineer
 Goal: Confirm MVP docs are accurate and readable after the validated-MVP feature baseline.
-Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05-31.md`, `docs/plotting.md`, current-state docs, traceability docs, validation log, and historical pipeline reports.
+Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05-31.md`, `docs/plotting.md`, embedded docs, current-state docs, traceability docs, validation log, and historical pipeline reports.
 Checks run: Documentation inspection plus the validation commands recorded in `docs/documentation-audit-2026-05-31.md`.
 Status: Pass.
-Known gaps: Add API docs, config schema reference, visual-output examples, and automated docs/link checking later.
-Next recommended step: Code review for M5 plotting PR.
+Known gaps: Add API docs, config schema reference, visual-output examples, embedded target build docs, and automated docs/link checking later.
+Next recommended step: Code review for M3 RTOS follow-up PR.

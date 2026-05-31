@@ -346,3 +346,57 @@ Checks run: See `docs/validation-log.md`.
 Status: Pass; ready for testing and protected-branch PR.
 Known gaps: SVG output only; no GUI, DAQ, embedded plotting, surface plotting, or interactive inspection.
 Next recommended step: Testing Gate for M5 plotting.
+
+## M3 RTOS Adapter And Prototype Implementation Update
+
+Date: 2026-05-31
+
+Owner Role: Embedded RTOS Engineer / Core Software Engineer
+
+### Inputs
+
+- GitHub issue #17, `M3-RTOS-002 Add ARM64 QEMU embedded demo`.
+- GitHub issue #18, `M3-RTOS-003 Add RTOS adapter abstraction`.
+- GitHub issue #19, `M3-RTOS-004 Add Zephyr feasibility prototype`.
+- Existing architecture direction: start with `wra-signal`, then add adapter boundaries before runtime-specific integrations.
+
+### Work Performed
+
+- What: Added a `no_std` embedded adapter crate, a host-checkable ARM64 QEMU proof slice, and an isolated Zephyr feasibility prototype.
+- Where: `crates/wra-embedded/`, `embedded/arm64/qemu/`, `embedded/arm64/zephyr/`, README, architecture, embedded roadmap, requirements, risk, and traceability files.
+- How: Kept runtime-specific concerns behind `SampleSource`, `EventSink`, and `RuntimeHooks` traits; used only local path dependencies and fixed sample data; documented QEMU/Zephyr assumptions without adding SDKs, HALs, unsafe FFI, or target installation.
+- Why: The remaining M3 issues need embedded-facing structure without contaminating the desktop CLI, plotting, report, or signal-core paths.
+
+### Behavior Added
+
+- `wra-embedded` crate with `#![no_std]`.
+- `SampleSource`, `EventSink`, and `RuntimeHooks` adapter traits.
+- `run_threshold_stream` and `run_transient_event_stream` helpers around `wra-signal`.
+- `SliceSampleSource`, `LastResultSink`, and `NoopRuntime` for demos and tests.
+- ARM64 QEMU proof crate under `embedded/arm64/qemu/` with fixed samples and no desktop file I/O.
+- Zephyr feasibility sketch under `embedded/arm64/zephyr/` with toolchain assumptions, unsupported areas, and production-readiness risks.
+
+### Out Of Scope Preserved
+
+- No Zephyr SDK, west workspace, Kconfig, CMake, or device tree.
+- No ARM64 target installation or QEMU boot image.
+- No Embassy, RTIC, hardware HAL, board driver, unsafe FFI, DAQ integration, GUI, plotting, file I/O, CSV parsing, or report generation in embedded crates.
+- No hardware validation, RTOS production-readiness claim, tool qualification, or certification evidence.
+
+### Gate Decision
+
+- Gate: M3 RTOS Adapter Implementation Gate.
+- Decision: Pass.
+- Reason: Issues #17-#19 have concrete adapter, QEMU proof, and Zephyr feasibility artifacts while preserving embedded boundaries and avoiding unapproved tooling/dependencies.
+- Residual risk: Future runtime-specific work needs target CI, QEMU image boot evidence, SDK review, unsafe FFI review, and hardware timing validation before stronger claims.
+- Owner for residual risk: Embedded RTOS Engineer / Verification and Validation Engineer.
+
+### Hand-Off Note
+
+Role: Embedded RTOS Engineer / Core Software Engineer
+Goal: Address M3-RTOS-002 through M3-RTOS-004 without expanding into production RTOS integration.
+Files changed: `crates/wra-embedded/`, `embedded/arm64/qemu/`, `embedded/arm64/zephyr/`, README, architecture, embedded roadmap, requirements, risk, traceability, and validation docs.
+Checks run: See `docs/validation-log.md`.
+Status: Pass; ready for V&V and protected-branch PR.
+Known gaps: No ARM64 target build, QEMU boot image, Zephyr SDK build, hardware HAL, unsafe FFI review, RTOS timing validation, or certification evidence.
+Next recommended step: Testing and V&V gates for M3 RTOS adapter/prototype work.

@@ -16,7 +16,7 @@ The embedded path is a separate module track. It must not live inside the deskto
 | `wra-signal` | `no_std` signal-processing primitives: fixed buffers, streaming ingestion, thresholds, transient events. | M3-RTOS-001 |
 | `wra-criteria` | Future `no_std` pass/fail criteria engine if criteria outgrow `wra-signal`. | Future |
 | `wra-cli` | Desktop CSV/config/report command-line interface. | Existing |
-| `wra-embedded` | Future RTOS/ARM64 adapter layer around `wra-signal`. | Future |
+| `wra-embedded` | `no_std` RTOS/ARM64 adapter boundary around `wra-signal` sample sources, event sinks, and runtime hooks. | M3-RTOS-003 |
 
 ## Adapter Order
 
@@ -25,10 +25,18 @@ The embedded path is a separate module track. It must not live inside the deskto
 3. M3-RTOS-003: Add RTOS adapter abstraction.
 4. M3-RTOS-004: Add Zephyr feasibility prototype.
 
+## M3 Follow-Up Status
+
+| Issue | Artifact | Status |
+|---|---|---|
+| M3-RTOS-002 | `embedded/arm64/qemu/` | Host-checkable ARM64 QEMU proof slice added; full QEMU image remains future work. |
+| M3-RTOS-003 | `crates/wra-embedded/` | Adapter traits and streaming helpers added. |
+| M3-RTOS-004 | `embedded/arm64/zephyr/` | Feasibility sketch and production-readiness risks documented. |
+
 ## Current Non-Goals
 
-- No Zephyr implementation in M3-RTOS-001.
-- No Embassy or RTIC adapter in M3-RTOS-001.
+- No production Zephyr implementation.
+- No Embassy or RTIC adapter implementation.
 - No DAQ integration.
 - No GUI.
 - No aerospace or hardware certification claims.
@@ -36,12 +44,12 @@ The embedded path is a separate module track. It must not live inside the deskto
 
 ## Architecture Decision
 
-Start with `wra-signal` before `wra-embedded`. This keeps reusable math and evaluation logic small, testable on desktop, and independent of RTOS runtime decisions. ARM64 and RTOS adapters should wrap the crate later.
+Start with `wra-signal`, then add `wra-embedded` as a small adapter boundary before any runtime-specific implementation. This keeps reusable math and evaluation logic small, testable on desktop, and independent of RTOS runtime decisions. ARM64/QEMU and Zephyr artifacts remain wrapper/prototype layers.
 
 ## Gate Decision
 
 - Gate: Architecture Gate.
 - Decision: Pass.
-- Reason: The embedded track has a separate crate boundary and explicit non-goals, matching the M3-RTOS-001 acceptance criteria.
-- Residual risk: Future RTOS crates may need feature flags or adapter traits once hardware-facing APIs are introduced.
+- Reason: The embedded track has separate signal, adapter, QEMU proof, and Zephyr feasibility boundaries with explicit non-goals.
+- Residual risk: Future RTOS crates may need feature flags, target CI, unsafe FFI review, and hardware-facing API review once real runtimes are introduced.
 - Next owner: Core Software Engineer.

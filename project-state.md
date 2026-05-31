@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-M5 plotting and visualization is merged; record post-merge release/community evidence.
+M3 RTOS adapter/prototype work is implemented on `feature/m3-rtos-adapter-prototypes`; prepare protected-branch PR review and CI.
 
 ## Current Stage
 
-The repository now includes merged M5 plotting work addressing issue #38. Mainline includes an isolated `wra-plot` crate, optional `wra plot` SVG output, 2D time/signal plotting, optional 3D time/signal/auxiliary-axis line plotting, fixture coverage, dependency review, documentation, and validation evidence. PR #39 merged with required `rust` CI passing, issue #38 is closed, and M5 milestone #5 is closed. RTOS/Zephyr work remains parked; GUI, DAQ, embedded plotting, surface fitting, and certification claims remain out of scope.
+The repository now includes branch-local M3 RTOS follow-up work for issues #17-#19. The branch adds a `no_std` `wra-embedded` adapter crate, a host-checkable ARM64 QEMU proof slice, and an isolated Zephyr feasibility prototype. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, QEMU boot images, production RTOS readiness, and certification claims remain out of scope.
 
 ## Open Risks
 
@@ -34,6 +34,10 @@ The repository now includes merged M5 plotting work addressing issue #38. Mainli
   Owner: Performance Engineer
 - Risk: Plotting dependencies or future plotting backends may expand desktop scope into GUI, bitmap, or embedded paths.
   Owner: Software Architect / Security Engineer
+- Risk: Embedded prototype artifacts may be mistaken for production RTOS, hardware, or certification readiness.
+  Owner: Embedded RTOS Engineer / Documentation Engineer
+- Risk: Target-specific ARM64 and Zephyr toolchains may drift or require global setup if adopted too early.
+  Owner: DX Engineer / Security Engineer
 
 ## Pending Decisions
 
@@ -52,22 +56,25 @@ The repository now includes merged M5 plotting work addressing issue #38. Mainli
 - Decision: Add optional desktop SVG plotting through an isolated `wra-plot` crate using Plotters SVG line rendering.
   Owner: Software Architect / Security Engineer
   Status: Accepted for M5 in `docs/dependency-review.md` and `docs/m5-plotting-pipeline-report.md`.
+- Decision: Keep M3 RTOS follow-up work host-checkable and adapter/prototype-only until a fresh target-toolchain gate.
+  Owner: Embedded RTOS Engineer / Verification and Validation Engineer
+  Status: Accepted in `docs/m3-rtos-follow-up-pipeline-report.md`.
 
 ## Next Responsible Role
 
 Role: GitHub Maintainer Specialist
 
-Expected deliverable: Finish post-merge release/community evidence update for M5.
+Expected deliverable: Open the M3 RTOS follow-up PR, wait for required CI, merge if checks pass, and update release/community evidence.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: M5 plotting and visualization.
+- Current milestone: M3 RTOS / embedded no_std foundation.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`.
-- Next gate: Post-merge evidence PR for M5.
-- Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/embedded plotting/certification work.
+- Next gate: Protected-branch PR and CI for M3 RTOS follow-up work.
+- Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, or expanding into GUI/DAQ/embedded plotting/certification work.
 
 ## Granularity Status
 
@@ -80,13 +87,13 @@ Expected deliverable: Finish post-merge release/community evidence update for M5
 - Project root: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`.
 - Isolation level: Level 1 Cargo workspace.
 - Local environment: Rust/Cargo; no global dependencies installed.
-- Dependency status: Approved crates added and pinned in `Cargo.lock`; see `docs/dependency-review.md`. M5 adds Plotters only inside `wra-plot` with SVG and line-series features.
+- Dependency status: Approved crates added and pinned in `Cargo.lock`; see `docs/dependency-review.md`. M3 follow-up adds no third-party dependencies; `wra-embedded` depends only on local `wra-signal`.
 
 ## Traceability Status
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, and M5 requirement WRA-RQ-027.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, and M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030.
 
 ## Gate Decisions
 
@@ -168,6 +175,19 @@ Expected deliverable: Finish post-merge release/community evidence update for M5
 | M5 Evaluation Gate | Pass | `docs/evaluation-report.md` | Release Engineer |
 | M5 Release Gate | Pass | PR #39 merged after required `rust` CI passed; merge commit `9bc3d53bf416fff7e280abbcc24840c34811918f` | GitHub Maintainer Specialist |
 | M5 Community Gate | Pass | Issue #38 closed; M5 milestone #5 closed with 1 closed issue and 0 open issues | Project Coordinator |
+| M3 RTOS Follow-Up Requirements Gate | Pass | `requirements.md` WRA-RQ-028 through WRA-RQ-030; issues #17-#19 | Software Architect |
+| M3 RTOS Follow-Up Architecture Gate | Pass | `docs/architecture.md`, `docs/embedded-roadmap.md`, `crates/wra-embedded/no_std-design.md` | Abstraction Review Engineer |
+| M3 RTOS Follow-Up Implementation Gate | Pass | `crates/wra-embedded/`, `embedded/arm64/qemu/`, `embedded/arm64/zephyr/` | Test Automation Engineer |
+| M3 RTOS Follow-Up Testing Gate | Pass | `docs/validation-log.md`; workspace tests, QEMU demo manifest test, clippy, dependency tree | Verification and Validation Engineer |
+| M3 RTOS Follow-Up V&V Gate | Pass | `docs/verification-validation-report.md`, WRA-RQ-028 through WRA-RQ-030 traceability | QA Engineer |
+| M3 RTOS Follow-Up QA Gate | Pass | `docs/qa-review.md` | Security Engineer |
+| M3 RTOS Follow-Up Security Gate | Pass | `docs/security-review.md`, `cargo tree -p wra-embedded` | Performance Engineer |
+| M3 RTOS Follow-Up Performance Gate | Pass | `docs/performance-review.md`; no unsupported target/RTOS performance claims | Documentation Engineer |
+| M3 RTOS Follow-Up Documentation Gate | Pass | README, `docs/embedded-roadmap.md`, `crates/wra-embedded/README.md`, QEMU and Zephyr READMEs | Code Reviewer |
+| M3 RTOS Follow-Up Code Review Gate | Pass for PR creation | `docs/code-review.md`, `docs/m3-rtos-follow-up-pipeline-report.md` | Evaluation Engineer |
+| M3 RTOS Follow-Up Evaluation Gate | Pass | `docs/evaluation-report.md` | Release Engineer |
+| M3 RTOS Follow-Up Release Gate | Pass for PR creation | `docs/m3-rtos-follow-up-pipeline-report.md`; protected-branch PR pending | GitHub Maintainer Specialist |
+| M3 RTOS Follow-Up Community Gate | Pass for PR handoff | Issues #17-#19 and M3 milestone prepared for PR closing keywords | Project Coordinator |
 
 ## Update Rules
 

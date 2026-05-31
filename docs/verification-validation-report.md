@@ -43,12 +43,22 @@ The MVP validates against the user request for a Rust-centered open-source wavef
 | Error behavior | Missing channel, reused z-channel, missing z-column, and invalid output parent tests | Pass |
 | Scope control | README, `docs/plotting.md`, risk register, and dependency review state SVG-only desktop scope | Pass |
 
+## M3 RTOS Adapter And Prototype Update
+
+| M3 Area | Evidence | Result |
+|---|---|---|
+| ARM64 QEMU proof path | `embedded/arm64/qemu/`, `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml` | Pass |
+| RTOS adapter abstraction | `crates/wra-embedded`, adapter unit tests, `cargo tree -p wra-embedded` | Pass |
+| Zephyr feasibility prototype | `embedded/arm64/zephyr/README.md`, `zephyr_adapter_sketch.rs` | Pass |
+| Embedded boundary | `wra-signal` remains runtime-independent; `wra-embedded` owns source/sink/runtime traits | Pass |
+| Scope control | No SDK, target install, HAL, unsafe FFI, file I/O, CSV parsing, plotting, DAQ, or certification claim | Pass |
+
 ## Gate Decision
 
 - Gate: V&V Gate.
 - Decision: Pass.
-- Reason: Requirements have implementation and validation evidence, with residual risks recorded. M4 adds known-answer and environmental software-validation evidence, and M5 adds optional desktop SVG plotting evidence without overclaiming GUI, DAQ, embedded, hardware, or certification confidence.
-- Residual risk: Filter numerical behavior, CSV dialect coverage, hardware capture corpora, DAQ accuracy, visual regression coverage, and certification use need broader validation before production claims.
+- Reason: Requirements have implementation and validation evidence, with residual risks recorded. M4 adds known-answer and environmental software-validation evidence, M5 adds optional desktop SVG plotting evidence, and M3 follow-up work adds embedded adapter/prototype evidence without overclaiming GUI, DAQ, RTOS production readiness, hardware, or certification confidence.
+- Residual risk: Filter numerical behavior, CSV dialect coverage, hardware capture corpora, DAQ accuracy, visual regression coverage, ARM64 target execution, Zephyr SDK validation, RTOS timing behavior, and certification use need broader validation before production claims.
 - Next owner: QA Engineer.
 
 ## Hand-Off Note
@@ -58,5 +68,5 @@ Goal: Confirm implemented behavior traces to requirements and user intent.
 Files changed: `docs/verification-validation-report.md`
 Checks run: Reviewed validation evidence in `docs/validation-log.md`.
 Status: Pass.
-Known gaps: No external hardware signal corpus, formal filter frequency-response validation, DAQ validation, visual regression testing, or certification evidence yet.
+Known gaps: No external hardware signal corpus, formal filter frequency-response validation, DAQ validation, visual regression testing, ARM64 QEMU boot image, Zephyr SDK build, RTOS timing validation, or certification evidence yet.
 Next recommended step: QA review.

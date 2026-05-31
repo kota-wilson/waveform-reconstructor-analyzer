@@ -2,6 +2,7 @@
 members = [
     "crates/wra-core",
     "crates/wra-cli",
+    "crates/wra-embedded",
     "crates/wra-plot",
     "crates/wra-signal",
 ]

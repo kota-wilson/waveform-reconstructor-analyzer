@@ -33,3 +33,4 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - Filter behavior documentation with moving-average, first-order low-pass, and ideal ADC quantization equations.
 - Project-local large-CSV benchmark helper and baseline benchmark documentation.
 - Optional desktop SVG plotting with 2D waveform plots and 3D line plots using a configured third-axis column.
+- `wra-embedded` `no_std` adapter boundary plus ARM64 QEMU and Zephyr feasibility prototype artifacts.

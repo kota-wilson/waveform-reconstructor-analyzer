@@ -6,7 +6,7 @@ The first MVP is a CLI and core library slice. It focuses on CSV waveform loadin
 
 ## Current Status
 
-This repository is in validated MVP stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria, including waveform metadata, ordered pre-criteria transforms such as moving average, low-pass filtering, and ideal ADC quantization. The desktop CLI can also render SVG waveform plots. The workspace has an embedded foundation crate, `wra-signal`, for `no_std` signal primitives that can later be wrapped by RTOS or ARM64 adapters.
+This repository is in validated MVP stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria, including waveform metadata, ordered pre-criteria transforms such as moving average, low-pass filtering, and ideal ADC quantization. The desktop CLI can also render SVG waveform plots. The workspace has `no_std` embedded crates: `wra-signal` for signal primitives and `wra-embedded` for RTOS/ARM64 adapter boundaries.
 
 ## MVP Scope
 
@@ -37,6 +37,7 @@ This repository is in validated MVP stage. The Rust workspace builds a small cor
 ```text
 crates/wra-core/        Rust core library
 crates/wra-cli/         CLI entry point
+crates/wra-embedded/    no_std RTOS/ARM64 adapter boundaries
 crates/wra-plot/        Desktop SVG plotting support
 crates/wra-signal/      no_std signal primitives
 docs/                  Product, architecture, and MVP docs
@@ -63,9 +64,9 @@ No global package installation is required.
 
 ## Embedded Foundation
 
-`crates/wra-signal` is a dependency-free `#![no_std]` crate for fixed-size waveform buffers, streaming sample ingestion, min/max threshold evaluation, and transient event detection. It intentionally excludes CSV parsing, file I/O, plotting, text/JSON reports, GUI, DAQ integration, and RTOS-specific code.
+`crates/wra-signal` is a dependency-free `#![no_std]` crate for fixed-size waveform buffers, streaming sample ingestion, min/max threshold evaluation, and transient event detection. `crates/wra-embedded` is a `#![no_std]` adapter-boundary crate with sample-source, event-sink, and runtime-hook traits for future ARM64 and RTOS wrappers.
 
-The embedded track should evolve in this order: keep reusable signal primitives in `wra-signal`, add an ARM64 QEMU proof later, then introduce adapter crates such as `wra-embedded` only after the core analysis surface is stable.
+The embedded track now has a host-checkable ARM64 QEMU proof slice under `embedded/arm64/qemu/` and an isolated Zephyr feasibility sketch under `embedded/arm64/zephyr/`. These prototypes intentionally exclude CSV parsing, file I/O, plotting, text/JSON reports, GUI, DAQ integration, hardware HALs, production RTOS readiness, and certification evidence.
 
 ## MVP Usage
 
