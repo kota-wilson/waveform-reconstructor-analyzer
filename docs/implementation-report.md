@@ -67,3 +67,51 @@ Owner Role: Core Software Engineer
 - Next owner: Test Automation Engineer.
 - Expected deliverable: Updated validation log.
 - Required next gate: Testing Gate.
+
+## M1-001 Implementation Update
+
+Date: 2026-05-31
+
+Owner Role: Core Software Engineer
+
+### Inputs
+
+- GitHub issue: #1, `M1-001 Validate CSV parser edge cases`.
+- Acceptance criteria: empty input, missing time column, missing channel column, malformed numeric values, inconsistent record lengths, blank lines, alternate delimiters where supported, structured useful errors, traceability updates, and validation updates.
+
+### Work Performed
+
+- What: Added focused CSV parser edge-case tests.
+- Where: `crates/wra-core/src/csv.rs`.
+- How: Used the existing `SimpleCsvParser`, `CsvParseOptions`, and `WaveformError` types without adding dependencies or changing parser architecture.
+- Why: M1-001 requires parser behavior evidence beyond the happy-path fixture.
+
+### Tests Added
+
+- `rejects_empty_input`
+- `rejects_header_without_samples_as_empty_input`
+- `reports_missing_time_column`
+- `reports_missing_channel_column`
+- `reports_malformed_numeric_values_with_column_context`
+- `reports_inconsistent_record_lengths_as_csv_errors`
+- `ignores_blank_lines_between_records`
+- `supports_configured_ascii_delimiters`
+- `rejects_non_ascii_delimiters_with_parameter_error`
+
+### Gate Decision
+
+- Gate: Implementation Gate for M1-001.
+- Decision: Pass.
+- Reason: The implementation satisfies issue #1 with tests and documentation updates while preserving the existing parser and dependency model.
+- Residual risk: Broader CSV dialect coverage remains future work if DAQ-specific exports require it.
+- Owner for residual risk: Test Automation Engineer / Software Architect.
+
+### Hand-Off Note
+
+Role: Core Software Engineer
+Goal: Address M1-001 CSV parser edge-case coverage.
+Files changed: `crates/wra-core/src/csv.rs`, `docs/implementation-report.md`, `docs/validation-log.md`, `traceability-matrix.md`
+Checks run: `cargo test -p wra-core csv::tests -- --nocapture`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`
+Status: Pass.
+Known gaps: No external DAQ export corpus included.
+Next recommended step: Open PR for issue #1.

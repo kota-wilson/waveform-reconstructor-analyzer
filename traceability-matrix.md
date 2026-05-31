@@ -2,7 +2,7 @@
 
 | Requirement | Design / Decision | Code / Docs / Artifact | Verification | Validation | Release Evidence | Status |
 |---|---|---|---|---|---|---|
-| WRA-RQ-001 | CSV parser interface in architecture; dependency review approved `csv` crate | `crates/wra-core/src/csv.rs`, `crates/wra-cli/src/main.rs`, `docs/dependency-review.md` | Parser unit, fixture, and CLI smoke tests pass | User can load CSV fixture from CLI | Release readiness report | MVP implemented |
+| WRA-RQ-001 | CSV parser interface in architecture; dependency review approved `csv` crate; M1-001 parser edge-case test plan | `crates/wra-core/src/csv.rs`, `crates/wra-cli/src/main.rs`, `docs/dependency-review.md`, `docs/m1-001-csv-parser-edge-cases.md` | Parser unit, fixture, CLI smoke, and CSV edge-case tests pass for empty input, missing columns, malformed numbers, inconsistent lengths, blank lines, and configured delimiter behavior | User gets structured, useful CSV errors and can load supported CSV fixtures from CLI | PR for issue #1 | M1-001 implemented |
 | WRA-RQ-002 | Channel mapping model and TOML config input | `crates/wra-core/src/model.rs`, `crates/wra-core/src/csv.rs`, `crates/wra-core/src/config.rs` | Parser, config, and CLI smoke tests select named columns | User can select time/channel columns through config or flags | CLI docs | MVP implemented |
 | WRA-RQ-003 | Waveform model | `crates/wra-core/src/model.rs` | Waveform construction tests pass | Reconstructed waveform preserves units and samples | API docs later | MVP implemented |
 | WRA-RQ-004 | Multi-channel collection | `Waveform.channels` | Multi-channel fixture test passes | Multiple DAQ channels represented | Example data | MVP implemented |

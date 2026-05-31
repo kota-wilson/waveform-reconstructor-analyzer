@@ -107,15 +107,157 @@ fn parse_number(value: Option<&str>, column: &str) -> Result<f64> {
 mod tests {
     use super::*;
 
+    fn basic_options() -> CsvParseOptions {
+        CsvParseOptions::new("time", vec!["input_v".to_string()])
+    }
+
     #[test]
     fn parses_basic_waveform_csv() {
         let input = "time,input_v\n0.0,0.0\n0.1,5.0\n";
         let parser = SimpleCsvParser;
-        let options = CsvParseOptions::new("time", vec!["input_v".to_string()]);
+        let options = basic_options();
 
         let waveform = parser.parse_str(input, &options).expect("csv should parse");
 
         assert_eq!(waveform.time, vec![0.0, 0.1]);
         assert_eq!(waveform.channels[0].samples, vec![0.0, 5.0]);
+    }
+
+    #[test]
+    fn rejects_empty_input() {
+        let parser = SimpleCsvParser;
+        let result = parser.parse_str(" \n\t", &basic_options());
+
+        assert_eq!(result, Err(WaveformError::EmptyInput));
+        assert_eq!(
+            WaveformError::EmptyInput.to_string(),
+            "input contains no waveform samples"
+        );
+    }
+
+    #[test]
+    fn rejects_header_without_samples_as_empty_input() {
+        let parser = SimpleCsvParser;
+        let result = parser.parse_str("time,input_v\n", &basic_options());
+
+        assert_eq!(result, Err(WaveformError::EmptyInput));
+    }
+
+    #[test]
+    fn reports_missing_time_column() {
+        let parser = SimpleCsvParser;
+        let result = parser.parse_str("timestamp,input_v\n0.0,1.0\n", &basic_options());
+
+        let error = result.expect_err("time column should be required");
+        assert_eq!(
+            error,
+            WaveformError::MissingColumn {
+                column: "time".to_string()
+            }
+        );
+        assert_eq!(error.to_string(), "missing required column `time`");
+    }
+
+    #[test]
+    fn reports_missing_channel_column() {
+        let parser = SimpleCsvParser;
+        let result = parser.parse_str("time,output_v\n0.0,1.0\n", &basic_options());
+
+        let error = result.expect_err("channel column should be required");
+        assert_eq!(
+            error,
+            WaveformError::MissingColumn {
+                column: "input_v".to_string()
+            }
+        );
+        assert_eq!(error.to_string(), "missing required column `input_v`");
+    }
+
+    #[test]
+    fn reports_malformed_numeric_values_with_column_context() {
+        let parser = SimpleCsvParser;
+        let result = parser.parse_str("time,input_v\n0.0,not-a-number\n", &basic_options());
+
+        let error = result.expect_err("malformed numeric value should be rejected");
+        assert_eq!(
+            error,
+            WaveformError::InvalidNumber {
+                column: "input_v".to_string(),
+                value: "not-a-number".to_string()
+            }
+        );
+        assert_eq!(
+            error.to_string(),
+            "invalid numeric value `not-a-number` in column `input_v`"
+        );
+    }
+
+    #[test]
+    fn reports_inconsistent_record_lengths_as_csv_errors() {
+        let parser = SimpleCsvParser;
+        let result = parser.parse_str("time,input_v\n0.0,1.0\n0.1\n", &basic_options());
+
+        let error = result.expect_err("short record should be rejected");
+        match error {
+            WaveformError::Csv { message } => {
+                assert!(
+                    message.contains("found record with 1 fields"),
+                    "unexpected csv error message: {message}"
+                );
+            }
+            other => panic!("expected csv error, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn ignores_blank_lines_between_records() {
+        let input = "time,input_v\n\n0.0,0.0\n\n0.1,5.0\n\n";
+        let parser = SimpleCsvParser;
+
+        let waveform = parser
+            .parse_str(input, &basic_options())
+            .expect("blank lines should be ignored by csv parser");
+
+        assert_eq!(waveform.sample_count(), 2);
+        assert_eq!(waveform.time, vec![0.0, 0.1]);
+        assert_eq!(waveform.channels[0].samples, vec![0.0, 5.0]);
+    }
+
+    #[test]
+    fn supports_configured_ascii_delimiters() {
+        let input = "time;input_v\n0.0;0.0\n0.1;5.0\n";
+        let parser = SimpleCsvParser;
+        let mut options = basic_options();
+        options.delimiter = ';';
+
+        let waveform = parser
+            .parse_str(input, &options)
+            .expect("semicolon-delimited csv should parse");
+
+        assert_eq!(waveform.sample_count(), 2);
+        assert_eq!(waveform.channels[0].samples, vec![0.0, 5.0]);
+    }
+
+    #[test]
+    fn rejects_non_ascii_delimiters_with_parameter_error() {
+        let parser = SimpleCsvParser;
+        let mut options = basic_options();
+        options.delimiter = '∣';
+
+        let error = parser
+            .parse_str("time,input_v\n0.0,1.0\n", &options)
+            .expect_err("non-ascii delimiter should be rejected");
+
+        assert_eq!(
+            error,
+            WaveformError::InvalidParameter {
+                name: "delimiter".to_string(),
+                reason: "must be an ASCII character".to_string()
+            }
+        );
+        assert_eq!(
+            error.to_string(),
+            "invalid parameter `delimiter`: must be an ASCII character"
+        );
     }
 }
