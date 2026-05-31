@@ -16,11 +16,54 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 
 ## Environment
 
-- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
 - Cargo: `cargo 1.95.0 (f2d3ce0bd 2026-03-21)`
 - Rust: `rustc 1.95.0 (59807616e 2026-04-14)`
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-core`, and `ferrisoxide-cli`.
+
+## TEST-001 Heated Actuator Qualification Suite Branch
+
+Current as of the TEST-001 / issue #117 branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-rule-engine` | Passed | 10 rule-engine tests passed, including response latency and armed transient-event window behavior. |
+| `cargo test -p ferrisoxide-rule-schema` | Passed | 16 schema tests passed, including response-latency source-channel validation. |
+| `cargo test -p ferrisoxide-core --test heated_actuator` | Passed | 4 exact heated actuator golden JSON report tests passed. |
+| `cargo test -p ferrisoxide-cli` | Passed | 16 CLI tests passed, including heated actuator analysis, SVG evidence plot, and rule-package export smoke coverage. |
+| `cargo fmt --check` | Passed | Formatting clean after code and fixture additions. |
+| `cargo test --workspace` | Passed | 145 tests passed across CLI, core, criteria fixtures, CSV fixture, heated actuator e2e, rule parity, embedded, measurements, plot, rule engine, rule schema, and signal crates; doctests passed with 0 tests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings after refactoring new criteria constructor/helper argument lists into spec structs. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+
+### Heated Actuator Evidence
+
+| Artifact | Coverage |
+|---|---|
+| `tests/e2e/heated_actuator/input/*.csv` | Passing run, late feedback response, post-response transient event, and supply dropout scenarios. |
+| `tests/e2e/heated_actuator/configs/test-verification-config.toml` | Response latency, stable-state duration, armed transient event, and supply range represented as config-driven criteria. |
+| `tests/e2e/heated_actuator/expected/*.json` | Exact expected reports with PASS/FAIL, failed criterion, measured value, required value, sample index, timestamp, channel, measurements, and evidence context. |
+| `crates/ferrisoxide-cli/src/main.rs` tests | CLI analysis, SVG evidence overlay, and portable rule package export smoke tests. |
+| `docs/heated-actuator-qualification-suite.md` | Human-readable scenario, file map, criteria map, verification commands, and non-hardware scope limits. |
+
+### Gate Decision
+
+- Gate: Testing and V&V Gates for TEST-001.
+- Decision: Pass locally.
+- Reason: Unit, exact golden, CLI smoke, workspace, formatting, clippy, and whitespace checks passed. The suite covers the requested software-only workflow without adding dependencies or hardware scope.
+- Residual risk: Protected GitHub CI is pending until PR creation; the scenario remains simulated software evidence, not live DAQ, controller runtime, hardware qualification, or certification evidence.
+- Owner for residual risk: GitHub Maintainer Specialist / Verification and Validation Engineer.
+
+### Hand-Off Note
+
+Role: Verification and Validation Engineer
+Goal: Validate the heated actuator software-only qualification suite for issue #117.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo test -p ferrisoxide-rule-engine`; `cargo test -p ferrisoxide-rule-schema`; `cargo test -p ferrisoxide-core --test heated_actuator`; `cargo test -p ferrisoxide-cli`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally; protected-branch PR and CI pending.
+Known gaps: No live DAQ, controller runtime, RTOS target execution, binary package loader, or certification evidence.
+Next recommended step: Open PR with `Fixes #117`.
 
 ## M8-003 Rule Package Validator Branch
 

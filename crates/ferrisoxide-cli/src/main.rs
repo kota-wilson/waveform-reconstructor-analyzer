@@ -580,6 +580,7 @@ fn schema_criteria(criterion: &Criterion) -> Vec<Result<CriterionDefinition, Str
             expected_state,
             threshold_v,
             max_duration_s,
+            ..
         } => vec![Ok(schema_criterion(
             &criterion.id,
             channel,
@@ -590,6 +591,27 @@ fn schema_criteria(criterion: &Criterion) -> Vec<Result<CriterionDefinition, Str
             },
             ComparisonOperator::LessThanOrEqual,
             UnitValue::new(*max_duration_s, EngineeringUnit::Second),
+        ))],
+        CriterionCheck::ResponseLatency {
+            source_channel,
+            target_channel,
+            source_threshold_v,
+            target_threshold_v,
+            source_state,
+            expected_target_state,
+            max_latency_s,
+        } => vec![Ok(schema_criterion(
+            &criterion.id,
+            target_channel,
+            MeasurementDefinition::ResponseLatency {
+                source_channel: source_channel.clone(),
+                source_threshold: UnitValue::new(*source_threshold_v, EngineeringUnit::Volt),
+                target_threshold: UnitValue::new(*target_threshold_v, EngineeringUnit::Volt),
+                source_state: schema_signal_state(*source_state),
+                expected_target_state: schema_signal_state(*expected_target_state),
+            },
+            ComparisonOperator::LessThanOrEqual,
+            UnitValue::new(*max_latency_s, EngineeringUnit::Second),
         ))],
         CriterionCheck::StableStateDuration {
             channel,
@@ -850,6 +872,28 @@ fn thresholds_by_channel(
                 measurement,
                 requirement.value,
             )?,
+            CriterionCheck::ResponseLatency {
+                source_channel,
+                target_channel,
+                source_threshold_v,
+                target_threshold_v,
+                ..
+            } => {
+                push_threshold(
+                    &mut thresholds,
+                    source_channel,
+                    &format!("{}_source_threshold", criterion.id),
+                    ThresholdRole::Decision,
+                    UnitValue::new(*source_threshold_v, EngineeringUnit::Volt),
+                );
+                push_threshold(
+                    &mut thresholds,
+                    target_channel,
+                    &format!("{}_target_threshold", criterion.id),
+                    ThresholdRole::Decision,
+                    UnitValue::new(*target_threshold_v, EngineeringUnit::Volt),
+                );
+            }
         }
     }
     Ok(thresholds)
@@ -1375,6 +1419,31 @@ mod tests {
     }
 
     #[test]
+    fn runs_heated_actuator_qualification_analysis_with_config() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path =
+            format!("{manifest_dir}/../../tests/e2e/heated_actuator/input/passing_run.csv");
+        let config_path = format!(
+            "{manifest_dir}/../../tests/e2e/heated_actuator/configs/test-verification-config.toml"
+        );
+
+        let output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--config".to_string(),
+            config_path,
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("heated actuator analysis should run");
+
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        assert!(output.contains("\"criterion_id\": \"REQ-001\""));
+        assert!(output.contains("\"method\": \"response_latency\""));
+    }
+
+    #[test]
     fn exports_rule_package_artifacts_from_config_and_evidence() {
         let input_path = "../../examples/basic-waveform.csv";
         let config_path = "../../examples/basic-dsl-config.toml";
@@ -1436,6 +1505,45 @@ mod tests {
             Ok(())
         );
 
+        let _ = fs::remove_dir_all(output_dir);
+    }
+
+    #[test]
+    fn exports_heated_actuator_rule_package_with_response_latency() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path =
+            format!("{manifest_dir}/../../tests/e2e/heated_actuator/input/passing_run.csv");
+        let config_path = format!(
+            "{manifest_dir}/../../tests/e2e/heated_actuator/configs/test-verification-config.toml"
+        );
+        let output_dir = unique_export_dir("heated-actuator-rule-package");
+
+        run(vec![
+            "export-rule-package".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--config".to_string(),
+            config_path,
+            "--output-dir".to_string(),
+            output_dir.clone(),
+            "--package-name".to_string(),
+            "heated-actuator-qualification".to_string(),
+            "--package-version".to_string(),
+            "0.1.0".to_string(),
+            "--target".to_string(),
+            "controller_runtime".to_string(),
+        ])
+        .expect("heated actuator rule package should export");
+
+        let rules_toml = fs::read_to_string(format!("{output_dir}/rules.toml"))
+            .expect("rules.toml should be readable");
+        assert!(rules_toml.contains("response_latency"));
+        let package = ferrisoxide_rule_schema::parse_rule_package_toml(&rules_toml)
+            .expect("exported heated actuator rules.toml should parse");
+        assert_eq!(
+            package.validate_for_target(TargetProfileKind::ControllerRuntime),
+            Ok(())
+        );
         let _ = fs::remove_dir_all(output_dir);
     }
 
@@ -1523,6 +1631,37 @@ mod tests {
         assert!(svg.contains("Evidence status: FAIL"));
         assert!(svg.contains("supply_dropout_max_1ms threshold 2.500000 V"));
         assert!(svg.contains("FAIL supply_dropout_max_1ms sample_index=3"));
+        let _ = fs::remove_file(output_path);
+    }
+
+    #[test]
+    fn renders_heated_actuator_failure_evidence_plot() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path = format!(
+            "{manifest_dir}/../../tests/e2e/heated_actuator/input/failing_transient_event.csv"
+        );
+        let config_path = format!(
+            "{manifest_dir}/../../tests/e2e/heated_actuator/configs/test-verification-config.toml"
+        );
+        let output_path = unique_plot_path("heated-actuator-evidence");
+
+        run(vec![
+            "plot".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--config".to_string(),
+            config_path,
+            "--output".to_string(),
+            output_path.clone(),
+            "--channels".to_string(),
+            "command_v,actuator_feedback_v,supply_v".to_string(),
+        ])
+        .expect("heated actuator plot should render");
+
+        let svg = fs::read_to_string(&output_path).expect("svg should be written");
+        assert!(svg.contains("Evidence status: FAIL"));
+        assert!(svg.contains("FAIL REQ-003 sample_index=6"));
+        assert!(svg.contains("actuator_feedback_v"));
         let _ = fs::remove_file(output_path);
     }
 

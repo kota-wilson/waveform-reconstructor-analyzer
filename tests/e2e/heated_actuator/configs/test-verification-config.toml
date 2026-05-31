@@ -1,0 +1,57 @@
+[input]
+time_column = "time_s"
+channels = ["command_v", "actuator_feedback_v", "supply_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[metadata]
+test_run_id = "heated-actuator-software-qualification"
+acquisition_notes = "Software-only simulated DAQ fixture for command, actuator feedback, and supply rails."
+environment = "simulated vibration/thermal qualification profile"
+operator = "FerrisOxide automated test suite"
+
+[tolerances]
+voltage_v = 0.0
+time_s = 0.0
+
+[[criteria]]
+id = "REQ-001"
+type = "response_latency"
+channel = "actuator_feedback_v"
+source_channel = "command_v"
+source_threshold_v = 2.5
+target_threshold_v = 2.5
+source_state = "high"
+expected_target_state = "high"
+max_latency_s = 0.050
+
+[[criteria]]
+id = "REQ-002"
+type = "stable_state_duration"
+channel = "actuator_feedback_v"
+state = "high"
+threshold_v = 2.5
+min_duration_s = 0.500
+
+[[criteria]]
+id = "REQ-003"
+type = "transient_event"
+channel = "actuator_feedback_v"
+event_kind = "transient_event"
+expected_state = "high"
+threshold_v = 2.5
+max_duration_s = 0.001
+start_time_s = 1.020
+arm_after_first_expected_state = true
+
+[[criteria]]
+id = "REQ-004-min"
+type = "minimum_voltage"
+channel = "supply_v"
+threshold_v = 4.75
+
+[[criteria]]
+id = "REQ-004-max"
+type = "maximum_voltage"
+channel = "supply_v"
+threshold_v = 5.25

@@ -1,0 +1,228 @@
+{
+  "input_name": "tests/e2e/heated_actuator/input/failing_transient_event.csv",
+  "waveform_metadata": {
+    "source_name": "tests/e2e/heated_actuator/input/failing_transient_event.csv",
+    "test_run_id": "heated-actuator-software-qualification",
+    "acquisition_notes": "Software-only simulated DAQ fixture for command, actuator feedback, and supply rails.",
+    "environment": "simulated vibration/thermal qualification profile",
+    "operator": "FerrisOxide automated test suite",
+    "time_unit": "s",
+    "sample_count": 10,
+    "channel_count": 3,
+    "channels": [
+      {
+        "name": "command_v",
+        "unit": "V"
+      },
+      {
+        "name": "actuator_feedback_v",
+        "unit": "V"
+      },
+      {
+        "name": "supply_v",
+        "unit": "V"
+      }
+    ],
+    "sample_interval": {
+      "min": 0.001,
+      "max": 0.5,
+      "nominal": 0.2,
+      "unit": "s",
+      "uniform": false
+    },
+    "nominal_sample_rate_hz": 5.0,
+    "lineage": "raw",
+    "transform_history": [],
+    "tolerance_policy": {
+      "voltage_v": 0.0,
+      "time_s": 0.0
+    }
+  },
+  "evidence_context": {
+    "validation_profile": "engineering_validation",
+    "evidence_source": "local_file_analysis",
+    "tolerance_policy": {
+      "voltage_v": 0.0,
+      "time_s": 0.0
+    },
+    "confidence_notes": [
+      "software validation evidence only",
+      "not hardware qualification or certification evidence"
+    ]
+  },
+  "overall_outcome": "fail",
+  "measurements": [
+    {
+      "id": "REQ-001_measurement",
+      "channel": "actuator_feedback_v",
+      "method": "response_latency",
+      "measured_value": 0.02,
+      "unit": "s",
+      "sample_index": 4,
+      "timestamp": 1.02,
+      "method_context": {
+        "source": "ferrisoxide-rule-engine",
+        "threshold_v": 2.5,
+        "low_threshold_v": null,
+        "high_threshold_v": null,
+        "state": "high",
+        "expected_state": "high",
+        "event_kind": null,
+        "direction": null,
+        "selection": "first_response"
+      }
+    },
+    {
+      "id": "REQ-002_measurement",
+      "channel": "actuator_feedback_v",
+      "method": "state_run_duration",
+      "measured_value": 0.5976,
+      "unit": "s",
+      "sample_index": 7,
+      "timestamp": 1.2024,
+      "method_context": {
+        "source": "ferrisoxide-measurements",
+        "threshold_v": 2.5,
+        "low_threshold_v": null,
+        "high_threshold_v": null,
+        "state": "high",
+        "expected_state": null,
+        "event_kind": null,
+        "direction": null,
+        "selection": "longest"
+      }
+    },
+    {
+      "id": "REQ-003_measurement",
+      "channel": "actuator_feedback_v",
+      "method": "state_run_duration",
+      "measured_value": 0.0024,
+      "unit": "s",
+      "sample_index": 6,
+      "timestamp": 1.2,
+      "method_context": {
+        "source": "ferrisoxide-measurements",
+        "threshold_v": 2.5,
+        "low_threshold_v": null,
+        "high_threshold_v": null,
+        "state": "low",
+        "expected_state": "high",
+        "event_kind": "transient event",
+        "direction": null,
+        "selection": "longest"
+      }
+    },
+    {
+      "id": "REQ-004-min_measurement",
+      "channel": "supply_v",
+      "method": "minimum_sample",
+      "measured_value": 4.99,
+      "unit": "V",
+      "sample_index": 8,
+      "timestamp": 1.52,
+      "method_context": {
+        "source": "ferrisoxide-measurements",
+        "threshold_v": null,
+        "low_threshold_v": null,
+        "high_threshold_v": null,
+        "state": null,
+        "expected_state": null,
+        "event_kind": null,
+        "direction": null,
+        "selection": null
+      }
+    },
+    {
+      "id": "REQ-004-max_measurement",
+      "channel": "supply_v",
+      "method": "maximum_sample",
+      "measured_value": 5.01,
+      "unit": "V",
+      "sample_index": 5,
+      "timestamp": 1.1,
+      "method_context": {
+        "source": "ferrisoxide-measurements",
+        "threshold_v": null,
+        "low_threshold_v": null,
+        "high_threshold_v": null,
+        "state": null,
+        "expected_state": null,
+        "event_kind": null,
+        "direction": null,
+        "selection": null
+      }
+    }
+  ],
+  "results": [
+    {
+      "criterion_id": "REQ-001",
+      "outcome": "pass",
+      "failed_criterion": null,
+      "measurement_id": "REQ-001_measurement",
+      "channel": "actuator_feedback_v",
+      "measured_value": 0.02,
+      "required_value": 0.05,
+      "tolerance_used": 0.0,
+      "unit": "s",
+      "sample_index": 4,
+      "timestamp": 1.02,
+      "reason": "actuator_feedback_v reached high 0.020000 s after command_v reached high"
+    },
+    {
+      "criterion_id": "REQ-002",
+      "outcome": "pass",
+      "failed_criterion": null,
+      "measurement_id": "REQ-002_measurement",
+      "channel": "actuator_feedback_v",
+      "measured_value": 0.5976,
+      "required_value": 0.5,
+      "tolerance_used": 0.0,
+      "unit": "s",
+      "sample_index": 7,
+      "timestamp": 1.2024,
+      "reason": "longest stable high duration was 0.597600 s"
+    },
+    {
+      "criterion_id": "REQ-003",
+      "outcome": "fail",
+      "failed_criterion": "REQ-003",
+      "measurement_id": "REQ-003_measurement",
+      "channel": "actuator_feedback_v",
+      "measured_value": 0.0024,
+      "required_value": 0.001,
+      "tolerance_used": 0.0,
+      "unit": "s",
+      "sample_index": 6,
+      "timestamp": 1.2,
+      "reason": "longest unintended low transient event duration was 0.002400 s"
+    },
+    {
+      "criterion_id": "REQ-004-min",
+      "outcome": "pass",
+      "failed_criterion": null,
+      "measurement_id": "REQ-004-min_measurement",
+      "channel": "supply_v",
+      "measured_value": 4.99,
+      "required_value": 4.75,
+      "tolerance_used": 0.0,
+      "unit": "V",
+      "sample_index": 8,
+      "timestamp": 1.52,
+      "reason": "minimum observed voltage was 4.990000 V"
+    },
+    {
+      "criterion_id": "REQ-004-max",
+      "outcome": "pass",
+      "failed_criterion": null,
+      "measurement_id": "REQ-004-max_measurement",
+      "channel": "supply_v",
+      "measured_value": 5.01,
+      "required_value": 5.25,
+      "tolerance_used": 0.0,
+      "unit": "V",
+      "sample_index": 5,
+      "timestamp": 1.1,
+      "reason": "maximum observed voltage was 5.010000 V"
+    }
+  ]
+}

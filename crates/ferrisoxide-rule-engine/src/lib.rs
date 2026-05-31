@@ -242,6 +242,9 @@ pub enum BorrowedRuleCriterionCheck<'a> {
         expected_state: SignalState,
         threshold_v: f64,
         max_duration_s: f64,
+        start_time_s: Option<f64>,
+        end_time_s: Option<f64>,
+        arm_after_first_expected_state: bool,
     },
     StableStateDuration {
         channel: &'a str,
@@ -256,6 +259,15 @@ pub enum BorrowedRuleCriterionCheck<'a> {
         high_threshold_v: f64,
         max_duration_s: f64,
     },
+    ResponseLatency {
+        source_channel: &'a str,
+        target_channel: &'a str,
+        source_threshold_v: f64,
+        target_threshold_v: f64,
+        source_state: SignalState,
+        expected_target_state: SignalState,
+        max_latency_s: f64,
+    },
 }
 
 impl<'a> BorrowedRuleCriterionCheck<'a> {
@@ -269,6 +281,7 @@ impl<'a> BorrowedRuleCriterionCheck<'a> {
             | Self::TransientEvent { channel, .. }
             | Self::StableStateDuration { channel, .. }
             | Self::RiseFallTime { channel, .. } => channel,
+            Self::ResponseLatency { target_channel, .. } => target_channel,
         }
     }
 }
@@ -334,6 +347,9 @@ pub enum RuleCriterionCheck {
         expected_state: SignalState,
         threshold_v: f64,
         max_duration_s: f64,
+        start_time_s: Option<f64>,
+        end_time_s: Option<f64>,
+        arm_after_first_expected_state: bool,
     },
     StableStateDuration {
         channel: String,
@@ -353,6 +369,15 @@ pub enum RuleCriterionCheck {
         measurement: RuleMeasurementSpec,
         requirement: RuleMeasurementRequirement,
     },
+    ResponseLatency {
+        source_channel: String,
+        target_channel: String,
+        source_threshold_v: f64,
+        target_threshold_v: f64,
+        source_state: SignalState,
+        expected_target_state: SignalState,
+        max_latency_s: f64,
+    },
 }
 
 impl RuleCriterionCheck {
@@ -367,6 +392,7 @@ impl RuleCriterionCheck {
             | Self::StableStateDuration { channel, .. }
             | Self::RiseFallTime { channel, .. }
             | Self::Measurement { channel, .. } => channel,
+            Self::ResponseLatency { target_channel, .. } => target_channel,
         }
     }
 }
@@ -586,23 +612,37 @@ pub fn evaluate_borrowed_rule<'a>(
             waveform,
             channel,
             criterion,
-            expected_state,
-            threshold_v,
-            max_duration_s,
+            BorrowedTransientDurationSpec {
+                expected_state,
+                threshold_v,
+                max_duration_s,
+                window: TimeWindow::full(),
+                arm_after_first_expected_state: false,
+            },
             tolerances,
         ),
         BorrowedRuleCriterionCheck::TransientEvent {
             expected_state,
             threshold_v,
             max_duration_s,
+            start_time_s,
+            end_time_s,
+            arm_after_first_expected_state,
             ..
         } => evaluate_borrowed_transient_duration(
             waveform,
             channel,
             criterion,
-            expected_state,
-            threshold_v,
-            max_duration_s,
+            BorrowedTransientDurationSpec {
+                expected_state,
+                threshold_v,
+                max_duration_s,
+                window: TimeWindow {
+                    start_time_s,
+                    end_time_s,
+                },
+                arm_after_first_expected_state,
+            },
             tolerances,
         ),
         BorrowedRuleCriterionCheck::StableStateDuration {
@@ -657,6 +697,28 @@ pub fn evaluate_borrowed_rule<'a>(
                 low_threshold_v,
                 high_threshold_v,
                 max_duration_s,
+            },
+            tolerances,
+        ),
+        BorrowedRuleCriterionCheck::ResponseLatency {
+            source_channel,
+            source_threshold_v,
+            target_threshold_v,
+            source_state,
+            expected_target_state,
+            max_latency_s,
+            ..
+        } => evaluate_borrowed_response_latency(
+            waveform,
+            channel,
+            criterion,
+            BorrowedResponseLatencySpec {
+                source_channel,
+                source_threshold_v,
+                target_threshold_v,
+                source_state,
+                expected_target_state,
+                max_latency_s,
             },
             tolerances,
         ),
@@ -729,6 +791,7 @@ fn is_time_dependent(criterion: &RuleCriterion) -> bool {
             | RuleCriterionCheck::TransientEvent { .. }
             | RuleCriterionCheck::StableStateDuration { .. }
             | RuleCriterionCheck::RiseFallTime { .. }
+            | RuleCriterionCheck::ResponseLatency { .. }
     ) || matches!(
         &criterion.check,
         RuleCriterionCheck::Measurement { measurement, .. } if measurement.is_time_dependent()
@@ -743,6 +806,7 @@ fn is_borrowed_time_dependent(criterion: BorrowedRuleCriterion<'_>) -> bool {
             | BorrowedRuleCriterionCheck::TransientEvent { .. }
             | BorrowedRuleCriterionCheck::StableStateDuration { .. }
             | BorrowedRuleCriterionCheck::RiseFallTime { .. }
+            | BorrowedRuleCriterionCheck::ResponseLatency { .. }
     )
 }
 
@@ -897,29 +961,72 @@ fn evaluate_borrowed_pulse_width<'a>(
     ))
 }
 
+#[derive(Debug, Clone, Copy)]
+struct TimeWindow {
+    start_time_s: Option<f64>,
+    end_time_s: Option<f64>,
+}
+
+impl TimeWindow {
+    const fn full() -> Self {
+        Self {
+            start_time_s: None,
+            end_time_s: None,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+struct StateRunEvidence {
+    duration_s: f64,
+    start_index: usize,
+    start_time: f64,
+}
+
+#[derive(Debug, Clone, Copy)]
+struct BorrowedTransientDurationSpec {
+    expected_state: SignalState,
+    threshold_v: f64,
+    max_duration_s: f64,
+    window: TimeWindow,
+    arm_after_first_expected_state: bool,
+}
+
 fn evaluate_borrowed_transient_duration<'a>(
     waveform: RuleWaveform<'_>,
     channel: &RuleChannel<'_>,
     criterion: BorrowedRuleCriterion<'a>,
-    expected_state: SignalState,
-    threshold_v: f64,
-    max_duration_s: f64,
+    spec: BorrowedTransientDurationSpec,
     tolerances: RuleTolerances,
 ) -> BorrowedRuleResult<'a, RuleSummary<'a>> {
-    let transient_state = expected_state.opposite();
-    let longest = state_run_extremum(
+    let transient_state = spec.expected_state.opposite();
+    let window = if spec.arm_after_first_expected_state {
+        arm_window_after_expected_state(
+            waveform.time,
+            channel.samples,
+            spec.expected_state,
+            spec.threshold_v,
+            tolerances.voltage_v,
+            spec.window,
+        )
+        .map_err(borrowed_measurement_error)?
+    } else {
+        spec.window
+    };
+    let longest = longest_state_run_in_window(
         waveform.time,
         channel.samples,
         transient_state,
-        threshold_v,
+        spec.threshold_v,
         tolerances.voltage_v,
-        RunSelection::Longest,
+        window,
     )
     .map_err(borrowed_measurement_error)?;
+    let fallback = window_reference(waveform.time, window);
     let (measured, sample_index, timestamp) = longest
         .map(|run| (run.duration_s, run.start_index, run.start_time))
-        .unwrap_or((0.0, 0, waveform.time[0]));
-    let outcome = if measured <= max_duration_s + tolerances.time_s + FLOAT_TOLERANCE {
+        .unwrap_or((0.0, fallback.0, fallback.1));
+    let outcome = if measured <= spec.max_duration_s + tolerances.time_s + FLOAT_TOLERANCE {
         RuleOutcome::Pass
     } else {
         RuleOutcome::Fail
@@ -930,12 +1037,71 @@ fn evaluate_borrowed_transient_duration<'a>(
         outcome,
         SummaryEvidence {
             measured_value: measured,
-            required_value: max_duration_s,
+            required_value: spec.max_duration_s,
             tolerance_used: tolerances.time_s,
             unit: "s",
             sample_index,
             timestamp,
             method: "state_run_duration",
+        },
+    ))
+}
+
+#[derive(Debug, Clone, Copy)]
+struct BorrowedResponseLatencySpec<'a> {
+    source_channel: &'a str,
+    source_threshold_v: f64,
+    target_threshold_v: f64,
+    source_state: SignalState,
+    expected_target_state: SignalState,
+    max_latency_s: f64,
+}
+
+fn evaluate_borrowed_response_latency<'a>(
+    waveform: RuleWaveform<'_>,
+    target_channel: &RuleChannel<'_>,
+    criterion: BorrowedRuleCriterion<'a>,
+    spec: BorrowedResponseLatencySpec<'a>,
+    tolerances: RuleTolerances,
+) -> BorrowedRuleResult<'a, RuleSummary<'a>> {
+    let source_channel =
+        waveform
+            .channel(spec.source_channel)
+            .ok_or(BorrowedRuleError::MissingChannel {
+                channel: spec.source_channel,
+            })?;
+    let evidence = measure_response_latency(
+        waveform.time,
+        source_channel.samples,
+        target_channel.samples,
+        ResponseLatencyMeasurementSpec {
+            source_threshold_v: spec.source_threshold_v,
+            target_threshold_v: spec.target_threshold_v,
+            source_state: spec.source_state,
+            expected_target_state: spec.expected_target_state,
+        },
+        tolerances.voltage_v,
+    )
+    .map_err(borrowed_measurement_error)?;
+    let outcome = if evidence.observed
+        && evidence.latency_s <= spec.max_latency_s + tolerances.time_s + FLOAT_TOLERANCE
+    {
+        RuleOutcome::Pass
+    } else {
+        RuleOutcome::Fail
+    };
+
+    Ok(summary(
+        criterion,
+        outcome,
+        SummaryEvidence {
+            measured_value: evidence.latency_s,
+            required_value: spec.max_latency_s,
+            tolerance_used: tolerances.time_s,
+            unit: "s",
+            sample_index: evidence.sample_index,
+            timestamp: evidence.timestamp,
+            method: "response_latency",
         },
     ))
 }
@@ -1116,6 +1282,8 @@ fn evaluate_criterion(
                 threshold_v: *threshold_v,
                 max_duration_s: *max_duration_s,
                 event_kind: "transient",
+                window: TimeWindow::full(),
+                arm_after_first_expected_state: false,
             },
             tolerances,
         ),
@@ -1124,6 +1292,9 @@ fn evaluate_criterion(
             expected_state,
             threshold_v,
             max_duration_s,
+            start_time_s,
+            end_time_s,
+            arm_after_first_expected_state,
             ..
         } => evaluate_transient_duration(
             waveform,
@@ -1134,6 +1305,11 @@ fn evaluate_criterion(
                 threshold_v: *threshold_v,
                 max_duration_s: *max_duration_s,
                 event_kind,
+                window: TimeWindow {
+                    start_time_s: *start_time_s,
+                    end_time_s: *end_time_s,
+                },
+                arm_after_first_expected_state: *arm_after_first_expected_state,
             },
             tolerances,
         ),
@@ -1179,6 +1355,28 @@ fn evaluate_criterion(
             criterion,
             measurement,
             requirement,
+            tolerances,
+        ),
+        RuleCriterionCheck::ResponseLatency {
+            source_channel,
+            source_threshold_v,
+            target_threshold_v,
+            source_state,
+            expected_target_state,
+            max_latency_s,
+            ..
+        } => evaluate_response_latency(
+            waveform,
+            channel,
+            criterion,
+            ResponseLatencySpec {
+                source_channel,
+                source_threshold_v: *source_threshold_v,
+                target_threshold_v: *target_threshold_v,
+                source_state: *source_state,
+                expected_target_state: *expected_target_state,
+                max_latency_s: *max_latency_s,
+            },
             tolerances,
         ),
     }
@@ -1507,6 +1705,8 @@ struct TransientDurationSpec<'a> {
     threshold_v: f64,
     max_duration_s: f64,
     event_kind: &'a str,
+    window: TimeWindow,
+    arm_after_first_expected_state: bool,
 }
 
 fn evaluate_transient_duration(
@@ -1517,19 +1717,33 @@ fn evaluate_transient_duration(
     tolerances: RuleTolerances,
 ) -> Result<EvaluatedCriterion> {
     let transient_state = spec.expected_state.opposite();
-    let longest = state_run_extremum(
+    let window = if spec.arm_after_first_expected_state {
+        arm_window_after_expected_state(
+            waveform.time,
+            channel.samples,
+            spec.expected_state,
+            spec.threshold_v,
+            tolerances.voltage_v,
+            spec.window,
+        )
+        .map_err(measurement_error)?
+    } else {
+        spec.window
+    };
+    let longest = longest_state_run_in_window(
         waveform.time,
         channel.samples,
         transient_state,
         spec.threshold_v,
         tolerances.voltage_v,
-        RunSelection::Longest,
+        window,
     )
     .map_err(measurement_error)?;
+    let fallback = window_reference(waveform.time, window);
 
     let (measured, sample_index, timestamp) = longest
         .map(|run| (run.duration_s, run.start_index, run.start_time))
-        .unwrap_or((0.0, 0, waveform.time[0]));
+        .unwrap_or((0.0, fallback.0, fallback.1));
     let outcome = if measured <= spec.max_duration_s + tolerances.time_s + FLOAT_TOLERANCE {
         RuleOutcome::Pass
     } else {
@@ -1559,6 +1773,91 @@ fn evaluate_transient_duration(
                 spec.expected_state,
                 spec.event_kind,
             ),
+        },
+    ))
+}
+
+#[derive(Debug, Clone, Copy)]
+struct ResponseLatencySpec<'a> {
+    source_channel: &'a str,
+    source_threshold_v: f64,
+    target_threshold_v: f64,
+    source_state: SignalState,
+    expected_target_state: SignalState,
+    max_latency_s: f64,
+}
+
+fn evaluate_response_latency(
+    waveform: RuleWaveform<'_>,
+    target_channel: &RuleChannel<'_>,
+    criterion: &RuleCriterion,
+    spec: ResponseLatencySpec<'_>,
+    tolerances: RuleTolerances,
+) -> Result<EvaluatedCriterion> {
+    let source_channel =
+        waveform
+            .channel(spec.source_channel)
+            .ok_or_else(|| RuleEngineError::MissingChannel {
+                channel: spec.source_channel.to_string(),
+            })?;
+    let latency = measure_response_latency(
+        waveform.time,
+        source_channel.samples,
+        target_channel.samples,
+        ResponseLatencyMeasurementSpec {
+            source_threshold_v: spec.source_threshold_v,
+            target_threshold_v: spec.target_threshold_v,
+            source_state: spec.source_state,
+            expected_target_state: spec.expected_target_state,
+        },
+        tolerances.voltage_v,
+    )
+    .map_err(measurement_error)?;
+    let outcome = if latency.observed
+        && latency.latency_s <= spec.max_latency_s + tolerances.time_s + FLOAT_TOLERANCE
+    {
+        RuleOutcome::Pass
+    } else {
+        RuleOutcome::Fail
+    };
+
+    Ok(result(
+        criterion,
+        outcome,
+        Evidence {
+            measured_value: latency.latency_s,
+            required_value: spec.max_latency_s,
+            tolerance_used: tolerances.time_s,
+            unit: "s",
+            sample_index: latency.sample_index,
+            timestamp: latency.timestamp,
+            reason: if latency.observed {
+                format!(
+                    "{} reached {} {:.6} s after {} reached {}",
+                    criterion.channel(),
+                    spec.expected_target_state.as_str(),
+                    latency.latency_s,
+                    spec.source_channel,
+                    spec.source_state.as_str()
+                )
+            } else {
+                format!(
+                    "{} did not reach {} after {} reached {}",
+                    criterion.channel(),
+                    spec.expected_target_state.as_str(),
+                    spec.source_channel,
+                    spec.source_state.as_str()
+                )
+            },
+            method: "response_latency",
+            method_context: RuleMeasurementMethodContext {
+                source: "ferrisoxide-rule-engine".to_string(),
+                threshold_v: Some(round_evidence(spec.target_threshold_v)),
+                state: Some(spec.source_state.as_str().to_string()),
+                expected_state: Some(spec.expected_target_state.as_str().to_string()),
+                selection: Some("first_response".to_string()),
+                ..RuleMeasurementMethodContext::default()
+            },
         },
     ))
 }
@@ -2059,6 +2358,236 @@ fn run_selection(selection: RuleRunSelectionConfig) -> RunSelection {
     }
 }
 
+fn longest_state_run_in_window(
+    time: &[f64],
+    samples: &[f64],
+    state: SignalState,
+    threshold_v: f64,
+    voltage_tolerance_v: f64,
+    window: TimeWindow,
+) -> core::result::Result<Option<StateRunEvidence>, MeasurementError> {
+    validate_strict_time_and_sample_lengths(time, samples)?;
+
+    let start_bound = window.start_time_s.unwrap_or(f64::NEG_INFINITY);
+    let end_bound = window.end_time_s.unwrap_or(f64::INFINITY);
+    let mut best = None;
+    let mut current_start = None;
+    let mut last_window_index = None;
+
+    for index in 0..samples.len() {
+        let timestamp = time[index];
+        if timestamp < start_bound {
+            continue;
+        }
+        if timestamp > end_bound {
+            break;
+        }
+        last_window_index = Some(index);
+
+        if sample_state(samples[index], threshold_v, voltage_tolerance_v) == state {
+            if current_start.is_none() {
+                current_start = Some(index);
+            }
+        } else if let Some(start_index) = current_start.take() {
+            update_longest_run(
+                &mut best,
+                StateRunEvidence {
+                    duration_s: timestamp - time[start_index],
+                    start_index,
+                    start_time: time[start_index],
+                },
+            );
+        }
+    }
+
+    if let Some(start_index) = current_start {
+        let last_index = last_window_index.expect("active run implies window sample");
+        let end_time = time
+            .get(last_index + 1)
+            .copied()
+            .filter(|next_time| *next_time <= end_bound)
+            .unwrap_or_else(|| {
+                if end_bound.is_finite() && end_bound >= time[start_index] {
+                    end_bound
+                } else {
+                    time[last_index]
+                }
+            });
+        update_longest_run(
+            &mut best,
+            StateRunEvidence {
+                duration_s: end_time - time[start_index],
+                start_index,
+                start_time: time[start_index],
+            },
+        );
+    }
+
+    Ok(best)
+}
+
+fn update_longest_run(best: &mut Option<StateRunEvidence>, candidate: StateRunEvidence) {
+    let replace = best
+        .as_ref()
+        .map(|current| candidate.duration_s >= current.duration_s)
+        .unwrap_or(true);
+    if replace {
+        *best = Some(candidate);
+    }
+}
+
+fn window_reference(time: &[f64], window: TimeWindow) -> (usize, f64) {
+    let start_bound = window.start_time_s.unwrap_or(f64::NEG_INFINITY);
+    let end_bound = window.end_time_s.unwrap_or(f64::INFINITY);
+    time.iter()
+        .copied()
+        .enumerate()
+        .find(|(_, timestamp)| *timestamp >= start_bound && *timestamp <= end_bound)
+        .unwrap_or((0, time[0]))
+}
+
+fn arm_window_after_expected_state(
+    time: &[f64],
+    samples: &[f64],
+    expected_state: SignalState,
+    threshold_v: f64,
+    voltage_tolerance_v: f64,
+    window: TimeWindow,
+) -> core::result::Result<TimeWindow, MeasurementError> {
+    validate_strict_time_and_sample_lengths(time, samples)?;
+    let (start_index, _) = window_reference(time, window);
+    let Some((_, start_time)) = first_state_entry(
+        samples,
+        time,
+        threshold_v,
+        voltage_tolerance_v,
+        expected_state,
+        start_index,
+    ) else {
+        return Ok(window);
+    };
+
+    Ok(TimeWindow {
+        start_time_s: Some(start_time),
+        end_time_s: window.end_time_s,
+    })
+}
+
+#[derive(Debug, Clone, Copy)]
+struct ResponseLatencyMeasurementSpec {
+    source_threshold_v: f64,
+    target_threshold_v: f64,
+    source_state: SignalState,
+    expected_target_state: SignalState,
+}
+
+#[derive(Debug, Clone, Copy)]
+struct ResponseLatencyMeasurement {
+    latency_s: f64,
+    sample_index: usize,
+    timestamp: f64,
+    observed: bool,
+}
+
+fn measure_response_latency(
+    time: &[f64],
+    source_samples: &[f64],
+    target_samples: &[f64],
+    spec: ResponseLatencyMeasurementSpec,
+    voltage_tolerance_v: f64,
+) -> core::result::Result<ResponseLatencyMeasurement, MeasurementError> {
+    validate_strict_time_and_sample_lengths(time, source_samples)?;
+    validate_strict_time_and_sample_lengths(time, target_samples)?;
+
+    let Some((source_index, source_time)) = first_state_entry(
+        source_samples,
+        time,
+        spec.source_threshold_v,
+        voltage_tolerance_v,
+        spec.source_state,
+        0,
+    ) else {
+        return Ok(ResponseLatencyMeasurement {
+            latency_s: 0.0,
+            sample_index: 0,
+            timestamp: time[0],
+            observed: false,
+        });
+    };
+
+    let Some((target_index, target_time)) = first_state_entry(
+        target_samples,
+        time,
+        spec.target_threshold_v,
+        voltage_tolerance_v,
+        spec.expected_target_state,
+        source_index,
+    ) else {
+        let last_index = time.len() - 1;
+        return Ok(ResponseLatencyMeasurement {
+            latency_s: time[last_index] - source_time,
+            sample_index: last_index,
+            timestamp: time[last_index],
+            observed: false,
+        });
+    };
+
+    Ok(ResponseLatencyMeasurement {
+        latency_s: target_time - source_time,
+        sample_index: target_index,
+        timestamp: target_time,
+        observed: true,
+    })
+}
+
+fn first_state_entry(
+    samples: &[f64],
+    time: &[f64],
+    threshold_v: f64,
+    voltage_tolerance_v: f64,
+    state: SignalState,
+    start_index: usize,
+) -> Option<(usize, f64)> {
+    if sample_state(samples[start_index], threshold_v, voltage_tolerance_v) == state {
+        return Some((start_index, time[start_index]));
+    }
+
+    let mut previous_state = sample_state(samples[start_index], threshold_v, voltage_tolerance_v);
+    for index in start_index + 1..samples.len() {
+        let next_state = sample_state(samples[index], threshold_v, voltage_tolerance_v);
+        if previous_state != next_state && next_state == state {
+            return Some((index, time[index]));
+        }
+        previous_state = next_state;
+    }
+
+    None
+}
+
+fn sample_state(value: f64, threshold_v: f64, voltage_tolerance_v: f64) -> SignalState {
+    if value + voltage_tolerance_v >= threshold_v {
+        SignalState::High
+    } else {
+        SignalState::Low
+    }
+}
+
+fn validate_strict_time_and_sample_lengths(
+    time: &[f64],
+    samples: &[f64],
+) -> core::result::Result<(), MeasurementError> {
+    if time.is_empty() || samples.is_empty() {
+        return Err(MeasurementError::EmptyInput);
+    }
+    if time.len() != samples.len() {
+        return Err(MeasurementError::MismatchedLength);
+    }
+    if time.windows(2).any(|pair| pair[1] <= pair[0]) {
+        return Err(MeasurementError::NonMonotonicTimeAxis);
+    }
+    Ok(())
+}
+
 fn measurement_error(error: MeasurementError) -> RuleEngineError {
     match error {
         MeasurementError::EmptyInput => RuleEngineError::EmptyInput,
@@ -2158,6 +2687,9 @@ mod tests {
                     expected_state: SignalState::High,
                     threshold_v: 2.5,
                     max_duration_s: 0.001,
+                    start_time_s: None,
+                    end_time_s: None,
+                    arm_after_first_expected_state: false,
                 },
             },
         ];
@@ -2198,6 +2730,100 @@ mod tests {
 
         assert_eq!(evaluation.results[0].outcome, RuleOutcome::Pass);
         assert_eq!(evaluation.results[0].tolerance_used, 0.02);
+    }
+
+    #[test]
+    fn evaluates_response_latency_between_channels() {
+        let time = [0.0, 0.999, 1.0, 1.02, 1.08];
+        let command = [0.0, 0.0, 5.0, 5.0, 5.0];
+        let feedback = [0.0, 0.0, 0.0, 5.0, 5.0];
+        let channels = [
+            RuleChannel {
+                name: "command_v",
+                samples: &command,
+            },
+            RuleChannel {
+                name: "feedback_v",
+                samples: &feedback,
+            },
+        ];
+        let waveform = RuleWaveform {
+            time: &time,
+            channels: &channels,
+        };
+        let criteria = [RuleCriterion {
+            id: "response".to_string(),
+            check: RuleCriterionCheck::ResponseLatency {
+                source_channel: "command_v".to_string(),
+                target_channel: "feedback_v".to_string(),
+                source_threshold_v: 2.5,
+                target_threshold_v: 2.5,
+                source_state: SignalState::High,
+                expected_target_state: SignalState::High,
+                max_latency_s: 0.05,
+            },
+        }];
+
+        let evaluation = evaluate_rule_set(waveform, &criteria, RuleTolerances::default())
+            .expect("response latency should evaluate");
+
+        assert_eq!(evaluation.results[0].outcome, RuleOutcome::Pass);
+        assert_eq!(evaluation.results[0].measured_value, 0.02);
+        assert_eq!(evaluation.results[0].sample_index, 3);
+        assert_eq!(evaluation.results[0].timestamp, 1.02);
+        assert_eq!(evaluation.measurements[0].method, "response_latency");
+    }
+
+    #[test]
+    fn transient_event_window_ignores_pre_window_state() {
+        let time = [0.0, 1.0, 1.02, 1.20, 1.2024, 1.8];
+        let samples = [0.0, 0.0, 5.0, 0.0, 5.0, 5.0];
+        let criteria = [RuleCriterion {
+            id: "windowed_transient".to_string(),
+            check: RuleCriterionCheck::TransientEvent {
+                channel: "input_v".to_string(),
+                event_kind: "transient event".to_string(),
+                expected_state: SignalState::High,
+                threshold_v: 2.5,
+                max_duration_s: 0.001,
+                start_time_s: Some(1.02),
+                end_time_s: None,
+                arm_after_first_expected_state: false,
+            },
+        }];
+
+        let evaluation = evaluate_owned(&time, &samples, &criteria, RuleTolerances::default());
+
+        assert_eq!(evaluation.results[0].outcome, RuleOutcome::Fail);
+        assert_eq!(evaluation.results[0].measured_value, 0.0024);
+        assert_eq!(evaluation.results[0].sample_index, 3);
+        assert_eq!(evaluation.results[0].timestamp, 1.2);
+    }
+
+    #[test]
+    fn transient_event_can_arm_after_first_expected_state() {
+        let time = [0.0, 1.0, 1.02, 1.07, 1.8];
+        let samples = [0.0, 0.0, 0.0, 5.0, 5.0];
+        let criteria = [RuleCriterion {
+            id: "armed_transient".to_string(),
+            check: RuleCriterionCheck::TransientEvent {
+                channel: "input_v".to_string(),
+                event_kind: "transient event".to_string(),
+                expected_state: SignalState::High,
+                threshold_v: 2.5,
+                max_duration_s: 0.001,
+                start_time_s: Some(1.02),
+                end_time_s: None,
+                arm_after_first_expected_state: true,
+            },
+        }];
+
+        let evaluation = evaluate_owned(&time, &samples, &criteria, RuleTolerances::default());
+
+        assert_eq!(evaluation.results[0].outcome, RuleOutcome::Pass);
+        assert_eq!(evaluation.results[0].measured_value, 0.0);
+        assert_eq!(evaluation.results[0].sample_index, 3);
+        assert_eq!(evaluation.results[0].timestamp, 1.07);
     }
 
     #[test]
@@ -2280,6 +2906,9 @@ mod tests {
                 expected_state: SignalState::High,
                 threshold_v: 2.5,
                 max_duration_s: 0.001,
+                start_time_s: None,
+                end_time_s: None,
+                arm_after_first_expected_state: false,
             },
         };
 

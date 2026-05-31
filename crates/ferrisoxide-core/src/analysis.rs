@@ -199,12 +199,18 @@ fn to_rule_check(check: &CriterionCheck) -> RuleCriterionCheck {
             expected_state,
             threshold_v,
             max_duration_s,
+            start_time_s,
+            end_time_s,
+            arm_after_first_expected_state,
         } => RuleCriterionCheck::TransientEvent {
             channel: channel.clone(),
             event_kind: event_kind.as_str().to_string(),
             expected_state: *expected_state,
             threshold_v: *threshold_v,
             max_duration_s: *max_duration_s,
+            start_time_s: *start_time_s,
+            end_time_s: *end_time_s,
+            arm_after_first_expected_state: *arm_after_first_expected_state,
         },
         CriterionCheck::StableStateDuration {
             channel,
@@ -238,6 +244,23 @@ fn to_rule_check(check: &CriterionCheck) -> RuleCriterionCheck {
             channel: channel.clone(),
             measurement: to_rule_measurement(measurement),
             requirement: to_rule_requirement(requirement),
+        },
+        CriterionCheck::ResponseLatency {
+            source_channel,
+            target_channel,
+            source_threshold_v,
+            target_threshold_v,
+            source_state,
+            expected_target_state,
+            max_latency_s,
+        } => RuleCriterionCheck::ResponseLatency {
+            source_channel: source_channel.clone(),
+            target_channel: target_channel.clone(),
+            source_threshold_v: *source_threshold_v,
+            target_threshold_v: *target_threshold_v,
+            source_state: *source_state,
+            expected_target_state: *expected_target_state,
+            max_latency_s: *max_latency_s,
         },
     }
 }

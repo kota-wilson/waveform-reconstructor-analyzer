@@ -1,0 +1,44 @@
+[package]
+name = "heated-actuator-controller"
+version = "0.1.0"
+profile = "software-only-example"
+
+[[inputs]]
+id = "command"
+column = "command_v"
+unit = "V"
+low_threshold_v = 0.5
+high_threshold_v = 4.5
+
+[[inputs]]
+id = "actuator_feedback"
+column = "actuator_feedback_v"
+unit = "V"
+low_threshold_v = 0.5
+high_threshold_v = 4.5
+
+[[inputs]]
+id = "supply"
+column = "supply_v"
+unit = "V"
+minimum_v = 4.75
+maximum_v = 5.25
+
+[[states]]
+id = "idle"
+command_state = "low"
+expected_feedback_state = "low"
+
+[[states]]
+id = "opening"
+command_state = "high"
+expected_feedback_state = "high"
+maximum_response_latency_s = 0.050
+
+[[fault_responses]]
+id = "feedback_late_or_unstable"
+action = "flag_test_failure"
+
+[[fault_responses]]
+id = "supply_out_of_range"
+action = "flag_test_failure"

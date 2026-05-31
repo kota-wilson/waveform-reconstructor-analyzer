@@ -175,10 +175,13 @@ Supported measurement types:
 - `pulse_width`
 - `stable_state_duration`
 - `transient_event_duration`
+- `response_latency`
 - `rise_time`
 - `fall_time`
 
 Timing limits are represented as criterion requirement values with unit `s`. Count limits are represented with unit `count`.
+
+`response_latency` links a source channel to the criterion target channel. Its measurement fields are `source_channel`, `source_threshold`, `target_threshold`, `source_state`, and `expected_target_state`; the requirement value is the maximum allowed latency in seconds.
 
 ## Embedded Consumption Subset
 

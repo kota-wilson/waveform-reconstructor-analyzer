@@ -3,8 +3,8 @@ use serde::Deserialize;
 pub use crate::criteria::{CriterionMeasurementKind, CriterionOperator};
 
 use crate::criteria::{
-    Criterion, EdgeDirection, MeasurementRequirement, MeasurementSpec, RunSelectionConfig,
-    SignalState, TransientEventKind,
+    Criterion, EdgeDirection, MeasurementRequirement, MeasurementSpec, ResponseLatencySpec,
+    RunSelectionConfig, SignalState, TransientEventKind, TransientEventWindow,
 };
 use crate::csv::CsvParseOptions;
 use crate::error::{Result, WaveformError};
@@ -123,6 +123,15 @@ pub struct CriterionConfig {
     pub low_threshold_v: Option<f64>,
     pub high_threshold_v: Option<f64>,
     pub direction: Option<String>,
+    pub source_channel: Option<String>,
+    pub source_threshold_v: Option<f64>,
+    pub target_threshold_v: Option<f64>,
+    pub source_state: Option<String>,
+    pub expected_target_state: Option<String>,
+    pub max_latency_s: Option<f64>,
+    pub start_time_s: Option<f64>,
+    pub end_time_s: Option<f64>,
+    pub arm_after_first_expected_state: Option<bool>,
 }
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -220,6 +229,8 @@ impl CriterionConfig {
         }
 
         if has_legacy_type {
+            let kind = self.kind.as_deref().expect("legacy type checked");
+            self.validate_legacy_kind(kind)?;
             return Ok(CriterionConfigShape::Legacy);
         }
 
@@ -277,13 +288,32 @@ impl CriterionConfig {
                 self.required_f64("threshold_v")?,
                 self.required_f64("max_duration_s")?,
             )),
-            "transient_event" => Ok(Criterion::transient_event(
+            "transient_event" => Ok(Criterion::transient_event_window(
                 self.id.clone(),
                 self.channel.clone(),
                 self.transient_event_kind()?,
                 self.required_state("expected_state")?,
                 self.required_f64("threshold_v")?,
                 self.required_f64("max_duration_s")?,
+                TransientEventWindow {
+                    start_time_s: self.start_time_s,
+                    end_time_s: self.end_time_s,
+                    arm_after_first_expected_state: self
+                        .arm_after_first_expected_state
+                        .unwrap_or(false),
+                },
+            )),
+            "response_latency" | "state_transition_response" => Ok(Criterion::response_latency(
+                self.id.clone(),
+                ResponseLatencySpec {
+                    source_channel: self.required_string("source_channel")?,
+                    target_channel: self.channel.clone(),
+                    source_threshold_v: self.required_f64("source_threshold_v")?,
+                    target_threshold_v: self.required_f64("target_threshold_v")?,
+                    source_state: self.required_state("source_state")?,
+                    expected_target_state: self.required_state("expected_target_state")?,
+                    max_latency_s: self.required_f64("max_latency_s")?,
+                },
             )),
             "stable_state_duration" => Ok(Criterion::stable_state_duration(
                 self.id.clone(),
@@ -305,6 +335,149 @@ impl CriterionConfig {
                 reason: format!("unsupported criterion type `{kind}`"),
             }),
         }
+    }
+
+    fn validate_legacy_kind(&self, kind: &str) -> Result<()> {
+        match kind {
+            "minimum_voltage" | "maximum_voltage" => {
+                self.validate_required_finite("threshold_v")?;
+            }
+            "state_transitions" => {
+                self.validate_required_finite("threshold_v")?;
+                self.expected_count
+                    .ok_or_else(|| missing_field("expected_count"))?;
+            }
+            "pulse_width" => {
+                self.required_state("state")?;
+                self.validate_required_finite("threshold_v")?;
+                self.validate_optional_non_negative("min_width_s")?;
+                self.validate_optional_non_negative("max_width_s")?;
+                if self.min_width_s.is_none() && self.max_width_s.is_none() {
+                    return Err(WaveformError::InvalidParameter {
+                        name: "criteria.pulse_width".to_string(),
+                        reason: "min_width_s or max_width_s is required".to_string(),
+                    });
+                }
+            }
+            "transient_duration" => {
+                self.required_state("expected_state")?;
+                self.validate_required_finite("threshold_v")?;
+                self.validate_required_non_negative("max_duration_s")?;
+            }
+            "transient_event" => {
+                self.transient_event_kind()?;
+                self.required_state("expected_state")?;
+                self.validate_required_finite("threshold_v")?;
+                self.validate_required_non_negative("max_duration_s")?;
+                self.validate_time_window()?;
+            }
+            "stable_state_duration" => {
+                self.required_state("state")?;
+                self.validate_required_finite("threshold_v")?;
+                self.validate_required_non_negative("min_duration_s")?;
+            }
+            "rise_fall_time" => {
+                self.required_direction("direction")?;
+                let low_threshold_v = self.validate_required_finite("low_threshold_v")?;
+                let high_threshold_v = self.validate_required_finite("high_threshold_v")?;
+                if low_threshold_v >= high_threshold_v {
+                    return Err(WaveformError::InvalidParameter {
+                        name: "criteria.low_threshold_v".to_string(),
+                        reason: "must be lower than high_threshold_v".to_string(),
+                    });
+                }
+                self.validate_required_non_negative("max_duration_s")?;
+            }
+            "response_latency" | "state_transition_response" => {
+                self.required_string("source_channel")?;
+                self.required_state("source_state")?;
+                self.required_state("expected_target_state")?;
+                self.validate_required_finite("source_threshold_v")?;
+                self.validate_required_finite("target_threshold_v")?;
+                self.validate_required_non_negative("max_latency_s")?;
+            }
+            _ => {
+                return Err(WaveformError::InvalidParameter {
+                    name: "criteria.type".to_string(),
+                    reason: format!("unsupported criterion type `{kind}`"),
+                });
+            }
+        }
+
+        Ok(())
+    }
+
+    fn validate_required_finite(&self, field: &str) -> Result<f64> {
+        let value = self.required_f64(field)?;
+        if value.is_finite() {
+            Ok(value)
+        } else {
+            Err(WaveformError::InvalidParameter {
+                name: format!("criteria.{field}"),
+                reason: "must be finite".to_string(),
+            })
+        }
+    }
+
+    fn validate_required_non_negative(&self, field: &str) -> Result<f64> {
+        let value = self.validate_required_finite(field)?;
+        if value >= 0.0 {
+            Ok(value)
+        } else {
+            Err(WaveformError::InvalidParameter {
+                name: format!("criteria.{field}"),
+                reason: "must be non-negative".to_string(),
+            })
+        }
+    }
+
+    fn validate_optional_non_negative(&self, field: &str) -> Result<()> {
+        let value = match field {
+            "min_width_s" => self.min_width_s,
+            "max_width_s" => self.max_width_s,
+            _ => None,
+        };
+        let Some(value) = value else {
+            return Ok(());
+        };
+
+        if value.is_finite() && value >= 0.0 {
+            Ok(())
+        } else {
+            Err(WaveformError::InvalidParameter {
+                name: format!("criteria.{field}"),
+                reason: "must be a finite non-negative value".to_string(),
+            })
+        }
+    }
+
+    fn validate_time_window(&self) -> Result<()> {
+        if let Some(start_time_s) = self.start_time_s {
+            if !start_time_s.is_finite() || start_time_s < 0.0 {
+                return Err(WaveformError::InvalidParameter {
+                    name: "criteria.start_time_s".to_string(),
+                    reason: "must be a finite non-negative value".to_string(),
+                });
+            }
+        }
+        if let Some(end_time_s) = self.end_time_s {
+            if !end_time_s.is_finite() || end_time_s < 0.0 {
+                return Err(WaveformError::InvalidParameter {
+                    name: "criteria.end_time_s".to_string(),
+                    reason: "must be a finite non-negative value".to_string(),
+                });
+            }
+        }
+        if let (Some(start_time_s), Some(end_time_s)) = (self.start_time_s, self.end_time_s) {
+            if end_time_s < start_time_s {
+                return Err(WaveformError::InvalidParameter {
+                    name: "criteria.end_time_s".to_string(),
+                    reason: "must be greater than or equal to start_time_s".to_string(),
+                });
+            }
+        }
+
+        Ok(())
     }
 
     fn to_measurement_criterion(&self) -> Result<Criterion> {
@@ -353,6 +526,15 @@ impl CriterionConfig {
             || self.low_threshold_v.is_some()
             || self.high_threshold_v.is_some()
             || self.direction.is_some()
+            || self.source_channel.is_some()
+            || self.source_threshold_v.is_some()
+            || self.target_threshold_v.is_some()
+            || self.source_state.is_some()
+            || self.expected_target_state.is_some()
+            || self.max_latency_s.is_some()
+            || self.start_time_s.is_some()
+            || self.end_time_s.is_some()
+            || self.arm_after_first_expected_state.is_some()
     }
 
     fn required_f64(&self, field: &str) -> Result<f64> {
@@ -362,8 +544,20 @@ impl CriterionConfig {
             "min_duration_s" => self.min_duration_s,
             "low_threshold_v" => self.low_threshold_v,
             "high_threshold_v" => self.high_threshold_v,
+            "source_threshold_v" => self.source_threshold_v,
+            "target_threshold_v" => self.target_threshold_v,
+            "max_latency_s" => self.max_latency_s,
             _ => None,
         }
+        .ok_or_else(|| missing_field(field))
+    }
+
+    fn required_string(&self, field: &str) -> Result<String> {
+        match field {
+            "source_channel" => self.source_channel.clone(),
+            _ => None,
+        }
+        .filter(|value| !value.trim().is_empty())
         .ok_or_else(|| missing_field(field))
     }
 
@@ -371,6 +565,8 @@ impl CriterionConfig {
         let value = match field {
             "state" => self.state.as_deref(),
             "expected_state" => self.expected_state.as_deref(),
+            "source_state" => self.source_state.as_deref(),
+            "expected_target_state" => self.expected_target_state.as_deref(),
             _ => None,
         }
         .ok_or_else(|| missing_field(field))?;
@@ -733,6 +929,15 @@ mod tests {
                 low_threshold_v: None,
                 high_threshold_v: None,
                 direction: None,
+                source_channel: None,
+                source_threshold_v: None,
+                target_threshold_v: None,
+                source_state: None,
+                expected_target_state: None,
+                max_latency_s: None,
+                start_time_s: None,
+                end_time_s: None,
+                arm_after_first_expected_state: None,
             }],
         };
 
@@ -1330,6 +1535,117 @@ unit = "s"
                 ..
             }
         ));
+    }
+
+    #[test]
+    fn converts_response_latency_and_windowed_transient_criteria() {
+        let toml = r#"
+[input]
+time_column = "time_s"
+channels = ["command_v", "feedback_v"]
+
+[[criteria]]
+id = "response_latency"
+type = "response_latency"
+channel = "feedback_v"
+source_channel = "command_v"
+source_threshold_v = 2.5
+target_threshold_v = 2.5
+source_state = "high"
+expected_target_state = "high"
+max_latency_s = 0.050
+
+[[criteria]]
+id = "windowed_transient"
+type = "transient_event"
+channel = "feedback_v"
+event_kind = "transient_event"
+expected_state = "high"
+threshold_v = 2.5
+max_duration_s = 0.001
+start_time_s = 1.020
+arm_after_first_expected_state = true
+"#;
+
+        let config = toml::from_str::<AnalysisConfig>(toml).expect("config should deserialize");
+        let criteria = config.criteria().expect("criteria should convert");
+
+        assert_eq!(criteria.len(), 2);
+        assert!(matches!(
+            &criteria[0].check,
+            crate::criteria::CriterionCheck::ResponseLatency {
+                source_channel,
+                target_channel,
+                max_latency_s,
+                ..
+            } if source_channel == "command_v"
+                && target_channel == "feedback_v"
+                && (*max_latency_s - 0.050).abs() < f64::EPSILON
+        ));
+        assert!(matches!(
+            &criteria[1].check,
+            crate::criteria::CriterionCheck::TransientEvent {
+                start_time_s: Some(1.020),
+                end_time_s: None,
+                arm_after_first_expected_state: true,
+                ..
+            }
+        ));
+    }
+
+    #[test]
+    fn rejects_invalid_response_latency_and_transient_window_config() {
+        let missing_source = toml::from_str::<AnalysisConfig>(
+            r#"
+[input]
+time_column = "time_s"
+channels = ["command_v", "feedback_v"]
+
+[[criteria]]
+id = "missing_source"
+type = "response_latency"
+channel = "feedback_v"
+source_threshold_v = 2.5
+target_threshold_v = 2.5
+source_state = "high"
+expected_target_state = "high"
+max_latency_s = 0.050
+"#,
+        )
+        .expect("config should deserialize");
+        let inverted_window = toml::from_str::<AnalysisConfig>(
+            r#"
+[input]
+time_column = "time_s"
+channels = ["feedback_v"]
+
+[[criteria]]
+id = "bad_window"
+type = "transient_event"
+channel = "feedback_v"
+expected_state = "high"
+threshold_v = 2.5
+max_duration_s = 0.001
+start_time_s = 1.020
+end_time_s = 1.000
+"#,
+        )
+        .expect("config should deserialize");
+
+        assert_eq!(
+            missing_source.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.source_channel".to_string(),
+                reason: "field is required for this criterion type".to_string(),
+            })
+        );
+        assert_eq!(
+            inverted_window.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.end_time_s".to_string(),
+                reason: "must be greater than or equal to start_time_s".to_string(),
+            })
+        );
     }
 
     #[test]

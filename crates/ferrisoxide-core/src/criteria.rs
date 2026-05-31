@@ -6,6 +6,24 @@ pub struct Criterion {
     pub check: CriterionCheck,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct TransientEventWindow {
+    pub start_time_s: Option<f64>,
+    pub end_time_s: Option<f64>,
+    pub arm_after_first_expected_state: bool,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ResponseLatencySpec {
+    pub source_channel: String,
+    pub target_channel: String,
+    pub source_threshold_v: f64,
+    pub target_threshold_v: f64,
+    pub source_state: SignalState,
+    pub expected_target_state: SignalState,
+    pub max_latency_s: f64,
+}
+
 impl Criterion {
     pub fn minimum_voltage(
         id: impl Into<String>,
@@ -105,6 +123,33 @@ impl Criterion {
                 expected_state,
                 threshold_v,
                 max_duration_s,
+                start_time_s: None,
+                end_time_s: None,
+                arm_after_first_expected_state: false,
+            },
+        }
+    }
+
+    pub fn transient_event_window(
+        id: impl Into<String>,
+        channel: impl Into<String>,
+        event_kind: TransientEventKind,
+        expected_state: SignalState,
+        threshold_v: f64,
+        max_duration_s: f64,
+        window: TransientEventWindow,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            check: CriterionCheck::TransientEvent {
+                channel: channel.into(),
+                event_kind,
+                expected_state,
+                threshold_v,
+                max_duration_s,
+                start_time_s: window.start_time_s,
+                end_time_s: window.end_time_s,
+                arm_after_first_expected_state: window.arm_after_first_expected_state,
             },
         }
     }
@@ -163,6 +208,21 @@ impl Criterion {
         }
     }
 
+    pub fn response_latency(id: impl Into<String>, spec: ResponseLatencySpec) -> Self {
+        Self {
+            id: id.into(),
+            check: CriterionCheck::ResponseLatency {
+                source_channel: spec.source_channel,
+                target_channel: spec.target_channel,
+                source_threshold_v: spec.source_threshold_v,
+                target_threshold_v: spec.target_threshold_v,
+                source_state: spec.source_state,
+                expected_target_state: spec.expected_target_state,
+                max_latency_s: spec.max_latency_s,
+            },
+        }
+    }
+
     pub fn channel(&self) -> &str {
         self.check.channel()
     }
@@ -202,6 +262,9 @@ pub enum CriterionCheck {
         expected_state: SignalState,
         threshold_v: f64,
         max_duration_s: f64,
+        start_time_s: Option<f64>,
+        end_time_s: Option<f64>,
+        arm_after_first_expected_state: bool,
     },
     StableStateDuration {
         channel: String,
@@ -221,6 +284,15 @@ pub enum CriterionCheck {
         measurement: MeasurementSpec,
         requirement: MeasurementRequirement,
     },
+    ResponseLatency {
+        source_channel: String,
+        target_channel: String,
+        source_threshold_v: f64,
+        target_threshold_v: f64,
+        source_state: SignalState,
+        expected_target_state: SignalState,
+        max_latency_s: f64,
+    },
 }
 
 impl CriterionCheck {
@@ -235,6 +307,7 @@ impl CriterionCheck {
             | Self::StableStateDuration { channel, .. }
             | Self::RiseFallTime { channel, .. }
             | Self::Measurement { channel, .. } => channel,
+            Self::ResponseLatency { target_channel, .. } => target_channel,
         }
     }
 }

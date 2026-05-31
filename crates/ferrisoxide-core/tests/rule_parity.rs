@@ -1,7 +1,7 @@
 use ferrisoxide_core::analysis::{evaluate_criteria_with_measurements, AnalysisResult};
 use ferrisoxide_core::criteria::{
-    Criterion, CriterionOperator, MeasurementRequirement, MeasurementSpec, RunSelectionConfig,
-    SignalState, TransientEventKind,
+    Criterion, CriterionOperator, MeasurementRequirement, MeasurementSpec, ResponseLatencySpec,
+    RunSelectionConfig, SignalState, TransientEventKind,
 };
 use ferrisoxide_core::csv::{CsvParseOptions, SimpleCsvParser, WaveformParser};
 use ferrisoxide_core::model::{TolerancePolicy, Waveform};
@@ -183,12 +183,32 @@ fn portable_from_summary(summary: RuleSummary<'_>) -> PortableEvidence {
 }
 
 fn core_criterion(criterion: &CriterionDefinition) -> Criterion {
-    Criterion::measurement(
-        criterion.id.clone(),
-        criterion.channel.clone(),
-        core_measurement(&criterion.measurement),
-        core_requirement(&criterion.requirement),
-    )
+    match &criterion.measurement {
+        MeasurementDefinition::ResponseLatency {
+            source_channel,
+            source_threshold,
+            target_threshold,
+            source_state,
+            expected_target_state,
+        } => Criterion::response_latency(
+            criterion.id.clone(),
+            ResponseLatencySpec {
+                source_channel: source_channel.clone(),
+                target_channel: criterion.channel.clone(),
+                source_threshold_v: volts(source_threshold),
+                target_threshold_v: volts(target_threshold),
+                source_state: core_state(*source_state),
+                expected_target_state: core_state(*expected_target_state),
+                max_latency_s: requirement_value(&criterion.requirement),
+            },
+        ),
+        _ => Criterion::measurement(
+            criterion.id.clone(),
+            criterion.channel.clone(),
+            core_measurement(&criterion.measurement),
+            core_requirement(&criterion.requirement),
+        ),
+    }
 }
 
 fn core_measurement(measurement: &MeasurementDefinition) -> MeasurementSpec {
@@ -224,6 +244,9 @@ fn core_measurement(measurement: &MeasurementDefinition) -> MeasurementSpec {
             expected_state: core_state(*expected_state),
             threshold_v: volts(threshold),
         },
+        MeasurementDefinition::ResponseLatency { .. } => {
+            panic!("response latency maps to a legacy core criterion")
+        }
         MeasurementDefinition::RiseTime {
             low_threshold,
             high_threshold,
@@ -322,6 +345,24 @@ fn borrowed_criterion(criterion: &CriterionDefinition) -> BorrowedRuleCriterion<
                 expected_state: core_state(*expected_state),
                 threshold_v: volts(threshold),
                 max_duration_s: requirement_value(&criterion.requirement),
+                start_time_s: None,
+                end_time_s: None,
+                arm_after_first_expected_state: false,
+            },
+            MeasurementDefinition::ResponseLatency {
+                source_channel,
+                source_threshold,
+                target_threshold,
+                source_state,
+                expected_target_state,
+            } => BorrowedRuleCriterionCheck::ResponseLatency {
+                source_channel: source_channel.as_str(),
+                target_channel: criterion.channel.as_str(),
+                source_threshold_v: volts(source_threshold),
+                target_threshold_v: volts(target_threshold),
+                source_state: core_state(*source_state),
+                expected_target_state: core_state(*expected_target_state),
+                max_latency_s: requirement_value(&criterion.requirement),
             },
             MeasurementDefinition::RiseTime {
                 low_threshold,

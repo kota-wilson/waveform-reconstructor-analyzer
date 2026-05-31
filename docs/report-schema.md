@@ -53,7 +53,7 @@ The `measurements` array separates measured signal evidence from pass/fail crite
 |---|---|---|
 | `id` | string | Stable report-local measurement ID. Current IDs use `{criterion_id}_measurement`. |
 | `channel` | string | Channel measured. |
-| `method` | string | Measurement method, such as `minimum_sample`, `maximum_sample`, `state_transition_count`, `state_run_duration`, or `edge_time`. |
+| `method` | string | Measurement method, such as `minimum_sample`, `maximum_sample`, `state_transition_count`, `state_run_duration`, `response_latency`, or `edge_time`. |
 | `measured_value` | number | Observed value before criteria policy is applied. |
 | `unit` | string | Unit for the measured value. |
 | `sample_index` | integer | Evidence sample index. |
@@ -64,7 +64,7 @@ The `measurements` array separates measured signal evidence from pass/fail crite
 
 | Field | Type | Meaning |
 |---|---|---|
-| `source` | string | Current source is `ferrisoxide-measurements`. |
+| `source` | string | Measurement implementation source, such as `ferrisoxide-measurements` or `ferrisoxide-rule-engine`. |
 | `threshold_v` | number or null | Threshold used for state-based measurements. |
 | `low_threshold_v` | number or null | Lower edge threshold for rise/fall measurements. |
 | `high_threshold_v` | number or null | Upper edge threshold for rise/fall measurements. |
@@ -72,7 +72,7 @@ The `measurements` array separates measured signal evidence from pass/fail crite
 | `expected_state` | string or null | Expected steady state for transient-event style measurements. |
 | `event_kind` | string or null | Transient subtype, such as `dropout` or `contact bounce`, when applicable. |
 | `direction` | string or null | Edge direction, `rise` or `fall`, when applicable. |
-| `selection` | string or null | Run-selection policy, such as `shortest` or `longest`, when applicable. |
+| `selection` | string or null | Run-selection policy, such as `shortest`, `longest`, or `first_response`, when applicable. |
 
 ## Result Fields
 

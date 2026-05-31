@@ -650,6 +650,13 @@ pub enum MeasurementDefinition {
         expected_state: SignalState,
         threshold: UnitValue,
     },
+    ResponseLatency {
+        source_channel: String,
+        source_threshold: UnitValue,
+        target_threshold: UnitValue,
+        source_state: SignalState,
+        expected_target_state: SignalState,
+    },
     RiseTime {
         low_threshold: UnitValue,
         high_threshold: UnitValue,
@@ -917,6 +924,7 @@ fn validate_criterion(
         &field,
         &criterion.measurement,
         &criterion.requirement,
+        channel_names,
         report,
     );
 }
@@ -925,6 +933,7 @@ fn validate_measurement(
     field: &str,
     measurement: &MeasurementDefinition,
     requirement: &RequirementDefinition,
+    channel_names: &BTreeSet<String>,
     report: &mut RulePackageValidationReport,
 ) {
     match measurement {
@@ -982,6 +991,39 @@ fn validate_measurement(
             validate_unit_value(
                 &format!("{field}.measurement.threshold"),
                 *threshold,
+                Some(EngineeringUnit::Volt),
+                RulePackageValidationErrorKind::InvalidCriterion,
+                report,
+            );
+            validate_requirement(
+                &format!("{field}.requirement"),
+                requirement,
+                EngineeringUnit::Second,
+                report,
+            );
+        }
+        MeasurementDefinition::ResponseLatency {
+            source_channel,
+            source_threshold,
+            target_threshold,
+            ..
+        } => {
+            validate_channel_reference(
+                &format!("{field}.measurement.source_channel"),
+                source_channel,
+                channel_names,
+                report,
+            );
+            validate_unit_value(
+                &format!("{field}.measurement.source_threshold"),
+                *source_threshold,
+                Some(EngineeringUnit::Volt),
+                RulePackageValidationErrorKind::InvalidCriterion,
+                report,
+            );
+            validate_unit_value(
+                &format!("{field}.measurement.target_threshold"),
+                *target_threshold,
                 Some(EngineeringUnit::Volt),
                 RulePackageValidationErrorKind::InvalidCriterion,
                 report,
@@ -1313,6 +1355,50 @@ mod tests {
             package.validate_for_target(TargetProfileKind::ControllerRuntime),
             Ok(())
         );
+    }
+
+    #[test]
+    fn validates_response_latency_measurement_source_channel() {
+        let mut package = RulePackage::new(
+            PackageMetadata::new("heated-actuator", "0.1.0"),
+            TargetProfile::new(TargetProfileKind::ControllerRuntime),
+            SampleTimingAssumption::seconds_at_hz(1_000.0),
+            vec![
+                ChannelDefinition::new("command_v", EngineeringUnit::Volt),
+                ChannelDefinition::new("feedback_v", EngineeringUnit::Volt),
+            ],
+            vec![CriterionDefinition {
+                id: "response_latency".to_string(),
+                channel: "feedback_v".to_string(),
+                measurement: MeasurementDefinition::ResponseLatency {
+                    source_channel: "command_v".to_string(),
+                    source_threshold: UnitValue::new(2.5, EngineeringUnit::Volt),
+                    target_threshold: UnitValue::new(2.5, EngineeringUnit::Volt),
+                    source_state: SignalState::High,
+                    expected_target_state: SignalState::High,
+                },
+                requirement: RequirementDefinition {
+                    operator: ComparisonOperator::LessThanOrEqual,
+                    value: UnitValue::new(0.050, EngineeringUnit::Second),
+                },
+            }],
+        );
+
+        assert_eq!(package.validate(), Ok(()));
+
+        if let MeasurementDefinition::ResponseLatency { source_channel, .. } =
+            &mut package.criteria[0].measurement
+        {
+            *source_channel = "missing_command".to_string();
+        }
+        let report = package
+            .validate()
+            .expect_err("missing response source channel should be rejected");
+
+        assert!(report.errors.iter().any(|error| {
+            error.kind == RulePackageValidationErrorKind::MissingChannel
+                && error.field == "criteria[0].measurement.source_channel"
+        }));
     }
 
     #[test]

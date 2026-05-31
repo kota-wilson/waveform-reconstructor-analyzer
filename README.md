@@ -16,7 +16,7 @@ This repository is in validated MVP stage. The main repository is `kota-wilson/f
 - Preserve waveform metadata for source name, optional validation context, units, sample interval, sample rate, lineage, transform history, and tolerance policy.
 - Apply basic low-pass, moving-average, and ideal ADC quantization transforms as derived waveform outputs.
 - Reuse measurement primitives for extrema, state-transition counts, pulse widths, transient durations, stable-state durations, and rise/fall times.
-- Define pass/fail criteria for voltage limits, state transitions, pulse width, transient event duration, stable-state duration, and rise/fall time with optional voltage/time tolerances.
+- Define pass/fail criteria for voltage limits, state transitions, cross-channel response latency, pulse width, transient event duration, stable-state duration, and rise/fall time with optional voltage/time tolerances.
 - Run analysis from a CLI.
 - Produce text and JSON reports with reusable measurement evidence, pass/fail evidence, tolerance evidence, and engineering-validation context.
 - Render optional desktop SVG plots for 2D waveform views and 3D views with a configured third-axis column.
@@ -361,7 +361,7 @@ Criteria:
 
 The JSON report includes the same evidence fields for automation: outcome, failed criterion, measured value, required value, sample index, timestamp, and channel.
 
-See [environmental test use cases](docs/environmental-test-use-cases.md) for fixture intent and scope limits. The v0.3.0 validation workspace includes known-answer fixtures and expected reports under `validation/`; see [benchmarking](docs/benchmarking.md) for repeatable large-CSV measurements.
+See [environmental test use cases](docs/environmental-test-use-cases.md) for fixture intent and scope limits. The v0.3.0 validation workspace includes known-answer fixtures and expected reports under `validation/`; the software-only [heated actuator qualification suite](docs/heated-actuator-qualification-suite.md) exercises controller-style response latency, armed transient-event checks, exact JSON reports, SVG evidence, and portable rule-package export without hardware. See [benchmarking](docs/benchmarking.md) for repeatable large-CSV measurements.
 
 ## License
 
