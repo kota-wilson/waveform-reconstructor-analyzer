@@ -4,7 +4,7 @@ Date: 2026-05-31
 
 Issue: #92, `M9-012 Define Raspberry Pi Pico 2 micro-runtime profile`
 
-Status: Implemented as documentation and traceability profile. Runtime crate is intentionally deferred.
+Status: Implemented and merged through PR #93. Runtime crate is intentionally deferred.
 
 ## Summary
 
@@ -84,7 +84,7 @@ The crate should be added only after the portable rule package, shared rule engi
 | Performance Gate | Pass | Docs describe microcontroller memory limits and avoid throughput claims. | Real timing evidence requires hardware or simulator validation later. | Performance Engineer |
 | V&V Gate | Pass | Traceability entry requires future target-profile validation and parity for supported subset. | No Pico hardware execution evidence exists. | V&V Engineer |
 | Documentation Gate | Pass | Profile, roadmap, workflow, risk, and traceability docs updated. | Automated link checking is still absent. | Documentation Engineer |
-| Release Gate | Pending | PR not opened yet. | GitHub CI must pass before merge. | GitHub Maintainer Specialist |
+| Release Gate | Pass | PR #93 merged after required `rust` CI passed; issue #92 closed. | Runtime implementation remains future work. | Project Orchestrator |
 
 ## Verification Commands
 
@@ -103,6 +103,6 @@ Role: Software Architect / Embedded RTOS Engineer
 Goal: Document Raspberry Pi Pico 2 as an optional future microcontroller runtime profile.
 Files changed: `docs/platform-targets.md`, `docs/embedded-roadmap.md`, `docs/controller-in-the-loop-workflow.md`, `docs/architecture.md`, `docs/v0.7.0-controller-simulation-deployment-config-milestone-proposal.md`, `requirements.md`, `traceability-matrix.md`, `risk-register.md`, `project-state.md`, and this report.
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Documentation implementation validated locally; PR release gate pending.
+Status: Documentation implementation validated locally and merged through PR #93.
 Known gaps: `wra-pico-runtime`, target triple selection, BSP/HAL selection, compact binary config loader, GPIO/PWM/ADC integration, Pico 2 hardware tests, and parity tests remain future work.
-Next recommended step: Validate docs-only change and open PR closing issue #92.
+Next recommended step: Continue M7-003 / issue #57 unless v0.6.0 or v0.7.0 is explicitly reprioritized.
