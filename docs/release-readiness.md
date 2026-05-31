@@ -35,25 +35,26 @@ Publish the initial public GitHub repository for the MVP Rust waveform analysis 
 ## Gate Decision
 
 - Gate: Release Gate.
-- Decision: Pass for public repository publication.
-- Reason: License and publication were approved, dependency review passed, validation is current, and open-source metadata exists.
+- Decision: Pass; public repository published.
+- Reason: License and publication were approved, dependency review passed, validation is current, open-source metadata exists, and the initial GitHub Actions run passed.
 - Residual risk: The MVP should not be presented as production-grade signal-processing or certified validation software.
 - Next owner: Release Engineer.
 
-## Publication Plan
+## Publication Result
 
-1. Initialize a local git repository in the project folder if one does not already exist.
-2. Commit the current repository contents.
-3. Create a public GitHub repository named `waveform-reconstructor-analyzer`.
-4. Push the initial commit.
-5. Record the repository URL in project and studio state.
+- Repository: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`
+- Visibility: Public.
+- Default branch: `main`.
+- Initial commit: `dab0866`.
+- Initial CI run: `26699230596`, passed.
+- Follow-up CI maintenance: `actions/checkout` upgraded from v4 to v5 to use the Node 24 runtime.
 
 ## Hand-Off Note
 
 Role: Release Engineer / GitHub Maintainer Specialist
-Goal: Approve public GitHub publication for the initial MVP repository.
-Files changed: `docs/release-readiness.md`
-Checks run: Uses validation evidence from `docs/validation-log.md`.
-Status: Pass.
+Goal: Publish the initial MVP repository publicly on GitHub.
+Files changed: `docs/release-readiness.md`, `.github/workflows/ci.yml`
+Checks run: Uses validation evidence from `docs/validation-log.md`; GitHub Actions initial CI run passed.
+Status: Published.
 Known gaps: No tagged release should be published until maintainers review the first public repository state.
-Next recommended step: Execute public GitHub repository creation and push.
+Next recommended step: Monitor follow-up CI after the checkout v5 workflow update.

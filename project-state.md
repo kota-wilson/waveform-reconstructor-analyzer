@@ -8,7 +8,7 @@ Create and validate a dependency-reviewed Rust MVP slice for Waveform Reconstruc
 
 ## Current Stage
 
-Dependency-reviewed MVP slice validated; release publication approved pending execution.
+Dependency-reviewed MVP slice validated and published publicly on GitHub.
 
 ## Open Risks
 
@@ -37,14 +37,15 @@ Dependency-reviewed MVP slice validated; release publication approved pending ex
 
 Role: Project Orchestrator
 
-Expected deliverable: Release readiness review and public repository publication.
+Expected deliverable: Monitor public repository CI and plan first follow-up issue.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Current milestone: Dependency-reviewed MVP slice complete.
-- Next gate: Release Gate execution before publishing repository.
+- Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
+- Next gate: Community feedback and first follow-up issue planning.
 - Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/certification work.
 
 ## Granularity Status
@@ -78,7 +79,7 @@ Expected deliverable: Release readiness review and public repository publication
 | Implementation Gate | Pass | `docs/implementation-report.md` | Test Automation Engineer |
 | Testing Gate | Pass | `docs/validation-log.md` | Project Orchestrator |
 | Dependency Gate | Pass | `docs/dependency-review.md` | Core Software Engineer |
-| Release Gate | Approved pending execution | MIT license accepted; validation log current | Release Engineer |
+| Release Gate | Pass | `docs/release-readiness.md`; public repository created and initial CI passed | Community Engineering Lead |
 
 ## Update Rules
 
