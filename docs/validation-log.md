@@ -1135,3 +1135,52 @@ Checks run: `cargo test -p ferrisoxide-rule-engine`; `cargo check -p ferrisoxide
 Status: Pass locally; protected PR, CI, merge, and issue #72 closure pending.
 Known gaps: Exact desktop-vs-embedded parity fixtures, runtime package loaders, binary package serialization, signing, HAL/SDK integration, and certification evidence remain out of scope.
 Next recommended step: Open a protected-branch PR with `Fixes #72`, wait for required `rust` CI, merge, then proceed to M8-008 / issue #74.
+
+## M8-008 Rule Parity Tests Validation Update
+
+Date: 2026-05-31
+
+Stage: Testing desktop-vs-embedded parity evidence
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, DAQ SDKs, HALs, RTOS toolchains, controller SDKs, QEMU images, or Zephyr tooling installed.
+- New third-party dependencies: None. `ferrisoxide-core` adds only local `ferrisoxide-rule-schema` as a dev-dependency for the parity integration test.
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-core --test rule_parity` | Passed | 1 parity integration test passed. |
+| `cargo fmt --check` | Passed | Rust formatting clean. |
+| `cargo test --workspace` | Passed | Workspace tests passed across CLI, core, embedded, measurements, plot, rule engine, rule schema, signal, and doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Exact Tests Added Or Preserved
+
+| Test | Coverage |
+|---|---|
+| `desktop_and_embedded_rule_paths_match_expected_evidence` | Parses `tests/parity/rules_001.toml`, evaluates `tests/parity/waveform_001.csv` through the desktop core path, evaluates equivalent fixed slices through the embedded-compatible borrowed-rule path, compares portable evidence exactly, and compares the combined report to `tests/parity/expected_result.json`. |
+| Existing workspace tests | Verifies CLI, core reports, embedded adapter tests, rule engine tests, rule schema tests, plotting tests, and golden reports still pass. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M8-008.
+- Decision: Pass locally.
+- Reason: The parity fixture, desktop evaluation path, embedded-compatible borrowed-rule path, exact expected JSON, workspace tests, formatting, clippy, and whitespace checks all passed.
+- Residual risk: Protected GitHub CI, PR merge, issue closure, and final open-issue confirmation remain pending; runtime package loaders and hardware execution remain future work.
+- Owner for residual risk: Verification and Validation Engineer / GitHub Maintainer Specialist.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate M8-008 desktop-vs-embedded parity tests.
+Files changed: `crates/ferrisoxide-core/Cargo.toml`, `crates/ferrisoxide-core/tests/rule_parity.rs`, `tests/parity/`, README, architecture docs, dependency review, rule package docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
+Checks run: `cargo test -p ferrisoxide-core --test rule_parity`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally; protected PR, CI, merge, issue #74 closure, and final M8 open-issue confirmation pending.
+Known gaps: Runtime package loaders, binary package serialization, signing, hardware execution, and certification evidence remain out of scope.
+Next recommended step: Open a protected-branch PR with `Fixes #74`, wait for required `rust` CI, merge, then confirm no open milestone #8 issues remain.

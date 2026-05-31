@@ -155,6 +155,17 @@ The M8-007 no_std boundary branch adds no new third-party crates. It makes `ferr
 | Scope boundary | The no_std engine keeps CSV parsing, TOML parsing, file I/O, plotting, report rendering, DAQ/controller I/O, hardware HALs, target SDKs, RTOS integration, signing, binary package loading, hardware qualification, and certification claims out of scope. | Pass |
 | Heap boundary | The full evidence API uses `alloc` for owned desktop result records; `evaluate_borrowed_rule` returns borrowed/static result and error data for basic no-heap pass/fail evaluation where practical. | Pass |
 
+## M8-008 Desktop-vs-Embedded Parity Dependency Review
+
+The M8-008 parity branch adds no new third-party crates. It adds a local dev-dependency from `ferrisoxide-core` tests to `ferrisoxide-rule-schema` so the exact parity fixture can parse the same rule package used by both desktop and embedded-compatible paths.
+
+| Check | Evidence | Result |
+|---|---|---|
+| Dependency files | `crates/ferrisoxide-core/Cargo.toml` adds only local `ferrisoxide-rule-schema` under dev-dependencies. | Pass |
+| Fixture scope | `tests/parity/` contains static CSV, TOML, and expected JSON files only. | Pass |
+| Runtime surface | No new runtime dependency, parser dependency, plotting backend, report dependency, HAL, SDK, RTOS integration, DAQ integration, binary package loader, signing, hardware qualification, or certification claim is added. | Pass |
+| Validation | `cargo test -p ferrisoxide-core --test rule_parity` exercises the local dev-dependency only in tests. | Pass |
+
 ## Risk Assessment
 
 - Supply-chain risk: Medium; dependencies are common Rust ecosystem crates, but exact transitive dependencies must remain visible in `Cargo.lock`.
@@ -164,13 +175,13 @@ The M8-007 no_std boundary branch adds no new third-party crates. It makes `ferr
 - Plotting risk: Low/Medium; SVG output is local-file only, but future plotting backends could expand native or GUI dependencies if not gated.
 - Embedded toolchain risk: Medium; future RTOS SDKs, HALs, FFI, or target CI require fresh review before adoption.
 - Measurement extraction risk: Medium; evidence values and tie behavior must remain guarded by exact golden reports.
-- Rule package drift risk: Medium; the schema crate, parse-tested examples, validator, export command, manifest/checksum evidence, shared rule engine, and no_std boundary reduce duplicated shapes and semantics, but exact parity tests are still required before runtime claims.
+- Rule package drift risk: Medium; the schema crate, parse-tested examples, validator, export command, manifest/checksum evidence, shared rule engine, no_std boundary, and exact parity fixtures reduce duplicated shapes and semantics, but runtime package loading and hardware-target execution remain future work before runtime claims.
 
 ## Gate Decision
 
 - Gate: Dependency Gate.
 - Decision: Pass.
-- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up, M6 measurement-engine work, M6 completion work, M8-001 rule-schema work, M8-002 package-format work, M8-003 validator work, M8-004 export work, M8-005 manifest/checksum work, M8-006 shared-rule work, and M8-007 no_std boundary work add no new third-party dependencies.
+- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up, M6 measurement-engine work, M6 completion work, M8-001 rule-schema work, M8-002 package-format work, M8-003 validator work, M8-004 export work, M8-005 manifest/checksum work, M8-006 shared-rule work, M8-007 no_std boundary work, and M8-008 parity fixture work add no new third-party dependencies.
 - Residual risk: Dependency license and advisory scanning is not automated yet.
 - Next owner: Core Software Engineer.
 

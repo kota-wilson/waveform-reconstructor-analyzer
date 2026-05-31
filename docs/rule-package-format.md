@@ -2,9 +2,9 @@
 
 Date: 2026-05-31
 
-Status: Reviewable format with M8-007 no_std shared rule-engine boundary implemented locally.
+Status: Reviewable format with M8-008 desktop-vs-embedded parity fixtures implemented locally.
 
-Related requirements: WRA-RQ-043, WRA-RQ-044, WRA-RQ-046, WRA-RQ-047, WRA-RQ-048, WRA-RQ-049.
+Related requirements: WRA-RQ-043, WRA-RQ-044, WRA-RQ-046, WRA-RQ-047, WRA-RQ-048, WRA-RQ-049, WRA-RQ-050.
 
 ## Purpose
 
@@ -37,7 +37,7 @@ deployment/
 | `validation-report.json` | Existing report family, future package role | Engineers, V&V, CI | Captures desktop validation evidence showing whether the rule package passed against known waveform data. |
 | `qualification-evidence.svg` | Existing plotting family, future package role | Human reviewers | Visual evidence output with waveform, thresholds, annotations, and pass/fail context. It is software evidence only. |
 
-M8-002 defines the artifact roles. M8-004 adds desktop export for reviewable rule/report artifacts. M8-005 adds deterministic manifest and checksum evidence. M8-006 adds shared rule execution semantics through `ferrisoxide-rule-engine`. M8-007 makes that engine `#![no_std]` and defines a borrowed summary API for constrained embedded-compatible evaluation. The package format still does not add a binary format, runtime loader, DAQ integration, HAL, RTOS production integration, hardware qualification, or certification claim.
+M8-002 defines the artifact roles. M8-004 adds desktop export for reviewable rule/report artifacts. M8-005 adds deterministic manifest and checksum evidence. M8-006 adds shared rule execution semantics through `ferrisoxide-rule-engine`. M8-007 makes that engine `#![no_std]` and defines a borrowed summary API for constrained embedded-compatible evaluation. M8-008 adds exact software parity fixtures under `tests/parity/`. The package format still does not add a binary format, runtime loader, DAQ integration, HAL, RTOS production integration, hardware qualification, or certification claim.
 
 ## Canonical Schema Model
 
@@ -190,7 +190,7 @@ manifest.json
 checksum.txt
 ```
 
-M8-005 implements `manifest.json` and `checksum.txt` for desktop exports. M8-007 implements the `ferrisoxide-rule-engine` no_std boundary and borrowed summary API. `rules.bin`, runtime package loaders, and exact desktop-vs-embedded package parity remain future work, so this subset is not yet a working embedded runtime package.
+M8-005 implements `manifest.json` and `checksum.txt` for desktop exports. M8-007 implements the `ferrisoxide-rule-engine` no_std boundary and borrowed summary API. M8-008 verifies one exact software parity fixture between the desktop core path and embedded-compatible borrowed-rule path. `rules.bin` and runtime package loaders remain future work, so this subset is not yet a working embedded runtime package.
 
 Embedded consumers must not require:
 
@@ -272,7 +272,7 @@ Implemented and remaining issue boundaries:
 
 - M8-006 shared rule execution is implemented locally through `ferrisoxide-rule-engine`,
 - M8-007 no_std compatibility boundary is implemented locally through `ferrisoxide-rule-engine`,
-- M8-008 desktop-vs-embedded parity tests.
+- M8-008 desktop-vs-embedded parity tests are implemented locally in `tests/parity/` and `crates/ferrisoxide-core/tests/rule_parity.rs`.
 
 The M8-003 validator and M8-005 checksum helpers return structured errors for:
 
@@ -290,6 +290,6 @@ Role: Software Architect / Documentation Engineer
 Goal: Define the initial portable rule package format and artifact roles.
 Files changed: `docs/rule-package-format.md`, `examples/rule-package/rules.toml`, `examples/rule-package/rules.json`.
 Checks run: Parse-tested examples and workspace validation recorded in `docs/validation-log.md`.
-Status: Format documented; schema, validator, desktop export, manifest, checksum evidence, shared rule-engine semantics, and no_std rule-engine boundary implemented locally.
-Known gaps: Binary package, runtime loaders, and exact parity tests remain future M8/follow-up issues.
-Next recommended step: Complete M8-007 PR review, then add M8-008 desktop-vs-embedded parity tests.
+Status: Format documented; schema, validator, desktop export, manifest, checksum evidence, shared rule-engine semantics, no_std rule-engine boundary, and exact desktop-vs-embedded parity fixture implemented locally.
+Known gaps: Binary package and runtime loaders remain future follow-up issues.
+Next recommended step: Complete M8-008 PR review and close milestone #8 when all issues are closed.

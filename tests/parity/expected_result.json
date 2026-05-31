@@ -1,0 +1,66 @@
+{
+  "case_id": "m8_008_rule_parity_001",
+  "waveform": "tests/parity/waveform_001.csv",
+  "rule_package": "tests/parity/rules_001.toml",
+  "schema_note": "Desktop reports include human-readable reason text and method context; parity compares the portable evidence fields shared by desktop analysis results and embedded-compatible rule summaries.",
+  "desktop_results": [
+    {
+      "criterion_id": "CRIT-001",
+      "outcome": "fail",
+      "failed_criterion": "CRIT-001",
+      "measurement_id": "CRIT-001_measurement",
+      "method": "state_run_duration",
+      "channel": "switch_signal",
+      "measured_value": 0.002,
+      "required_value": 0.001,
+      "tolerance_used": 0.0,
+      "unit": "s",
+      "sample_index": 2,
+      "timestamp": 0.002
+    },
+    {
+      "criterion_id": "CRIT-002",
+      "outcome": "pass",
+      "failed_criterion": null,
+      "measurement_id": "CRIT-002_measurement",
+      "method": "state_transition_count",
+      "channel": "switch_signal",
+      "measured_value": 2.0,
+      "required_value": 2.0,
+      "tolerance_used": 0.0,
+      "unit": "transitions",
+      "sample_index": 2,
+      "timestamp": 0.002
+    }
+  ],
+  "embedded_results": [
+    {
+      "criterion_id": "CRIT-001",
+      "outcome": "fail",
+      "failed_criterion": "CRIT-001",
+      "measurement_id": "CRIT-001_measurement",
+      "method": "state_run_duration",
+      "channel": "switch_signal",
+      "measured_value": 0.002,
+      "required_value": 0.001,
+      "tolerance_used": 0.0,
+      "unit": "s",
+      "sample_index": 2,
+      "timestamp": 0.002
+    },
+    {
+      "criterion_id": "CRIT-002",
+      "outcome": "pass",
+      "failed_criterion": null,
+      "measurement_id": "CRIT-002_measurement",
+      "method": "state_transition_count",
+      "channel": "switch_signal",
+      "measured_value": 2.0,
+      "required_value": 2.0,
+      "tolerance_used": 0.0,
+      "unit": "transitions",
+      "sample_index": 2,
+      "timestamp": 0.002
+    }
+  ]
+}

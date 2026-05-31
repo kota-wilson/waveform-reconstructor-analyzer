@@ -30,7 +30,7 @@ Current status: This proposal has been implemented through the validated MVP fea
 | `ferrisoxide-rule-schema` | `crates/ferrisoxide-rule-schema` | Versioned portable FerrisOxide Rule Package data model and validator. | Package metadata, target profile, sample timing, channels, units, thresholds, filters, measurement-backed criteria definitions, parse helpers, and structured validation errors. |
 | `ferrisoxide-signal` | `crates/ferrisoxide-signal` | `no_std` signal primitives for future embedded adapters. | Dependency-free embedded-oriented primitives. |
 
-Portable rule package validator, export, checksum, shared-engine, and no_std-boundary work is implemented through M8-007. Exact parity-test work remains planned in `decisions/ADR-004-portable-rule-package-architecture.md` and `docs/v0.6.0-portable-rule-package-milestone-proposal.md`.
+Portable rule package validator, export, checksum, shared-engine, no_std-boundary, and exact desktop-vs-embedded parity fixture work is implemented through M8-008. Runtime loaders and binary package work remain future scope in `decisions/ADR-004-portable-rule-package-architecture.md` and `docs/v0.6.0-portable-rule-package-milestone-proposal.md`.
 
 Future controller-in-the-loop simulation and deployment config modules are planned in `docs/controller-in-the-loop-workflow.md` and `docs/v0.7.0-controller-simulation-deployment-config-milestone-proposal.md`. They are not implemented yet.
 
@@ -173,6 +173,7 @@ Platform split
 | Embedded adapter boundary | `crates/ferrisoxide-embedded` tests and QEMU demo manifest check | no_std source/sink/runtime traits wrap `ferrisoxide-signal` without desktop file I/O. |
 | Shared rule engine | `crates/ferrisoxide-rule-engine`, `crates/ferrisoxide-core`, and `crates/ferrisoxide-embedded` tests | Desktop analysis delegates criteria semantics to the shared engine, and embedded-compatible tests evaluate fixed slices through the same engine. |
 | no_std rule boundary | `crates/ferrisoxide-rule-engine` target checks and dependency trees | Rule-engine and embedded crates compile for `aarch64-unknown-none`, and dependency trees show no desktop CSV, TOML, plotting, report, HAL, SDK, or file-I/O crates in the embedded-compatible path. |
+| Desktop-vs-embedded parity | `tests/parity/` and `crates/ferrisoxide-core/tests/rule_parity.rs` | The same waveform and rule package produce exact matching portable evidence fields from the desktop core path and embedded-compatible borrowed-rule path. |
 | SVG plotting | `crates/ferrisoxide-plot` tests and `ferrisoxide-cli` plot tests | CLI writes 2D and 3D SVG files from CSV fixtures. |
 
 ## Dependency Strategy

@@ -14,6 +14,7 @@ ferrisoxide-measurements = { path = "../ferrisoxide-measurements" }
 ferrisoxide-rule-engine = { path = "../ferrisoxide-rule-engine" }
 
 [dev-dependencies]
+ferrisoxide-rule-schema = { path = "../ferrisoxide-rule-schema" }
 toml.workspace = true
 
 [lints]

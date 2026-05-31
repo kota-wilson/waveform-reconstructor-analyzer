@@ -65,6 +65,7 @@ dependencies = [
  "csv",
  "ferrisoxide-measurements",
  "ferrisoxide-rule-engine",
+ "ferrisoxide-rule-schema",
  "serde",
  "serde_json",
  "toml",
