@@ -6,6 +6,8 @@ pub struct CsvParseOptions {
     pub delimiter: char,
     pub time_column: String,
     pub channel_columns: Vec<String>,
+    pub time_unit: Unit,
+    pub signal_unit: Unit,
 }
 
 impl CsvParseOptions {
@@ -14,6 +16,8 @@ impl CsvParseOptions {
             delimiter: ',',
             time_column: time_column.into(),
             channel_columns,
+            time_unit: Unit::seconds(),
+            signal_unit: Unit::volts(),
         }
     }
 }
@@ -64,10 +68,10 @@ impl WaveformParser for SimpleCsvParser {
         let channels = channel_indices
             .into_iter()
             .zip(channel_samples)
-            .map(|((name, _), samples)| Channel::new(name, Unit::volts(), samples))
+            .map(|((name, _), samples)| Channel::new(name, options.signal_unit.clone(), samples))
             .collect();
 
-        Waveform::new(time, channels)
+        Waveform::new_with_time_unit(time, options.time_unit.clone(), channels)
     }
 }
 
@@ -121,6 +125,25 @@ mod tests {
 
         assert_eq!(waveform.time, vec![0.0, 0.1]);
         assert_eq!(waveform.channels[0].samples, vec![0.0, 5.0]);
+        assert_eq!(waveform.metadata.time_unit, Unit::seconds());
+        assert_eq!(waveform.metadata.channels[0].unit, Unit::volts());
+    }
+
+    #[test]
+    fn carries_configured_units_into_waveform_metadata() {
+        let input = "t_ms,signal_mv\n0.0,0.0\n1.0,5000.0\n";
+        let parser = SimpleCsvParser;
+        let mut options = CsvParseOptions::new("t_ms", vec!["signal_mv".to_string()]);
+        options.time_unit = Unit::new("ms");
+        options.signal_unit = Unit::new("mV");
+
+        let waveform = parser.parse_str(input, &options).expect("csv should parse");
+
+        assert_eq!(waveform.time_unit, Unit::new("ms"));
+        assert_eq!(waveform.channels[0].unit, Unit::new("mV"));
+        assert_eq!(waveform.metadata.time_unit, Unit::new("ms"));
+        assert_eq!(waveform.metadata.channels[0].unit, Unit::new("mV"));
+        assert_eq!(waveform.metadata.nominal_sample_rate_hz, None);
     }
 
     #[test]

@@ -4,6 +4,7 @@ use crate::criteria::{Criterion, EdgeDirection, SignalState, TransientEventKind}
 use crate::csv::CsvParseOptions;
 use crate::error::{Result, WaveformError};
 use crate::filter::{AdcQuantizer, FilterStep, LowPassFilter, MovingAverageFilter};
+use crate::model::Unit;
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct AnalysisConfig {
@@ -16,7 +17,11 @@ pub struct AnalysisConfig {
 
 impl AnalysisConfig {
     pub fn csv_options(&self) -> CsvParseOptions {
-        CsvParseOptions::new(self.input.time_column.clone(), self.input.channels.clone())
+        let mut options =
+            CsvParseOptions::new(self.input.time_column.clone(), self.input.channels.clone());
+        options.time_unit = Unit::new(self.input.time_unit.clone());
+        options.signal_unit = Unit::new(self.input.signal_unit.clone());
+        options
     }
 
     pub fn criteria(&self) -> Result<Vec<Criterion>> {
@@ -284,6 +289,8 @@ mod tests {
 
         assert_eq!(options.time_column, "time");
         assert_eq!(options.channel_columns, vec!["input_v"]);
+        assert_eq!(options.time_unit, Unit::seconds());
+        assert_eq!(options.signal_unit, Unit::volts());
         assert_eq!(
             filters[0],
             FilterStep::MovingAverage(MovingAverageFilter { window_samples: 2 })

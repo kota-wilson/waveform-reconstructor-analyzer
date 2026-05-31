@@ -229,3 +229,58 @@ Checks run: See `docs/validation-log.md`.
 Status: Pass.
 Known gaps: Ideal quantization only; richer ADC hardware effects are out of scope.
 Next recommended step: Testing Gate for ADC quantization.
+
+## M1 Metadata And README Usage Update
+
+Date: 2026-05-31
+
+Owner Role: Core Software Engineer / Documentation Engineer
+
+### Inputs
+
+- GitHub issue: #4, `M1-002 Add waveform metadata model`.
+- GitHub issue: #6, `M1-007 Add README usage examples with expected output`.
+- User review recommendation: finish foundational metadata and README evidence before expanding RTOS work.
+
+### Work Performed
+
+- What: Added first-class waveform metadata and updated user-facing usage examples.
+- Where: `crates/wra-core/src/model.rs`, `crates/wra-core/src/csv.rs`, `crates/wra-core/src/filter.rs`, `crates/wra-core/src/report.rs`, `crates/wra-cli/src/main.rs`, `README.md`, `docs/usage-mvp.md`, `docs/report-schema.md`, and golden reports.
+- How: Metadata is computed during waveform construction, configured units are carried from TOML into parser options, CLI input paths become source names, and derived transforms append ordered transform-history entries without mutating raw samples.
+- Why: Reports need to prove what data was analyzed before the project moves into deeper scientific validation.
+
+### Behavior Added
+
+- Source name metadata from the CLI input path.
+- Time unit, channel names, and channel units in metadata.
+- Sample count and channel count in metadata.
+- Sample interval summary with min, max, nominal interval, unit, and uniformity flag.
+- Nominal sample rate in hertz when the time unit is seconds.
+- Raw versus derived lineage and ordered transform history.
+- Text and JSON reports include waveform metadata before criterion evidence.
+- README examples now include copy/pasteable text and JSON outputs that match current fixture behavior.
+
+### Out Of Scope Preserved
+
+- No unit conversion.
+- No calibration, uncertainty, or tolerance model yet.
+- No hardware validation or certification claim.
+- No RTOS, Zephyr, GUI, or DAQ expansion.
+
+### Gate Decision
+
+- Gate: M1 Metadata / README Implementation Gate.
+- Decision: Pass.
+- Reason: The implementation satisfies issues #4 and #6 with focused code, golden-output, README, and traceability updates.
+- Residual risk: Scientific known-answer validation, tolerances, filter equations, and large-file benchmarks remain v0.3.0 work.
+- Owner for residual risk: Verification and Validation Engineer / Software Architect.
+
+### Hand-Off Note
+
+Role: Core Software Engineer / Documentation Engineer
+Goal: Finish open M1 metadata and README usage evidence before v0.3.0 validation work.
+Files changed: `crates/wra-core/src/model.rs`, `crates/wra-core/src/csv.rs`, `crates/wra-core/src/filter.rs`, `crates/wra-core/src/report.rs`, `crates/wra-cli/src/main.rs`, README, usage docs, report schema, golden reports, requirements, and traceability.
+Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`; README text, JSON, and dropout CLI examples.
+Status: Pass; ready for protected-branch PR.
+Known gaps: Tolerance model, known-answer datasets, filter equations, confidence/evidence expansion, and benchmarks are planned for v0.3.0.
+Next recommended step: Open a protected-branch PR for issues #4 and #6.

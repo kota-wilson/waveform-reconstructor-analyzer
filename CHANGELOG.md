@@ -23,3 +23,5 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - Golden JSON report tests and invalid config validation tests.
 - `wra-signal` `no_std` crate with fixed-size buffers, streaming threshold checks, and transient event detection for future embedded adapters.
 - Simulated ADC quantization as an ordered pre-criteria waveform transform for CLI and TOML workflows.
+- Waveform metadata for source, units, sample interval, sample rate, lineage, and transform history in text and JSON reports.
+- v0.3.0 validation roadmap and validation dataset folder structure.

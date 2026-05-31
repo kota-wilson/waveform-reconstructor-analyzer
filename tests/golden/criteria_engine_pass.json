@@ -1,5 +1,27 @@
 {
   "input_name": "tests/fixtures/clean_square_wave.csv",
+  "waveform_metadata": {
+    "source_name": "tests/fixtures/clean_square_wave.csv",
+    "time_unit": "s",
+    "sample_count": 10,
+    "channel_count": 1,
+    "channels": [
+      {
+        "name": "control_v",
+        "unit": "V"
+      }
+    ],
+    "sample_interval": {
+      "min": 0.001,
+      "max": 0.001,
+      "nominal": 0.001,
+      "unit": "s",
+      "uniform": true
+    },
+    "nominal_sample_rate_hz": 1000.0,
+    "lineage": "raw",
+    "transform_history": []
+  },
   "overall_outcome": "pass",
   "results": [
     {

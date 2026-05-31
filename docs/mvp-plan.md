@@ -4,7 +4,7 @@
 
 Deliver a CLI-driven Rust MVP that can parse CSV waveform fixtures into typed waveform data, apply derived transform interfaces, evaluate configurable waveform criteria, and produce text/JSON reports.
 
-Current status: The dependency-reviewed MVP slice is implemented, public, and validated on protected `main`. Follow-up work has added v0.2.0 criteria, real fixtures, golden JSON reports, `wra-signal`, domain review, and ADC quantization. Remaining M1 backlog focuses on richer metadata and README expected-output polish.
+Current status: The dependency-reviewed MVP slice is implemented, public, and validated on protected `main`. Follow-up work has added v0.2.0 criteria, real fixtures, golden JSON reports, `wra-signal`, domain review, ADC quantization, waveform metadata, and README expected-output evidence. The next maturity target is v0.3.0 signal accuracy validation.
 
 ## Milestone M1: Foundation
 

@@ -11,8 +11,23 @@ This document describes the MVP JSON report shape used by golden tests.
 | Field | Type | Meaning |
 |---|---|---|
 | `input_name` | string | Input path or display name passed to the report. |
+| `waveform_metadata` | object | Source, unit, count, time-axis, lineage, and transform context for the analyzed waveform. |
 | `overall_outcome` | `pass` or `fail` | `fail` when any criterion fails. |
 | `results` | array | Per-criterion evidence rows. |
+
+## Waveform Metadata Fields
+
+| Field | Type | Meaning |
+|---|---|---|
+| `source_name` | string or null | Source path or display name when known. |
+| `time_unit` | string | Unit used for the waveform time axis. |
+| `sample_count` | integer | Number of waveform samples. |
+| `channel_count` | integer | Number of analyzed channels. |
+| `channels` | array | Channel names and units present in the waveform. |
+| `sample_interval` | object or null | Minimum, maximum, nominal, unit, and uniformity summary for adjacent time samples. |
+| `nominal_sample_rate_hz` | number or null | Derived sample rate when the time unit is seconds and the nominal interval is positive. |
+| `lineage` | `raw` or `derived` | Whether criteria evaluated raw parsed samples or a derived waveform. |
+| `transform_history` | array | Ordered transform descriptions applied before criteria evaluation. |
 
 ## Result Fields
 

@@ -69,7 +69,15 @@ impl Filter for MovingAverageFilter {
             })
             .collect();
 
-        Waveform::new(waveform.time.clone(), channels)
+        Ok(Waveform::new_with_time_unit(
+            waveform.time.clone(),
+            waveform.time_unit.clone(),
+            channels,
+        )?
+        .as_derived_from(
+            waveform,
+            format!("moving_average(window_samples={})", self.window_samples),
+        ))
     }
 }
 
@@ -102,7 +110,12 @@ impl Filter for LowPassFilter {
             })
             .collect();
 
-        Waveform::new(waveform.time.clone(), channels)
+        Ok(Waveform::new_with_time_unit(
+            waveform.time.clone(),
+            waveform.time_unit.clone(),
+            channels,
+        )?
+        .as_derived_from(waveform, format!("low_pass(cutoff_hz={})", self.cutoff_hz)))
     }
 }
 
@@ -139,7 +152,18 @@ impl Filter for AdcQuantizer {
             })
             .collect::<Result<Vec<_>>>()?;
 
-        Waveform::new(waveform.time.clone(), channels)
+        Ok(Waveform::new_with_time_unit(
+            waveform.time.clone(),
+            waveform.time_unit.clone(),
+            channels,
+        )?
+        .as_derived_from(
+            waveform,
+            format!(
+                "adc_quantize(bits={},min_v={},max_v={})",
+                self.bits, self.min_v, self.max_v
+            ),
+        ))
     }
 }
 
@@ -250,6 +274,14 @@ mod tests {
 
         assert_eq!(input.channels[0].samples, vec![0.0, 2.0, 4.0, 6.0]);
         assert_eq!(filtered.channels[0].samples, vec![0.0, 1.0, 3.0, 5.0]);
+        assert_eq!(
+            filtered.metadata.lineage,
+            crate::model::WaveformLineage::Derived
+        );
+        assert_eq!(
+            filtered.metadata.transform_history,
+            vec!["moving_average(window_samples=2)"]
+        );
     }
 
     #[test]
@@ -289,6 +321,10 @@ mod tests {
 
         assert_eq!(input.channels[0].samples, vec![-0.5, 0.49, 1.51, 3.5]);
         assert_eq!(quantized.channels[0].samples, vec![0.0, 0.0, 2.0, 3.0]);
+        assert_eq!(
+            quantized.metadata.transform_history,
+            vec!["adc_quantize(bits=2,min_v=0,max_v=3)"]
+        );
     }
 
     #[test]
@@ -334,5 +370,12 @@ mod tests {
 
         assert_eq!(input.channels[0].samples, vec![0.0, 2.0, 4.0, 6.0]);
         assert_eq!(derived.channels[0].samples, vec![0.0, 1.0, 3.0, 3.0]);
+        assert_eq!(
+            derived.metadata.transform_history,
+            vec![
+                "moving_average(window_samples=2)",
+                "adc_quantize(bits=2,min_v=0,max_v=3)"
+            ]
+        );
     }
 }
