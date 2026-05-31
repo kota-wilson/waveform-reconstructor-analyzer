@@ -32,12 +32,21 @@ sh scripts/benchmark-large-csv.sh 100000 3
 
 Observed average timings are recorded in `docs/benchmarking.md`. Parse/reconstruction dominates the current local 100k-sample CSV path.
 
+## M5 SVG Plotting Update
+
+M5 plotting is validated as a small-fixture desktop SVG renderer only:
+
+- 2D smoke output: `/private/tmp/wra-plot-2d.svg`, 21,670 bytes from `examples/basic-waveform.csv`.
+- 3D smoke output: `/private/tmp/wra-plot-3d.svg`, 21,782 bytes from `tests/fixtures/plot_three_axis.csv`.
+- No large-file plotting benchmark, interactivity benchmark, GUI frame-rate claim, DAQ throughput claim, or embedded performance claim is made.
+- Plotting uses full in-memory parsed waveform data through the existing CLI parser path; streaming plot generation is future work if large-capture visualization becomes a requirement.
+
 ## Gate Decision
 
 - Gate: Performance Gate.
 - Decision: Pass for MVP and M4 baseline measurement.
-- Reason: The current implementation handles example fixtures, M4 records a repeatable large-CSV baseline, and the documentation avoids performance guarantees.
-- Residual risk: Memory profiling, streaming analysis, cross-platform benchmarks, and DAQ throughput remain future work.
+- Reason: The current implementation handles example fixtures, M4 records a repeatable large-CSV baseline, M5 renders small fixture SVGs, and the documentation avoids performance guarantees.
+- Residual risk: Memory profiling, streaming analysis, large-plot benchmarks, cross-platform benchmarks, and DAQ throughput remain future work.
 - Next owner: Documentation Engineer.
 
 ## Hand-Off Note
@@ -47,5 +56,5 @@ Goal: Prevent unsupported performance claims for the initial publication gate.
 Files changed: `docs/performance-review.md`
 Checks run: Reviewed scope, README, and risk register.
 Status: Pass for MVP and M4 baseline.
-Known gaps: No memory profiler baseline, streaming redesign, or cross-platform benchmark matrix yet.
+Known gaps: No memory profiler baseline, streaming redesign, large-plot benchmark, or cross-platform benchmark matrix yet.
 Next recommended step: Documentation review.

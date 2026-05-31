@@ -86,3 +86,28 @@ Criteria:
 ```
 
 Richer CSV dialect support and stable numerical filter guarantees remain planned. See `docs/filter-behavior.md` and `docs/time-axis-and-tolerances.md` for current transform and tolerance semantics.
+
+## SVG Plotting
+
+Render a 2D SVG waveform plot:
+
+```bash
+cargo run --quiet --bin wra -- plot \
+  --input examples/basic-waveform.csv \
+  --time-column time \
+  --channels input_v,output_v \
+  --output basic-waveform.svg
+```
+
+Render a 3D SVG line plot with an auxiliary third-axis column:
+
+```bash
+cargo run --quiet --bin wra -- plot \
+  --input tests/fixtures/plot_three_axis.csv \
+  --time-column time_s \
+  --channels signal_v \
+  --z-column temperature_c \
+  --output three-axis.svg
+```
+
+Plotting is desktop SVG output only. It does not add GUI, DAQ, embedded plotting, or certification scope.

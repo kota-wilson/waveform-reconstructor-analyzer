@@ -32,12 +32,23 @@ The MVP validates against the user request for a Rust-centered open-source wavef
 | Benchmark baseline | `wra-bench`, `scripts/benchmark-large-csv.sh`, `docs/benchmarking.md` | Pass |
 | Environmental examples | Dropout and contact-bounce fixture/config/report sets | Pass |
 
+## M5 SVG Plotting Update
+
+| M5 Area | Evidence | Result |
+|---|---|---|
+| Requirement traceability | WRA-RQ-027 in `requirements.md` and `traceability-matrix.md` | Pass |
+| Dependency boundary | `wra-plot` owns Plotters; `wra-core` and `wra-signal` do not depend on plotting | Pass |
+| 2D plot rendering | `wra_plot::tests::renders_2d_svg_for_selected_channel`; CLI 2D smoke SVG | Pass |
+| Optional third axis | `wra_plot::tests::renders_3d_svg_with_third_axis_channel`; CLI 3D smoke SVG | Pass |
+| Error behavior | Missing channel, reused z-channel, missing z-column, and invalid output parent tests | Pass |
+| Scope control | README, `docs/plotting.md`, risk register, and dependency review state SVG-only desktop scope | Pass |
+
 ## Gate Decision
 
 - Gate: V&V Gate.
 - Decision: Pass.
-- Reason: Requirements have implementation and validation evidence, with residual risks recorded. M4 adds known-answer and environmental software-validation evidence without overclaiming hardware/certification confidence.
-- Residual risk: Filter numerical behavior, CSV dialect coverage, hardware capture corpora, DAQ accuracy, and certification use need broader validation before production claims.
+- Reason: Requirements have implementation and validation evidence, with residual risks recorded. M4 adds known-answer and environmental software-validation evidence, and M5 adds optional desktop SVG plotting evidence without overclaiming GUI, DAQ, embedded, hardware, or certification confidence.
+- Residual risk: Filter numerical behavior, CSV dialect coverage, hardware capture corpora, DAQ accuracy, visual regression coverage, and certification use need broader validation before production claims.
 - Next owner: QA Engineer.
 
 ## Hand-Off Note
@@ -47,5 +58,5 @@ Goal: Confirm implemented behavior traces to requirements and user intent.
 Files changed: `docs/verification-validation-report.md`
 Checks run: Reviewed validation evidence in `docs/validation-log.md`.
 Status: Pass.
-Known gaps: No external hardware signal corpus, formal filter frequency-response validation, DAQ validation, or certification evidence yet.
+Known gaps: No external hardware signal corpus, formal filter frequency-response validation, DAQ validation, visual regression testing, or certification evidence yet.
 Next recommended step: QA review.

@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-M4 signal accuracy and validation is merged; prepare the next validation milestone decision.
+M5 plotting and visualization is implemented on `feature/m5-svg-plotting`; prepare protected-branch PR review and CI.
 
 ## Current Stage
 
-The repository now includes merged M4 signal accuracy and validation work addressing issues #27-#34. The mainline includes known-answer validation data, time-axis validation, configurable tolerances, report evidence context, validation metadata, filter equation docs, environmental validation examples, and repeatable large-CSV benchmark tooling. M4 milestone #4 is closed. RTOS/Zephyr work remains parked.
+The repository now includes branch-local M5 plotting work for issue #38. The branch adds an isolated `wra-plot` crate, optional `wra plot` SVG output, 2D time/signal plotting, optional 3D time/signal/auxiliary-axis line plotting, fixture coverage, dependency review, documentation, and validation evidence. RTOS/Zephyr work remains parked; GUI, DAQ, embedded plotting, surface fitting, and certification claims remain out of scope.
 
 ## Open Risks
 
@@ -32,6 +32,8 @@ The repository now includes merged M4 signal accuracy and validation work addres
   Owner: Verification and Validation Engineer / Documentation Engineer
 - Risk: Benchmark results may be overread as production performance guarantees.
   Owner: Performance Engineer
+- Risk: Plotting dependencies or future plotting backends may expand desktop scope into GUI, bitmap, or embedded paths.
+  Owner: Software Architect / Security Engineer
 
 ## Pending Decisions
 
@@ -47,22 +49,25 @@ The repository now includes merged M4 signal accuracy and validation work addres
 - Decision: Start the embedded path with `wra-signal` before `wra-embedded`, QEMU, Embassy-style, or Zephyr integration.
   Owner: Software Architect
   Status: Accepted in `docs/embedded-roadmap.md`.
+- Decision: Add optional desktop SVG plotting through an isolated `wra-plot` crate using Plotters SVG line rendering.
+  Owner: Software Architect / Security Engineer
+  Status: Accepted for M5 in `docs/dependency-review.md` and `docs/m5-plotting-pipeline-report.md`.
 
 ## Next Responsible Role
 
-Role: Project Coordinator / GitHub Maintainer Specialist
+Role: GitHub Maintainer Specialist
 
-Expected deliverable: Decide the next validation milestone before broadening GUI, DAQ, RTOS, or certification-adjacent scope.
+Expected deliverable: Open the M5 plotting PR, wait for required CI, merge if checks pass, and update release/community evidence.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: M4 signal accuracy and validation.
+- Current milestone: M5 plotting and visualization.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`.
-- Next gate: Next-milestone planning gate.
-- Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/certification work.
+- Next gate: Protected-branch PR and CI for M5 plotting.
+- Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/embedded plotting/certification work.
 
 ## Granularity Status
 
@@ -74,14 +79,14 @@ Expected deliverable: Decide the next validation milestone before broadening GUI
 
 - Project root: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`.
 - Isolation level: Level 1 Cargo workspace.
-- Local environment: Rust/Cargo; no dependencies installed.
-- Dependency status: Approved crates added and pinned in `Cargo.lock`; see `docs/dependency-review.md`. M3-RTOS-001 adds no third-party dependencies.
+- Local environment: Rust/Cargo; no global dependencies installed.
+- Dependency status: Approved crates added and pinned in `Cargo.lock`; see `docs/dependency-review.md`. M5 adds Plotters only inside `wra-plot` with SVG and line-series features.
 
 ## Traceability Status
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, and M4 requirements WRA-RQ-019 through WRA-RQ-026.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, and M5 requirement WRA-RQ-027.
 
 ## Gate Decisions
 
@@ -149,6 +154,20 @@ Expected deliverable: Decide the next validation milestone before broadening GUI
 | M4 Evaluation Gate | Pass | `docs/evaluation-report.md` | Release Engineer |
 | M4 Release Gate | Pass | PR #36 merged after required `rust` CI passed; merge commit `a0d381556ff5f5d044f230217b335b73b3b57608` | GitHub Maintainer Specialist |
 | M4 Community Gate | Pass | Issues #27-#34 closed; M4 milestone #4 closed with 8 closed issues and 0 open issues | Project Coordinator |
+| M5 Requirements Gate | Pass | `requirements.md` WRA-RQ-027; issue #38 | Software Architect |
+| M5 Architecture Gate | Pass | `docs/architecture.md`, `docs/plotting.md`, `docs/dependency-review.md` | Abstraction Review Engineer |
+| M5 Human Approval Gate | Pass | User approved adding the Plotters dependency and PR creation | Core Software Engineer |
+| M5 Implementation Gate | Pass | `crates/wra-plot/`, `crates/wra-cli/src/main.rs`, plotting fixture and docs | Test Automation Engineer |
+| M5 Testing Gate | Pass | `docs/validation-log.md`; fmt, workspace tests, clippy, 2D/3D CLI smokes, metadata/tree inspection, diff check | Verification and Validation Engineer |
+| M5 V&V Gate | Pass | `docs/verification-validation-report.md`, WRA-RQ-027 traceability | QA Engineer |
+| M5 QA Gate | Pass | `docs/qa-review.md` | Security Engineer |
+| M5 Security Gate | Pass | `docs/security-review.md`, `docs/dependency-review.md`, `cargo tree -p wra-plot` | Performance Engineer |
+| M5 Performance Gate | Pass | `docs/performance-review.md`; no unsupported performance claims | Documentation Engineer |
+| M5 Documentation Gate | Pass | README, `docs/usage-mvp.md`, `docs/plotting.md` | Code Reviewer |
+| M5 Code Review Gate | Pass for PR creation | `docs/code-review.md`, `docs/m5-plotting-pipeline-report.md` | Evaluation Engineer |
+| M5 Evaluation Gate | Pass | `docs/evaluation-report.md` | Release Engineer |
+| M5 Release Gate | Pass for PR creation | `docs/m5-plotting-pipeline-report.md`; protected-branch PR pending | GitHub Maintainer Specialist |
+| M5 Community Gate | Pass for PR handoff | Issue #38 and M5 milestone prepared for PR closing keywords | Project Coordinator |
 
 ## Update Rules
 

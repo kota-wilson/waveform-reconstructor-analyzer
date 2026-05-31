@@ -26,6 +26,16 @@ No blocking security issues found for M4:
 - Benchmark-generated CSV/config files are written under `target/wra-benchmark/`.
 - CLI and benchmark helper continue to read local file paths supplied by the user.
 
+## M5 SVG Plotting Update
+
+No blocking security issues found for M5:
+
+- Plotters was approved by the user after dependency review.
+- Plotters is isolated in `wra-plot` and constrained to SVG backend and line-series features.
+- `wra plot` reads local user-supplied CSV paths and writes a local SVG path.
+- No network access, credential handling, unsafe Rust, shell execution, GUI process launch, or embedded runtime integration was added to product code.
+- Output parent directory validation rejects missing parent directories instead of creating unexpected filesystem trees.
+
 ## Evidence
 
 | Area | Evidence | Result |
@@ -37,13 +47,15 @@ No blocking security issues found for M4:
 | Unsafe Rust | Workspace lint forbids unsafe code | Pass |
 | M4 dependency surface | No new crates added | Pass |
 | M4 generated files | Benchmark script writes under `target/wra-benchmark/` | Pass |
+| M5 dependency review | `docs/dependency-review.md`, `cargo metadata --format-version 1 --no-deps`, `cargo tree -p wra-plot` | Pass |
+| M5 file surface | CLI reads local CSV and writes local SVG only | Pass |
 
 ## Gate Decision
 
 - Gate: Security Gate.
 - Decision: Pass.
-- Reason: Dependencies were explicitly approved, lockfile is committed, no secret-bearing files were added, and M4 adds no new dependency/network/unsafe surface.
-- Residual risk: Formal dependency license/security scanning is not automated yet.
+- Reason: Dependencies were explicitly approved, lockfile is committed, no secret-bearing files were added, M4 adds no new dependency/network/unsafe surface, and M5 confines Plotters to an SVG-only plotting crate.
+- Residual risk: Formal dependency license/security scanning is not automated yet; future plotting backends could expand native dependency surface.
 - Next owner: Performance Engineer.
 
 ## Hand-Off Note

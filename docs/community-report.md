@@ -23,12 +23,19 @@ Owner Role: Community Engineering Lead
 - Milestone `M4: Signal Accuracy and Validation` is closed.
 - Follow-up community messaging should continue to frame validation fixtures as software validation aids, not hardware qualification or certification evidence.
 
+## M5 Community Update
+
+- Issue #38 records optional SVG plotting acceptance criteria.
+- Milestone `M5: Plotting and Visualization` tracks the plotting slice.
+- PR handoff should describe the feature as desktop SVG output only and avoid GUI, DAQ, embedded plotting, surface-plotting, or certification claims.
+- Issue and milestone closure should be verified after protected-branch merge.
+
 ## Gate Decision
 
 - Gate: Community Gate.
-- Decision: Pass for initial publication.
-- Reason: Public repository exists with templates, contribution docs, CI, clear scope, and M4 issue/milestone closure evidence.
-- Residual risk: Community onboarding quality is untested until an external issue/PR.
+- Decision: Pass for initial publication and M5 PR handoff.
+- Reason: Public repository exists with templates, contribution docs, CI, clear scope, M4 issue/milestone closure evidence, and M5 issue/milestone handoff evidence.
+- Residual risk: Community onboarding quality and plotting usability are untested until external issue/PR feedback.
 - Next owner: Project Coordinator.
 
 ## Hand-Off Note

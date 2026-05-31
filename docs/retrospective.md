@@ -15,6 +15,7 @@ This is the initial publication retrospective. Follow-up GitHub issues have sinc
 - The MVP reached a public GitHub repository with passing CI.
 - Traceability and gate artifacts were updated as the project moved forward.
 - M4 closed eight validation issues without adding dependencies or expanding into GUI, DAQ, RTOS, or certification scope.
+- M5 kept plotting isolated in a dedicated crate and added only the approved SVG line-rendering dependency surface.
 
 ## What To Improve
 
@@ -23,12 +24,13 @@ This is the initial publication retrospective. Follow-up GitHub issues have sinc
 - Create a config schema reference before widening the config format.
 - Consider replacing hand-rolled CLI parsing after dependency review.
 - Decide whether the next validation milestone should add external capture corpora, stronger filter-response checks, or schema hardening before adding new user interfaces.
+- Add visual regression or rendered-output review before broadening plotting beyond SVG line charts.
 
 ## Gate Decision
 
 - Gate: Retrospective Gate.
 - Decision: Pass.
-- Reason: Lessons and next actions are recorded, including the M4 post-merge outcome.
+- Reason: Lessons and next actions are recorded, including the M4 post-merge outcome and M5 plotting scope control.
 - Residual risk: Remaining follow-up issues still need prioritization and implementation.
 - Next owner: Community Engineering Lead.
 
@@ -39,5 +41,5 @@ Goal: Capture lessons from project creation through public publication.
 Files changed: `docs/retrospective.md`
 Checks run: Reviewed project artifacts and final CI status.
 Status: Pass.
-Known gaps: Open backlog remains in GitHub issues.
-Next recommended step: Decide the next validation milestone before broadening product scope.
+Known gaps: Open backlog remains in GitHub issues; M5 mainline release evidence still needs post-merge update.
+Next recommended step: Complete M5 protected-branch PR and update release/community evidence after merge.

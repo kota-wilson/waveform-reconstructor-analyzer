@@ -11,6 +11,7 @@ use wra_core::filter::{
 };
 use wra_core::model::{MetadataContext, TolerancePolicy};
 use wra_core::report::{AnalysisReport, ReportEvidenceContext};
+use wra_plot::{render_svg, PlotOptions};
 
 fn main() -> ExitCode {
     match run(env::args().skip(1).collect()) {
@@ -30,13 +31,20 @@ fn run(args: Vec<String>) -> Result<String, String> {
         return Ok(help());
     }
 
-    if args.first().map(String::as_str) != Some("analyze") {
-        return Err("expected subcommand `analyze`".to_string());
+    match args.first().map(String::as_str) {
+        Some("analyze") => run_analyze(&args),
+        Some("plot") => run_plot(&args),
+        Some(other) => Err(format!(
+            "expected subcommand `analyze` or `plot`, got `{other}`"
+        )),
+        None => Ok(help()),
     }
+}
 
-    let input_path = value_after(&args, "--input").ok_or("missing --input <path>")?;
-    let output_format = value_after(&args, "--format").unwrap_or("text");
-    let config = load_config(&args)?;
+fn run_analyze(args: &[String]) -> Result<String, String> {
+    let input_path = value_after(args, "--input").ok_or("missing --input <path>")?;
+    let output_format = value_after(args, "--format").unwrap_or("text");
+    let config = load_config(args)?;
     let (options, filters, criteria, tolerances, metadata) = match config {
         Some(config) => (
             config.csv_options(),
@@ -50,9 +58,9 @@ fn run(args: Vec<String>) -> Result<String, String> {
             config.metadata,
         ),
         None => {
-            let time_column = value_after(&args, "--time-column").unwrap_or("time");
+            let time_column = value_after(args, "--time-column").unwrap_or("time");
             let channels =
-                value_after(&args, "--channels").ok_or("missing --channels <name[,name]>")?;
+                value_after(args, "--channels").ok_or("missing --channels <name[,name]>")?;
             let channel_columns = channels
                 .split(',')
                 .map(str::trim)
@@ -65,8 +73,8 @@ fn run(args: Vec<String>) -> Result<String, String> {
 
             (
                 CsvParseOptions::new(time_column, channel_columns),
-                parse_filters(&args)?,
-                parse_criteria(&args)?,
+                parse_filters(args)?,
+                parse_criteria(args)?,
                 TolerancePolicy::default(),
                 MetadataContext::default(),
             )
@@ -96,6 +104,44 @@ fn run(args: Vec<String>) -> Result<String, String> {
     };
 
     render_report(&report, output_format)
+}
+
+fn run_plot(args: &[String]) -> Result<String, String> {
+    let input_path = value_after(args, "--input").ok_or("missing --input <path>")?;
+    let output_path = value_after(args, "--output").ok_or("missing --output <svg>")?;
+    let time_column = value_after(args, "--time-column").unwrap_or("time");
+    let channel_columns = parse_channel_list(
+        value_after(args, "--channels").ok_or("missing --channels <name[,name]>")?,
+    )?;
+    let z_column = value_after(args, "--z-column").map(str::to_string);
+    let title = value_after(args, "--title").unwrap_or("Waveform Plot");
+    let width = parse_optional_u32(args, "--width", 1024)?;
+    let height = parse_optional_u32(args, "--height", 760)?;
+
+    let mut parser_channels = channel_columns.clone();
+    if let Some(z_column) = &z_column {
+        if !parser_channels.iter().any(|channel| channel == z_column) {
+            parser_channels.push(z_column.clone());
+        }
+    }
+
+    let input = fs::read_to_string(input_path)
+        .map_err(|error| format!("failed to read `{input_path}`: {error}"))?;
+    let parser = SimpleCsvParser;
+    let waveform = parser
+        .parse_str(&input, &CsvParseOptions::new(time_column, parser_channels))
+        .map_err(|error| format!("failed to parse waveform: {error}"))?
+        .with_source_name(input_path.to_string());
+
+    let mut options = PlotOptions::new(output_path, channel_columns);
+    options.title = title.to_string();
+    options.z_channel = z_column;
+    options.width = width;
+    options.height = height;
+
+    render_svg(&waveform, &options).map_err(|error| format!("failed to render plot: {error}"))?;
+
+    Ok(format!("Plot written to {output_path}"))
 }
 
 fn value_after<'a>(args: &'a [String], flag: &str) -> Option<&'a str> {
@@ -186,6 +232,28 @@ fn parse_adc_quantize(value: &str) -> Result<FilterStep, String> {
     Ok(FilterStep::AdcQuantize(AdcQuantizer { bits, min_v, max_v }))
 }
 
+fn parse_optional_u32(args: &[String], flag: &str, default: u32) -> Result<u32, String> {
+    match value_after(args, flag) {
+        Some(value) => value
+            .parse::<u32>()
+            .map_err(|_| format!("invalid {flag} value `{value}`")),
+        None => Ok(default),
+    }
+}
+
+fn parse_channel_list(channels: &str) -> Result<Vec<String>, String> {
+    let channel_columns = channels
+        .split(',')
+        .map(str::trim)
+        .filter(|channel| !channel.is_empty())
+        .map(str::to_string)
+        .collect::<Vec<_>>();
+    if channel_columns.is_empty() {
+        return Err("--channels must include at least one channel".to_string());
+    }
+    Ok(channel_columns)
+}
+
 fn render_report(report: &AnalysisReport, output_format: &str) -> Result<String, String> {
     match output_format {
         "text" => Ok(report.render_text()),
@@ -253,8 +321,11 @@ fn help() -> String {
         "Usage:",
         "  wra analyze --input <csv> --config examples/basic-config.toml --format text",
         "  wra analyze --input <csv> --time-column time --channels input_v --moving-average 3 --low-pass 25 --adc-quantize 12:0.0:5.0 --min input_v:0.0 --max input_v:5.5 --format json",
+        "  wra plot --input <csv> --time-column time --channels input_v --output waveform.svg",
+        "  wra plot --input <csv> --time-column time --channels input_v --z-column temp_c --output waveform-3d.svg",
         "",
         "ADC quantization syntax: --adc-quantize bits:min_v:max_v",
+        "Plot output is SVG. Use --z-column for an optional third axis.",
         "Formats: text, json",
     ]
     .join("\n")
@@ -290,6 +361,17 @@ mod tests {
                 FilterStep::MovingAverage(MovingAverageFilter { window_samples: 3 }),
             ]
         );
+    }
+
+    fn unique_plot_path(name: &str) -> String {
+        let nonce = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .expect("time should be available")
+            .as_nanos();
+        std::env::temp_dir()
+            .join(format!("wra-{name}-{}-{nonce}.svg", std::process::id()))
+            .to_string_lossy()
+            .into_owned()
     }
 
     #[test]
@@ -364,6 +446,93 @@ mod tests {
 
         assert!(output.contains("\"overall_outcome\": \"pass\""));
         assert!(output.contains("\"criterion_id\": \"input_max_voltage\""));
+    }
+
+    #[test]
+    fn renders_2d_plot_to_svg_file() {
+        let input_path = format!(
+            "{}/../../examples/basic-waveform.csv",
+            env!("CARGO_MANIFEST_DIR")
+        );
+        let output_path = unique_plot_path("plot-2d");
+
+        let output = run(vec![
+            "plot".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--time-column".to_string(),
+            "time".to_string(),
+            "--channels".to_string(),
+            "input_v,output_v".to_string(),
+            "--output".to_string(),
+            output_path.clone(),
+        ])
+        .expect("plot should render");
+
+        let svg = fs::read_to_string(&output_path).expect("svg should be written");
+        assert!(output.contains("Plot written to"));
+        assert!(svg.contains("<svg"));
+        assert!(svg.contains("input_v"));
+        assert!(svg.contains("output_v"));
+        let _ = fs::remove_file(output_path);
+    }
+
+    #[test]
+    fn renders_3d_plot_with_z_column_to_svg_file() {
+        let input_path = format!(
+            "{}/../../tests/fixtures/plot_three_axis.csv",
+            env!("CARGO_MANIFEST_DIR")
+        );
+        let output_path = unique_plot_path("plot-3d");
+
+        run(vec![
+            "plot".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--time-column".to_string(),
+            "time_s".to_string(),
+            "--channels".to_string(),
+            "signal_v".to_string(),
+            "--z-column".to_string(),
+            "temperature_c".to_string(),
+            "--output".to_string(),
+            output_path.clone(),
+            "--title".to_string(),
+            "Three Axis Validation Plot".to_string(),
+        ])
+        .expect("3d plot should render");
+
+        let svg = fs::read_to_string(&output_path).expect("svg should be written");
+        assert!(svg.contains("<svg"));
+        assert!(svg.contains("Three Axis Validation Plot"));
+        assert!(svg.contains("signal_v vs temperature_c"));
+        let _ = fs::remove_file(output_path);
+    }
+
+    #[test]
+    fn plot_reports_missing_z_column() {
+        let input_path = format!(
+            "{}/../../examples/basic-waveform.csv",
+            env!("CARGO_MANIFEST_DIR")
+        );
+        let output_path = unique_plot_path("plot-missing-z");
+
+        let error = run(vec![
+            "plot".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--time-column".to_string(),
+            "time".to_string(),
+            "--channels".to_string(),
+            "input_v".to_string(),
+            "--z-column".to_string(),
+            "temperature_c".to_string(),
+            "--output".to_string(),
+            output_path,
+        ])
+        .expect_err("missing z column should fail");
+
+        assert!(error.contains("missing required column `temperature_c`"));
     }
 
     #[test]

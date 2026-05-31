@@ -25,6 +25,15 @@ No blocking QA defects found for the M4 branch. The review scope includes:
 - Clear invalid tolerance config error behavior.
 - Documentation updates for report schema, tolerances, time-axis assumptions, filter equations, and benchmark limits.
 
+## M5 SVG Plotting Update
+
+No blocking QA defects found for the M5 plotting branch. The review scope includes:
+
+- `wra plot` 2D SVG output from `examples/basic-waveform.csv`.
+- `wra plot --z-column` 3D SVG output from `tests/fixtures/plot_three_axis.csv`.
+- Clear errors for missing auxiliary-axis columns and invalid output paths.
+- User-facing docs that state plotting is SVG-only desktop CLI output, not GUI, DAQ, embedded, or certification scope.
+
 ## Checks
 
 | Check | Evidence | Result |
@@ -35,13 +44,14 @@ No blocking QA defects found for the M4 branch. The review scope includes:
 | CLI smoke | Config text and JSON smoke commands | Pass |
 | CI | GitHub Actions runs `26699230596` and `26699270456` | Pass |
 | M4 branch validation | `docs/validation-log.md` M4 section | Pass |
+| M5 plotting validation | `docs/validation-log.md` M5 section | Pass |
 
 ## Gate Decision
 
 - Gate: QA Gate.
 - Decision: Pass.
-- Reason: No blocking defects found in local, CI, or M4 validation evidence.
-- Residual risk: Additional malformed CSV dialect coverage and external capture validation remain future work.
+- Reason: No blocking defects found in local, CI, M4 validation, or M5 plotting evidence.
+- Residual risk: Additional malformed CSV dialect coverage, external capture validation, and visual regression coverage remain future work.
 - Next owner: Security Engineer.
 
 ## Hand-Off Note
@@ -51,5 +61,5 @@ Goal: Review MVP repository quality for the initial public publication gate.
 Files changed: `docs/qa-review.md`
 Checks run: Reviewed local and CI validation evidence.
 Status: Pass.
-Known gaps: Negative-path matrix is intentionally light.
+Known gaps: Negative-path matrix and visual regression coverage are intentionally light.
 Next recommended step: Security review.

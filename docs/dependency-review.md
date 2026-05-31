@@ -22,6 +22,25 @@ Current status: Approved dependencies were added and pinned in `Cargo.lock`; the
 | `serde` | `wra-core` | Derive stable config and report data structures. | MIT / Apache-2.0 family. | Manual parsing/serialization. | Approved because structured data is central to config and reports. |
 | `serde_json` | `wra-core` | JSON report rendering for automation. | MIT / Apache-2.0 family. | Manual JSON strings. | Approved because manual JSON is error-prone. |
 | `toml` | `wra-cli` | Parse user-facing analysis config files. | MIT / Apache-2.0 family. | Keep CLI-only criteria. | Approved because the project already defines TOML config examples. |
+| `plotters` | `wra-plot` | Render optional desktop waveform plots to SVG, including 2D and 3D line charts. | MIT, per Plotters package metadata. | Hand-written SVG rendering. | Approved by user for M5 plotting; constrained with `default-features = false` and `svg_backend` / `line_series` only. |
+
+## M5 Plotting Dependency Review
+
+Plotters was reviewed for the approved plotting slice after the user approved adding the dependency.
+
+| Item | Evidence | Result |
+|---|---|---|
+| Crate scope | `plotters = { version = "0.3.7", default-features = false, features = ["svg_backend", "line_series"] }` | Pass |
+| Backend scope | SVG backend only; no bitmap, GUI, GIF, or interactive backend feature selected. | Pass |
+| License | Plotters Cargo metadata lists `license = "MIT"`. | Pass |
+| Transitive build surface | `cargo tree -p wra-plot` shows native active tree: `plotters`, `plotters-backend`, `plotters-svg`, `num-traits`, and `autocfg`, plus existing `wra-core` dependencies. | Pass |
+| Architecture boundary | Dependency lives in `wra-plot`; `wra-core` and `wra-signal` remain plotting-free. | Pass |
+
+Reviewed sources:
+
+- Plotters SVG backend docs: `https://docs.rs/plotters/latest/plotters/backend/struct.SVGBackend.html`
+- Plotters feature-control docs: `https://docs.rs/plotters/`
+- Plotters package metadata: `https://raw.githubusercontent.com/plotters-rs/plotters/master/plotters/Cargo.toml`
 
 ## Risk Assessment
 
@@ -29,12 +48,13 @@ Current status: Approved dependencies were added and pinned in `Cargo.lock`; the
 - License risk: Low/Medium; confirm resolved crate license metadata during release readiness review.
 - Maintenance risk: Low/Medium; these crates are widely used and reduce custom parser surface.
 - Security risk: Medium; malformed input parsing expands attack surface and needs tests.
+- Plotting risk: Low/Medium; SVG output is local-file only, but future plotting backends could expand native or GUI dependencies if not gated.
 
 ## Gate Decision
 
 - Gate: Dependency Gate.
 - Decision: Pass.
-- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing.
+- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering.
 - Residual risk: Dependency license and advisory scanning is not automated yet.
 - Next owner: Core Software Engineer.
 
