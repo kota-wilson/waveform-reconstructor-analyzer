@@ -677,6 +677,30 @@ mod tests {
                 "invalid-dsl-missing-requirement-unit.toml",
                 "invalid config: invalid parameter `criteria.dsl_missing_unit.requirement.unit`",
             ),
+            (
+                "invalid-dsl-missing-measurement.toml",
+                "invalid config: invalid parameter `criteria.dsl_missing_measurement`",
+            ),
+            (
+                "invalid-dsl-missing-requirement-value.toml",
+                "invalid config: invalid parameter `criteria.dsl_missing_requirement_value.requirement.value`",
+            ),
+            (
+                "invalid-dsl-missing-threshold.toml",
+                "invalid config: invalid parameter `criteria.dsl_missing_threshold.measurement.threshold`",
+            ),
+            (
+                "invalid-dsl-bad-state.toml",
+                "invalid config: invalid parameter `criteria.dsl_bad_state.measurement.state`",
+            ),
+            (
+                "invalid-dsl-equal-pulse-without-selection.toml",
+                "invalid config: invalid parameter `criteria.dsl_equal_pulse_without_selection.measurement.selection`",
+            ),
+            (
+                "invalid-dsl-inverted-edge-thresholds.toml",
+                "invalid config: invalid parameter `criteria.dsl_inverted_edge_thresholds.measurement.low_threshold`",
+            ),
         ] {
             let config_path = format!("{manifest_dir}/../../tests/configs/{config_file}");
             let error = run(vec![

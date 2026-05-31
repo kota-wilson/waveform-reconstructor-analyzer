@@ -1,0 +1,19 @@
+[input]
+time_column = "time_s"
+channels = ["control_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[criteria]]
+id = "dsl_equal_pulse_without_selection"
+channel = "control_v"
+
+[criteria.measurement]
+type = "pulse_width"
+threshold = { value = 2.5, unit = "V" }
+state = "high"
+
+[criteria.requirement]
+operator = "equal_to"
+value = 0.001
+unit = "s"

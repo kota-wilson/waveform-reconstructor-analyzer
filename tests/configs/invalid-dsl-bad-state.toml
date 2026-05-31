@@ -1,0 +1,19 @@
+[input]
+time_column = "time_s"
+channels = ["control_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[criteria]]
+id = "dsl_bad_state"
+channel = "control_v"
+
+[criteria.measurement]
+type = "pulse_width"
+threshold = { value = 2.5, unit = "V" }
+state = "on"
+
+[criteria.requirement]
+operator = "greater_than_or_equal"
+value = 0.001
+unit = "s"

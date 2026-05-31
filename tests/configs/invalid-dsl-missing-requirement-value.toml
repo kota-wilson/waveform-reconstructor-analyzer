@@ -1,0 +1,16 @@
+[input]
+time_column = "time_s"
+channels = ["control_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[criteria]]
+id = "dsl_missing_requirement_value"
+channel = "control_v"
+
+[criteria.measurement]
+type = "maximum_sample"
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+unit = "V"

@@ -207,6 +207,14 @@ impl CriterionConfig {
                 .expect("DSL requirement section validated");
             let measurement_kind = measurement.validate(&self.id)?;
             requirement.validate(&self.id, measurement_kind.requirement_unit())?;
+            let operator = CriterionOperator::from_config(
+                requirement
+                    .operator
+                    .as_deref()
+                    .expect("DSL operator validated"),
+            )
+            .expect("DSL operator validated");
+            measurement.to_measurement_spec(&self.id, measurement_kind, operator)?;
 
             return Ok(CriterionConfigShape::Dsl);
         }
@@ -463,14 +471,22 @@ impl CriterionMeasurementConfig {
                     threshold_v: self.required_threshold_value(criterion_id, "threshold")?,
                 })
             }
-            CriterionMeasurementKind::RiseTime => Ok(MeasurementSpec::RiseTime {
-                low_threshold_v: self.required_threshold_value(criterion_id, "low_threshold")?,
-                high_threshold_v: self.required_threshold_value(criterion_id, "high_threshold")?,
-            }),
-            CriterionMeasurementKind::FallTime => Ok(MeasurementSpec::FallTime {
-                low_threshold_v: self.required_threshold_value(criterion_id, "low_threshold")?,
-                high_threshold_v: self.required_threshold_value(criterion_id, "high_threshold")?,
-            }),
+            CriterionMeasurementKind::RiseTime => {
+                let (low_threshold_v, high_threshold_v) =
+                    self.validated_edge_thresholds(criterion_id)?;
+                Ok(MeasurementSpec::RiseTime {
+                    low_threshold_v,
+                    high_threshold_v,
+                })
+            }
+            CriterionMeasurementKind::FallTime => {
+                let (low_threshold_v, high_threshold_v) =
+                    self.validated_edge_thresholds(criterion_id)?;
+                Ok(MeasurementSpec::FallTime {
+                    low_threshold_v,
+                    high_threshold_v,
+                })
+            }
         }
     }
 
@@ -487,6 +503,19 @@ impl CriterionMeasurementConfig {
         })?;
 
         Ok(value.value)
+    }
+
+    fn validated_edge_thresholds(&self, criterion_id: &str) -> Result<(f64, f64)> {
+        let low_threshold_v = self.required_threshold_value(criterion_id, "low_threshold")?;
+        let high_threshold_v = self.required_threshold_value(criterion_id, "high_threshold")?;
+        if low_threshold_v >= high_threshold_v {
+            return Err(WaveformError::InvalidParameter {
+                name: format!("criteria.{criterion_id}.measurement.low_threshold"),
+                reason: "must be lower than high_threshold".to_string(),
+            });
+        }
+
+        Ok((low_threshold_v, high_threshold_v))
     }
 
     fn required_state(&self, criterion_id: &str, field: &str) -> Result<SignalState> {
@@ -824,12 +853,28 @@ unit = "s"
 
     #[test]
     fn validates_supported_dsl_operators_and_requirement_units() {
-        for (operator, measurement_type, unit) in [
-            ("less_than", "maximum_sample", "V"),
-            ("less_than_or_equal", "rise_time", "s"),
-            ("greater_than", "stable_state_duration", "s"),
-            ("greater_than_or_equal", "state_transition_count", "count"),
-            ("equal_to", "fall_time", "s"),
+        for (operator, measurement_section, unit) in [
+            ("less_than", "type = \"maximum_sample\"", "V"),
+            (
+                "less_than_or_equal",
+                "type = \"rise_time\"\nlow_threshold = { value = 0.5, unit = \"V\" }\nhigh_threshold = { value = 4.5, unit = \"V\" }",
+                "s",
+            ),
+            (
+                "greater_than",
+                "type = \"stable_state_duration\"\nthreshold = { value = 2.5, unit = \"V\" }\nstate = \"high\"",
+                "s",
+            ),
+            (
+                "greater_than_or_equal",
+                "type = \"state_transition_count\"\nthreshold = { value = 2.5, unit = \"V\" }",
+                "count",
+            ),
+            (
+                "equal_to",
+                "type = \"fall_time\"\nlow_threshold = { value = 0.5, unit = \"V\" }\nhigh_threshold = { value = 4.5, unit = \"V\" }",
+                "s",
+            ),
         ] {
             let toml = format!(
                 r#"
@@ -842,8 +887,7 @@ id = "dsl_check"
 channel = "switch_v"
 
 [criteria.measurement]
-type = "{measurement_type}"
-threshold = {{ value = 2.5, unit = "V" }}
+{measurement_section}
 
 [criteria.requirement]
 operator = "{operator}"
@@ -1033,6 +1077,214 @@ unit = "V"
                 reason:
                     "legacy criteria using `type` cannot include DSL `measurement` or `requirement` sections"
                         .to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_missing_dsl_measurement_or_requirement_sections() {
+        let missing_measurement = toml::from_str::<AnalysisConfig>(
+            r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[criteria]]
+id = "missing_measurement"
+channel = "switch_v"
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.005
+unit = "s"
+"#,
+        )
+        .expect("config should deserialize");
+        let missing_requirement = toml::from_str::<AnalysisConfig>(
+            r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[criteria]]
+id = "missing_requirement"
+channel = "switch_v"
+
+[criteria.measurement]
+type = "rise_time"
+low_threshold = { value = 0.5, unit = "V" }
+high_threshold = { value = 4.5, unit = "V" }
+"#,
+        )
+        .expect("config should deserialize");
+
+        assert_eq!(
+            missing_measurement.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.missing_measurement".to_string(),
+                reason: "DSL criteria require both `measurement` and `requirement` sections"
+                    .to_string(),
+            })
+        );
+        assert_eq!(
+            missing_requirement.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.missing_requirement".to_string(),
+                reason: "DSL criteria require both `measurement` and `requirement` sections"
+                    .to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_missing_dsl_requirement_value() {
+        let toml = r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[criteria]]
+id = "missing_value"
+channel = "switch_v"
+
+[criteria.measurement]
+type = "maximum_sample"
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+unit = "V"
+"#;
+        let config = toml::from_str::<AnalysisConfig>(toml).expect("config should deserialize");
+
+        assert_eq!(
+            config.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.missing_value.requirement.value".to_string(),
+                reason: "field is required for DSL requirements".to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_missing_dsl_measurement_threshold() {
+        let toml = r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[criteria]]
+id = "missing_threshold"
+channel = "switch_v"
+
+[criteria.measurement]
+type = "state_transition_count"
+
+[criteria.requirement]
+operator = "equal_to"
+value = 2
+unit = "count"
+"#;
+        let config = toml::from_str::<AnalysisConfig>(toml).expect("config should deserialize");
+
+        assert_eq!(
+            config.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.missing_threshold.measurement.threshold".to_string(),
+                reason: "field is required for this measurement type".to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_incompatible_dsl_measurement_parameters() {
+        let invalid_state = toml::from_str::<AnalysisConfig>(
+            r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[criteria]]
+id = "bad_state"
+channel = "switch_v"
+
+[criteria.measurement]
+type = "pulse_width"
+threshold = { value = 2.5, unit = "V" }
+state = "on"
+
+[criteria.requirement]
+operator = "greater_than_or_equal"
+value = 0.001
+unit = "s"
+"#,
+        )
+        .expect("config should deserialize");
+        let missing_selection = toml::from_str::<AnalysisConfig>(
+            r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[criteria]]
+id = "missing_selection"
+channel = "switch_v"
+
+[criteria.measurement]
+type = "pulse_width"
+threshold = { value = 2.5, unit = "V" }
+state = "high"
+
+[criteria.requirement]
+operator = "equal_to"
+value = 0.001
+unit = "s"
+"#,
+        )
+        .expect("config should deserialize");
+        let inverted_edge = toml::from_str::<AnalysisConfig>(
+            r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[criteria]]
+id = "bad_edge"
+channel = "switch_v"
+
+[criteria.measurement]
+type = "rise_time"
+low_threshold = { value = 4.5, unit = "V" }
+high_threshold = { value = 0.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.005
+unit = "s"
+"#,
+        )
+        .expect("config should deserialize");
+
+        assert_eq!(
+            invalid_state.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.bad_state.measurement.state".to_string(),
+                reason: "expected `high` or `low`, got `on`".to_string(),
+            })
+        );
+        assert_eq!(
+            missing_selection.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.missing_selection.measurement.selection".to_string(),
+                reason:
+                    "field is required for equal_to pulse_width criteria; use `shortest` or `longest`"
+                        .to_string(),
+            })
+        );
+        assert_eq!(
+            inverted_edge.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.bad_edge.measurement.low_threshold".to_string(),
+                reason: "must be lower than high_threshold".to_string(),
             })
         );
     }

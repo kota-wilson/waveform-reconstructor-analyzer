@@ -22,6 +22,48 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-core`, and `ferrisoxide-cli`.
 
+## M7-005 Invalid DSL Config Tests Branch
+
+Current as of the M7-005 branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-core config::tests -- --nocapture` | Passed | 19 config tests passed, including missing sections/fields, invalid states, missing selection, inverted thresholds, unit errors, shorthand rejection, and mixed legacy/DSL shape. |
+| `cargo test -p ferrisoxide-cli invalid_config_semantics_return_clear_errors` | Passed | CLI invalid-config test covers existing invalid fixtures plus new DSL-specific fixtures with contextual `criteria.<id>...` error paths. |
+| `cargo fmt` | Passed | Rust sources formatted after validation/test edits. |
+| `cargo fmt --check` | Passed | Formatting remained clean. |
+| `cargo test --workspace` | Passed | 105 tests passed: 10 CLI, 55 core, 15 criteria-engine fixture/golden/parity tests, 1 CSV fixture integration test, 4 `ferrisoxide-embedded`, 5 `ferrisoxide-measurements`, 6 `ferrisoxide-plot`, 9 `ferrisoxide-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+
+### Exact Tests Added
+
+| Test / Fixture | Coverage |
+|---|---|
+| `rejects_missing_dsl_measurement_or_requirement_sections` | Missing DSL measurement or requirement sections fail at config validation. |
+| `rejects_missing_dsl_requirement_value` | Missing requirement values fail with a requirement field path. |
+| `rejects_missing_dsl_measurement_threshold` | Measurement types that need thresholds reject missing threshold fields. |
+| `rejects_incompatible_dsl_measurement_parameters` | Invalid states, missing pulse-width `selection` for `equal_to`, and inverted edge thresholds fail clearly. |
+| New `tests/configs/invalid-dsl-*` fixtures | CLI semantic-error coverage for invalid DSL TOML paths. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M7-005.
+- Decision: Pass locally.
+- Reason: Focused config tests, CLI invalid-config tests, formatting, workspace tests, clippy, and whitespace checks pass.
+- Residual risk: Protected GitHub CI is pending until PR creation; user-facing docs remain #60/#61.
+- Owner for residual risk: GitHub Maintainer Specialist / Documentation Engineer.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer
+Goal: Validate invalid DSL config behavior for issue #59.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo test -p ferrisoxide-core config::tests -- --nocapture`; `cargo test -p ferrisoxide-cli invalid_config_semantics_return_clear_errors`; `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally; protected-branch PR and CI pending.
+Known gaps: #60 engineering examples/migration docs and #61 schema/report evidence notes remain open.
+Next recommended step: Open the M7-005 PR with `Fixes #59`.
+
 ## M7-004 DSL Parity Golden Tests Branch
 
 Current as of the M7-004 branch on 2026-05-31.
