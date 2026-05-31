@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Prepare the domain end-user design review for merge after M1-001, v0.2.0, and M3-RTOS-001 landed on `main`.
+Route accepted domain end-user design review findings into follow-up issues.
 
 ## Current Stage
 
-End-user design review PR #23 is being rebased onto current `main`; M1-001, v0.2.0, and M3-RTOS-001 are already merged.
+End-user design review is complete; M1-001, v0.2.0, and M3-RTOS-001 are already merged.
 
 ## Open Risks
 
@@ -42,18 +42,18 @@ End-user design review PR #23 is being rebased onto current `main`; M1-001, v0.2
 
 ## Next Responsible Role
 
-Role: Release Engineer / GitHub Maintainer Specialist
+Role: Project Orchestrator
 
-Expected deliverable: Complete PR #23 rebase, rerun CI, merge the end-user design review, and route accepted findings into follow-up issues.
+Expected deliverable: Route accepted findings into follow-up issues for metadata, operator docs, filter assumptions, embedded target evidence, supply-chain scanning, and certification claim boundaries.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: Domain end-user design review.
+- Current milestone: Domain end-user design review complete.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`.
-- Next gate: CI and merge for PR #23.
+- Next gate: Follow-up issue routing for accepted review findings.
 - Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/certification work.
 
 ## Granularity Status
@@ -121,7 +121,7 @@ Expected deliverable: Complete PR #23 rebase, rerun CI, merge the end-user desig
 | M3-RTOS-001 Release Gate | Pass | PR #21 merged after `rust` CI passed: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/21` | Community Engineering Lead |
 | M3-RTOS-001 Community Gate | Pass | PR #21 body links issue #20 and follow-up issues #17-#19 | Project Coordinator |
 | M3-RTOS-001 Retrospective Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Project Orchestrator |
-| Domain End-User Review Gate | Pass | `docs/end-user-design-review.md` | Documentation Engineer |
+| Domain End-User Review Gate | Pass | `docs/end-user-design-review.md`; PR #23 | Documentation Engineer |
 
 ## Update Rules
 

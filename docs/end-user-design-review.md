@@ -6,6 +6,8 @@ Branch: `feature/end-user-design-review`
 
 Review type: Domain end-user design review
 
+Pull request: #23, `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/23`
+
 Review status: Advisory design review; not a hardware validation, RTOS production-readiness determination, flight certification determination, legal opinion, or regulatory compliance claim.
 
 ## Scope
@@ -103,6 +105,6 @@ Role: Project Orchestrator
 Goal: Complete end-user design review using new domain specialty roles.
 Files changed: `docs/end-user-design-review.md`, `requirements.md`, `project-state.md`
 Checks run: Documentation review; terminology scan for informal event wording; `git diff --check`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`.
-Status: Review complete; ready for CI and merge.
+Status: Review complete; follow-up issue routing pending.
 Known gaps: Findings are advisory until routed into issues or implementation PRs.
 Next recommended step: Merge the docs PR, then route accepted findings into GitHub issues.
