@@ -215,6 +215,7 @@ dependencies = [
  "csv",
  "serde",
  "serde_json",
+ "toml",
 ]
 
 [[package]]

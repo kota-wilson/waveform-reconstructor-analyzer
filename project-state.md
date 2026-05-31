@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Address M1-001 by validating CSV parser edge cases on a main-based feature branch.
+Prepare the v0.2.0 waveform criteria engine for merge after M1-001 CSV edge-case coverage landed on `main`.
 
 ## Current Stage
 
-M1-001 implementation and full local validation complete; PR #22 opened from `feature/m1-001-csv-parser-edge-cases` to protected `main`; GitHub `rust` CI passed and review is required.
+v0.2.0 criteria engine branch is being rebased onto current `main`; M1-001 is already merged.
 
 ## Open Risks
 
@@ -37,7 +37,7 @@ M1-001 implementation and full local validation complete; PR #22 opened from `fe
 
 Role: Project Orchestrator
 
-Expected deliverable: Wait for protected-branch review on PR #22.
+Expected deliverable: Complete PR #16 rebase, rerun CI, and merge the v0.2.0 criteria engine.
 
 ## Orchestration Status
 
@@ -45,8 +45,8 @@ Expected deliverable: Wait for protected-branch review on PR #22.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Current milestone: Dependency-reviewed MVP slice complete.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: `M1: Validated MVP`.
-- Next gate: Required review for PR #22.
+- Current milestone: `v0.2.0: waveform criteria engine`.
+- Next gate: Protected-branch PR review and CI for criteria engine.
 - Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/certification work.
 
 ## Granularity Status
@@ -97,6 +97,8 @@ Expected deliverable: Wait for protected-branch review on PR #22.
 | M1-001 Testing Gate | Pass | `docs/validation-log.md`; targeted parser tests, workspace tests, fmt, and clippy passed | Project Orchestrator |
 | M1-001 Release Gate | Pass | PR #22 opened and `rust` CI passed: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/22` | Community Engineering Lead |
 | M1-001 Community Gate | Pass | PR #22 body links issue #1 and validation commands | Project Coordinator |
+| v0.2.0 Planning Gate | Pass | M2 issues #8-#15 created under `v0.2.0: waveform criteria engine` | Core Software Engineer |
+| v0.2.0 Implementation Gate | Pass in branch | `docs/implementation-report.md`, `traceability-matrix.md` | Test Automation Engineer |
 
 ## Update Rules
 

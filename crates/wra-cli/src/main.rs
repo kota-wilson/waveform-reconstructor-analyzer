@@ -335,4 +335,62 @@ mod tests {
         assert!(output.contains("\"overall_outcome\": \"pass\""));
         assert!(output.contains("\"criterion_id\": \"input_max_voltage\""));
     }
+
+    #[test]
+    fn invalid_config_syntax_returns_clear_error() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path = format!("{manifest_dir}/../../examples/basic-waveform.csv");
+        let config_path = format!("{manifest_dir}/../../tests/configs/invalid-bad-syntax.toml");
+
+        let error = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--config".to_string(),
+            config_path.clone(),
+        ])
+        .expect_err("bad config should fail");
+
+        assert!(error.contains(&format!("failed to parse config `{config_path}`")));
+    }
+
+    #[test]
+    fn invalid_config_semantics_return_clear_errors() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path = format!("{manifest_dir}/../../examples/basic-waveform.csv");
+
+        for (config_file, expected) in [
+            (
+                "invalid-empty-channels.toml",
+                "config input.channels must include at least one channel",
+            ),
+            (
+                "invalid-missing-criteria.toml",
+                "config must include at least one [[criteria]] entry",
+            ),
+            (
+                "invalid-unsupported-criterion.toml",
+                "unsupported criterion type `aerospace_magic`",
+            ),
+            (
+                "invalid-missing-transient-event-field.toml",
+                "invalid parameter `criteria.max_duration_s`",
+            ),
+        ] {
+            let config_path = format!("{manifest_dir}/../../tests/configs/{config_file}");
+            let error = run(vec![
+                "analyze".to_string(),
+                "--input".to_string(),
+                input_path.clone(),
+                "--config".to_string(),
+                config_path,
+            ])
+            .expect_err("invalid config should fail");
+
+            assert!(
+                error.contains(expected),
+                "expected `{error}` to contain `{expected}`"
+            );
+        }
+    }
 }

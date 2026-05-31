@@ -22,25 +22,27 @@ Owner Role: Test Automation Engineer
 | Command | Result | Notes |
 |---|---|---|
 | `cargo fmt --check` | Passed | Rustfmt formatting clean after applying `cargo fmt`. |
-| `cargo test --workspace` | Passed | 15 tests passed: 14 unit tests and 1 CSV fixture integration test. |
+| `cargo test --workspace` | Passed | 26 tests passed: 19 unit tests, 6 criteria-engine fixture/golden tests, and 1 CSV fixture integration test. |
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
 | `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --time-column time --channels input_v --moving-average 2 --min input_v:0.0 --max input_v:5.5` | Passed | CLI produced a text report with overall `Pass`. |
 | `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format text` | Passed | Config-driven CLI produced a text report with overall `Pass`. |
 | `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format json` | Passed | Config-driven CLI produced JSON with `overall_outcome: pass`. |
+| `cargo run --bin wra -- analyze --input tests/fixtures/dropout_event.csv --config tests/configs/transient-event-dropout-fail.toml --format text` | Passed | Transient event report includes failed criterion, measured duration, required duration, sample index, timestamp, and channel. |
+| Golden JSON tests | Passed | `criteria_engine_pass.json`, `transient_event_dropout_fail.json`, and `slow_rise_fail.json` matched exactly. |
 
 ## Gate Decision
 
 - Gate: Testing Gate.
 - Decision: Pass.
-- Reason: Formatting, workspace tests, clippy, explicit-flag CLI smoke, config text smoke, and config JSON smoke passed with project-local Cargo tooling.
-- Residual risk: No large-file, malformed CSV dialect matrix, config compatibility, JSON schema snapshot, or numerical frequency-response tests yet.
+- Reason: Formatting, workspace tests, clippy, explicit-flag CLI smoke, config text/json smoke, invalid config tests, fixture criteria tests, and golden JSON tests passed with project-local Cargo tooling.
+- Residual risk: No large-file performance corpus or certified signal-processing validation.
 - Owner for residual risk: Test Automation Engineer.
 
 ## Handoff
 
 - Next owner: Project Orchestrator.
-- Expected deliverable: Release readiness review and public repository publication.
-- Required next gate: Release Gate before publishing externally.
+- Expected deliverable: PR review for v0.2.0 criteria engine.
+- Required next gate: Protected-branch PR review and CI.
 
 ## M1-001 CSV Parser Edge-Case Validation
 

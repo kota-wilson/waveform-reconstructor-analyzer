@@ -1,0 +1,29 @@
+[input]
+time_column = "time_s"
+channels = ["control_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[criteria]]
+id = "control_transition_count"
+type = "state_transitions"
+channel = "control_v"
+threshold_v = 2.5
+expected_count = 4
+
+[[criteria]]
+id = "control_high_pulse_width"
+type = "pulse_width"
+channel = "control_v"
+state = "high"
+threshold_v = 2.5
+min_width_s = 0.002
+max_width_s = 0.003
+
+[[criteria]]
+id = "control_stable_low"
+type = "stable_state_duration"
+channel = "control_v"
+state = "low"
+threshold_v = 2.5
+min_duration_s = 0.002

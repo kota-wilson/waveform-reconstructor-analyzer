@@ -1,0 +1,13 @@
+[input]
+time_column = "time_s"
+channels = ["switch_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[criteria]]
+id = "switch_bounce_transient_max"
+type = "transient_duration"
+channel = "switch_v"
+expected_state = "high"
+threshold_v = 2.5
+max_duration_s = 0.0005

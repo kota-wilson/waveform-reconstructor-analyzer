@@ -1,0 +1,18 @@
+{
+  "input_name": "tests/fixtures/dropout_event.csv",
+  "overall_outcome": "fail",
+  "results": [
+    {
+      "criterion_id": "supply_dropout_max_1ms",
+      "outcome": "fail",
+      "failed_criterion": "supply_dropout_max_1ms",
+      "channel": "supply_v",
+      "measured_value": 0.002,
+      "required_value": 0.001,
+      "unit": "s",
+      "sample_index": 3,
+      "timestamp": 0.003,
+      "reason": "longest unintended low dropout duration was 0.002000 s"
+    }
+  ]
+}

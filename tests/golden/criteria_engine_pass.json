@@ -1,0 +1,42 @@
+{
+  "input_name": "tests/fixtures/clean_square_wave.csv",
+  "overall_outcome": "pass",
+  "results": [
+    {
+      "criterion_id": "control_transition_count",
+      "outcome": "pass",
+      "failed_criterion": null,
+      "channel": "control_v",
+      "measured_value": 4.0,
+      "required_value": 4.0,
+      "unit": "transitions",
+      "sample_index": 2,
+      "timestamp": 0.002,
+      "reason": "observed 4 state transitions at 2.500000 V"
+    },
+    {
+      "criterion_id": "control_high_pulse_width",
+      "outcome": "pass",
+      "failed_criterion": null,
+      "channel": "control_v",
+      "measured_value": 0.002,
+      "required_value": 0.002,
+      "unit": "s",
+      "sample_index": 7,
+      "timestamp": 0.007,
+      "reason": "high pulse width met configured limits; measured 0.002000 s"
+    },
+    {
+      "criterion_id": "control_stable_low",
+      "outcome": "pass",
+      "failed_criterion": null,
+      "channel": "control_v",
+      "measured_value": 0.002,
+      "required_value": 0.002,
+      "unit": "s",
+      "sample_index": 5,
+      "timestamp": 0.005,
+      "reason": "longest stable low duration was 0.002000 s"
+    }
+  ]
+}
