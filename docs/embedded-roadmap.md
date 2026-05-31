@@ -8,6 +8,8 @@ Owner Role: Software Architect
 
 The embedded path is a separate module track. It must not live inside the desktop CLI path and must not pull CSV parsing, file I/O, plotting, or report generation into embedded crates.
 
+The first-class embedded target is Raspberry Pi 5 bare-metal ARM64 using Rust target `aarch64-unknown-none`. RTOS compatibility remains a later layer around that target rather than a generic embedded target replacement. Platform profiles are defined in `docs/platform-targets.md`.
+
 ## Modular Split
 
 | Module | Responsibility | Status |
@@ -21,9 +23,10 @@ The embedded path is a separate module track. It must not live inside the deskto
 ## Adapter Order
 
 1. M3-RTOS-001: Extract `wra-signal` `no_std` signal primitives.
-2. M3-RTOS-002: Add ARM64 QEMU embedded demo.
-3. M3-RTOS-003: Add RTOS adapter abstraction.
+2. M3-RTOS-002: Add host-checkable ARM64 QEMU embedded demo.
+3. M3-RTOS-003: Add embedded adapter abstraction.
 4. M3-RTOS-004: Add Zephyr feasibility prototype.
+5. M9-011: Define Apple Silicon desktop and Raspberry Pi 5 bare-metal platform profiles.
 
 ## M3 Follow-Up Status
 
@@ -41,6 +44,8 @@ The embedded path is a separate module track. It must not live inside the deskto
 - No GUI.
 - No aerospace or hardware certification claims.
 - No heap requirement for the basic analysis path.
+- No Raspberry Pi 5 hardware boot claim until separate board-support validation exists.
+- No generic RTOS target claim replacing the Raspberry Pi 5 bare-metal first-class target.
 
 ## Architecture Decision
 

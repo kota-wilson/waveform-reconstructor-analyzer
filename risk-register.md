@@ -26,6 +26,7 @@
 | WRA-RISK-022 | Production control config and test verification config may be conflated. | Medium | High | Keep separate schemas and link them through deployment manifests, version metadata, and parity tests. | Software Architect / Verification and Validation Engineer | Active | Controller-in-the-loop config work. |
 | WRA-RISK-023 | DAQ or controller I/O abstractions may pull in vendor SDK, HAL, or hardware assumptions too early. | Medium | High | Start with abstractions and test doubles only; require dependency, environment, security, and hardware gates before SDK/HAL integration. | Systems Engineer / Security Engineer | Active | DAQ, controller I/O, or RTOS runtime changes. |
 | WRA-RISK-024 | Desktop virtual controller behavior may drift from RTOS runtime behavior. | Medium | High | Share state-machine definitions, timing assumptions, config schemas, and exact desktop-vs-embedded parity tests. | Embedded RTOS Engineer / Core Software Engineer | Active | Simulator or runtime implementation. |
+| WRA-RISK-025 | Treating the embedded target as generic RTOS may obscure Raspberry Pi 5 bare-metal constraints. | Medium | High | Define Raspberry Pi 5 bare-metal ARM64 as the first-class embedded target, keep RTOS compatibility as a later layer, and require `aarch64-unknown-none` target checks for embedded crates. | Embedded RTOS Engineer / DX Engineer | Active | Platform profile or embedded target changes. |
 
 ## Escalation
 

@@ -135,6 +135,8 @@ Recommended future crate/module boundaries:
 | `wra-embedded` | no_std adapter boundaries for runtime integration. | Exists as foundation. |
 | `wra-cli` | CLI workflows for analysis, plotting, export, and future simulation commands. | Exists. |
 
+Platform profiles are defined in `docs/platform-targets.md`. Controller-in-the-loop implementation should treat Apple Silicon macOS as the desktop authoring platform and Raspberry Pi 5 bare-metal ARM64 as the first-class embedded runtime target.
+
 ## Operating Modes
 
 ### Desktop Simulation Mode
@@ -236,6 +238,8 @@ Rules:
 
 - RTOS verification mode must use shared rule semantics.
 - Runtime code must not depend on desktop CSV parsing, plotting, rich report rendering, or GUI concerns.
+- Raspberry Pi 5 bare-metal ARM64 is the first-class embedded target.
+- RTOS compatibility is a later layer around the Raspberry Pi 5 bare-metal target, not a generic replacement target.
 - Target SDK, HAL, QEMU execution, Zephyr production support, and real hardware validation require separate gates.
 
 ## Desktop And RTOS Parity Rules
