@@ -1,0 +1,9 @@
+[input]
+time_column = "time_s"
+channels = []
+
+[[criteria]]
+id = "max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 5.5

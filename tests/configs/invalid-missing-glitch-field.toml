@@ -1,0 +1,10 @@
+[input]
+time_column = "time_s"
+channels = ["supply_v"]
+
+[[criteria]]
+id = "bad_glitch"
+type = "glitch_detection"
+channel = "supply_v"
+expected_state = "high"
+threshold_v = 2.5

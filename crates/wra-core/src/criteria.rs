@@ -33,6 +33,116 @@ impl Criterion {
         }
     }
 
+    pub fn state_transitions(
+        id: impl Into<String>,
+        channel: impl Into<String>,
+        threshold_v: f64,
+        expected_count: usize,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            check: CriterionCheck::StateTransitions {
+                channel: channel.into(),
+                threshold_v,
+                expected_count,
+            },
+        }
+    }
+
+    pub fn pulse_width(
+        id: impl Into<String>,
+        channel: impl Into<String>,
+        state: SignalState,
+        threshold_v: f64,
+        min_width_s: Option<f64>,
+        max_width_s: Option<f64>,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            check: CriterionCheck::PulseWidth {
+                channel: channel.into(),
+                state,
+                threshold_v,
+                min_width_s,
+                max_width_s,
+            },
+        }
+    }
+
+    pub fn transient_duration(
+        id: impl Into<String>,
+        channel: impl Into<String>,
+        expected_state: SignalState,
+        threshold_v: f64,
+        max_duration_s: f64,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            check: CriterionCheck::TransientDuration {
+                channel: channel.into(),
+                expected_state,
+                threshold_v,
+                max_duration_s,
+            },
+        }
+    }
+
+    pub fn glitch_detection(
+        id: impl Into<String>,
+        channel: impl Into<String>,
+        expected_state: SignalState,
+        threshold_v: f64,
+        max_duration_s: f64,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            check: CriterionCheck::GlitchDetection {
+                channel: channel.into(),
+                expected_state,
+                threshold_v,
+                max_duration_s,
+            },
+        }
+    }
+
+    pub fn stable_state_duration(
+        id: impl Into<String>,
+        channel: impl Into<String>,
+        state: SignalState,
+        threshold_v: f64,
+        min_duration_s: f64,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            check: CriterionCheck::StableStateDuration {
+                channel: channel.into(),
+                state,
+                threshold_v,
+                min_duration_s,
+            },
+        }
+    }
+
+    pub fn rise_fall_time(
+        id: impl Into<String>,
+        channel: impl Into<String>,
+        direction: EdgeDirection,
+        low_threshold_v: f64,
+        high_threshold_v: f64,
+        max_duration_s: f64,
+    ) -> Self {
+        Self {
+            id: id.into(),
+            check: CriterionCheck::RiseFallTime {
+                channel: channel.into(),
+                direction,
+                low_threshold_v,
+                high_threshold_v,
+                max_duration_s,
+            },
+        }
+    }
+
     pub fn channel(&self) -> &str {
         self.check.channel()
     }
@@ -40,14 +150,110 @@ impl Criterion {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum CriterionCheck {
-    MinimumVoltage { channel: String, threshold_v: f64 },
-    MaximumVoltage { channel: String, threshold_v: f64 },
+    MinimumVoltage {
+        channel: String,
+        threshold_v: f64,
+    },
+    MaximumVoltage {
+        channel: String,
+        threshold_v: f64,
+    },
+    StateTransitions {
+        channel: String,
+        threshold_v: f64,
+        expected_count: usize,
+    },
+    PulseWidth {
+        channel: String,
+        state: SignalState,
+        threshold_v: f64,
+        min_width_s: Option<f64>,
+        max_width_s: Option<f64>,
+    },
+    TransientDuration {
+        channel: String,
+        expected_state: SignalState,
+        threshold_v: f64,
+        max_duration_s: f64,
+    },
+    GlitchDetection {
+        channel: String,
+        expected_state: SignalState,
+        threshold_v: f64,
+        max_duration_s: f64,
+    },
+    StableStateDuration {
+        channel: String,
+        state: SignalState,
+        threshold_v: f64,
+        min_duration_s: f64,
+    },
+    RiseFallTime {
+        channel: String,
+        direction: EdgeDirection,
+        low_threshold_v: f64,
+        high_threshold_v: f64,
+        max_duration_s: f64,
+    },
 }
 
 impl CriterionCheck {
     pub fn channel(&self) -> &str {
         match self {
-            Self::MinimumVoltage { channel, .. } | Self::MaximumVoltage { channel, .. } => channel,
+            Self::MinimumVoltage { channel, .. }
+            | Self::MaximumVoltage { channel, .. }
+            | Self::StateTransitions { channel, .. }
+            | Self::PulseWidth { channel, .. }
+            | Self::TransientDuration { channel, .. }
+            | Self::GlitchDetection { channel, .. }
+            | Self::StableStateDuration { channel, .. }
+            | Self::RiseFallTime { channel, .. } => channel,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SignalState {
+    High,
+    Low,
+}
+
+impl SignalState {
+    pub fn from_config(value: &str) -> Option<Self> {
+        match value {
+            "high" => Some(Self::High),
+            "low" => Some(Self::Low),
+            _ => None,
+        }
+    }
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::High => "high",
+            Self::Low => "low",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EdgeDirection {
+    Rise,
+    Fall,
+}
+
+impl EdgeDirection {
+    pub fn from_config(value: &str) -> Option<Self> {
+        match value {
+            "rise" => Some(Self::Rise),
+            "fall" => Some(Self::Fall),
+            _ => None,
+        }
+    }
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Rise => "rise",
+            Self::Fall => "fall",
         }
     }
 }

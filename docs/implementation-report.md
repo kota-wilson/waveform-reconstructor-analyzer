@@ -25,6 +25,13 @@ Owner Role: Core Software Engineer
 - How: Added project-local files only; third-party crates are pinned in `Cargo.lock` after dependency approval.
 - Why: The user requested an open-source Rust-centered waveform analyzer and approved proceeding through dependency, license, and publication gates.
 
+## v0.2.0 Criteria Engine Update
+
+- What: Added real waveform fixtures, richer criteria, report evidence fields, config validation tests, and golden JSON report tests.
+- Where: `crates/wra-core/src/criteria.rs`, `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs`, `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, `tests/fixtures/`, `tests/configs/`, `tests/golden/`.
+- How: Implemented criteria variants for state transitions, pulse width, transient duration, glitch detection, stable-state duration, and rise/fall time without adding new dependencies.
+- Why: v0.2.0 moves the project from repository skeleton to validated waveform criteria engine.
+
 ## Changed Areas
 
 | Area | Files |
@@ -35,7 +42,7 @@ Owner Role: Core Software Engineer
 | Filters | `crates/wra-core/src/filter.rs` |
 | Criteria/report models | `criteria.rs`, `analysis.rs`, `report.rs` |
 | CLI analysis path | `crates/wra-cli/src/main.rs` |
-| Tests and fixtures | `crates/wra-core/tests/csv_fixture.rs`, `tests/fixtures/basic_waveform.csv` |
+| Tests and fixtures | `crates/wra-core/tests/csv_fixture.rs`, `crates/wra-core/tests/criteria_engine.rs`, `tests/fixtures/`, `tests/configs/`, `tests/golden/` |
 | Open-source metadata | README, LICENSE, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG, GitHub templates, CI |
 
 ## MVP Behavior Added
@@ -45,6 +52,7 @@ Owner Role: Core Software Engineer
 - CLI filters can be applied in command order with `--moving-average <samples>` and `--low-pass <hz>`.
 - CLI criteria can be supplied with `--min channel:value` and `--max channel:value`.
 - Text and JSON reports include input, overall outcome, measured values, thresholds, and units.
+- v0.2.0 criteria reports include failed criterion, channel, measured value, required value, sample index, and timestamp evidence.
 
 ## Out Of Scope Preserved
 
@@ -58,8 +66,8 @@ Owner Role: Core Software Engineer
 
 - Gate: Implementation Gate.
 - Decision: Pass for dependency-reviewed MVP slice.
-- Reason: Implementation covers CSV loading through the `csv` crate, TOML config, basic filters, min/max criteria, text/JSON reports, and CLI analysis with tests.
-- Residual risk: CSV dialect support, config schema evolution, report compatibility, and filter numerical behavior need broader fixtures before production claims.
+- Reason: Implementation covers CSV loading through the `csv` crate, TOML config, filters, waveform criteria, text/JSON reports, golden reports, and CLI analysis with tests.
+- Residual risk: Criteria algorithms are MVP-level and need more real capture data before production claims.
 - Owner for residual risk: Software Architect / Core Software Engineer.
 
 ## Handoff

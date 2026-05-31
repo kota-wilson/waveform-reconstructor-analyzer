@@ -1,0 +1,23 @@
+[input]
+time_column = "time_s"
+channels = ["signal_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[criteria]]
+id = "signal_rise_time_max_3ms"
+type = "rise_fall_time"
+channel = "signal_v"
+direction = "rise"
+low_threshold_v = 0.5
+high_threshold_v = 4.5
+max_duration_s = 0.003
+
+[[criteria]]
+id = "signal_fall_time_max_3ms"
+type = "rise_fall_time"
+channel = "signal_v"
+direction = "fall"
+low_threshold_v = 0.5
+high_threshold_v = 4.5
+max_duration_s = 0.003

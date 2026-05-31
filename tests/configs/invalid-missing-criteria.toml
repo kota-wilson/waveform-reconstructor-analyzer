@@ -1,0 +1,3 @@
+[input]
+time_column = "time_s"
+channels = ["input_v"]

@@ -30,13 +30,17 @@ impl AnalysisReport {
 
         for result in &self.results {
             output.push_str(&format!(
-                "- {}: {:?} measured={:.6} {} threshold={:.6} {}\n",
+                "- {}: {:?} channel={} measured={:.6} {} required={:.6} {} sample_index={} timestamp={:.6} reason={}\n",
                 result.criterion_id,
                 result.outcome,
+                result.channel,
                 result.measured_value,
                 result.unit,
-                result.threshold,
-                result.unit
+                result.required_value,
+                result.unit,
+                result.sample_index,
+                result.timestamp,
+                result.reason
             ));
         }
 
@@ -75,9 +79,13 @@ mod tests {
             results: vec![AnalysisResult {
                 criterion_id: "max".to_string(),
                 outcome: Outcome::Pass,
+                failed_criterion: None,
+                channel: "input_v".to_string(),
                 measured_value: 5.0,
-                threshold: 5.5,
+                required_value: 5.5,
                 unit: "V".to_string(),
+                sample_index: 1,
+                timestamp: 0.001,
                 reason: "ok".to_string(),
             }],
         };
@@ -96,9 +104,13 @@ mod tests {
             results: vec![AnalysisResult {
                 criterion_id: "max".to_string(),
                 outcome: Outcome::Pass,
+                failed_criterion: None,
+                channel: "input_v".to_string(),
                 measured_value: 5.0,
-                threshold: 5.5,
+                required_value: 5.5,
                 unit: "V".to_string(),
+                sample_index: 1,
+                timestamp: 0.001,
                 reason: "ok".to_string(),
             }],
         };

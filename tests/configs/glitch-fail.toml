@@ -1,0 +1,13 @@
+[input]
+time_column = "time_s"
+channels = ["supply_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[criteria]]
+id = "supply_dropout_max_1ms"
+type = "glitch_detection"
+channel = "supply_v"
+expected_state = "high"
+threshold_v = 2.5
+max_duration_s = 0.001

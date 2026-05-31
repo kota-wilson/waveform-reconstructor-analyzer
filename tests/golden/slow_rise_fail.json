@@ -1,0 +1,30 @@
+{
+  "input_name": "tests/fixtures/slow_rise_fall_signal.csv",
+  "overall_outcome": "fail",
+  "results": [
+    {
+      "criterion_id": "signal_rise_time_max_3ms",
+      "outcome": "fail",
+      "failed_criterion": "signal_rise_time_max_3ms",
+      "channel": "signal_v",
+      "measured_value": 0.005,
+      "required_value": 0.003,
+      "unit": "s",
+      "sample_index": 6,
+      "timestamp": 0.006,
+      "reason": "rise time from 0.500000 V to 4.500000 V was 0.005000 s"
+    },
+    {
+      "criterion_id": "signal_fall_time_max_3ms",
+      "outcome": "fail",
+      "failed_criterion": "signal_fall_time_max_3ms",
+      "channel": "signal_v",
+      "measured_value": 0.004,
+      "required_value": 0.003,
+      "unit": "s",
+      "sample_index": 12,
+      "timestamp": 0.012,
+      "reason": "fall time from 0.500000 V to 4.500000 V was 0.004000 s"
+    }
+  ]
+}

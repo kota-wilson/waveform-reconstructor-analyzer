@@ -1,0 +1,9 @@
+[input]
+time_column = "time_s"
+channels = ["input_v"]
+
+[[criteria]]
+id = "unsupported"
+type = "aerospace_magic"
+channel = "input_v"
+threshold_v = 1.0

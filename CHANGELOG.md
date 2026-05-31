@@ -17,3 +17,7 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - TOML config parsing for input mapping, filters, and criteria.
 - JSON report rendering for automation use.
 - GitHub issue templates, PR template, and CI workflow.
+- Real waveform fixtures for clean/noisy square waves, analog switch bounce, dropout, slow rise/fall, and multi-channel data.
+- Waveform criteria for state transitions, pulse width, transient duration, glitch detection, stable-state duration, and rise/fall time.
+- Report evidence fields for failed criterion, measured/required values, sample index, timestamp, and channel.
+- Golden JSON report tests and invalid config validation tests.
