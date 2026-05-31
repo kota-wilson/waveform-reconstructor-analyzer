@@ -39,13 +39,13 @@ Out of scope:
 | Project Creation | Project Creation Gate | Not Applicable | Existing FerrisOxide repository and M8 project package already exist. | No new project package needed. | Project Coordinator |
 | Project Orchestration | Orchestration Gate | Pass | #74 follows schema, export, manifest, shared engine, and no_std boundary work. | Runtime loaders remain future work. | Project Orchestrator |
 | Research | Research Gate | Pass | Reviewed `ferrisoxide-core` analysis adapter, `ferrisoxide-rule-engine` borrowed API, `ferrisoxide-rule-schema`, existing golden tests, and issue #74. | Parity currently covers one focused software fixture. | Software Architect |
-| Requirements | Requirements Gate | Pass | WRA-RQ-050 updated in `requirements.md` and `traceability-matrix.md`. | Requirement remains local until PR/CI/merge. | Verification and Validation Engineer |
+| Requirements | Requirements Gate | Pass | WRA-RQ-050 updated in `requirements.md` and `traceability-matrix.md`. | Runtime loader parity remains future work. | Verification and Validation Engineer |
 | Architecture | Architecture Gate | Pass | Fixture files live under `tests/parity/`; integration test lives in `crates/ferrisoxide-core/tests/rule_parity.rs`. | Package-level runtime loader remains future. | Software Architect |
 | Abstraction Review | Granularity Gate | Pass | Files, test path, compared fields, schema exclusion, and non-goals are explicit. | More fixtures should be added before broad runtime claims. | Abstraction Review Engineer |
 | Approval | Human Approval Gate | Pass | User approved continuing M8 issues through PR pipeline. | No new third-party dependency approval required. | Project Coordinator |
 | Dependency | Dependency Gate | Pass | `docs/dependency-review.md` records only a local `ferrisoxide-rule-schema` dev-dependency for tests. | Future runtime deps still require review. | Security Engineer |
 | Implementation | Implementation Gate | Pass locally | Added parity fixtures and integration test that compares desktop and embedded-compatible evidence. | Test maps the rule package to borrowed criteria in test code; runtime loader remains future. | Core Software Engineer |
-| Testing | Testing Gate | Pass locally | Targeted parity test, workspace tests, clippy, and diff check passed. | GitHub CI pending until PR. | Test Automation Engineer |
+| Testing | Testing Gate | Pass | Targeted parity test, workspace tests, clippy, diff check, and required `rust` CI passed. | None for this issue. | Test Automation Engineer |
 | V&V | V&V Gate | Pass locally | Same waveform, same rule package, and same expected JSON drive both paths; pass/fail and evidence fields match exactly. | Hardware/RTOS validation remains out of scope. | Verification and Validation Engineer |
 | QA | QA Gate | Pass locally | No CLI behavior, report schema, or user command change. | Reviewers should inspect fixture naming and expected JSON readability. | QA Engineer |
 | Security | Security Gate | Pass | No new third-party crates, network behavior, credentials, signing, file overwrite behavior, HALs, SDKs, or unsafe code. | Future runtime package authenticity remains separate. | Security Engineer |
@@ -53,8 +53,8 @@ Out of scope:
 | Documentation | Documentation Gate | Pass locally | README, architecture, dependency review, rule package docs, requirements, traceability, risk register, project state, validation log, and this report updated. | Docs must be rechecked after PR review. | Documentation Engineer |
 | Code Review | Code Review Gate | Pass locally | Local review confirmed the test compares exact portable fields and documents the schema reason for excluded desktop-only fields. | External review occurs through protected PR. | Code Reviewer |
 | Evaluation | Evaluation Gate | Pass locally | Acceptance criteria mapped below and local validation passed. | Release readiness depends on PR and required CI. | Evaluation Engineer |
-| Release | Release Gate | Blocked until PR | Branch must be pushed and required `rust` CI must pass before merge. | GitHub CI may find environment-specific issues. | GitHub Maintainer Specialist |
-| Community | Community Gate | Blocked until PR | PR body should include `Fixes #74`; issue closes after protected merge. | Milestone #8 can be checked after merge. | Community Engineering Lead |
+| Release | Release Gate | Pass | PR #115 merged after required `rust` CI passed; issue #74 closed. | None for this issue. | GitHub Maintainer Specialist |
+| Community | Community Gate | Pass | Milestone #8 has 8 closed issues, 0 open issues, and is closed. | Runtime loaders remain future scope. | Community Engineering Lead |
 | Retrospective | Retrospective Gate | Pass locally | Lesson: compare a portable evidence projection instead of requiring embedded summaries to carry desktop-only reason/context strings. | Add more parity cases when runtime package loaders exist. | Project Coordinator |
 
 ## Acceptance Criteria Mapping
@@ -89,6 +89,6 @@ Role: Verification and Validation Engineer / Core Software Engineer
 Goal: Implement M8-008 desktop-vs-embedded parity tests.
 Files changed: `crates/ferrisoxide-core/Cargo.toml`, `crates/ferrisoxide-core/tests/rule_parity.rs`, `tests/parity/`, README, architecture docs, dependency review, rule package docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
 Checks run: `cargo test -p ferrisoxide-core --test rule_parity`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Pass locally; PR, required CI, merge, issue #74 closure, and final M8 open-issue check pending.
+Status: Pass; PR #115 merged, issue #74 closed, and milestone #8 closed with no open issues.
 Known gaps: Runtime package loaders, binary package serialization, signing, hardware execution, and certification evidence remain out of scope.
-Next recommended step: Open a protected PR with `Fixes #74`, wait for required `rust` CI, merge, then confirm no open milestone #8 issues remain.
+Next recommended step: Select the next user-approved milestone or issue; runtime loaders and hardware execution remain future work.
