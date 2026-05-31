@@ -2,6 +2,7 @@
 members = [
     "crates/wra-core",
     "crates/wra-cli",
+    "crates/wra-signal",
 ]
 resolver = "2"
 

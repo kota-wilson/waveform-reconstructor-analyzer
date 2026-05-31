@@ -123,3 +123,57 @@ Checks run: `cargo test -p wra-core csv::tests -- --nocapture`; `cargo fmt --che
 Status: Pass.
 Known gaps: No external DAQ export corpus included.
 Next recommended step: Open PR for issue #1.
+
+## M3-RTOS-001 Implementation Update
+
+Date: 2026-05-31
+
+Owner Role: Core Software Engineer
+
+### Inputs
+
+- User request: create the embedded path separately from the desktop CLI path and start with `wra-signal`.
+- GitHub issue: `M3-RTOS-001 Extract no_std signal primitives` (#20).
+- Architecture note: `docs/embedded-roadmap.md`.
+
+### Work Performed
+
+- What: Added a dependency-free `wra-signal` crate for `no_std` signal primitives.
+- Where: `crates/wra-signal/`, root `Cargo.toml`, `embedded/`, README, changelog, requirements, and traceability files.
+- How: Used project-local Cargo tooling only; no new dependencies, no Python packages, and no global installation.
+- Why: The embedded foundation needs reusable signal-analysis logic before QEMU, RTOS, Embassy-style, or Zephyr adapter work.
+
+### Behavior Added
+
+- `FixedSampleBuffer<N>` for fixed-size sample storage without heap-backed collections.
+- `ThresholdTracker` for streaming min/max threshold evaluation with evidence.
+- `ThresholdLimits::evaluate` for slice-based threshold checks backed by the streaming tracker.
+- `TransientEventDetector` for streaming transient event detection with event kind, duration, sample index, timestamp, and observed state.
+- `SignalError` variants for buffer, empty input, invalid threshold/duration, and non-monotonic timestamp cases.
+
+### Out Of Scope Preserved
+
+- No CSV parsing in `wra-signal`.
+- No file I/O.
+- No plotting.
+- No text or JSON reports.
+- No GUI or DAQ integration.
+- No QEMU, Embassy-style, RTIC, or Zephyr implementation in M3-RTOS-001.
+
+### Gate Decision
+
+- Gate: Implementation Gate.
+- Decision: Pass.
+- Reason: The implemented crate satisfies the M3-RTOS-001 acceptance criteria with focused APIs and unit tests.
+- Residual risk: Future adapter crates may require feature flags or trait boundaries once hardware runtimes are introduced.
+- Owner for residual risk: Software Architect / Core Software Engineer.
+
+### Hand-Off Note
+
+Role: Core Software Engineer
+Goal: Add the first embedded foundation crate without touching the desktop CLI path.
+Files changed: `crates/wra-signal/`, `embedded/`, `Cargo.toml`, `Cargo.lock`, `README.md`, `CHANGELOG.md`, `requirements.md`, `traceability-matrix.md`, `docs/embedded-roadmap.md`
+Checks run: See `docs/validation-log.md`.
+Status: Pass.
+Known gaps: ARM64 QEMU and RTOS adapters remain future issues.
+Next recommended step: Testing Gate for M3-RTOS-001.

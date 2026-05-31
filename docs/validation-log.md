@@ -92,3 +92,44 @@ Checks run: `cargo test -p wra-core csv::tests -- --nocapture`; `cargo fmt --che
 Status: Pass.
 Known gaps: No external DAQ export corpus included.
 Next recommended step: Open PR for issue #1.
+
+## M3-RTOS-001 Validation Update
+
+Date: 2026-05-31
+
+Stage: Testing embedded `no_std` signal primitives
+
+Owner Role: Test Automation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`
+- Isolation: Project-local Cargo workspace; no Python packages or global tools installed.
+- New dependencies: None.
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo fmt --check` | Passed | Rust formatting clean. |
+| `cargo test --workspace` | Passed | 24 tests passed: 3 CLI, 11 core, 1 integration fixture, 9 `wra-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `cargo tree -p wra-signal` | Passed | Output shows only `wra-signal v0.1.0`, confirming no crate dependencies. |
+
+### Gate Decision
+
+- Gate: Testing Gate.
+- Decision: Pass.
+- Reason: Formatting, tests, clippy, and dependency-tree inspection passed for the new `wra-signal` crate and existing workspace.
+- Residual risk: Desktop unit tests prove the `no_std` crate compiles and behaves locally, but embedded target builds are future M3 issues.
+- Owner for residual risk: Test Automation Engineer / Embedded Systems Engineer.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer
+Goal: Validate M3-RTOS-001 against workspace checks and no-dependency expectations.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-signal`
+Status: Pass.
+Known gaps: No ARM64 QEMU or embedded-target compile yet; tracked by follow-up issues.
+Next recommended step: V&V Gate for M3-RTOS-001.

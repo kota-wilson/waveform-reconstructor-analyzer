@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Prepare the v0.2.0 waveform criteria engine for merge after M1-001 CSV edge-case coverage landed on `main`.
+Prepare M3-RTOS-001 `wra-signal` for merge after M1-001 and v0.2.0 landed on `main`.
 
 ## Current Stage
 
-v0.2.0 criteria engine branch is being rebased onto current `main`; M1-001 is already merged.
+M3-RTOS-001 branch is being rebased onto current `main`; M1-001 and v0.2.0 are already merged.
 
 ## Open Risks
 
@@ -20,6 +20,8 @@ v0.2.0 criteria engine branch is being rebased onto current `main`; M1-001 is al
   Owner: Project Coordinator
 - Risk: Approved third-party crates may introduce transitive license or supply-chain risk.
   Owner: Security Engineer
+- Risk: Future RTOS adapters may accidentally pull desktop-only concerns such as CSV parsing, file I/O, or report generation into embedded crates.
+  Owner: Software Architect
 
 ## Pending Decisions
 
@@ -32,12 +34,15 @@ v0.2.0 criteria engine branch is being rebased onto current `main`; M1-001 is al
 - Decision: Choose report format priority: text-first or JSON-first.
   Owner: Product / Documentation Engineer
   Status: Text and JSON are both implemented for MVP.
+- Decision: Start the embedded path with `wra-signal` before `wra-embedded`, QEMU, Embassy-style, or Zephyr integration.
+  Owner: Software Architect
+  Status: Accepted in `docs/embedded-roadmap.md`.
 
 ## Next Responsible Role
 
-Role: Project Orchestrator
+Role: Release Engineer / GitHub Maintainer Specialist
 
-Expected deliverable: Complete PR #16 rebase, rerun CI, and merge the v0.2.0 criteria engine.
+Expected deliverable: Complete PR #21 rebase, rerun CI, and merge the M3-RTOS-001 embedded foundation.
 
 ## Orchestration Status
 
@@ -45,8 +50,8 @@ Expected deliverable: Complete PR #16 rebase, rerun CI, and merge the v0.2.0 cri
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Current milestone: Dependency-reviewed MVP slice complete.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: `v0.2.0: waveform criteria engine`.
-- Next gate: Protected-branch PR review and CI for criteria engine.
+- Current milestone: `M3: RTOS / embedded no_std foundation`.
+- Next gate: CI and merge for PR #21.
 - Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/certification work.
 
 ## Granularity Status
@@ -60,13 +65,13 @@ Expected deliverable: Complete PR #16 rebase, rerun CI, and merge the v0.2.0 cri
 - Project root: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`.
 - Isolation level: Level 1 Cargo workspace.
 - Local environment: Rust/Cargo; no dependencies installed.
-- Dependency status: Approved crates added and pinned in `Cargo.lock`; see `docs/dependency-review.md`.
+- Dependency status: Approved crates added and pinned in `Cargo.lock`; see `docs/dependency-review.md`. M3-RTOS-001 adds no third-party dependencies.
 
 ## Traceability Status
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP evidence.
+- Verification matrix: `traceability-matrix.md` updated with current MVP and M3-RTOS-001 evidence.
 
 ## Gate Decisions
 
@@ -99,6 +104,21 @@ Expected deliverable: Complete PR #16 rebase, rerun CI, and merge the v0.2.0 cri
 | M1-001 Community Gate | Pass | PR #22 body links issue #1 and validation commands | Project Coordinator |
 | v0.2.0 Planning Gate | Pass | M2 issues #8-#15 created under `v0.2.0: waveform criteria engine` | Core Software Engineer |
 | v0.2.0 Implementation Gate | Pass in branch | `docs/implementation-report.md`, `traceability-matrix.md` | Test Automation Engineer |
+| M3 Issue Planning Gate | Pass | M3 milestone plus issues #17-#20 created | Project Orchestrator |
+| M3-RTOS-001 Requirements Gate | Pass | `requirements.md`, `traceability-matrix.md` include WRA-RQ-017 | Software Architect |
+| M3-RTOS-001 Architecture Gate | Pass | `docs/embedded-roadmap.md`, `crates/wra-signal/no_std-design.md` | Core Software Engineer |
+| M3-RTOS-001 Implementation Gate | Pass | `docs/implementation-report.md`, `crates/wra-signal/` | Test Automation Engineer |
+| M3-RTOS-001 Testing Gate | Pass | `docs/validation-log.md` | Verification and Validation Engineer |
+| M3-RTOS-001 V&V Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | QA Engineer |
+| M3-RTOS-001 QA Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Security Engineer |
+| M3-RTOS-001 Security Gate | Pass | `docs/m3-rtos-001-pipeline-report.md`, `cargo tree -p wra-signal` | Performance Engineer |
+| M3-RTOS-001 Performance Gate | Pass | `docs/m3-rtos-001-pipeline-report.md`, fixed-size and O(1) streaming state inspection | Documentation Engineer |
+| M3-RTOS-001 Documentation Gate | Pass | `README.md`, `CHANGELOG.md`, `docs/embedded-roadmap.md`, `crates/wra-signal/README.md` | Code Reviewer |
+| M3-RTOS-001 Code Review Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Evaluation Engineer |
+| M3-RTOS-001 Evaluation Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Release Engineer |
+| M3-RTOS-001 Release Gate | Pass | PR #21 opened: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/21` | Community Engineering Lead |
+| M3-RTOS-001 Community Gate | Pass | PR #21 body links issue #20 and follow-up issues #17-#19 | Project Coordinator |
+| M3-RTOS-001 Retrospective Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Project Orchestrator |
 
 ## Update Rules
 

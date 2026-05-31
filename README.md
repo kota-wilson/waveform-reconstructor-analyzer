@@ -6,7 +6,7 @@ The first MVP is a CLI and core library slice. It focuses on CSV waveform loadin
 
 ## Current Status
 
-This repository is in MVP implementation stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria.
+This repository is in MVP implementation stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria. The workspace also has an embedded foundation crate, `wra-signal`, for `no_std` signal primitives that can later be wrapped by RTOS or ARM64 adapters.
 
 ## MVP Scope
 
@@ -18,6 +18,7 @@ This repository is in MVP implementation stage. The Rust workspace builds a smal
 - Run analysis from a CLI.
 - Produce text and JSON reports.
 - Include tests and example data.
+- Keep embedded signal-analysis primitives separate from desktop CSV, CLI, and report paths.
 
 ## Non-Goals
 
@@ -34,7 +35,9 @@ This repository is in MVP implementation stage. The Rust workspace builds a smal
 ```text
 crates/wra-core/        Rust core library
 crates/wra-cli/         CLI entry point
+crates/wra-signal/      no_std signal primitives
 docs/                  Product, architecture, and MVP docs
+embedded/              Future embedded and ARM64 adapter notes
 examples/              Example CSV and config files
 tests/fixtures/        Shared test fixtures
 tests/golden/          Expected JSON reports
@@ -52,6 +55,12 @@ cargo clippy --workspace --all-targets -- -D warnings
 ```
 
 No global package installation is required.
+
+## Embedded Foundation
+
+`crates/wra-signal` is a dependency-free `#![no_std]` crate for fixed-size waveform buffers, streaming sample ingestion, min/max threshold evaluation, and transient event detection. It intentionally excludes CSV parsing, file I/O, plotting, text/JSON reports, GUI, DAQ integration, and RTOS-specific code.
+
+The embedded track should evolve in this order: keep reusable signal primitives in `wra-signal`, add an ARM64 QEMU proof later, then introduce adapter crates such as `wra-embedded` only after the core analysis surface is stable.
 
 ## MVP Usage
 

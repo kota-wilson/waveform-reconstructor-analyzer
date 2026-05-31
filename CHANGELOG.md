@@ -21,3 +21,4 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - Waveform criteria for state transitions, pulse width, transient duration, transient event detection, stable-state duration, and rise/fall time.
 - Report evidence fields for failed criterion, measured/required values, sample index, timestamp, and channel.
 - Golden JSON report tests and invalid config validation tests.
+- `wra-signal` `no_std` crate with fixed-size buffers, streaming threshold checks, and transient event detection for future embedded adapters.
