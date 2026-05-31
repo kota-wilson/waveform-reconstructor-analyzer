@@ -29,7 +29,7 @@ Owner Role: Core Software Engineer
 
 - What: Added real waveform fixtures, richer criteria, report evidence fields, config validation tests, and golden JSON report tests.
 - Where: `crates/wra-core/src/criteria.rs`, `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs`, `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, `tests/fixtures/`, `tests/configs/`, `tests/golden/`.
-- How: Implemented criteria variants for state transitions, pulse width, transient duration, glitch detection, stable-state duration, and rise/fall time without adding new dependencies.
+- How: Implemented criteria variants for state transitions, pulse width, transient duration, transient event detection, stable-state duration, and rise/fall time without adding new dependencies.
 - Why: v0.2.0 moves the project from repository skeleton to validated waveform criteria engine.
 
 ## Changed Areas

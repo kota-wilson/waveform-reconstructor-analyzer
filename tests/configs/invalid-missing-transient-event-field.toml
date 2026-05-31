@@ -3,8 +3,9 @@ time_column = "time_s"
 channels = ["supply_v"]
 
 [[criteria]]
-id = "bad_glitch"
-type = "glitch_detection"
+id = "bad_transient_event"
+type = "transient_event"
 channel = "supply_v"
+event_kind = "dropout"
 expected_state = "high"
 threshold_v = 2.5

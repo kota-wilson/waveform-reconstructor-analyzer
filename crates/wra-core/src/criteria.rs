@@ -87,17 +87,19 @@ impl Criterion {
         }
     }
 
-    pub fn glitch_detection(
+    pub fn transient_event(
         id: impl Into<String>,
         channel: impl Into<String>,
+        event_kind: TransientEventKind,
         expected_state: SignalState,
         threshold_v: f64,
         max_duration_s: f64,
     ) -> Self {
         Self {
             id: id.into(),
-            check: CriterionCheck::GlitchDetection {
+            check: CriterionCheck::TransientEvent {
                 channel: channel.into(),
+                event_kind,
                 expected_state,
                 threshold_v,
                 max_duration_s,
@@ -176,8 +178,9 @@ pub enum CriterionCheck {
         threshold_v: f64,
         max_duration_s: f64,
     },
-    GlitchDetection {
+    TransientEvent {
         channel: String,
+        event_kind: TransientEventKind,
         expected_state: SignalState,
         threshold_v: f64,
         max_duration_s: f64,
@@ -205,9 +208,44 @@ impl CriterionCheck {
             | Self::StateTransitions { channel, .. }
             | Self::PulseWidth { channel, .. }
             | Self::TransientDuration { channel, .. }
-            | Self::GlitchDetection { channel, .. }
+            | Self::TransientEvent { channel, .. }
             | Self::StableStateDuration { channel, .. }
             | Self::RiseFallTime { channel, .. } => channel,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TransientEventKind {
+    TransientEvent,
+    SpuriousTransition,
+    ContactBounce,
+    Dropout,
+    NoiseInducedTransition,
+    ThresholdCrossingEvent,
+}
+
+impl TransientEventKind {
+    pub fn from_config(value: &str) -> Option<Self> {
+        match value {
+            "transient_event" => Some(Self::TransientEvent),
+            "spurious_transition" => Some(Self::SpuriousTransition),
+            "contact_bounce" => Some(Self::ContactBounce),
+            "dropout" => Some(Self::Dropout),
+            "noise_induced_transition" => Some(Self::NoiseInducedTransition),
+            "threshold_crossing_event" => Some(Self::ThresholdCrossingEvent),
+            _ => None,
+        }
+    }
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::TransientEvent => "transient event",
+            Self::SpuriousTransition => "spurious transition",
+            Self::ContactBounce => "contact bounce",
+            Self::Dropout => "dropout",
+            Self::NoiseInducedTransition => "noise-induced transition",
+            Self::ThresholdCrossingEvent => "threshold crossing event",
         }
     }
 }

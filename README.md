@@ -14,7 +14,7 @@ This repository is in MVP implementation stage. The Rust workspace builds a smal
 - Map one time column and one or more signal channels.
 - Reconstruct typed waveform objects.
 - Apply basic low-pass and moving-average filters as derived waveform outputs.
-- Define pass/fail criteria for voltage limits, state transitions, pulse width, transient/glitch duration, stable-state duration, and rise/fall time.
+- Define pass/fail criteria for voltage limits, state transitions, pulse width, transient event duration, stable-state duration, and rise/fall time.
 - Run analysis from a CLI.
 - Produce text and JSON reports.
 - Include tests and example data.
@@ -87,12 +87,12 @@ The current CSV/config/report surface is intentionally small and should be expan
 
 ## Waveform Criteria Example
 
-Glitch detection checks for unintended short state changes. This example fails because `supply_v` drops below `2.5 V` for `0.002 s`, while the config allows only `0.001 s`.
+Transient event detection checks for unintended short state changes. This dropout example fails because `supply_v` drops below `2.5 V` for `0.002 s`, while the config allows only `0.001 s`.
 
 ```bash
 cargo run --bin wra -- analyze \
   --input tests/fixtures/dropout_event.csv \
-  --config tests/configs/glitch-fail.toml \
+  --config tests/configs/transient-event-dropout-fail.toml \
   --format text
 ```
 
@@ -103,7 +103,7 @@ Waveform Analysis Report
 Input: tests/fixtures/dropout_event.csv
 Overall: Fail
 Criteria:
-- supply_dropout_max_1ms: Fail channel=supply_v measured=0.002000 s required=0.001000 s sample_index=3 timestamp=0.003000 reason=longest unintended low glitch duration was 0.002000 s
+- supply_dropout_max_1ms: Fail channel=supply_v measured=0.002000 s required=0.001000 s sample_index=3 timestamp=0.003000 reason=longest unintended low dropout duration was 0.002000 s
 ```
 
 The JSON report includes the same evidence fields for automation: outcome, failed criterion, measured value, required value, sample index, timestamp, and channel.

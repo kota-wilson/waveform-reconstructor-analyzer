@@ -1,6 +1,6 @@
 use serde::Deserialize;
 
-use crate::criteria::{Criterion, EdgeDirection, SignalState};
+use crate::criteria::{Criterion, EdgeDirection, SignalState, TransientEventKind};
 use crate::csv::CsvParseOptions;
 use crate::error::{Result, WaveformError};
 
@@ -54,6 +54,7 @@ pub struct CriterionConfig {
     pub expected_count: Option<usize>,
     pub state: Option<String>,
     pub expected_state: Option<String>,
+    pub event_kind: Option<String>,
     pub min_width_s: Option<f64>,
     pub max_width_s: Option<f64>,
     pub max_duration_s: Option<f64>,
@@ -98,9 +99,10 @@ impl CriterionConfig {
                 self.required_f64("threshold_v")?,
                 self.required_f64("max_duration_s")?,
             )),
-            "glitch_detection" => Ok(Criterion::glitch_detection(
+            "transient_event" => Ok(Criterion::transient_event(
                 self.id.clone(),
                 self.channel.clone(),
+                self.transient_event_kind()?,
                 self.required_state("expected_state")?,
                 self.required_f64("threshold_v")?,
                 self.required_f64("max_duration_s")?,
@@ -164,6 +166,17 @@ impl CriterionConfig {
             reason: format!("expected `rise` or `fall`, got `{value}`"),
         })
     }
+
+    fn transient_event_kind(&self) -> Result<TransientEventKind> {
+        let value = self.event_kind.as_deref().unwrap_or("transient_event");
+
+        TransientEventKind::from_config(value).ok_or_else(|| WaveformError::InvalidParameter {
+            name: "criteria.event_kind".to_string(),
+            reason: format!(
+                "expected transient_event, spurious_transition, contact_bounce, dropout, noise_induced_transition, or threshold_crossing_event; got `{value}`"
+            ),
+        })
+    }
 }
 
 fn missing_field(field: &str) -> WaveformError {
@@ -207,6 +220,7 @@ mod tests {
                 expected_count: None,
                 state: None,
                 expected_state: None,
+                event_kind: None,
                 min_width_s: None,
                 max_width_s: None,
                 max_duration_s: None,

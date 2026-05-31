@@ -121,7 +121,8 @@ fn evaluate_criterion(waveform: &Waveform, criterion: &Criterion) -> Result<Anal
             *max_duration_s,
             "transient",
         ),
-        CriterionCheck::GlitchDetection {
+        CriterionCheck::TransientEvent {
+            event_kind,
             expected_state,
             threshold_v,
             max_duration_s,
@@ -133,7 +134,7 @@ fn evaluate_criterion(waveform: &Waveform, criterion: &Criterion) -> Result<Anal
             *expected_state,
             *threshold_v,
             *max_duration_s,
-            "glitch",
+            event_kind.as_str(),
         ),
         CriterionCheck::StableStateDuration {
             state,
@@ -358,7 +359,7 @@ fn evaluate_transient_duration(
     expected_state: SignalState,
     threshold_v: f64,
     max_duration_s: f64,
-    label: &str,
+    event_kind: &str,
 ) -> Result<AnalysisResult> {
     let transient_state = opposite_state(expected_state);
     let runs = state_runs(waveform, channel, threshold_v);
@@ -393,7 +394,7 @@ fn evaluate_transient_duration(
             reason: format!(
                 "longest unintended {} {} duration was {:.6} s",
                 transient_state.as_str(),
-                label,
+                event_kind,
                 measured
             ),
         },
@@ -664,7 +665,7 @@ fn measure_fall(
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::criteria::{EdgeDirection, SignalState};
+    use crate::criteria::{EdgeDirection, SignalState, TransientEventKind};
     use crate::model::{Channel, Unit};
 
     fn waveform() -> Waveform {
@@ -740,7 +741,7 @@ mod tests {
     }
 
     #[test]
-    fn fails_when_glitch_duration_exceeds_limit() {
+    fn fails_when_transient_event_duration_exceeds_limit() {
         let waveform = Waveform::new(
             vec![0.0, 0.001, 0.002, 0.003, 0.004, 0.005],
             vec![Channel::new(
@@ -752,9 +753,10 @@ mod tests {
         .expect("test waveform should be valid");
         let results = evaluate_criteria(
             &waveform,
-            &[Criterion::glitch_detection(
-                "glitch",
+            &[Criterion::transient_event(
+                "dropout",
                 "supply_v",
+                TransientEventKind::Dropout,
                 SignalState::High,
                 2.5,
                 0.001,

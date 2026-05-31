@@ -27,8 +27,8 @@ Owner Role: Test Automation Engineer
 | `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --time-column time --channels input_v --moving-average 2 --min input_v:0.0 --max input_v:5.5` | Passed | CLI produced a text report with overall `Pass`. |
 | `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format text` | Passed | Config-driven CLI produced a text report with overall `Pass`. |
 | `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format json` | Passed | Config-driven CLI produced JSON with `overall_outcome: pass`. |
-| `cargo run --bin wra -- analyze --input tests/fixtures/dropout_event.csv --config tests/configs/glitch-fail.toml --format text` | Passed | Glitch report includes failed criterion, measured duration, required duration, sample index, timestamp, and channel. |
-| Golden JSON tests | Passed | `criteria_engine_pass.json`, `glitch_fail.json`, and `slow_rise_fail.json` matched exactly. |
+| `cargo run --bin wra -- analyze --input tests/fixtures/dropout_event.csv --config tests/configs/transient-event-dropout-fail.toml --format text` | Passed | Transient event report includes failed criterion, measured duration, required duration, sample index, timestamp, and channel. |
+| Golden JSON tests | Passed | `criteria_engine_pass.json`, `transient_event_dropout_fail.json`, and `slow_rise_fail.json` matched exactly. |
 
 ## Gate Decision
 

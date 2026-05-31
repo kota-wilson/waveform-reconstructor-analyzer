@@ -373,7 +373,7 @@ mod tests {
                 "unsupported criterion type `aerospace_magic`",
             ),
             (
-                "invalid-missing-glitch-field.toml",
+                "invalid-missing-transient-event-field.toml",
                 "invalid parameter `criteria.max_duration_s`",
             ),
         ] {

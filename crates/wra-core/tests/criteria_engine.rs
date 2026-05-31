@@ -34,16 +34,16 @@ fn clean_square_wave_matches_golden_report() {
 }
 
 #[test]
-fn dropout_glitch_matches_golden_report() {
+fn dropout_transient_event_matches_golden_report() {
     let rendered = render_report(
         "tests/fixtures/dropout_event.csv",
         include_str!("../../../tests/fixtures/dropout_event.csv"),
-        include_str!("../../../tests/configs/glitch-fail.toml"),
+        include_str!("../../../tests/configs/transient-event-dropout-fail.toml"),
     );
 
     assert_eq!(
         rendered,
-        include_str!("../../../tests/golden/glitch_fail.json").trim_end()
+        include_str!("../../../tests/golden/transient_event_dropout_fail.json").trim_end()
     );
 }
 
@@ -80,7 +80,7 @@ fn multi_channel_fixture_targets_configured_channels() {
     assert_eq!(results[0].channel, "supply_v");
     assert_eq!(
         results[0].failed_criterion,
-        Some("supply_dropout_glitch".to_string())
+        Some("supply_dropout_transient_event".to_string())
     );
     assert_eq!(results[1].channel, "control_v");
     assert_eq!(results[2].channel, "output_v");

@@ -6,7 +6,8 @@ signal_unit = "V"
 
 [[criteria]]
 id = "supply_dropout_max_1ms"
-type = "glitch_detection"
+type = "transient_event"
+event_kind = "dropout"
 channel = "supply_v"
 expected_state = "high"
 threshold_v = 2.5
