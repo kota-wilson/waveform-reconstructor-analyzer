@@ -79,6 +79,7 @@ CSV input
 - Filters return derived waveform outputs.
 - Moving average uses a trailing window that includes the current sample.
 - Low-pass uses a simple first-order smoothing implementation over a strictly increasing time axis.
+- M1 filter chains use config-driven enum pipeline steps; trait-based extension is deferred behind the implementation boundary.
 - Edge behavior, latency, and sample-rate assumptions must be documented before filter algorithms are considered production-stable.
 
 ## Test Plan

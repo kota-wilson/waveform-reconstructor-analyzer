@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Create and validate a dependency-reviewed Rust MVP slice for Waveform Reconstructor and Analyzer.
+Move the public repository from skeleton MVP to validated M1 MVP.
 
 ## Current Stage
 
-Dependency-reviewed MVP slice validated and published publicly on GitHub.
+M1 issues created; filter pipeline architecture accepted; main protection pending.
 
 ## Open Risks
 
@@ -37,7 +37,7 @@ Dependency-reviewed MVP slice validated and published publicly on GitHub.
 
 Role: Project Orchestrator
 
-Expected deliverable: Monitor public repository CI and plan first follow-up issue.
+Expected deliverable: Protect `main`, then route M1 issues through pull requests.
 
 ## Orchestration Status
 
@@ -45,7 +45,8 @@ Expected deliverable: Monitor public repository CI and plan first follow-up issu
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Current milestone: Dependency-reviewed MVP slice complete.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Next gate: Community feedback and first follow-up issue planning.
+- Current milestone: `M1: Validated MVP`.
+- Next gate: Branch protection verification and M1 implementation through PRs.
 - Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/certification work.
 
 ## Granularity Status
@@ -89,6 +90,8 @@ Expected deliverable: Monitor public repository CI and plan first follow-up issu
 | Evaluation Gate | Pass | `docs/evaluation-report.md` | Community Engineering Lead |
 | Community Gate | Pass | `docs/community-report.md` | Project Coordinator |
 | Retrospective Gate | Pass | `docs/retrospective.md` | Community Engineering Lead |
+| Architecture Decision Gate | Pass | `decisions/ADR-003-filter-pipeline-architecture.md` | Core Software Engineer |
+| GitHub Issue Planning Gate | Pass | M1 issues #1-#7 created under `M1: Validated MVP` | Project Orchestrator |
 
 ## Update Rules
 
