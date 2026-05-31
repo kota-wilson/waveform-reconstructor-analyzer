@@ -16,6 +16,7 @@
 | WRA-RQ-010 | The project shall include tests and example data. | User request | High | Unit tests, integration-test fixture, and example CSV exist. | Test Automation Engineer | MVP implemented |
 | WRA-RQ-011 | The project shall preserve raw data and make transformations derived artifacts. | Signal-processing standards | High | Filter APIs return new waveform data or transformed channel data, not destructive mutation of source fixtures. | Systems Engineer | MVP implemented |
 | WRA-RQ-012 | The project shall remain open-source ready. | User request | High | README, LICENSE, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG, GitHub templates, and CI exist. | GitHub Maintainer Specialist | Implemented; external publication blocked on license confirmation |
+| WRA-RQ-017 | The project shall provide an embedded foundation separate from the desktop CLI path. | User request | High | A dependency-free `wra-signal` crate builds with `#![no_std]`, has fixed-size sample buffers, streaming ingestion, min/max threshold checks, transient event detection, and desktop unit tests. | Core Software Engineer | M3-RTOS-001 implemented |
 
 ## Assumptions
 
@@ -42,6 +43,7 @@
 | WRA-RQ-010 | File inspection and tests | Example CSV and test fixture usage. |
 | WRA-RQ-011 | Code review | Raw data fixtures untouched; APIs return derived outputs. |
 | WRA-RQ-012 | File inspection and CI | Repository metadata and workflow files exist. |
+| WRA-RQ-017 | Unit tests and workspace checks | `wra-signal` unit tests, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `cargo tree -p wra-signal`. |
 
 ## Rules
 
