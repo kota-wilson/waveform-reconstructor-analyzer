@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Maintain accurate, auditable, and readable validated-MVP documentation while routing the remaining M1 and M3 backlog.
+Route v0.3.0 signal accuracy validation work after completing foundational M1 metadata and README usage evidence.
 
 ## Current Stage
 
-Documentation accuracy review completed for the PR #25 feature baseline. The docs now separate current repository state from historical pipeline reports, preserve point-in-time evidence, and record the validation checks used for the documentation audit.
+The repository now includes M1 waveform metadata and README usage evidence. This work addresses issues #4 and #6, creates the v0.3.0 validation roadmap, creates M4 issues #27-#34, and keeps RTOS/Zephyr work parked until the signal-analysis core has stronger validation evidence.
 
 ## Open Risks
 
@@ -26,6 +26,8 @@ Documentation accuracy review completed for the PR #25 feature baseline. The doc
   Owner: Project Coordinator / Documentation Engineer
 - Risk: ADC quantization settings may hide analog excursions when the configured input range or resolution is unrealistic.
   Owner: Electrical Signal Integrity Engineer / Documentation Engineer
+- Risk: Feature completion may be mistaken for scientifically validated signal-analysis accuracy.
+  Owner: Verification and Validation Engineer / Software Architect
 
 ## Pending Decisions
 
@@ -46,16 +48,16 @@ Documentation accuracy review completed for the PR #25 feature baseline. The doc
 
 Role: Project Coordinator / GitHub Maintainer Specialist
 
-Expected deliverable: Route the remaining open issues without weakening the documented scope boundaries or audit trail.
+Expected deliverable: Start M4 validation work with known-answer waveform validation before expanding GUI, DAQ, RTOS, or Zephyr paths.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: Validated MVP follow-through.
+- Current milestone: M1 completion and v0.3.0 validation planning.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`.
-- Next gate: Issue-specific readiness gate for the next selected M1 or M3 task.
+- Next gate: M4-001 known-answer validation readiness.
 - Stop condition: Stop before adding more dependencies or expanding into GUI/DAQ/certification work.
 
 ## Granularity Status
@@ -75,7 +77,7 @@ Expected deliverable: Route the remaining open issues without weakening the docu
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, and WRA-RQ-018 ADC quantization evidence.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, and M1 metadata evidence.
 
 ## Gate Decisions
 
@@ -128,6 +130,8 @@ Expected deliverable: Route the remaining open issues without weakening the docu
 | ADC Quantization Testing Gate | Pass | `docs/validation-log.md`; unit, config, CLI, and workspace tests passed | Release Engineer |
 | ADC Quantization Release Gate | Pass | PR #25 merged after required `rust` CI passed | Project Orchestrator |
 | Documentation Accuracy Gate | Pass | `docs/documentation-audit-2026-05-31.md`; fmt, workspace tests, clippy, whitespace, link-target, and stale-status scans passed | Project Coordinator |
+| M1 Metadata / README Implementation Gate | Pass | `crates/wra-core/src/model.rs`, `crates/wra-core/src/report.rs`, README, golden JSON reports, `docs/report-schema.md` | Test Automation Engineer |
+| v0.3.0 Planning Gate | Pass | `docs/v0.3.0-validation-roadmap.md`, `validation/`, M4 issues #27-#34 | GitHub Maintainer Specialist |
 
 ## Update Rules
 

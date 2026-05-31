@@ -2,7 +2,7 @@
 
 ## Scope
 
-Initial tests cover the Rust core model, parser interface, TOML config model, filters, criteria evaluation, text/JSON reporting, and CLI smoke behavior.
+Initial tests cover the Rust core model, waveform metadata, parser interface, TOML config model, filters, criteria evaluation, text/JSON reporting, and CLI smoke behavior.
 
 ## Test Types
 

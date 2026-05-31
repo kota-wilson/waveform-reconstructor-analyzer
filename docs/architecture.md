@@ -28,7 +28,7 @@ Current status: This proposal has been implemented through the validated MVP fea
 
 | Module | Path | Responsibility |
 |---|---|---|
-| `model` | `crates/wra-core/src/model.rs` | Units, samples, channels, waveform structures. |
+| `model` | `crates/wra-core/src/model.rs` | Units, samples, channels, waveform structures, and metadata. |
 | `csv` | `crates/wra-core/src/csv.rs` | CSV parser and parser options backed by the `csv` crate. |
 | `config` | `crates/wra-core/src/config.rs` | TOML-deserializable analysis configuration model. |
 | `filter` | `crates/wra-core/src/filter.rs` | Filter trait, ordered filter-step enum, low-pass filter, moving-average filter, and ADC quantization transform. |
@@ -54,6 +54,7 @@ CSV input
 | Type / Trait | Location | Contract |
 |---|---|---|
 | `Waveform` | `model.rs` | Owns time axis, channels, and metadata. Validates aligned sample lengths. |
+| `WaveformMetadata` | `model.rs` | Records source name, units, sample count, channel count, channel units, sample interval summary, nominal sample rate, raw/derived lineage, and transform history. |
 | `Channel` | `model.rs` | Named signal channel with unit and samples. |
 | `CsvParseOptions` | `csv.rs` | Defines delimiter, header behavior, time column, and channel columns. |
 | `AnalysisConfig` | `config.rs` | Defines input mapping, filters, and criteria parsed from TOML by the CLI. |
@@ -80,6 +81,7 @@ CSV input
 
 - Raw waveform data is preserved.
 - Filters and ADC quantization return derived waveform outputs.
+- Derived waveform metadata records transform history so reports can show which data was evaluated.
 - Moving average uses a trailing window that includes the current sample.
 - Low-pass uses a simple first-order smoothing implementation over a strictly increasing time axis.
 - ADC quantization uses an ideal endpoint-inclusive code model, clips outside the configured voltage range, and keeps output values in volts for downstream criteria.

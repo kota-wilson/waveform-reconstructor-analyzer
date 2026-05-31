@@ -73,7 +73,8 @@ fn run(args: Vec<String>) -> Result<String, String> {
     let parser = SimpleCsvParser;
     let mut waveform = parser
         .parse_str(&input, &options)
-        .map_err(|error| format!("failed to parse waveform: {error}"))?;
+        .map_err(|error| format!("failed to parse waveform: {error}"))?
+        .with_source_name(input_path.to_string());
 
     waveform = apply_filter_chain(&waveform, &filters)
         .map_err(|error| format!("filter pipeline failed: {error}"))?;
@@ -82,6 +83,7 @@ fn run(args: Vec<String>) -> Result<String, String> {
         .map_err(|error| format!("analysis failed: {error}"))?;
     let report = AnalysisReport {
         input_name: input_path.to_string(),
+        waveform_metadata: waveform.metadata.clone(),
         results,
     };
 

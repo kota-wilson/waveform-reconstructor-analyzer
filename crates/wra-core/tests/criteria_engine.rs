@@ -8,11 +8,13 @@ fn render_report(input_name: &str, csv_input: &str, config_input: &str) -> Strin
     let parser = SimpleCsvParser;
     let waveform = parser
         .parse_str(csv_input, &config.csv_options())
-        .expect("waveform should parse");
+        .expect("waveform should parse")
+        .with_source_name(input_name.to_string());
     let criteria = config.criteria().expect("criteria should convert");
     let results = evaluate_criteria(&waveform, &criteria).expect("criteria should evaluate");
     let report = AnalysisReport {
         input_name: input_name.to_string(),
+        waveform_metadata: waveform.metadata.clone(),
         results,
     };
 

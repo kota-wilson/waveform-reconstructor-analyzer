@@ -21,6 +21,22 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - Rust: `rustc 1.95.0 (59807616e 2026-04-14)`
 - Dependencies: `csv`, `serde`, `serde_json`, `toml`; resolved versions are pinned in `Cargo.lock`.
 
+## M1 Metadata And README Usage Branch Validation
+
+Current as of M1 metadata and README usage review on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo fmt --check` | Passed | Rust formatting clean. |
+| `cargo test --workspace` | Passed | 53 tests passed: 6 CLI, 31 core, 6 criteria-engine fixture/golden tests, 1 CSV fixture integration test, 9 `wra-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+| `cargo run --quiet --bin wra -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format text` | Passed | Text output includes metadata, transform history, overall outcome, and criterion evidence matching README. |
+| `cargo run --quiet --bin wra -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format json` | Passed | JSON output includes `waveform_metadata` and criterion evidence matching README. |
+| `cargo run --quiet --bin wra -- analyze --input examples/basic-waveform.csv --config examples/adc-quantized-config.toml --format text` | Passed | ADC usage output includes metadata, transform history, overall outcome, and criterion evidence matching `docs/usage-mvp.md`. |
+| `cargo run --quiet --bin wra -- analyze --input tests/fixtures/dropout_event.csv --config tests/configs/transient-event-dropout-fail.toml --format text` | Passed | Dropout report includes waveform metadata and failed criterion evidence. |
+| M4 milestone and issue inspection | Passed | Milestone `M4: Signal Accuracy and Validation` created with issues #27-#34. |
+
 ## Documentation Accuracy Branch Validation
 
 Current as of documentation accuracy review on 2026-05-31.

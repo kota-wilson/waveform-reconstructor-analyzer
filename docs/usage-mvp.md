@@ -3,7 +3,7 @@
 This document describes the current MVP usage. The command shape can still change before a public release.
 
 ```bash
-cargo run --bin wra -- analyze \
+cargo run --quiet --bin wra -- analyze \
   --input examples/basic-waveform.csv \
   --config examples/basic-config.toml \
   --format text
@@ -14,6 +14,10 @@ Current output:
 ```text
 Waveform Analysis Report
 Input: examples/basic-waveform.csv
+Samples: 5 Channels: 2 Lineage: Derived
+Sample Interval: nominal=0.001000000 s min=0.001000000 max=0.001000000 uniform=true
+Nominal Sample Rate: 1000.000000 Hz
+Transforms: moving_average(window_samples=2)
 Overall: Pass
 Criteria:
 - input_min_voltage: Pass channel=input_v measured=0.000000 V required=0.000000 V sample_index=0 timestamp=0.000000 reason=minimum observed voltage was 0.000000 V
@@ -29,16 +33,18 @@ Supported MVP filters:
 JSON output:
 
 ```bash
-cargo run --bin wra -- analyze \
+cargo run --quiet --bin wra -- analyze \
   --input examples/basic-waveform.csv \
   --config examples/basic-config.toml \
   --format json
 ```
 
+The JSON report includes `waveform_metadata`, `overall_outcome`, and the same per-criterion evidence shown in the text report.
+
 Explicit CLI criteria remain available for one-off checks:
 
 ```bash
-cargo run --bin wra -- analyze \
+cargo run --quiet --bin wra -- analyze \
   --input examples/basic-waveform.csv \
   --time-column time \
   --channels input_v \
@@ -51,7 +57,7 @@ cargo run --bin wra -- analyze \
 ADC quantization is also available in TOML config:
 
 ```bash
-cargo run --bin wra -- analyze \
+cargo run --quiet --bin wra -- analyze \
   --input examples/basic-waveform.csv \
   --config examples/adc-quantized-config.toml \
   --format text
@@ -62,6 +68,10 @@ Expected output:
 ```text
 Waveform Analysis Report
 Input: examples/basic-waveform.csv
+Samples: 5 Channels: 1 Lineage: Derived
+Sample Interval: nominal=0.001000000 s min=0.001000000 max=0.001000000 uniform=true
+Nominal Sample Rate: 1000.000000 Hz
+Transforms: adc_quantize(bits=8,min_v=0,max_v=5)
 Overall: Pass
 Criteria:
 - input_max_after_adc: Pass channel=input_v measured=5.000000 V required=5.000000 V sample_index=3 timestamp=0.003000 reason=maximum observed voltage was 5.000000 V
