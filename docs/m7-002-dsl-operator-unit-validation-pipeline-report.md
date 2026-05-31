@@ -10,7 +10,7 @@ Issue: #56, `M7-002 Implement DSL operator and explicit-unit validation`
 
 Pull request: #65, `Add M7 DSL operator and unit validation`
 
-Status: PR #65 open; protected CI and merge pending.
+Status: Implemented and merged.
 
 ## Scope
 
@@ -186,19 +186,19 @@ Out of scope:
 
 - Owner role: Release Engineer
 - Artifact: Local validation evidence.
-- Evidence: Full local validation passed; PR #65 is open and protected `rust` CI is pending.
+- Evidence: Full local validation passed; PR #65 required `rust` CI passed and merged on 2026-05-31 with merge commit `37cff043ff9ed16d7bb27ae2ddf315732ed20203`.
 - Gate: Release Gate.
-- Decision: Pending PR/CI/merge.
-- Residual risk: Branch work is not released until PR CI passes and the PR is merged.
+- Decision: Pass.
+- Residual risk: Milestone #7 remains open for issues #57 through #61.
 - Next owner: GitHub Maintainer Specialist.
 
 ## Community
 
 - Owner role: Community Engineering Lead
 - Artifact: PR #65 body.
-- Evidence: PR #65 includes `Fixes #56` and leaves issues #57 through #61 open.
+- Evidence: PR #65 included `Fixes #56`; issue #56 closed after merge; issues #57 through #61 remain open.
 - Gate: Community Gate.
-- Decision: Pass for PR creation; pending merge.
+- Decision: Pass.
 - Residual risk: Issues #57 through #61 remain open.
 - Next owner: Project Coordinator.
 
@@ -208,7 +208,7 @@ Out of scope:
 - Artifact: This report.
 - Lesson: Unit validation belongs before runtime evaluation so later DSL behavior cannot silently reinterpret unsupported units.
 - Gate: Retrospective Gate.
-- Decision: Pending post-merge evidence.
+- Decision: Pass.
 - Residual risk: Later M7 issues still need parity and documentation checks.
 - Next owner: Project Orchestrator.
 
@@ -218,6 +218,6 @@ Role: Core Software Engineer
 Goal: Complete M7-002 / issue #56.
 Files changed: `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, invalid DSL config fixtures, requirements, traceability, project state, and this report.
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: PR #65 open; protected CI and merge pending.
+Status: Implemented and merged in PR #65.
 Known gaps: Runtime DSL evaluation, parity golden tests, full invalid matrix, and user-facing docs remain in issues #57 through #61.
-Next recommended step: Wait for required CI and merge issue #56.
+Next recommended step: Continue with M7-003 / issue #57.

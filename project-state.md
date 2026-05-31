@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Implement M7-002 DSL operator and unit validation.
+Continue v0.5.0 criteria DSL implementation after M7-002.
 
 ## Current Stage
 
-Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issue #55 closed and issues #56 through #61 open. Issue #56 is implemented in PR #65: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
+Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 and #56 closed and issues #57 through #61 open. PR #65 merged M7-002: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -77,7 +77,7 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issue #55 
 
 Role: Project Orchestrator / Project Coordinator
 
-Expected deliverable: Open and validate the M7-002 / issue #56 PR.
+Expected deliverable: Start M7-003 / issue #57 through the implementation pipeline.
 
 ## Orchestration Status
 
@@ -86,7 +86,7 @@ Expected deliverable: Open and validate the M7-002 / issue #56 PR.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
 - Current milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
-- Next gate: Protected-branch CI and merge for PR #65 / issue #56.
+- Next gate: Implement DSL criteria evaluation through existing measurement evidence for issue #57.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, unit shorthand parsing, new measurements, or expanded annotated SVG features without a fresh issue/gate.
 
 ## Granularity Status
@@ -106,7 +106,7 @@ Expected deliverable: Open and validate the M7-002 / issue #56 PR.
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, WRA-RQ-036 release evidence for issue #55, WRA-RQ-037 and WRA-RQ-038 PR #65 evidence for issue #56, and remaining v0.5.0 requirements WRA-RQ-039 through WRA-RQ-042 mapped to issues #57 through #61.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, WRA-RQ-036 release evidence for issue #55, WRA-RQ-037 and WRA-RQ-038 release evidence for issue #56, and remaining v0.5.0 requirements WRA-RQ-039 through WRA-RQ-042 mapped to issues #57 through #61.
 
 ## Gate Decisions
 
@@ -240,9 +240,10 @@ Expected deliverable: Open and validate the M7-002 / issue #56 PR.
 | M7-001 Community Gate | Pass | Issue #55 closed; issues #56-#61 remain open under milestone #7 | Project Coordinator |
 | M7-002 Requirements Gate | Pass | WRA-RQ-037 and WRA-RQ-038; issue #56 | Software Architect |
 | M7-002 Architecture Gate | Pass | Config-boundary operator and unit validation in `crates/wra-core/src/config.rs` | Abstraction Review Engineer |
-| M7-002 Implementation Gate | Pass locally | Operator enum, measurement kind output units, explicit unit validation, CLI invalid-config fixtures | Test Automation Engineer |
-| M7-002 Testing Gate | Pass locally | `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, and `git diff --check` passed | Verification and Validation Engineer |
-| M7-002 Community Gate | Pass for PR creation | PR #65 opened with `Fixes #56`; protected CI and merge pending | GitHub Maintainer Specialist |
+| M7-002 Implementation Gate | Pass | Operator enum, measurement kind output units, explicit unit validation, CLI invalid-config fixtures | Test Automation Engineer |
+| M7-002 Testing Gate | Pass | `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, `git diff --check`, and PR #65 required `rust` CI passed | Verification and Validation Engineer |
+| M7-002 Release Gate | Pass | PR #65 merged after required `rust` CI passed; merge commit `37cff043ff9ed16d7bb27ae2ddf315732ed20203` | GitHub Maintainer Specialist |
+| M7-002 Community Gate | Pass | Issue #56 closed; issues #57-#61 remain open under milestone #7 | Project Coordinator |
 
 ## Update Rules
 
