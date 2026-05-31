@@ -2,11 +2,11 @@
 
 Waveform Reconstructor and Analyzer is a Rust-centered open-source tool for importing CSV time-series waveform data, reconstructing analog signal channels, applying simulated filters and ADC quantization, and evaluating waveform behavior against configurable pass/fail criteria.
 
-The first MVP is a CLI and core library slice. It focuses on CSV waveform loading, channel mapping, waveform data structures, low-pass and moving-average filters, ideal ADC quantization, waveform criteria, TOML config files, and text/JSON report output.
+The first MVP is a CLI and core library slice. It focuses on CSV waveform loading, channel mapping, waveform data structures, low-pass and moving-average filters, ideal ADC quantization, waveform criteria, TOML config files, text/JSON report output, and optional SVG plotting.
 
 ## Current Status
 
-This repository is in validated MVP stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria, including waveform metadata, ordered pre-criteria transforms such as moving average, low-pass filtering, and ideal ADC quantization. The workspace also has an embedded foundation crate, `wra-signal`, for `no_std` signal primitives that can later be wrapped by RTOS or ARM64 adapters.
+This repository is in validated MVP stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria, including waveform metadata, ordered pre-criteria transforms such as moving average, low-pass filtering, and ideal ADC quantization. The desktop CLI can also render SVG waveform plots. The workspace has an embedded foundation crate, `wra-signal`, for `no_std` signal primitives that can later be wrapped by RTOS or ARM64 adapters.
 
 ## MVP Scope
 
@@ -18,6 +18,7 @@ This repository is in validated MVP stage. The Rust workspace builds a small cor
 - Define pass/fail criteria for voltage limits, state transitions, pulse width, transient event duration, stable-state duration, and rise/fall time with optional voltage/time tolerances.
 - Run analysis from a CLI.
 - Produce text and JSON reports with pass/fail evidence, tolerance evidence, and engineering-validation context.
+- Render optional desktop SVG plots for 2D waveform views and 3D views with a configured third-axis column.
 - Include tests and example data.
 - Keep embedded signal-analysis primitives separate from desktop CSV, CLI, and report paths.
 
@@ -36,6 +37,7 @@ This repository is in validated MVP stage. The Rust workspace builds a small cor
 ```text
 crates/wra-core/        Rust core library
 crates/wra-cli/         CLI entry point
+crates/wra-plot/        Desktop SVG plotting support
 crates/wra-signal/      no_std signal primitives
 docs/                  Product, architecture, and MVP docs
 embedded/              Future embedded and ARM64 adapter notes
@@ -215,6 +217,31 @@ max_v = 5.0
 The quantizer clips samples outside the configured range, snaps in-range samples to the nearest ideal ADC code level, and keeps output samples in volts so normal voltage criteria can evaluate the digitized waveform. See [ADC quantization transform](docs/adc-quantization.md) for assumptions and limits.
 
 Implemented transform equations are documented in [filter behavior](docs/filter-behavior.md). Time-axis validation and tolerance semantics are documented in [time axis and tolerances](docs/time-axis-and-tolerances.md).
+
+## Plotting
+
+The desktop CLI can render SVG plots without adding GUI or DAQ scope:
+
+```bash
+cargo run --quiet --bin wra -- plot \
+  --input examples/basic-waveform.csv \
+  --time-column time \
+  --channels input_v,output_v \
+  --output basic-waveform.svg
+```
+
+Use `--z-column` for a 3D line plot with an auxiliary third axis:
+
+```bash
+cargo run --quiet --bin wra -- plot \
+  --input tests/fixtures/plot_three_axis.csv \
+  --time-column time_s \
+  --channels signal_v \
+  --z-column temperature_c \
+  --output three-axis.svg
+```
+
+See [SVG plotting](docs/plotting.md) for scope, commands, and limits.
 
 ## Waveform Criteria Example
 

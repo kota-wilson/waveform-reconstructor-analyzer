@@ -293,3 +293,56 @@ Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --works
 Status: Pass; ready for protected-branch PR.
 Known gaps: Tolerance model, known-answer datasets, filter equations, confidence/evidence expansion, and benchmarks are planned for v0.3.0.
 Next recommended step: Open a protected-branch PR for issues #4 and #6.
+
+## M5 SVG Plotting Implementation Update
+
+Date: 2026-05-31
+
+Owner Role: Core Software Engineer
+
+### Inputs
+
+- User request: add plotting functionality with optional third-axis information, using the Plotters 3D plotting example as the rough visual model.
+- GitHub issue: #38, `M5-001 Add optional SVG waveform plotting with third axis`.
+- Dependency approval: User approved adding the Plotters dependency for the plotting slice.
+
+### Work Performed
+
+- What: Added optional desktop SVG waveform plotting with 2D and 3D line-plot modes.
+- Where: `crates/wra-plot/src/lib.rs`, `crates/wra-cli/src/main.rs`, `tests/fixtures/plot_three_axis.csv`, `docs/plotting.md`.
+- How: Added an isolated `wra-plot` crate using Plotters with `default-features = false` and only `svg_backend` / `line_series` features enabled; exposed `wra plot` for local CSV-to-SVG rendering.
+- Why: Users need a lightweight way to inspect waveform shape and optional auxiliary-axis context without adding GUI, DAQ, bitmap, or embedded plotting scope.
+
+### Behavior Added
+
+- `wra plot --input <csv> --time-column <name> --channels <name[,name]> --output <svg>` renders 2D time/signal line plots.
+- `wra plot --z-column <name>` renders a 3D time/signal/auxiliary-axis line plot.
+- `PlotOptions` records output path, title, plotted channels, optional third-axis channel, and dimensions.
+- Plotting errors cover empty waveform, missing channel, invalid dimensions, reused third-axis channel, and missing output parent directory.
+- `wra-core` and `wra-signal` remain free of Plotters and plotting dependencies.
+
+### Out Of Scope Preserved
+
+- No GUI windows, interactive controls, or web frontend.
+- No DAQ integration, live acquisition, or hardware control.
+- No embedded, RTOS, or `no_std` plotting.
+- No surface fitting, certification evidence, or hardware validation claim.
+- No additional Plotters backends beyond SVG line rendering.
+
+### Gate Decision
+
+- Gate: M5 Implementation Gate.
+- Decision: Pass.
+- Reason: The implementation satisfies issue #38 with isolated plotting code, CLI wiring, focused tests, user documentation, dependency review, and traceability updates.
+- Residual risk: Future plotting requests could pull in broader backend, GUI, or dependency scope unless kept behind review gates.
+- Owner for residual risk: Software Architect / Security Engineer.
+
+### Hand-Off Note
+
+Role: Core Software Engineer
+Goal: Add optional desktop SVG plotting with optional third-axis line plots.
+Files changed: `crates/wra-plot/`, `crates/wra-cli/src/main.rs`, root `Cargo.toml`, `Cargo.lock`, `tests/fixtures/plot_three_axis.csv`, README, usage docs, architecture docs, requirements, risk, and traceability.
+Checks run: See `docs/validation-log.md`.
+Status: Pass; ready for testing and protected-branch PR.
+Known gaps: SVG output only; no GUI, DAQ, embedded plotting, surface plotting, or interactive inspection.
+Next recommended step: Testing Gate for M5 plotting.

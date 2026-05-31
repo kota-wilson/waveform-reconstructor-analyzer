@@ -32,3 +32,4 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - Time-axis validation for duration criteria plus sample interval and nominal sample-rate documentation.
 - Filter behavior documentation with moving-average, first-order low-pass, and ideal ADC quantization equations.
 - Project-local large-CSV benchmark helper and baseline benchmark documentation.
+- Optional desktop SVG plotting with 2D waveform plots and 3D line plots using a configured third-axis column.

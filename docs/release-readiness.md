@@ -66,6 +66,19 @@ Gate: Release Gate for M4.
 Decision: Pass.
 Residual risk: This is mainline repository evidence, not a tagged product release or certification artifact.
 
+## M5 Release Readiness Update
+
+- Branch: `feature/m5-svg-plotting`
+- Issue: #38, `M5-001 Add optional SVG waveform plotting with third axis`
+- Milestone: `M5: Plotting and Visualization`
+- Scope: Optional desktop SVG plotting only.
+- Validation: `cargo fmt`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; 2D/3D CLI smoke plots; `cargo fmt --check`; `git diff --check`; `cargo metadata --format-version 1 --no-deps`; `cargo tree -p wra-plot`.
+- Dependency evidence: Plotters approved by user and isolated to `wra-plot` with SVG backend and line-series features.
+
+Gate: Release Gate for M5.
+Decision: Pass for protected-branch PR creation.
+Residual risk: Mainline merge, CI result, issue closure, and milestone closure must be recorded after PR merge.
+
 ## Hand-Off Note
 
 Role: Release Engineer / GitHub Maintainer Specialist

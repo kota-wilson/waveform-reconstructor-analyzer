@@ -19,7 +19,54 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - Working directory: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`
 - Cargo: `cargo 1.95.0 (f2d3ce0bd 2026-03-21)`
 - Rust: `rustc 1.95.0 (59807616e 2026-04-14)`
-- Dependencies: `csv`, `serde`, `serde_json`, `toml`; resolved versions are pinned in `Cargo.lock`.
+- Dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
+
+## M5 SVG Plotting Branch
+
+Current as of the M5 plotting branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo fmt` | Passed | Rust sources formatted after adding `wra-plot` and CLI plotting tests. |
+| `cargo test --workspace` | Passed | 71 tests passed: 9 CLI, 38 core, 9 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 5 `wra-plot`, 9 `wra-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `cargo run --quiet --bin wra -- plot --input examples/basic-waveform.csv --time-column time --channels input_v,output_v --output /private/tmp/wra-plot-2d.svg` | Passed | Wrote a 21,670 byte SVG containing `<svg`, `input_v`, and `output_v`. |
+| `cargo run --quiet --bin wra -- plot --input tests/fixtures/plot_three_axis.csv --time-column time_s --channels signal_v --z-column temperature_c --output /private/tmp/wra-plot-3d.svg --title "Three Axis Validation Plot"` | Passed | Wrote a 21,782 byte SVG containing `<svg`, `Three Axis Validation Plot`, and `signal_v vs temperature_c`. |
+| `cargo fmt --check` | Passed | Formatting remained clean after validation commands. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+| `cargo metadata --format-version 1 --no-deps` | Passed | Confirms `wra-plot` depends on `plotters` with `default-features = false` and features `svg_backend`, `line_series`. |
+| `cargo tree -p wra-plot` | Passed | Native plotting dependency tree is limited to `plotters`, `plotters-backend`, `plotters-svg`, `num-traits`, `autocfg`, and existing `wra-core` dependencies. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `wra_plot::tests::renders_2d_svg_for_selected_channel` | SVG string renderer includes the selected 2D channel and default title. |
+| `wra_plot::tests::renders_3d_svg_with_third_axis_channel` | SVG string renderer includes a 3D line-series label using the auxiliary axis channel. |
+| `wra_plot::tests::rejects_missing_plot_channel` | Missing plotted channels produce a structured `PlotError::MissingChannel`. |
+| `wra_plot::tests::rejects_z_channel_reuse_as_plot_channel` | Third-axis channel must be separate from plotted channels. |
+| `wra_plot::tests::rejects_output_path_with_missing_parent_directory` | Missing output parent directories return clear errors before rendering. |
+| `wra_cli::tests::renders_2d_plot_to_svg_file` | `wra plot` renders a local 2D SVG file from the basic example CSV. |
+| `wra_cli::tests::renders_3d_plot_with_z_column_to_svg_file` | `wra plot --z-column` renders a local 3D SVG file from the three-axis fixture. |
+| `wra_cli::tests::plot_reports_missing_z_column` | Missing auxiliary axis columns fail with a clear parser error. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M5.
+- Decision: Pass.
+- Reason: Formatting, workspace tests, clippy, CLI smoke plots, dependency metadata/tree inspection, and whitespace checks passed.
+- Residual risk: The validation proves SVG generation from fixtures, not visual perceptual quality, GUI behavior, live data acquisition, or certification suitability.
+- Owner for residual risk: Test Automation Engineer / Documentation Engineer.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer
+Goal: Validate optional desktop SVG plotting with an optional third axis.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo fmt`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; 2D/3D `wra plot` smoke commands; `cargo fmt --check`; `git diff --check`; `cargo metadata --format-version 1 --no-deps`; `cargo tree -p wra-plot`.
+Status: Pass.
+Known gaps: No visual regression testing or browser/SVG raster comparison yet.
+Next recommended step: V&V and protected-branch PR review.
 
 ## M4 Signal Accuracy And Validation Branch
 

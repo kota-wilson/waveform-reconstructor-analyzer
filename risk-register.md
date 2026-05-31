@@ -12,6 +12,7 @@
 | WRA-RISK-008 | ADC quantization settings may hide analog excursions if users choose an unrealistic range or resolution. | Medium | High | Document clipping and ideal-code assumptions; keep raw data preserved; require tests that prove criteria evaluate the derived waveform. | Electrical Signal Integrity Engineer / Documentation Engineer | Active | ADC quantization transform changes. |
 | WRA-RISK-009 | Software validation fixtures may be mistaken for hardware qualification evidence. | Medium | High | Label validation fixtures, report confidence notes, and environmental examples as software validation aids only; keep DAQ/hardware/certification out of scope. | Verification and Validation Engineer / Documentation Engineer | Active | Validation dataset or report schema changes. |
 | WRA-RISK-010 | Benchmark results may be overread as production performance guarantees. | Medium | Medium | Record environment, generated fixture strategy, timing categories, and explicit non-goals; avoid DAQ throughput or real-time claims. | Performance Engineer | Active | Benchmark updates or performance claims. |
+| WRA-RISK-011 | Plotting dependencies or future plotting backends may expand desktop scope into GUI, bitmap, or embedded paths. | Medium | Medium | Keep Plotters isolated in `wra-plot`, enable SVG and line-series features only, and require fresh dependency review for additional backends. | Software Architect / Security Engineer | Active | Plotting dependency or backend changes. |
 
 ## Escalation
 

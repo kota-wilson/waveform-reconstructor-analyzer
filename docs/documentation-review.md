@@ -10,6 +10,8 @@ Review public-facing repository documentation for the validated MVP and the post
 
 Current review update: M4 adds validation, tolerance, report evidence, filter equation, and benchmark documentation while preserving the "software validation only" scope.
 
+M5 review update: M5 adds optional desktop SVG plotting docs while preserving no-GUI, no-DAQ, no-embedded-plotting, and no-certification scope.
+
 ## Evidence
 
 | Artifact | Result |
@@ -26,21 +28,24 @@ Current review update: M4 adds validation, tolerance, report evidence, filter eq
 | `docs/benchmarking.md` | Pass |
 | `docs/report-schema.md` | Pass |
 | `validation/` READMEs and expected measurement notes | Pass |
+| `docs/plotting.md` | Pass |
+| M5 README and usage plotting examples | Pass |
+| M5 dependency, risk, and traceability updates | Pass |
 
 ## Gate Decision
 
 - Gate: Documentation Gate.
 - Decision: Pass.
-- Reason: Public usage, contribution, security, change, validation, traceability, current-state, and M4 validation documentation exist and are human-readable.
-- Residual risk: API docs, a formal config schema reference, and automated Markdown link checking are still thin.
+- Reason: Public usage, contribution, security, change, validation, plotting, traceability, current-state, and M4/M5 documentation exist and are human-readable.
+- Residual risk: API docs, a formal config schema reference, visual-output examples, and automated Markdown link checking are still thin.
 - Next owner: Code Reviewer.
 
 ## Hand-Off Note
 
 Role: Documentation Engineer
 Goal: Confirm MVP docs are accurate and readable after the validated-MVP feature baseline.
-Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05-31.md`, current-state docs, traceability docs, validation log, and historical pipeline reports.
+Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05-31.md`, `docs/plotting.md`, current-state docs, traceability docs, validation log, and historical pipeline reports.
 Checks run: Documentation inspection plus the validation commands recorded in `docs/documentation-audit-2026-05-31.md`.
 Status: Pass.
-Known gaps: Add API docs, config schema reference, and automated docs/link checking later.
-Next recommended step: Code review for M4 validation PR.
+Known gaps: Add API docs, config schema reference, visual-output examples, and automated docs/link checking later.
+Next recommended step: Code review for M5 plotting PR.
