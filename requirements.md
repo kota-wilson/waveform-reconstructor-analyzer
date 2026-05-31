@@ -42,6 +42,14 @@
 | WRA-RQ-040 | Existing criteria configs shall remain compatible. | v0.5.0 / issue #58 | High | Current fixtures, examples, and golden reports continue to pass without modification unless an intentional additive report field is approved. | Test Automation Engineer | Planned |
 | WRA-RQ-041 | DSL invalid-config coverage shall be explicit. | v0.5.0 / issue #59 | Medium | Tests cover missing measurement sections, unknown operators, unsupported units, missing requirement values, incompatible measurement parameters, and duplicate/ambiguous criteria shapes. | Test Automation Engineer / V&V Engineer | Planned |
 | WRA-RQ-042 | DSL docs shall be usable by engineering reviewers. | v0.5.0 / issues #60 and #61 | Medium | README, example config, criteria DSL docs, and report/schema docs show before/after configs, expected output, unit rules, and non-goals. | Documentation Engineer | Planned |
+| WRA-RQ-043 | The project shall define a versioned portable WRA Rule Package schema. | v0.6.0 / issues #67 and #71 | High | A schema model captures package metadata, channels, units, sample-rate assumptions, filters, criteria, thresholds, timing limits, and target profile without depending on CLI, CSV, plotting, or controller I/O. | Software Architect / Core Software Engineer | Planned |
+| WRA-RQ-044 | The project shall define a reviewable deployment package artifact set. | v0.6.0 / issue #71 | High | Documentation and tests define `rules.toml`, `rules.json`, future `rules.bin`, `manifest.json`, `checksum.txt`, validation report, and evidence SVG roles. | Documentation Engineer / V&V Engineer | Planned |
+| WRA-RQ-045 | The project shall validate rule packages before export or execution. | v0.6.0 / issue #68 | High | Invalid packages return structured errors for missing channels, unsupported units, unknown criteria, invalid timing/sample-rate assumptions, checksum mismatch, and incompatible target profiles. | Core Software Engineer / V&V Engineer | Planned |
+| WRA-RQ-046 | The desktop CLI shall export rule packages. | v0.6.0 / issue #69 | High | A CLI command exports the rule package artifacts from validated config and analysis evidence without changing existing analyze/plot behavior. | Core Software Engineer / Documentation Engineer | Planned |
+| WRA-RQ-047 | Rule packages shall include manifest and checksum evidence. | v0.6.0 / issue #70 | High | Exported packages include deterministic manifest metadata and checksum files; checksum algorithm and dependencies pass security/dependency review before implementation. | Security Engineer / Core Software Engineer | Planned |
+| WRA-RQ-048 | The project shall use one shared rule execution engine for desktop and embedded-compatible paths. | v0.6.0 / issue #73 | High | Desktop/CLI and embedded-compatible runtime tests execute through the same rule-engine semantics instead of duplicating criteria behavior. | Software Architect / Core Software Engineer | Planned |
+| WRA-RQ-049 | The embedded rule path shall preserve a no_std compatibility boundary. | v0.6.0 / issue #72 | High | Embedded-compatible rule execution avoids CSV parsing, file I/O, plotting, report generation, hardware HALs, and heap requirements for basic evaluation where practical. | Embedded RTOS Engineer / Core Software Engineer | Planned |
+| WRA-RQ-050 | The project shall prove desktop-vs-embedded rule parity with exact tests. | v0.6.0 / issue #74 | High | The same waveform, same rule package, and same expected result are evaluated by desktop and embedded-compatible paths with exact matching pass/fail and evidence values. | Verification and Validation Engineer | Planned |
 
 ## Assumptions
 
@@ -94,6 +102,14 @@
 | WRA-RQ-040 | Regression tests | Existing fixtures, examples, and golden JSON reports continue to pass. |
 | WRA-RQ-041 | Invalid-config matrix tests | Unknown operators, unsupported units, missing fields, incompatible parameters, and ambiguous mixed criteria shape tests. |
 | WRA-RQ-042 | Documentation review | README, example DSL config, `docs/criteria-dsl.md`, and report/schema docs review. |
+| WRA-RQ-043 | Schema unit tests and docs review | `wra-rule-schema` package model tests and portable schema docs. |
+| WRA-RQ-044 | Documentation and export artifact tests | Deployment package fixture inspection and artifact role documentation. |
+| WRA-RQ-045 | Invalid package tests | Missing channel, unsupported unit, unknown criterion, invalid timing, checksum mismatch, and target-profile tests. |
+| WRA-RQ-046 | CLI smoke tests | Export command produces package artifacts without changing analyze/plot behavior. |
+| WRA-RQ-047 | Deterministic manifest/checksum tests | Repeated exports produce stable manifest and checksum evidence. |
+| WRA-RQ-048 | Shared engine tests | Desktop/CLI and embedded-compatible paths call shared rule-engine semantics. |
+| WRA-RQ-049 | no_std boundary checks | Embedded-compatible crates avoid CSV, file I/O, plotting, reporting, HAL, and target SDK dependencies. |
+| WRA-RQ-050 | Exact parity tests | Same waveform and same rule package produce exact matching desktop and embedded-compatible results. |
 
 ## Rules
 

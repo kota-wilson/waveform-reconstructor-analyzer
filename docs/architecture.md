@@ -28,6 +28,8 @@ Current status: This proposal has been implemented through the validated MVP fea
 | `wra-plot` | `crates/wra-plot` | Desktop SVG plotting for waveform data and 2D evidence overlays. | SVG plot renderer used by the CLI. |
 | `wra-signal` | `crates/wra-signal` | `no_std` signal primitives for future embedded adapters. | Dependency-free embedded-oriented primitives. |
 
+Future portable rule package crates are planned in `decisions/ADR-004-portable-rule-package-architecture.md` and `docs/v0.6.0-portable-rule-package-milestone-proposal.md`. They are not implemented yet.
+
 ## Module Map
 
 | Module | Path | Responsibility |
@@ -67,6 +69,12 @@ Embedded sample source
   -> wra-signal threshold/transient primitive
   -> wra-embedded event sink
   -> platform wrapper
+
+Future portable deployment flow
+  -> Desktop WRA authors and validates criteria
+  -> WRA Rule Package schema captures rules, units, channels, and timing assumptions
+  -> Shared rule engine executes the same semantics for desktop and embedded-compatible paths
+  -> Controller runtime consumes constrained deployment artifacts
 ```
 
 ## Public API Outline
@@ -119,6 +127,7 @@ Embedded sample source
 - Reports expose top-level measurement records and per-result `measurement_id` links so measured evidence and pass/fail decisions remain auditable separately.
 - Plotting is a desktop-only SVG renderer in `wra-plot`; 2D evidence overlays reuse report measurement evidence; `wra-core` and `wra-signal` do not depend on Plotters.
 - Criteria DSL direction is documented in `docs/criteria-dsl.md`; existing `[[criteria]]` entries remain the runtime compatibility baseline.
+- Portable rule package direction is documented in `decisions/ADR-004-portable-rule-package-architecture.md`; future desktop and embedded/controller paths must use one rule schema and one shared rule engine rather than duplicate rule semantics.
 
 ## Test Plan
 

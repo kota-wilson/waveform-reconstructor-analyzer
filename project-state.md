@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Continue v0.5.0 criteria DSL implementation after M7-002.
+Plan v0.6.0 portable rule package system while preserving active v0.5.0 DSL work.
 
 ## Current Stage
 
-Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 and #56 closed and issues #57 through #61 open. PR #65 merged M7-002: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
+Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 and #56 closed and issues #57 through #61 open. PR #65 merged M7-002: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. Milestone #8, `v0.6.0: Portable Rule Package System`, is open with issues #67 through #74 created for desktop rule authoring/export and embedded/controller deployment through one schema and one shared rule engine. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -48,6 +48,12 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55
   Owner: Software Architect / Core Software Engineer
 - Risk: Criteria DSL implementation may break existing TOML configs or report consumers.
   Owner: Core Software Engineer / V&V Engineer
+- Risk: Desktop and embedded/controller rule behavior may drift if rule semantics are duplicated.
+  Owner: Software Architect / Verification and Validation Engineer
+- Risk: Deployment packages may be mistaken for certified controller releases or hardware qualification evidence.
+  Owner: Documentation Engineer / Flight Certification Assurance Engineer
+- Risk: Manifest, checksum, or binary package work may create security/dependency overclaims.
+  Owner: Security Engineer / Core Software Engineer
 
 ## Pending Decisions
 
@@ -72,21 +78,24 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55
 - Decision: Start v0.4.0 with a local `wra-measurements` crate before report schema, annotated SVG, batch, or plugin work.
   Owner: Software Architect / Verification and Validation Engineer
   Status: Accepted in `docs/m6-measurement-engine-pipeline-report.md`.
+- Decision: Treat embedded/controller support as a deployment target for one portable rule schema and one shared rule engine, not as a forked rule implementation.
+  Owner: Software Architect / Embedded RTOS Engineer
+  Status: Accepted for future milestone planning in `decisions/ADR-004-portable-rule-package-architecture.md`.
 
 ## Next Responsible Role
 
 Role: Project Orchestrator / Project Coordinator
 
-Expected deliverable: Start M7-003 / issue #57 through the implementation pipeline.
+Expected deliverable: Validate and merge the v0.6.0 portable rule package planning PR without displacing active M7 issues.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`.
+- Current milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`; future milestone #8, `v0.6.0: Portable Rule Package System`, is planned.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
-- Next gate: Implement DSL criteria evaluation through existing measurement evidence for issue #57.
+- Next gate: Open and merge the v0.6.0 portable rule package planning PR, then return to M7-003 / issue #57 unless reprioritized.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, unit shorthand parsing, new measurements, or expanded annotated SVG features without a fresh issue/gate.
 
 ## Granularity Status
@@ -106,7 +115,7 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, WRA-RQ-036 release evidence for issue #55, WRA-RQ-037 and WRA-RQ-038 release evidence for issue #56, and remaining v0.5.0 requirements WRA-RQ-039 through WRA-RQ-042 mapped to issues #57 through #61.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, WRA-RQ-036 release evidence for issue #55, WRA-RQ-037 and WRA-RQ-038 release evidence for issue #56, remaining v0.5.0 requirements WRA-RQ-039 through WRA-RQ-042 mapped to issues #57 through #61, and planned v0.6.0 requirements WRA-RQ-043 through WRA-RQ-050 mapped to issues #67 through #74.
 
 ## Gate Decisions
 
@@ -244,6 +253,11 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 | M7-002 Testing Gate | Pass | `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, `git diff --check`, and PR #65 required `rust` CI passed | Verification and Validation Engineer |
 | M7-002 Release Gate | Pass | PR #65 merged after required `rust` CI passed; merge commit `37cff043ff9ed16d7bb27ae2ddf315732ed20203` | GitHub Maintainer Specialist |
 | M7-002 Community Gate | Pass | Issue #56 closed; issues #57-#61 remain open under milestone #7 | Project Coordinator |
+| v0.6.0 Portable Rule Package Intake Gate | Pass | User described desktop-to-embedded rule deployment direction and portable rule package concept | Project Coordinator |
+| v0.6.0 Portable Rule Package Requirements Gate | Pass for proposal | WRA-RQ-043 through WRA-RQ-050 in `requirements.md` | Software Architect |
+| v0.6.0 Portable Rule Package Architecture Gate | Pass for proposal | `decisions/ADR-004-portable-rule-package-architecture.md` | Abstraction Review Engineer |
+| v0.6.0 Portable Rule Package Scope Gate | Pass | Proposal excludes GUI, live DAQ, controller SDK/HAL, RTOS production integration, certification claims, and hardware qualification | Project Orchestrator |
+| v0.6.0 Portable Rule Package Issue Planning Gate | Pass | GitHub milestone #8 and issues #67 through #74 created | GitHub Maintainer Specialist |
 
 ## Update Rules
 
