@@ -10,7 +10,7 @@ Owner Role: Release Engineer / GitHub Maintainer Specialist
 
 ## Current Status
 
-This review records the initial public-repository publication gate. Since publication, PR #16, #21, #22, #23, #25, #36, #37, #39, and #40 have merged into protected `main` with required `rust` CI passing. The release notes below describe the initial publication slice, not the full current feature set.
+This review records the initial public-repository publication gate. Since publication, PR #16, #21, #22, #23, #25, #36, #37, #39, #40, and #41 have merged into protected `main` with required `rust` CI passing. The release notes below describe the initial publication slice, not the full current feature set.
 
 ## Scope
 
@@ -82,17 +82,21 @@ Gate: Release Gate for M5.
 Decision: Pass.
 Residual risk: This is mainline repository evidence, not a tagged product release, visual-quality certification, hardware validation, or certification artifact.
 
-## M3 RTOS Adapter Release Readiness Update
+## M3 RTOS Adapter Release Update
 
-- Branch: `feature/m3-rtos-adapter-prototypes`
+- PR: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/41`
+- Merge commit: `36e6d20523c14441e493f7fd48d4776e891f894a`
+- Merge method: rebase / fast-forward mainline.
+- Required check: `rust`, passed in 27 seconds.
 - Issues: #17 `M3-RTOS-002 Add ARM64 QEMU embedded demo`; #18 `M3-RTOS-003 Add RTOS adapter abstraction`; #19 `M3-RTOS-004 Add Zephyr feasibility prototype`.
+- Milestone: `M3: RTOS / embedded no_std foundation`, closed with 4 closed issues and 0 open issues.
 - Scope: no_std adapter boundary, host-checkable QEMU proof slice, and isolated Zephyr feasibility prototype.
 - Validation: `cargo fmt`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-embedded`; `cargo fmt --check`; `git diff --check`.
 - Dependency evidence: no new third-party dependencies; `wra-embedded` depends only on local `wra-signal`.
 
 Gate: Release Gate for M3 RTOS follow-up.
-Decision: Pass for protected-branch PR creation.
-Residual risk: Mainline merge, CI result, issue closure, and milestone closure must be recorded after PR merge.
+Decision: Pass.
+Residual risk: This is mainline repository evidence, not a tagged product release, ARM64 boot claim, Zephyr SDK validation, hardware validation, RTOS production readiness claim, or certification artifact.
 
 ## Hand-Off Note
 

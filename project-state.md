@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-M3 RTOS adapter/prototype work is implemented on `feature/m3-rtos-adapter-prototypes`; prepare protected-branch PR review and CI.
+M3 RTOS adapter/prototype work is merged; record post-merge release/community evidence.
 
 ## Current Stage
 
-The repository now includes branch-local M3 RTOS follow-up work for issues #17-#19. The branch adds a `no_std` `wra-embedded` adapter crate, a host-checkable ARM64 QEMU proof slice, and an isolated Zephyr feasibility prototype. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, QEMU boot images, production RTOS readiness, and certification claims remain out of scope.
+The repository now includes merged M3 RTOS follow-up work for issues #17-#19. Mainline includes a `no_std` `wra-embedded` adapter crate, a host-checkable ARM64 QEMU proof slice, and an isolated Zephyr feasibility prototype. PR #41 merged with required `rust` CI passing, issues #17-#20 are closed, and M3 milestone #3 is closed. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, QEMU boot images, production RTOS readiness, and certification claims remain out of scope.
 
 ## Open Risks
 
@@ -64,7 +64,7 @@ The repository now includes branch-local M3 RTOS follow-up work for issues #17-#
 
 Role: GitHub Maintainer Specialist
 
-Expected deliverable: Open the M3 RTOS follow-up PR, wait for required CI, merge if checks pass, and update release/community evidence.
+Expected deliverable: Finish post-merge release/community evidence update for M3.
 
 ## Orchestration Status
 
@@ -73,7 +73,7 @@ Expected deliverable: Open the M3 RTOS follow-up PR, wait for required CI, merge
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
 - Current milestone: M3 RTOS / embedded no_std foundation.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`.
-- Next gate: Protected-branch PR and CI for M3 RTOS follow-up work.
+- Next gate: Post-merge evidence PR for M3.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, or expanding into GUI/DAQ/embedded plotting/certification work.
 
 ## Granularity Status
@@ -184,10 +184,10 @@ Expected deliverable: Open the M3 RTOS follow-up PR, wait for required CI, merge
 | M3 RTOS Follow-Up Security Gate | Pass | `docs/security-review.md`, `cargo tree -p wra-embedded` | Performance Engineer |
 | M3 RTOS Follow-Up Performance Gate | Pass | `docs/performance-review.md`; no unsupported target/RTOS performance claims | Documentation Engineer |
 | M3 RTOS Follow-Up Documentation Gate | Pass | README, `docs/embedded-roadmap.md`, `crates/wra-embedded/README.md`, QEMU and Zephyr READMEs | Code Reviewer |
-| M3 RTOS Follow-Up Code Review Gate | Pass for PR creation | `docs/code-review.md`, `docs/m3-rtos-follow-up-pipeline-report.md` | Evaluation Engineer |
+| M3 RTOS Follow-Up Code Review Gate | Pass | `docs/code-review.md`, `docs/m3-rtos-follow-up-pipeline-report.md` | Evaluation Engineer |
 | M3 RTOS Follow-Up Evaluation Gate | Pass | `docs/evaluation-report.md` | Release Engineer |
-| M3 RTOS Follow-Up Release Gate | Pass for PR creation | `docs/m3-rtos-follow-up-pipeline-report.md`; protected-branch PR pending | GitHub Maintainer Specialist |
-| M3 RTOS Follow-Up Community Gate | Pass for PR handoff | Issues #17-#19 and M3 milestone prepared for PR closing keywords | Project Coordinator |
+| M3 RTOS Follow-Up Release Gate | Pass | PR #41 merged after required `rust` CI passed; merge commit `36e6d20523c14441e493f7fd48d4776e891f894a` | GitHub Maintainer Specialist |
+| M3 RTOS Follow-Up Community Gate | Pass | Issues #17-#20 closed; M3 milestone #3 closed with 4 closed issues and 0 open issues | Project Coordinator |
 
 ## Update Rules
 

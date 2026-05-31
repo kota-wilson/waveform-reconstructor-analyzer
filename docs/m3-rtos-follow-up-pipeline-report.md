@@ -173,28 +173,28 @@ Out of scope: production Zephyr support, Embassy or RTIC implementation, hardwar
 
 ## Release Stage
 
-- Artifact: Protected-branch PR to `main`.
-- Evidence: Branch validation is complete; PR creation was previously approved by the user.
+- Artifact: PR #41 to `main` with issue-closing keywords and CI evidence.
+- Evidence: PR #41 merged on 2026-05-31 at `36e6d20523c14441e493f7fd48d4776e891f894a`; required `rust` CI passed in 27 seconds.
 - Gate: Release Gate.
-- Decision: Pass for PR creation.
-- Reason: All prior gates passed and the branch is ready for protected-branch CI.
-- Residual risk: Mainline release evidence must be updated after PR merge.
+- Decision: Pass.
+- Reason: Protected-branch CI passed and the PR merged by rebase into `main`.
+- Residual risk: No tagged release has been published; this remains repository-mainline evidence only.
 - Next owner: GitHub Maintainer Specialist.
 
 ## Community Stage
 
-- Artifact: Issues #17-#19 and M3 milestone.
-- Evidence: PR body will use closing keywords and summarize validation commands.
+- Artifact: PR body, issue links, and milestone closure status.
+- Evidence: PR #41 included `Fixes #17`, `Fixes #18`, and `Fixes #19`; issues #17-#20 are closed; M3 milestone #3 is closed with 4 closed issues and 0 open issues.
 - Gate: Community Gate.
-- Decision: Pass for PR handoff.
-- Reason: GitHub issue and milestone tracking exist for the community surface.
-- Residual risk: Issue and milestone closure must be verified after merge.
+- Decision: Pass.
+- Reason: GitHub issue and milestone state now reflect the completed M3 work.
+- Residual risk: External embedded-user feedback is still unavailable.
 - Next owner: Project Coordinator.
 
 ## Retrospective Stage
 
 - Artifact: This report and final handoff.
-- Evidence: The branch adds no_std adapter and prototype artifacts without SDKs, HALs, unsafe FFI, or target execution claims.
+- Evidence: The branch adds no_std adapter and prototype artifacts without SDKs, HALs, unsafe FFI, target execution claims, and post-merge release/community evidence.
 - Gate: Retrospective Gate.
 - Decision: Pass.
 - Reason: Lessons and residual risks are recorded before release.
@@ -207,6 +207,6 @@ Role: Project Orchestrator
 Goal: Funnel open M3 RTOS issues #17-#19 through the contribution pipeline.
 Files changed: `crates/wra-embedded/`, `embedded/arm64/qemu/`, `embedded/arm64/zephyr/`, README, docs, requirements, risk, traceability, `Cargo.toml`, and `Cargo.lock`.
 Checks run: `cargo fmt`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-embedded`; `cargo fmt --check`; `git diff --check`.
-Status: Pass for protected-branch PR creation.
+Status: Complete for M3 mainline merge and milestone closure.
 Known gaps: No ARM64 target build, QEMU boot image, Zephyr SDK build, hardware HAL, unsafe FFI review, RTOS timing validation, or certification evidence.
-Next recommended step: Open the M3 follow-up PR, wait for required CI, merge if checks pass, then update release/community evidence.
+Next recommended step: Add target execution, SDK validation, or HAL work only after a fresh environment, dependency, security, and V&V gate.

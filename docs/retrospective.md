@@ -43,5 +43,5 @@ Goal: Capture lessons from project creation through public publication.
 Files changed: `docs/retrospective.md`
 Checks run: Reviewed project artifacts and final CI status.
 Status: Pass.
-Known gaps: Open backlog remains in GitHub issues; plotting still lacks visual regression and embedded work still lacks target execution or SDK validation.
+Known gaps: Plotting still lacks visual regression and embedded work still lacks target execution or SDK validation.
 Next recommended step: Gather plotting and embedded adapter feedback before adding new visualization backends, interactive plotting scope, RTOS SDKs, HALs, or target CI.
