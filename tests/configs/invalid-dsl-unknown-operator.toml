@@ -1,0 +1,17 @@
+[input]
+time_column = "time"
+channels = ["signal_v"]
+
+[[criteria]]
+id = "dsl_bad_operator"
+channel = "signal_v"
+
+[criteria.measurement]
+type = "rise_time"
+low_threshold = { value = 0.5, unit = "V" }
+high_threshold = { value = 4.5, unit = "V" }
+
+[criteria.requirement]
+operator = "approximately"
+value = 0.005
+unit = "s"

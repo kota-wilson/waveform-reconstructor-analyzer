@@ -1,0 +1,16 @@
+[input]
+time_column = "time"
+channels = ["signal_v"]
+
+[[criteria]]
+id = "dsl_missing_unit"
+channel = "signal_v"
+
+[criteria.measurement]
+type = "rise_time"
+low_threshold = { value = 0.5, unit = "V" }
+high_threshold = { value = 4.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.005

@@ -666,6 +666,14 @@ mod tests {
                 "invalid-mixed-legacy-dsl-criterion.toml",
                 "invalid config: invalid parameter `criteria.mixed_shape`",
             ),
+            (
+                "invalid-dsl-unknown-operator.toml",
+                "invalid config: invalid parameter `criteria.dsl_bad_operator.requirement.operator`",
+            ),
+            (
+                "invalid-dsl-missing-requirement-unit.toml",
+                "invalid config: invalid parameter `criteria.dsl_missing_unit.requirement.unit`",
+            ),
         ] {
             let config_path = format!("{manifest_dir}/../../tests/configs/{config_file}");
             let error = run(vec![

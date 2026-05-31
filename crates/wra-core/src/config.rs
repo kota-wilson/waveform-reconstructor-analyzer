@@ -144,13 +144,85 @@ pub struct CriterionRequirementConfig {
 #[derive(Debug, Clone, PartialEq, Deserialize)]
 pub struct UnitValueConfig {
     pub value: f64,
-    pub unit: String,
+    pub unit: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CriterionConfigShape {
     Legacy,
     Dsl,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CriterionOperator {
+    LessThan,
+    LessThanOrEqual,
+    GreaterThan,
+    GreaterThanOrEqual,
+    EqualTo,
+}
+
+impl CriterionOperator {
+    pub fn from_config(value: &str) -> Option<Self> {
+        match value {
+            "less_than" => Some(Self::LessThan),
+            "less_than_or_equal" => Some(Self::LessThanOrEqual),
+            "greater_than" => Some(Self::GreaterThan),
+            "greater_than_or_equal" => Some(Self::GreaterThanOrEqual),
+            "equal_to" => Some(Self::EqualTo),
+            _ => None,
+        }
+    }
+
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::LessThan => "less_than",
+            Self::LessThanOrEqual => "less_than_or_equal",
+            Self::GreaterThan => "greater_than",
+            Self::GreaterThanOrEqual => "greater_than_or_equal",
+            Self::EqualTo => "equal_to",
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum CriterionMeasurementKind {
+    MinimumSample,
+    MaximumSample,
+    StateTransitionCount,
+    PulseWidth,
+    StableStateDuration,
+    TransientEventDuration,
+    RiseTime,
+    FallTime,
+}
+
+impl CriterionMeasurementKind {
+    pub fn from_config(value: &str) -> Option<Self> {
+        match value {
+            "minimum_sample" => Some(Self::MinimumSample),
+            "maximum_sample" => Some(Self::MaximumSample),
+            "state_transition_count" => Some(Self::StateTransitionCount),
+            "pulse_width" => Some(Self::PulseWidth),
+            "stable_state_duration" => Some(Self::StableStateDuration),
+            "transient_event_duration" => Some(Self::TransientEventDuration),
+            "rise_time" => Some(Self::RiseTime),
+            "fall_time" => Some(Self::FallTime),
+            _ => None,
+        }
+    }
+
+    fn requirement_unit(self) -> &'static str {
+        match self {
+            Self::MinimumSample | Self::MaximumSample => "V",
+            Self::StateTransitionCount => "count",
+            Self::PulseWidth
+            | Self::StableStateDuration
+            | Self::TransientEventDuration
+            | Self::RiseTime
+            | Self::FallTime => "s",
+        }
+    }
 }
 
 impl CriterionConfig {
@@ -191,6 +263,17 @@ impl CriterionConfig {
                         .to_string(),
                 });
             }
+
+            let measurement = self
+                .measurement
+                .as_ref()
+                .expect("DSL measurement section validated");
+            let requirement = self
+                .requirement
+                .as_ref()
+                .expect("DSL requirement section validated");
+            let measurement_kind = measurement.validate(&self.id)?;
+            requirement.validate(&self.id, measurement_kind.requirement_unit())?;
 
             return Ok(CriterionConfigShape::Dsl);
         }
@@ -350,6 +433,117 @@ impl CriterionConfig {
             reason: format!(
                 "expected transient_event, spurious_transition, contact_bounce, dropout, noise_induced_transition, or threshold_crossing_event; got `{value}`"
             ),
+        })
+    }
+}
+
+impl CriterionMeasurementConfig {
+    fn validate(&self, criterion_id: &str) -> Result<CriterionMeasurementKind> {
+        let measurement_kind =
+            CriterionMeasurementKind::from_config(&self.kind).ok_or_else(|| {
+                WaveformError::InvalidParameter {
+                    name: format!("criteria.{criterion_id}.measurement.type"),
+                    reason: format!(
+                        "unsupported measurement type `{}`; expected minimum_sample, maximum_sample, state_transition_count, pulse_width, stable_state_duration, transient_event_duration, rise_time, or fall_time",
+                        self.kind
+                    ),
+                }
+            })?;
+
+        validate_optional_unit_value(
+            &format!("criteria.{criterion_id}.measurement.threshold"),
+            self.threshold.as_ref(),
+            "V",
+        )?;
+        validate_optional_unit_value(
+            &format!("criteria.{criterion_id}.measurement.low_threshold"),
+            self.low_threshold.as_ref(),
+            "V",
+        )?;
+        validate_optional_unit_value(
+            &format!("criteria.{criterion_id}.measurement.high_threshold"),
+            self.high_threshold.as_ref(),
+            "V",
+        )?;
+
+        Ok(measurement_kind)
+    }
+}
+
+impl CriterionRequirementConfig {
+    fn validate(&self, criterion_id: &str, expected_unit: &str) -> Result<()> {
+        let operator = self
+            .operator
+            .as_deref()
+            .ok_or_else(|| WaveformError::InvalidParameter {
+                name: format!("criteria.{criterion_id}.requirement.operator"),
+                reason: "field is required for DSL requirements".to_string(),
+            })?;
+
+        CriterionOperator::from_config(operator).ok_or_else(|| WaveformError::InvalidParameter {
+            name: format!("criteria.{criterion_id}.requirement.operator"),
+            reason: format!(
+                "unsupported operator `{operator}`; expected less_than, less_than_or_equal, greater_than, greater_than_or_equal, or equal_to"
+            ),
+        })?;
+
+        if self.value.is_none() {
+            return Err(WaveformError::InvalidParameter {
+                name: format!("criteria.{criterion_id}.requirement.value"),
+                reason: "field is required for DSL requirements".to_string(),
+            });
+        }
+
+        let unit = required_unit(
+            &format!("criteria.{criterion_id}.requirement.unit"),
+            self.unit.as_deref(),
+        )?;
+        validate_supported_unit(&format!("criteria.{criterion_id}.requirement.unit"), unit)?;
+        validate_expected_unit(
+            &format!("criteria.{criterion_id}.requirement.unit"),
+            unit,
+            expected_unit,
+        )
+    }
+}
+
+fn validate_optional_unit_value(
+    field: &str,
+    value: Option<&UnitValueConfig>,
+    expected_unit: &str,
+) -> Result<()> {
+    let Some(value) = value else {
+        return Ok(());
+    };
+    let unit = required_unit(&format!("{field}.unit"), value.unit.as_deref())?;
+    validate_supported_unit(&format!("{field}.unit"), unit)?;
+    validate_expected_unit(&format!("{field}.unit"), unit, expected_unit)
+}
+
+fn required_unit<'a>(name: &str, unit: Option<&'a str>) -> Result<&'a str> {
+    unit.ok_or_else(|| WaveformError::InvalidParameter {
+        name: name.to_string(),
+        reason: "explicit unit field is required".to_string(),
+    })
+}
+
+fn validate_supported_unit(name: &str, unit: &str) -> Result<()> {
+    match unit {
+        "V" | "s" | "count" => Ok(()),
+        _ => Err(WaveformError::InvalidParameter {
+            name: name.to_string(),
+            reason: format!("unsupported unit `{unit}`; expected `V`, `s`, or `count`"),
+        }),
+    }
+}
+
+fn validate_expected_unit(name: &str, unit: &str, expected_unit: &str) -> Result<()> {
+    if unit == expected_unit {
+        Ok(())
+    } else {
+        Err(WaveformError::InvalidParameter {
+            name: name.to_string(),
+            reason: format!("expected unit `{expected_unit}`, got `{unit}`"),
         })
     }
 }
@@ -523,16 +717,196 @@ unit = "s"
                     measurement
                         .low_threshold
                         .as_ref()
-                        .map(|threshold| (threshold.value, threshold.unit.as_str())),
+                        .map(|threshold| (threshold.value, threshold.unit.as_deref())),
                     measurement
                         .high_threshold
                         .as_ref()
-                        .map(|threshold| (threshold.value, threshold.unit.as_str())),
+                        .map(|threshold| (threshold.value, threshold.unit.as_deref())),
                 )
             }),
-            Some(("rise_time", Some((0.5, "V")), Some((4.5, "V"))))
+            Some(("rise_time", Some((0.5, Some("V"))), Some((4.5, Some("V")))))
         );
         assert!(config.validate().is_ok());
+    }
+
+    #[test]
+    fn validates_supported_dsl_operators_and_requirement_units() {
+        for (operator, measurement_type, unit) in [
+            ("less_than", "maximum_sample", "V"),
+            ("less_than_or_equal", "rise_time", "s"),
+            ("greater_than", "stable_state_duration", "s"),
+            ("greater_than_or_equal", "state_transition_count", "count"),
+            ("equal_to", "fall_time", "s"),
+        ] {
+            let toml = format!(
+                r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[criteria]]
+id = "dsl_check"
+channel = "switch_v"
+
+[criteria.measurement]
+type = "{measurement_type}"
+threshold = {{ value = 2.5, unit = "V" }}
+
+[criteria.requirement]
+operator = "{operator}"
+value = 1.0
+unit = "{unit}"
+"#
+            );
+
+            let config =
+                toml::from_str::<AnalysisConfig>(&toml).expect("config should deserialize");
+
+            assert_eq!(config.validate(), Ok(()), "{operator} should validate");
+        }
+    }
+
+    #[test]
+    fn rejects_unknown_dsl_operator() {
+        let config = dsl_config_with_requirement("approximately", 0.005, Some("s"));
+
+        assert_eq!(
+            config.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.dsl_rise.requirement.operator".to_string(),
+                reason:
+                    "unsupported operator `approximately`; expected less_than, less_than_or_equal, greater_than, greater_than_or_equal, or equal_to"
+                        .to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_missing_dsl_requirement_unit() {
+        let config = dsl_config_with_requirement("less_than_or_equal", 0.005, None);
+
+        assert_eq!(
+            config.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.dsl_rise.requirement.unit".to_string(),
+                reason: "explicit unit field is required".to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_unsupported_dsl_requirement_unit() {
+        let config = dsl_config_with_requirement("less_than_or_equal", 5.0, Some("ms"));
+
+        assert_eq!(
+            config.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.dsl_rise.requirement.unit".to_string(),
+                reason: "unsupported unit `ms`; expected `V`, `s`, or `count`".to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_mismatched_dsl_requirement_unit() {
+        let config = dsl_config_with_requirement("less_than_or_equal", 0.005, Some("V"));
+
+        assert_eq!(
+            config.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.dsl_rise.requirement.unit".to_string(),
+                reason: "expected unit `s`, got `V`".to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_missing_dsl_threshold_unit() {
+        let toml = r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[criteria]]
+id = "dsl_rise"
+channel = "switch_v"
+
+[criteria.measurement]
+type = "rise_time"
+low_threshold = { value = 0.5 }
+high_threshold = { value = 4.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.005
+unit = "s"
+"#;
+        let config = toml::from_str::<AnalysisConfig>(toml).expect("config should deserialize");
+
+        assert_eq!(
+            config.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.dsl_rise.measurement.low_threshold.unit".to_string(),
+                reason: "explicit unit field is required".to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_mismatched_dsl_threshold_unit() {
+        let toml = r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[criteria]]
+id = "dsl_rise"
+channel = "switch_v"
+
+[criteria.measurement]
+type = "rise_time"
+low_threshold = { value = 0.5, unit = "s" }
+high_threshold = { value = 4.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.005
+unit = "s"
+"#;
+        let config = toml::from_str::<AnalysisConfig>(toml).expect("config should deserialize");
+
+        assert_eq!(
+            config.validate(),
+            Err(WaveformError::InvalidParameter {
+                name: "criteria.dsl_rise.measurement.low_threshold.unit".to_string(),
+                reason: "expected unit `V`, got `s`".to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_unit_shorthand_strings() {
+        let toml = r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[criteria]]
+id = "dsl_rise"
+channel = "switch_v"
+
+[criteria.measurement]
+type = "rise_time"
+low_threshold = { value = 0.5, unit = "V" }
+high_threshold = { value = 4.5, unit = "V" }
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = "5ms"
+unit = "s"
+"#;
+
+        assert!(toml::from_str::<AnalysisConfig>(toml).is_err());
     }
 
     #[test]
@@ -620,5 +994,38 @@ unit = "s"
                 reason: "field is required for this filter type".to_string(),
             })
         );
+    }
+
+    fn dsl_config_with_requirement(
+        operator: &str,
+        value: f64,
+        unit: Option<&str>,
+    ) -> AnalysisConfig {
+        let unit_line = unit
+            .map(|unit| format!("unit = \"{unit}\""))
+            .unwrap_or_default();
+        let toml = format!(
+            r#"
+[input]
+time_column = "time"
+channels = ["switch_v"]
+
+[[criteria]]
+id = "dsl_rise"
+channel = "switch_v"
+
+[criteria.measurement]
+type = "rise_time"
+low_threshold = {{ value = 0.5, unit = "V" }}
+high_threshold = {{ value = 4.5, unit = "V" }}
+
+[criteria.requirement]
+operator = "{operator}"
+value = {value}
+{unit_line}
+"#
+        );
+
+        toml::from_str::<AnalysisConfig>(&toml).expect("config should deserialize")
     }
 }
