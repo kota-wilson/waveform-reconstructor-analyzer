@@ -4,7 +4,7 @@ Date: 2026-05-31
 
 Issue: #95, `BRAND-001 Document FerrisOxide brand architecture proposal`
 
-Status: Implemented as proposal documentation. No rename performed.
+Status: Implemented and merged through PR #96 as proposal documentation. No rename performed.
 
 ## Summary
 
@@ -22,7 +22,7 @@ FerrisOxide is documented as the preferred umbrella brand candidate for the broa
 | Traceability | Requirement mapping | `traceability-matrix.md` | Pass |
 | Implementation | Documentation-only change | No repo, crate, binary, or org rename. | Pass |
 | Testing | Local validation | `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`. | Pass |
-| Release | PR and CI | Pending. | Pending |
+| Release | PR and CI | PR #96 merged after required `rust` CI passed; issue #95 closed. | Pass |
 
 ## Key Decision
 
@@ -69,6 +69,6 @@ Role: Product Architect / GitHub Maintainer Specialist
 Goal: Capture FerrisOxide as a future brand architecture proposal without renaming public identifiers.
 Files changed: `docs/brand-architecture.md`, `decisions/ADR-005-ferrisoxide-brand-architecture.md`, `docs/brand-001-ferrisoxide-pipeline-report.md`, `requirements.md`, `traceability-matrix.md`, `risk-register.md`, and `project-state.md`.
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Proposal validated locally; PR release gate pending.
+Status: Proposal validated locally and merged through PR #96.
 Known gaps: External availability, legal suitability, domain, crates.io, organization, logo, migration, and public communication reviews remain future work.
-Next recommended step: Validate documentation and open PR closing issue #95.
+Next recommended step: Keep current public identifiers until a separate naming adoption issue passes availability, legal suitability, and migration gates.

@@ -2,7 +2,7 @@
 
 Date: 2026-05-31
 
-Status: Proposed. No repository, crate, binary, organization, domain, or package rename has been performed.
+Status: Proposed and merged through PR #96. No repository, crate, binary, organization, domain, or package rename has been performed.
 
 ## Summary
 
@@ -180,6 +180,6 @@ Role: Product Architect / GitHub Maintainer Specialist
 Goal: Capture FerrisOxide as a proposed umbrella brand without performing a rename.
 Files changed: `docs/brand-architecture.md`.
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Proposal validated locally; PR release gate pending.
+Status: Proposal validated locally and merged through PR #96.
 Known gaps: GitHub organization availability, domain availability, crates.io availability, trademark/legal suitability, Rust-affiliation risk, logo/assets, and migration timeline are not verified.
 Next recommended step: Keep current repository identity until a formal naming adoption issue and approval gate are opened.

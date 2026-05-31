@@ -2,7 +2,7 @@
 
 Date: 2026-05-31
 
-Status: Proposed
+Status: Proposed and merged through PR #96
 
 ## Context
 
@@ -92,6 +92,6 @@ Role: Product Architect / GitHub Maintainer Specialist
 Goal: Decide how to represent FerrisOxide in planning without changing public identifiers.
 Files changed: `decisions/ADR-005-ferrisoxide-brand-architecture.md`.
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Proposed; PR release gate pending.
+Status: Proposed and merged through PR #96.
 Known gaps: External availability and legal suitability checks are not complete.
 Next recommended step: Use `docs/brand-architecture.md` as the naming reference until a separate adoption issue is approved.
