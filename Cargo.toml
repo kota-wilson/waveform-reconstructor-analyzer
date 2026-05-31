@@ -1,18 +1,18 @@
 [workspace]
 members = [
-    "crates/wra-core",
-    "crates/wra-cli",
-    "crates/wra-embedded",
-    "crates/wra-measurements",
-    "crates/wra-plot",
-    "crates/wra-signal",
+    "crates/ferrisoxide-core",
+    "crates/ferrisoxide-cli",
+    "crates/ferrisoxide-embedded",
+    "crates/ferrisoxide-measurements",
+    "crates/ferrisoxide-plot",
+    "crates/ferrisoxide-signal",
 ]
 resolver = "2"
 
 [workspace.package]
 edition = "2021"
 license = "MIT"
-repository = "https://github.com/kota-wilson/waveform-reconstructor-analyzer"
+repository = "https://github.com/kota-wilson/ferrisoxide-signal"
 rust-version = "1.76"
 
 [workspace.lints.rust]

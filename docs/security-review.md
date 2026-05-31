@@ -23,7 +23,7 @@ No blocking security issues found for M4:
 - No new third-party dependencies.
 - No unsafe Rust.
 - No network access or credential handling added to the product code.
-- Benchmark-generated CSV/config files are written under `target/wra-benchmark/`.
+- Benchmark-generated CSV/config files are written under `target/ferrisoxide-signal-benchmark/`.
 - CLI and benchmark helper continue to read local file paths supplied by the user.
 
 ## M5 SVG Plotting Update
@@ -31,8 +31,8 @@ No blocking security issues found for M4:
 No blocking security issues found for M5:
 
 - Plotters was approved by the user after dependency review.
-- Plotters is isolated in `wra-plot` and constrained to SVG backend and line-series features.
-- `wra plot` reads local user-supplied CSV paths and writes a local SVG path.
+- Plotters is isolated in `ferrisoxide-plot` and constrained to SVG backend and line-series features.
+- `ferrisoxide-signal plot` reads local user-supplied CSV paths and writes a local SVG path.
 - No network access, credential handling, unsafe Rust, shell execution, GUI process launch, or embedded runtime integration was added to product code.
 - Output parent directory validation rejects missing parent directories instead of creating unexpected filesystem trees.
 
@@ -41,7 +41,7 @@ No blocking security issues found for M5:
 No blocking security issues found for the M3 RTOS follow-up branch:
 
 - No new third-party dependencies.
-- `wra-embedded` depends only on local `wra-signal`.
+- `ferrisoxide-embedded` depends only on local `ferrisoxide-signal`.
 - No unsafe Rust, FFI, credentials, network access, SDK installation, shell execution, file I/O, HAL, or RTOS API call was added to product code.
 - QEMU proof slice is host-checkable and uses fixed in-memory sample data.
 - Zephyr feasibility sketch is documentation/prototype-only and not wired into the workspace build.
@@ -51,7 +51,7 @@ No blocking security issues found for the M3 RTOS follow-up branch:
 No blocking security issues found for the M6 measurement-engine extraction:
 
 - No new third-party dependencies.
-- `wra-measurements` has no dependency entries and is consumed by `wra-core` as a local path dependency.
+- `ferrisoxide-measurements` has no dependency entries and is consumed by `ferrisoxide-core` as a local path dependency.
 - No unsafe Rust, FFI, credentials, network access, shell execution, file I/O, parser surface, plotting backend, DAQ integration, RTOS SDK, HAL, or plugin runtime was added.
 - Existing CLI file-handling behavior is unchanged.
 
@@ -83,12 +83,12 @@ No blocking security issues found for the M6 completion branch:
 | File handling | CLI reads local user-supplied CSV/config paths only | Pass |
 | Unsafe Rust | Workspace lint forbids unsafe code | Pass |
 | M4 dependency surface | No new crates added | Pass |
-| M4 generated files | Benchmark script writes under `target/wra-benchmark/` | Pass |
-| M5 dependency review | `docs/dependency-review.md`, `cargo metadata --format-version 1 --no-deps`, `cargo tree -p wra-plot` | Pass |
+| M4 generated files | Benchmark script writes under `target/ferrisoxide-signal-benchmark/` | Pass |
+| M5 dependency review | `docs/dependency-review.md`, `cargo metadata --format-version 1 --no-deps`, `cargo tree -p ferrisoxide-plot` | Pass |
 | M5 file surface | CLI reads local CSV and writes local SVG only | Pass |
-| M3 embedded dependency surface | `cargo tree -p wra-embedded` shows only local `wra-signal` | Pass |
+| M3 embedded dependency surface | `cargo tree -p ferrisoxide-embedded` shows only local `ferrisoxide-signal` | Pass |
 | M3 embedded file surface | No embedded file I/O, SDK, HAL, FFI, network, or credential handling added | Pass |
-| M6 measurement dependency surface | `cargo tree -p wra-measurements` shows only `wra-measurements` | Pass |
+| M6 measurement dependency surface | `cargo tree -p ferrisoxide-measurements` shows only `ferrisoxide-measurements` | Pass |
 | M6 product surface | No new file, network, unsafe, FFI, plotting, DAQ, RTOS, or plugin surface added | Pass |
 | M6-003 report schema surface | No new dependencies or file/network/unsafe/plugin/runtime surface | Pass |
 | M6 completion surface | No new dependencies, network, unsafe, plugin, DAQ, SDK, HAL, or embedded runtime surface | Pass |

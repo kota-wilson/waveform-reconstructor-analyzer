@@ -14,16 +14,16 @@ The first-class embedded target is Raspberry Pi 5 bare-metal ARM64 using Rust ta
 
 | Module | Responsibility | Status |
 |---|---|---|
-| `wra-core` | `std`-capable shared domain models for the CLI and desktop analysis path. | Existing |
-| `wra-signal` | `no_std` signal-processing primitives: fixed buffers, streaming ingestion, thresholds, transient events. | M3-RTOS-001 |
-| `wra-criteria` | Future `no_std` pass/fail criteria engine if criteria outgrow `wra-signal`. | Future |
-| `wra-cli` | Desktop CSV/config/report command-line interface. | Existing |
-| `wra-embedded` | `no_std` RTOS/ARM64 adapter boundary around `wra-signal` sample sources, event sinks, and runtime hooks. | M3-RTOS-003 |
-| `wra-pico-runtime` | Future optional Pico 2 microcontroller adapter for compact configs, fixed buffers, simple filters, threshold/timing checks, and GPIO/PWM actions. | Future; issue #92 |
+| `ferrisoxide-core` | `std`-capable shared domain models for the CLI and desktop analysis path. | Existing |
+| `ferrisoxide-signal` | `no_std` signal-processing primitives: fixed buffers, streaming ingestion, thresholds, transient events. | M3-RTOS-001 |
+| `ferrisoxide-criteria` | Future `no_std` pass/fail criteria engine if criteria outgrow `ferrisoxide-signal`. | Future |
+| `ferrisoxide-cli` | Desktop CSV/config/report command-line interface. | Existing |
+| `ferrisoxide-embedded` | `no_std` RTOS/ARM64 adapter boundary around `ferrisoxide-signal` sample sources, event sinks, and runtime hooks. | M3-RTOS-003 |
+| `ferrisoxide-pico-runtime` | Future optional Pico 2 microcontroller adapter for compact configs, fixed buffers, simple filters, threshold/timing checks, and GPIO/PWM actions. | Future; issue #92 |
 
 ## Adapter Order
 
-1. M3-RTOS-001: Extract `wra-signal` `no_std` signal primitives.
+1. M3-RTOS-001: Extract `ferrisoxide-signal` `no_std` signal primitives.
 2. M3-RTOS-002: Add host-checkable ARM64 QEMU embedded demo.
 3. M3-RTOS-003: Add embedded adapter abstraction.
 4. M3-RTOS-004: Add Zephyr feasibility prototype.
@@ -35,7 +35,7 @@ The first-class embedded target is Raspberry Pi 5 bare-metal ARM64 using Rust ta
 | Issue | Artifact | Status |
 |---|---|---|
 | M3-RTOS-002 | `embedded/arm64/qemu/` | Host-checkable ARM64 QEMU proof slice added; full QEMU image remains future work. |
-| M3-RTOS-003 | `crates/wra-embedded/` | Adapter traits and streaming helpers added. |
+| M3-RTOS-003 | `crates/ferrisoxide-embedded/` | Adapter traits and streaming helpers added. |
 | M3-RTOS-004 | `embedded/arm64/zephyr/` | Feasibility sketch and production-readiness risks documented. |
 
 ## Current Non-Goals
@@ -53,7 +53,7 @@ The first-class embedded target is Raspberry Pi 5 bare-metal ARM64 using Rust ta
 
 ## Architecture Decision
 
-Start with `wra-signal`, then add `wra-embedded` as a small adapter boundary before any runtime-specific implementation. This keeps reusable math and evaluation logic small, testable on desktop, and independent of RTOS runtime decisions. ARM64/QEMU and Zephyr artifacts remain wrapper/prototype layers. Pico 2 support should arrive later as a constrained `wra-pico-runtime` consumer of the same portable rule subset, not as a forked rule engine.
+Start with `ferrisoxide-signal`, then add `ferrisoxide-embedded` as a small adapter boundary before any runtime-specific implementation. This keeps reusable math and evaluation logic small, testable on desktop, and independent of RTOS runtime decisions. ARM64/QEMU and Zephyr artifacts remain wrapper/prototype layers. Pico 2 support should arrive later as a constrained `ferrisoxide-pico-runtime` consumer of the same portable rule subset, not as a forked rule engine.
 
 ## Gate Decision
 

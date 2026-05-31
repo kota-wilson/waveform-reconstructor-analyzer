@@ -8,7 +8,7 @@ signal_unit = "V"
 test_run_id = "KA-SQUARE-TOL-001"
 acquisition_notes = "Synthetic known-answer square wave for voltage and time tolerance boundary checks."
 environment = "software validation fixture"
-operator = "wra validation suite"
+operator = "FerrisOxide Signal validation suite"
 
 [tolerances]
 voltage_v = 0.02

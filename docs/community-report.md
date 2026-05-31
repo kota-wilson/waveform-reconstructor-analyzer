@@ -6,7 +6,7 @@ Owner Role: Community Engineering Lead
 
 ## Publication
 
-- Repository: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`
+- Repository: `https://github.com/kota-wilson/ferrisoxide-signal`
 - Visibility: Public.
 - Default branch: `main`.
 - CI status: Passing.

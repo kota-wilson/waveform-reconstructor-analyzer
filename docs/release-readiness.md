@@ -2,7 +2,7 @@
 
 Date: 2026-05-31
 
-Project: Waveform Reconstructor and Analyzer
+Project: FerrisOxide Signal
 
 Stage: Release Gate
 
@@ -29,7 +29,7 @@ Publish the initial public GitHub repository for the MVP Rust waveform analysis 
 
 ## Release Notes
 
-- Initial Rust workspace with `wra-core` and `wra-cli`.
+- Initial Rust workspace with `ferrisoxide-core` and `ferrisoxide-cli`.
 - CSV waveform loading with named time/channel mapping.
 - TOML config for input, filters, and min/max voltage criteria.
 - Moving-average and first-order low-pass filters.
@@ -46,7 +46,7 @@ Publish the initial public GitHub repository for the MVP Rust waveform analysis 
 
 ## Publication Result
 
-- Repository: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`
+- Repository: `https://github.com/kota-wilson/ferrisoxide-signal`
 - Visibility: Public.
 - Default branch: `main`.
 - Initial commit: `dab0866`.
@@ -55,7 +55,7 @@ Publish the initial public GitHub repository for the MVP Rust waveform analysis 
 
 ## M4 Release Update
 
-- PR: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/36`
+- PR: `https://github.com/kota-wilson/ferrisoxide-signal/pull/36`
 - Merge commit: `a0d381556ff5f5d044f230217b335b73b3b57608`
 - Merge method: rebase / fast-forward mainline.
 - Required check: `rust`, passed in 28 seconds.
@@ -68,15 +68,15 @@ Residual risk: This is mainline repository evidence, not a tagged product releas
 
 ## M5 Release Update
 
-- PR: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/39`
+- PR: `https://github.com/kota-wilson/ferrisoxide-signal/pull/39`
 - Merge commit: `9bc3d53bf416fff7e280abbcc24840c34811918f`
 - Merge method: rebase / fast-forward mainline.
 - Required check: `rust`, passed in 31 seconds.
 - Issue: #38, `M5-001 Add optional SVG waveform plotting with third axis`
 - Milestone: `M5: Plotting and Visualization`, closed with 1 closed issue and 0 open issues.
 - Scope: Optional desktop SVG plotting only.
-- Validation: `cargo fmt`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; 2D/3D CLI smoke plots; `cargo fmt --check`; `git diff --check`; `cargo metadata --format-version 1 --no-deps`; `cargo tree -p wra-plot`.
-- Dependency evidence: Plotters approved by user and isolated to `wra-plot` with SVG backend and line-series features.
+- Validation: `cargo fmt`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; 2D/3D CLI smoke plots; `cargo fmt --check`; `git diff --check`; `cargo metadata --format-version 1 --no-deps`; `cargo tree -p ferrisoxide-plot`.
+- Dependency evidence: Plotters approved by user and isolated to `ferrisoxide-plot` with SVG backend and line-series features.
 
 Gate: Release Gate for M5.
 Decision: Pass.
@@ -84,15 +84,15 @@ Residual risk: This is mainline repository evidence, not a tagged product releas
 
 ## M3 RTOS Adapter Release Update
 
-- PR: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/41`
+- PR: `https://github.com/kota-wilson/ferrisoxide-signal/pull/41`
 - Merge commit: `36e6d20523c14441e493f7fd48d4776e891f894a`
 - Merge method: rebase / fast-forward mainline.
 - Required check: `rust`, passed in 27 seconds.
 - Issues: #17 `M3-RTOS-002 Add ARM64 QEMU embedded demo`; #18 `M3-RTOS-003 Add RTOS adapter abstraction`; #19 `M3-RTOS-004 Add Zephyr feasibility prototype`.
 - Milestone: `M3: RTOS / embedded no_std foundation`, closed with 4 closed issues and 0 open issues.
 - Scope: no_std adapter boundary, host-checkable QEMU proof slice, and isolated Zephyr feasibility prototype.
-- Validation: `cargo fmt`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-embedded`; `cargo fmt --check`; `git diff --check`.
-- Dependency evidence: no new third-party dependencies; `wra-embedded` depends only on local `wra-signal`.
+- Validation: `cargo fmt`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p ferrisoxide-embedded`; `cargo fmt --check`; `git diff --check`.
+- Dependency evidence: no new third-party dependencies; `ferrisoxide-embedded` depends only on local `ferrisoxide-signal`.
 
 Gate: Release Gate for M3 RTOS follow-up.
 Decision: Pass.
@@ -100,7 +100,7 @@ Residual risk: This is mainline repository evidence, not a tagged product releas
 
 ## M6 Measurement Engine Release Update
 
-- PR: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/48`
+- PR: `https://github.com/kota-wilson/ferrisoxide-signal/pull/48`
 - Merge commit: `559c96151f6f1d9a99d3d399a0e6bd046bfe5f51`
 - Merge method: rebase / fast-forward mainline.
 - Required check: `rust`, passed in 27 seconds.
@@ -108,8 +108,8 @@ Residual risk: This is mainline repository evidence, not a tagged product releas
 - Milestone: `v0.4.0: Measurement & Evidence Engine`
 - Milestone status: later closed by PR #52 completion evidence with 5 closed issues and 0 open issues.
 - Scope: reusable no_std measurement primitives and criteria integration only.
-- Validation: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-measurements`; `git diff --check`.
-- Dependency evidence: no new third-party dependencies; `wra-measurements` is a local no-dependency crate.
+- Validation: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p ferrisoxide-measurements`; `git diff --check`.
+- Dependency evidence: no new third-party dependencies; `ferrisoxide-measurements` is a local no-dependency crate.
 - Deferred issues: #44, #45, #46, and #47 were later completed under milestone #6.
 
 Gate: Release Gate for M6-001.
@@ -118,7 +118,7 @@ Residual risk: This is mainline repository evidence, not a tagged product releas
 
 ## M6-003 Report Measurement Schema Release Update
 
-- PR: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/50`
+- PR: `https://github.com/kota-wilson/ferrisoxide-signal/pull/50`
 - Merge commit: `f7e21695f501890669d591d0d7cbc9b731a541bb`
 - Merge method: rebase / fast-forward mainline.
 - Required check: `rust`, passed in 31 seconds.

@@ -2,12 +2,12 @@
 
 Status: M3-RTOS-002 proof slice.
 
-This folder contains a small `#![no_std]` Rust library that demonstrates `wra-embedded` and `wra-signal` usage without desktop file I/O, CSV parsing, plotting, or report generation.
+This folder contains a small `#![no_std]` Rust library that demonstrates `ferrisoxide-embedded` and `ferrisoxide-signal` usage without desktop file I/O, CSV parsing, plotting, or report generation.
 
 ## What This Proves
 
 - Fixed sample data can be streamed through the embedded adapter boundary.
-- `wra-signal` threshold evaluation can run behind `wra-embedded` source/sink/runtime traits.
+- `ferrisoxide-signal` threshold evaluation can run behind `ferrisoxide-embedded` source/sink/runtime traits.
 - The proof can be checked by Cargo without installing QEMU or an ARM64 target.
 
 ## Local Verification
@@ -27,7 +27,7 @@ A future freestanding QEMU image is expected to use:
 - Rust target: `aarch64-unknown-none`.
 - QEMU machine: `virt`.
 - Platform start code: future `bare-metal/` startup and linker files.
-- Analyzer entry point: `wra_arm64_qemu_demo::run_demo()`.
+- Analyzer entry point: `ferrisoxide_arm64_qemu_demo::run_demo()`.
 
 Sketch command, not run by CI:
 

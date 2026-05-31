@@ -6,7 +6,7 @@ GitHub issue: #1, `M1-001 Validate CSV parser edge cases`
 
 Branch: `feature/m1-001-csv-parser-edge-cases`
 
-Pull request: #22, `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/22`
+Pull request: #22, `https://github.com/kota-wilson/ferrisoxide-signal/pull/22`
 
 ## Current Status
 
@@ -45,7 +45,7 @@ Out of scope:
 
 ## Implementation Notes
 
-The existing `SimpleCsvParser` already returned structured `WaveformError` variants for the reviewed paths. The implementation therefore adds coverage in `crates/wra-core/src/csv.rs` instead of changing parser behavior.
+The existing `SimpleCsvParser` already returned structured `WaveformError` variants for the reviewed paths. The implementation therefore adds coverage in `crates/ferrisoxide-core/src/csv.rs` instead of changing parser behavior.
 
 ## Pipeline Gates
 
@@ -55,8 +55,8 @@ The existing `SimpleCsvParser` already returned structured `WaveformError` varia
 | Requirements | Pass | Acceptance criteria captured in this file and `docs/validation-log.md`. | Future DAQ dialects may need more cases. |
 | Architecture | Pass | Existing `SimpleCsvParser`, `CsvParseOptions`, and `WaveformError` are sufficient. | Parser architecture may need expansion for richer dialect config later. |
 | Abstraction Review | Pass | Tests name exact inputs, expected variants, and display strings. | None for current test-only scope. |
-| Implementation | Pass | `crates/wra-core/src/csv.rs` edge-case tests. | No parser behavior changes were needed. |
-| Testing | Pass | `cargo test -p wra-core csv::tests -- --nocapture`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`. | No external DAQ export corpus included. |
+| Implementation | Pass | `crates/ferrisoxide-core/src/csv.rs` edge-case tests. | No parser behavior changes were needed. |
+| Testing | Pass | `cargo test -p ferrisoxide-core csv::tests -- --nocapture`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`. | No external DAQ export corpus included. |
 | V&V | Pass | `traceability-matrix.md` maps WRA-RQ-001 to issue #1 evidence. | Manual CLI error review not repeated for every case. |
 | QA | Pass | Acceptance criteria covered by tests and docs. | No external CSV corpus included. |
 | Security | Not Applicable | No dependencies, auth, secrets, permissions, or external calls changed. | Future file import features should be reviewed. |
@@ -72,8 +72,8 @@ The existing `SimpleCsvParser` already returned structured `WaveformError` varia
 
 Role: Project Orchestrator
 Goal: Address issue #1 with focused parser edge-case tests.
-Files changed: `crates/wra-core/src/csv.rs`, `docs/m1-001-csv-parser-edge-cases.md`, `docs/implementation-report.md`, `docs/validation-log.md`, `traceability-matrix.md`
-Checks run: `cargo test -p wra-core csv::tests -- --nocapture`
+Files changed: `crates/ferrisoxide-core/src/csv.rs`, `docs/m1-001-csv-parser-edge-cases.md`, `docs/implementation-report.md`, `docs/validation-log.md`, `traceability-matrix.md`
+Checks run: `cargo test -p ferrisoxide-core csv::tests -- --nocapture`
 Status: Historical handoff complete; PR #22 later merged into `main`.
 Known gaps: No external DAQ export corpus included.
 Next recommended step: Use future parser issues for broader CSV dialect or external DAQ corpus coverage.

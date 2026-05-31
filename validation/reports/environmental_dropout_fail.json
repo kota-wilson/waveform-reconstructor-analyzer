@@ -5,7 +5,7 @@
     "test_run_id": "ENV-DROPOUT-001",
     "acquisition_notes": "Synthetic environmental-style dropout case with a known 2 ms low event.",
     "environment": "software validation fixture",
-    "operator": "wra validation suite",
+    "operator": "FerrisOxide Signal validation suite",
     "time_unit": "s",
     "sample_count": 7,
     "channel_count": 1,
@@ -53,7 +53,7 @@
       "sample_index": 3,
       "timestamp": 0.003,
       "method_context": {
-        "source": "wra-measurements",
+        "source": "ferrisoxide-measurements",
         "threshold_v": 2.5,
         "low_threshold_v": null,
         "high_threshold_v": null,

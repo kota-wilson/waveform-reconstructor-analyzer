@@ -2,7 +2,7 @@
 
 Date: 2026-05-31
 
-Project: Waveform Reconstructor and Analyzer
+Project: FerrisOxide Signal
 
 Milestone: `M5: Plotting and Visualization`
 
@@ -41,7 +41,7 @@ Out of scope: GUI windows, web frontend, DAQ integration, live acquisition, embe
 ## Architecture Stage
 
 - Artifact: `docs/architecture.md`, `docs/plotting.md`, `docs/dependency-review.md`.
-- Evidence: Added `wra-plot` as a desktop-only plotting crate using Plotters SVG line rendering; `wra-core` and `wra-signal` remain plotting-free.
+- Evidence: Added `ferrisoxide-plot` as a desktop-only plotting crate using Plotters SVG line rendering; `ferrisoxide-core` and `ferrisoxide-signal` remain plotting-free.
 - Gate: Architecture Gate.
 - Decision: Pass.
 - Reason: The architecture adds an optional edge module without contaminating shared core, criteria, embedded, or analysis-report paths.
@@ -70,12 +70,12 @@ Out of scope: GUI windows, web frontend, DAQ integration, live acquisition, embe
 
 ## Implementation Stage
 
-- Artifact: `crates/wra-plot/`, `crates/wra-cli/src/main.rs`, `tests/fixtures/plot_three_axis.csv`, docs, requirements, risk, and traceability updates.
+- Artifact: `crates/ferrisoxide-plot/`, `crates/ferrisoxide-cli/src/main.rs`, `tests/fixtures/plot_three_axis.csv`, docs, requirements, risk, and traceability updates.
 - Evidence:
-  - `wra-plot::render_svg` writes SVG files.
-  - `wra-plot::render_svg_string` supports deterministic SVG tests.
+  - `ferrisoxide-plot::render_svg` writes SVG files.
+  - `ferrisoxide-plot::render_svg_string` supports deterministic SVG tests.
   - `PlotOptions` records output path, title, channels, optional third-axis channel, width, and height.
-  - `wra plot` supports `--input`, `--time-column`, `--channels`, `--z-column`, `--output`, `--title`, `--width`, and `--height`.
+  - `ferrisoxide-signal plot` supports `--input`, `--time-column`, `--channels`, `--z-column`, `--output`, `--title`, `--width`, and `--height`.
   - Plotters is enabled with `default-features = false`, `svg_backend`, and `line_series`.
 - Gate: Implementation Gate.
 - Decision: Pass.
@@ -90,12 +90,12 @@ Out of scope: GUI windows, web frontend, DAQ integration, live acquisition, embe
   - `cargo fmt`
   - `cargo test --workspace`
   - `cargo clippy --workspace --all-targets -- -D warnings`
-  - 2D `wra plot` CLI smoke command.
-  - 3D `wra plot --z-column` CLI smoke command.
+  - 2D `ferrisoxide-signal plot` CLI smoke command.
+  - 3D `ferrisoxide-signal plot --z-column` CLI smoke command.
   - `cargo fmt --check`
   - `git diff --check`
   - `cargo metadata --format-version 1 --no-deps`
-  - `cargo tree -p wra-plot`
+  - `cargo tree -p ferrisoxide-plot`
 - Gate: Testing Gate.
 - Decision: Pass.
 - Reason: Unit tests, CLI tests, smoke commands, linting, formatting, whitespace, and dependency inspection passed.
@@ -206,8 +206,8 @@ Out of scope: GUI windows, web frontend, DAQ integration, live acquisition, embe
 
 Role: Project Orchestrator
 Goal: Add optional desktop SVG plotting with optional third-axis visualization through the contribution pipeline.
-Files changed: `crates/wra-plot/`, `crates/wra-cli/src/main.rs`, `tests/fixtures/plot_three_axis.csv`, README, docs, requirements, risk, traceability, `Cargo.toml`, and `Cargo.lock`.
-Checks run: `cargo fmt`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; 2D/3D `wra plot` smoke commands; `cargo fmt --check`; `git diff --check`; `cargo metadata --format-version 1 --no-deps`; `cargo tree -p wra-plot`.
+Files changed: `crates/ferrisoxide-plot/`, `crates/ferrisoxide-cli/src/main.rs`, `tests/fixtures/plot_three_axis.csv`, README, docs, requirements, risk, traceability, `Cargo.toml`, and `Cargo.lock`.
+Checks run: `cargo fmt`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; 2D/3D `ferrisoxide-signal plot` smoke commands; `cargo fmt --check`; `git diff --check`; `cargo metadata --format-version 1 --no-deps`; `cargo tree -p ferrisoxide-plot`.
 Status: Complete for M5 mainline merge and milestone closure.
 Known gaps: No GUI, DAQ, embedded plotting, surface plotting, visual regression tests, large-plot benchmark, or certification evidence.
 Next recommended step: Gather external plotting usability feedback before adding new visualization backends or interactive plotting scope.

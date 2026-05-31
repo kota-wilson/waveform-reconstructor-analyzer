@@ -22,7 +22,7 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 
 - Owner role: Open Source Research Engineer / DX Engineer
 - Artifact: GitHub issues #44, #46, and #47 plus local inspection of plotting, criteria, measurement, validation, and report code.
-- Evidence: `wra-plot` already owns SVG rendering; PR #50 added reusable measurement IDs; validation fixtures already use exact JSON report comparisons.
+- Evidence: `ferrisoxide-plot` already owns SVG rendering; PR #50 added reusable measurement IDs; validation fixtures already use exact JSON report comparisons.
 - Gate: Target Intake Gate.
 - Decision: Pass.
 - Residual risk: SVG annotations can be visually misleading if they diverge from report evidence.
@@ -42,7 +42,7 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 
 - Owner role: Software Architect
 - Artifact: `docs/architecture.md`, `docs/plotting.md`, `docs/criteria-dsl.md`, `docs/measurements.md`.
-- Design: keep plotting in `wra-plot`; derive `EvidenceOverlay` from `AnalysisResult` and `MeasurementRecord`; let `wra plot --config` run the existing config/filter/criteria path before rendering 2D overlays; add measurement validation fixtures under `validation/measurement_engine/`; document DSL direction without runtime syntax changes.
+- Design: keep plotting in `ferrisoxide-plot`; derive `EvidenceOverlay` from `AnalysisResult` and `MeasurementRecord`; let `ferrisoxide-signal plot --config` run the existing config/filter/criteria path before rendering 2D overlays; add measurement validation fixtures under `validation/measurement_engine/`; document DSL direction without runtime syntax changes.
 - Gate: Architecture Gate.
 - Decision: Pass.
 - Residual risk: 3D evidence overlays remain out of scope.
@@ -61,7 +61,7 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 ## Implementation
 
 - Owner role: Core Software Engineer
-- Artifact: `crates/wra-plot/src/lib.rs`, `crates/wra-cli/src/main.rs`, `validation/measurement_engine/`, `docs/criteria-dsl.md`, docs, requirements, risk, and traceability.
+- Artifact: `crates/ferrisoxide-plot/src/lib.rs`, `crates/ferrisoxide-cli/src/main.rs`, `validation/measurement_engine/`, `docs/criteria-dsl.md`, docs, requirements, risk, and traceability.
 - Behavior: 2D SVG plots can show pass/fail status, threshold lines, and failed-criterion labels; plot overlays reuse report measurement evidence; known-answer fixture covers transition count, pulse width, transient duration, stable-state duration, rise time, fall time, tolerance, and time-axis assumptions.
 - Gate: Implementation Gate.
 - Decision: Pass.
@@ -72,7 +72,7 @@ Out of scope: GUI, bitmap output, web plotting, DAQ integration, plugin runtime,
 
 - Owner role: Test Automation Engineer
 - Artifact: `docs/validation-log.md`, exact JSON report, and SVG smoke output.
-- Evidence: `cargo test --workspace` passed with 84 tests; annotated SVG CLI smoke wrote `/private/tmp/wra-dropout-evidence.svg` and contained expected status, threshold, and failed-marker labels.
+- Evidence: `cargo test --workspace` passed with 84 tests; annotated SVG CLI smoke wrote `/private/tmp/ferrisoxide-signal-dropout-evidence.svg` and contained expected status, threshold, and failed-marker labels.
 - Gate: Testing Gate.
 - Decision: Pass.
 - Residual risk: protected-branch CI passed for PR #52; visual regression automation remains future work.

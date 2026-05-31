@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Continue v0.5.0 criteria DSL implementation after planning v0.7.0 controller-in-the-loop workflows and documenting platform target profiles.
+Adopt FerrisOxide Signal as the in-repository product identity through BRAND-002 before returning to v0.5.0 criteria DSL implementation.
 
 ## Current Stage
 
-Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 and #56 closed and issues #57 through #61 open. PR #65 merged M7-002: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. PR #75 planned milestone #8, `v0.6.0: Portable Rule Package System`, with issues #67 through #74 for desktop rule authoring/export and embedded/controller deployment through one schema and one shared rule engine. PR #87 planned milestone #9, `v0.7.0: Controller Simulation and Deployment Config System`, with issues #77 through #86 for desktop digital-twin simulation, separate production control and test verification configs, deployment packages, and RTOS verification mode. PR #90 closed issue #89 and defined Apple Silicon desktop authoring plus Raspberry Pi 5 bare-metal ARM64 embedded runtime platform profiles. PR #93 closed issue #92 and defined Raspberry Pi Pico 2 as a future optional microcontroller runtime profile for compact deterministic rule execution. PR #96 closed issue #95 and documents FerrisOxide as a proposed umbrella brand without renaming repository, crates, binary, organization, domain, or public package identifiers. GUI, live DAQ vendor SDKs, embedded plotting, hardware HALs, Pico 2 runtime implementation, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, certification claims, and public brand migration remain out of scope until separately gated.
+Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 and #56 closed and issues #57 through #61 open. PR #65 merged M7-002: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. PR #75 planned milestone #8, `v0.6.0: Portable Rule Package System`, with issues #67 through #74 for desktop rule authoring/export and embedded/controller deployment through one schema and one shared rule engine. PR #87 planned milestone #9, `v0.7.0: Controller Simulation and Deployment Config System`, with issues #77 through #86 for desktop digital-twin simulation, separate production control and test verification configs, deployment packages, and RTOS verification mode. PR #90 closed issue #89 and defined Apple Silicon desktop authoring plus Raspberry Pi 5 bare-metal ARM64 embedded runtime platform profiles. PR #93 closed issue #92 and defined Raspberry Pi Pico 2 as a future optional microcontroller runtime profile for compact deterministic rule execution. PR #96 closed issue #95 and documented FerrisOxide as a proposed umbrella brand. Issue #98 now tracks BRAND-002 adoption of FerrisOxide Signal across in-repository package names, CLI binary, docs, examples, and scripts; local validation has passed from `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`, and protected-branch PR/CI plus repository-host rename remain pending. GUI, live DAQ vendor SDKs, embedded plotting, hardware HALs, Pico 2 runtime implementation, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, certification claims, and external brand expansion remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -64,7 +64,7 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55
   Owner: Embedded RTOS Engineer / DX Engineer
 - Risk: Pico 2 may be over-scoped as a full controller-computer runtime despite microcontroller memory and I/O constraints.
   Owner: Embedded RTOS Engineer / Documentation Engineer
-- Risk: A future FerrisOxide rename may confuse users, break links or scripts, overclaim Rust affiliation, or conflict with unavailable names.
+- Risk: The FerrisOxide Signal rename may confuse users, break links or scripts, overclaim Rust affiliation, or conflict with unavailable external names.
   Owner: Product Architect / GitHub Maintainer Specialist
 
 ## Pending Decisions
@@ -78,16 +78,16 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55
 - Decision: Choose report format priority: text-first or JSON-first.
   Owner: Product / Documentation Engineer
   Status: Text and JSON are both implemented for MVP.
-- Decision: Start the embedded path with `wra-signal` before `wra-embedded`, QEMU, Embassy-style, or Zephyr integration.
+- Decision: Start the embedded path with `ferrisoxide-signal` before `ferrisoxide-embedded`, QEMU, Embassy-style, or Zephyr integration.
   Owner: Software Architect
   Status: Accepted in `docs/embedded-roadmap.md`.
-- Decision: Add optional desktop SVG plotting through an isolated `wra-plot` crate using Plotters SVG line rendering.
+- Decision: Add optional desktop SVG plotting through an isolated `ferrisoxide-plot` crate using Plotters SVG line rendering.
   Owner: Software Architect / Security Engineer
   Status: Accepted for M5 in `docs/dependency-review.md` and `docs/m5-plotting-pipeline-report.md`.
 - Decision: Keep M3 RTOS follow-up work host-checkable and adapter/prototype-only until a fresh target-toolchain gate.
   Owner: Embedded RTOS Engineer / Verification and Validation Engineer
   Status: Accepted in `docs/m3-rtos-follow-up-pipeline-report.md`.
-- Decision: Start v0.4.0 with a local `wra-measurements` crate before report schema, annotated SVG, batch, or plugin work.
+- Decision: Start v0.4.0 with a local `ferrisoxide-measurements` crate before report schema, annotated SVG, batch, or plugin work.
   Owner: Software Architect / Verification and Validation Engineer
   Status: Accepted in `docs/m6-measurement-engine-pipeline-report.md`.
 - Decision: Treat embedded/controller support as a deployment target for one portable rule schema and one shared rule engine, not as a forked rule implementation.
@@ -102,25 +102,25 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55
 - Decision: Define Raspberry Pi Pico 2 as an optional future microcontroller runtime profile, not a replacement for the Raspberry Pi 5 embedded runtime.
   Owner: Software Architect / Embedded RTOS Engineer
   Status: Accepted for future milestone planning in `docs/platform-targets.md`; runtime crate remains deferred.
-- Decision: Use FerrisOxide as the preferred umbrella brand candidate in planning documents only.
+- Decision: Use FerrisOxide Signal as the adopted in-repository product identity while keeping external namespace/legal checks gated.
   Owner: Product Architect / GitHub Maintainer Specialist
-  Status: Proposed and merged through PR #96 in `decisions/ADR-005-ferrisoxide-brand-architecture.md`; repository, crate, binary, organization, domain, and package renames remain deferred.
+  Status: In progress through BRAND-002 / issue #98 in `decisions/ADR-006-ferrisoxide-signal-identity-adoption.md`; organization, domain, crates.io, trademark, logo, and legal-suitability checks remain deferred.
 
 ## Next Responsible Role
 
-Role: Project Orchestrator / Project Coordinator
+Role: Product Architect / GitHub Maintainer Specialist / Core Software Engineer
 
-Expected deliverable: Start M7-003 / issue #57 through the implementation pipeline unless v0.6.0 or v0.7.0 is explicitly reprioritized.
+Expected deliverable: Complete BRAND-002 source/docs rename, protected-branch PR, and repository-host rename evidence; then return to M7-003 / issue #57.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
-- Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`; future milestones #8, `v0.6.0: Portable Rule Package System`, and #9, `v0.7.0: Controller Simulation and Deployment Config System`, are planned; issue #89 added platform profiles to milestone #9 and issue #92 added the optional Pico 2 micro-runtime profile.
+- Repository URL: `https://github.com/kota-wilson/ferrisoxide-signal`.
+- Current milestone: BRAND-002 / issue #98 rename is active before returning to #7, `v0.5.0: Measurement-Backed Criteria DSL`; future milestones #8, `v0.6.0: Portable Rule Package System`, and #9, `v0.7.0: Controller Simulation and Deployment Config System`, are planned; issue #89 added platform profiles to milestone #9 and issue #92 added the optional Pico 2 micro-runtime profile.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
-- Next gate: Implement DSL criteria evaluation through existing measurement evidence for issue #57 unless v0.6.0 or v0.7.0 is explicitly reprioritized.
-- Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, Pico 2 runtime crate work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, unit shorthand parsing, new measurements, expanded annotated SVG features, or public brand migration without a fresh issue/gate.
+- Next gate: Complete BRAND-002 local validation, PR, CI, and repository-host rename evidence before returning to issue #57.
+- Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, Pico 2 runtime crate work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, unit shorthand parsing, new measurements, expanded annotated SVG features, or external brand expansion without a fresh issue/gate.
 
 ## Granularity Status
 
@@ -130,16 +130,16 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 
 ## Environment Status
 
-- Project root: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`.
+- Project root: `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`.
 - Isolation level: Level 1 Cargo workspace.
 - Local environment: Rust/Cargo; no global dependencies installed.
-- Dependency status: Approved crates added and pinned in `Cargo.lock`; see `docs/dependency-review.md`. M3 follow-up adds no third-party dependencies; `wra-embedded` depends only on local `wra-signal`. M6-001 adds no third-party dependencies; `wra-measurements` is local and dependency-free.
+- Dependency status: Approved crates added and pinned in `Cargo.lock`; see `docs/dependency-review.md`. M3 follow-up adds no third-party dependencies; `ferrisoxide-embedded` depends only on local `ferrisoxide-signal`. M6-001 adds no third-party dependencies; `ferrisoxide-measurements` is local and dependency-free.
 
 ## Traceability Status
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, WRA-RQ-036 release evidence for issue #55, WRA-RQ-037 and WRA-RQ-038 release evidence for issue #56, remaining v0.5.0 requirements WRA-RQ-039 through WRA-RQ-042 mapped to issues #57 through #61, planned v0.6.0 requirements WRA-RQ-043 through WRA-RQ-050 mapped to issues #67 through #74, WRA-RQ-051 through WRA-RQ-060 mapped to issues #77 through #86, WRA-RQ-061 release evidence for issue #89, WRA-RQ-062 release evidence for issue #92, and WRA-RQ-063 release evidence for issue #95.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, WRA-RQ-036 release evidence for issue #55, WRA-RQ-037 and WRA-RQ-038 release evidence for issue #56, remaining v0.5.0 requirements WRA-RQ-039 through WRA-RQ-042 mapped to issues #57 through #61, planned v0.6.0 requirements WRA-RQ-043 through WRA-RQ-050 mapped to issues #67 through #74, WRA-RQ-051 through WRA-RQ-060 mapped to issues #77 through #86, WRA-RQ-061 release evidence for issue #89, WRA-RQ-062 release evidence for issue #92, WRA-RQ-063 release evidence for issue #95, and WRA-RQ-064 for BRAND-002 / issue #98.
 
 ## Gate Decisions
 
@@ -166,33 +166,33 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 | Architecture Decision Gate | Pass | `decisions/ADR-003-filter-pipeline-architecture.md` | Core Software Engineer |
 | GitHub Issue Planning Gate | Pass | M1 issues #1-#7 created under `M1: Validated MVP` | Project Orchestrator |
 | M1-001 Requirements Gate | Pass | Issue #1 acceptance criteria captured in `docs/m1-001-csv-parser-edge-cases.md` | Software Architect |
-| M1-001 Implementation Gate | Pass | `crates/wra-core/src/csv.rs`, `docs/implementation-report.md` | Test Automation Engineer |
+| M1-001 Implementation Gate | Pass | `crates/ferrisoxide-core/src/csv.rs`, `docs/implementation-report.md` | Test Automation Engineer |
 | M1-001 Testing Gate | Pass | `docs/validation-log.md`; targeted parser tests, workspace tests, fmt, and clippy passed | Project Orchestrator |
-| M1-001 Release Gate | Pass | PR #22 merged after `rust` CI passed: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/22` | Community Engineering Lead |
+| M1-001 Release Gate | Pass | PR #22 merged after `rust` CI passed: `https://github.com/kota-wilson/ferrisoxide-signal/pull/22` | Community Engineering Lead |
 | M1-001 Community Gate | Pass | PR #22 body links issue #1 and validation commands | Project Coordinator |
 | v0.2.0 Planning Gate | Pass | M2 issues #8-#15 created under `v0.2.0: waveform criteria engine` | Core Software Engineer |
 | v0.2.0 Implementation Gate | Pass | PR #16 merged with waveform fixtures, criteria, config validation, and golden JSON tests | Test Automation Engineer |
 | M3 Issue Planning Gate | Pass | M3 milestone plus issues #17-#20 created | Project Orchestrator |
 | M3-RTOS-001 Requirements Gate | Pass | `requirements.md`, `traceability-matrix.md` include WRA-RQ-017 | Software Architect |
-| M3-RTOS-001 Architecture Gate | Pass | `docs/embedded-roadmap.md`, `crates/wra-signal/no_std-design.md` | Core Software Engineer |
-| M3-RTOS-001 Implementation Gate | Pass | `docs/implementation-report.md`, `crates/wra-signal/` | Test Automation Engineer |
+| M3-RTOS-001 Architecture Gate | Pass | `docs/embedded-roadmap.md`, `crates/ferrisoxide-signal/no_std-design.md` | Core Software Engineer |
+| M3-RTOS-001 Implementation Gate | Pass | `docs/implementation-report.md`, `crates/ferrisoxide-signal/` | Test Automation Engineer |
 | M3-RTOS-001 Testing Gate | Pass | `docs/validation-log.md` | Verification and Validation Engineer |
 | M3-RTOS-001 V&V Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | QA Engineer |
 | M3-RTOS-001 QA Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Security Engineer |
-| M3-RTOS-001 Security Gate | Pass | `docs/m3-rtos-001-pipeline-report.md`, `cargo tree -p wra-signal` | Performance Engineer |
+| M3-RTOS-001 Security Gate | Pass | `docs/m3-rtos-001-pipeline-report.md`, `cargo tree -p ferrisoxide-signal` | Performance Engineer |
 | M3-RTOS-001 Performance Gate | Pass | `docs/m3-rtos-001-pipeline-report.md`, fixed-size and O(1) streaming state inspection | Documentation Engineer |
-| M3-RTOS-001 Documentation Gate | Pass | `README.md`, `CHANGELOG.md`, `docs/embedded-roadmap.md`, `crates/wra-signal/README.md` | Code Reviewer |
+| M3-RTOS-001 Documentation Gate | Pass | `README.md`, `CHANGELOG.md`, `docs/embedded-roadmap.md`, `crates/ferrisoxide-signal/README.md` | Code Reviewer |
 | M3-RTOS-001 Code Review Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Evaluation Engineer |
 | M3-RTOS-001 Evaluation Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Release Engineer |
-| M3-RTOS-001 Release Gate | Pass | PR #21 merged after `rust` CI passed: `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/21` | Community Engineering Lead |
+| M3-RTOS-001 Release Gate | Pass | PR #21 merged after `rust` CI passed: `https://github.com/kota-wilson/ferrisoxide-signal/pull/21` | Community Engineering Lead |
 | M3-RTOS-001 Community Gate | Pass | PR #21 body links issue #20 and follow-up issues #17-#19 | Project Coordinator |
 | M3-RTOS-001 Retrospective Gate | Pass | `docs/m3-rtos-001-pipeline-report.md` | Project Orchestrator |
 | Domain End-User Review Gate | Pass | `docs/end-user-design-review.md`; PR #23 | Documentation Engineer |
-| ADC Quantization Implementation Gate | Pass | `crates/wra-core/src/filter.rs`, `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, `docs/implementation-report.md` | Test Automation Engineer |
+| ADC Quantization Implementation Gate | Pass | `crates/ferrisoxide-core/src/filter.rs`, `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-cli/src/main.rs`, `docs/implementation-report.md` | Test Automation Engineer |
 | ADC Quantization Testing Gate | Pass | `docs/validation-log.md`; unit, config, CLI, and workspace tests passed | Release Engineer |
 | ADC Quantization Release Gate | Pass | PR #25 merged after required `rust` CI passed | Project Orchestrator |
 | Documentation Accuracy Gate | Pass | `docs/documentation-audit-2026-05-31.md`; fmt, workspace tests, clippy, whitespace, link-target, and stale-status scans passed | Project Coordinator |
-| M1 Metadata / README Implementation Gate | Pass | `crates/wra-core/src/model.rs`, `crates/wra-core/src/report.rs`, README, golden JSON reports, `docs/report-schema.md` | Test Automation Engineer |
+| M1 Metadata / README Implementation Gate | Pass | `crates/ferrisoxide-core/src/model.rs`, `crates/ferrisoxide-core/src/report.rs`, README, golden JSON reports, `docs/report-schema.md` | Test Automation Engineer |
 | v0.3.0 Planning Gate | Pass | `docs/v0.3.0-validation-roadmap.md`, `validation/`, M4 issues #27-#34 | GitHub Maintainer Specialist |
 | M4 Requirements Gate | Pass | `requirements.md`, `traceability-matrix.md` | Software Architect |
 | M4 Architecture Gate | Pass | `docs/architecture.md`, `docs/filter-behavior.md`, `docs/time-axis-and-tolerances.md` | Abstraction Review Engineer |
@@ -201,7 +201,7 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 | M4 V&V Gate | Pass | `docs/verification-validation-report.md`, known-answer expected measurements, exact-report tests | QA Engineer |
 | M4 QA Gate | Pass | `docs/qa-review.md` | Security Engineer |
 | M4 Security Gate | Pass | `docs/security-review.md`; no new dependencies or unsafe/network surface | Performance Engineer |
-| M4 Performance Gate | Pass | `docs/performance-review.md`, `docs/benchmarking.md`, `wra-bench` | Documentation Engineer |
+| M4 Performance Gate | Pass | `docs/performance-review.md`, `docs/benchmarking.md`, `ferrisoxide-signal-bench` | Documentation Engineer |
 | M4 Documentation Gate | Pass | `docs/documentation-review.md`, README, report schema, validation docs | Code Reviewer |
 | M4 Code Review Gate | Pass for PR creation | `docs/code-review.md`, `docs/m4-signal-validation-pipeline-report.md` | Evaluation Engineer |
 | M4 Evaluation Gate | Pass | `docs/evaluation-report.md` | Release Engineer |
@@ -210,11 +210,11 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 | M5 Requirements Gate | Pass | `requirements.md` WRA-RQ-027; issue #38 | Software Architect |
 | M5 Architecture Gate | Pass | `docs/architecture.md`, `docs/plotting.md`, `docs/dependency-review.md` | Abstraction Review Engineer |
 | M5 Human Approval Gate | Pass | User approved adding the Plotters dependency and PR creation | Core Software Engineer |
-| M5 Implementation Gate | Pass | `crates/wra-plot/`, `crates/wra-cli/src/main.rs`, plotting fixture and docs | Test Automation Engineer |
+| M5 Implementation Gate | Pass | `crates/ferrisoxide-plot/`, `crates/ferrisoxide-cli/src/main.rs`, plotting fixture and docs | Test Automation Engineer |
 | M5 Testing Gate | Pass | `docs/validation-log.md`; fmt, workspace tests, clippy, 2D/3D CLI smokes, metadata/tree inspection, diff check | Verification and Validation Engineer |
 | M5 V&V Gate | Pass | `docs/verification-validation-report.md`, WRA-RQ-027 traceability | QA Engineer |
 | M5 QA Gate | Pass | `docs/qa-review.md` | Security Engineer |
-| M5 Security Gate | Pass | `docs/security-review.md`, `docs/dependency-review.md`, `cargo tree -p wra-plot` | Performance Engineer |
+| M5 Security Gate | Pass | `docs/security-review.md`, `docs/dependency-review.md`, `cargo tree -p ferrisoxide-plot` | Performance Engineer |
 | M5 Performance Gate | Pass | `docs/performance-review.md`; no unsupported performance claims | Documentation Engineer |
 | M5 Documentation Gate | Pass | README, `docs/usage-mvp.md`, `docs/plotting.md` | Code Reviewer |
 | M5 Code Review Gate | Pass | `docs/code-review.md`, `docs/m5-plotting-pipeline-report.md` | Evaluation Engineer |
@@ -222,14 +222,14 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 | M5 Release Gate | Pass | PR #39 merged after required `rust` CI passed; merge commit `9bc3d53bf416fff7e280abbcc24840c34811918f` | GitHub Maintainer Specialist |
 | M5 Community Gate | Pass | Issue #38 closed; M5 milestone #5 closed with 1 closed issue and 0 open issues | Project Coordinator |
 | M3 RTOS Follow-Up Requirements Gate | Pass | `requirements.md` WRA-RQ-028 through WRA-RQ-030; issues #17-#19 | Software Architect |
-| M3 RTOS Follow-Up Architecture Gate | Pass | `docs/architecture.md`, `docs/embedded-roadmap.md`, `crates/wra-embedded/no_std-design.md` | Abstraction Review Engineer |
-| M3 RTOS Follow-Up Implementation Gate | Pass | `crates/wra-embedded/`, `embedded/arm64/qemu/`, `embedded/arm64/zephyr/` | Test Automation Engineer |
+| M3 RTOS Follow-Up Architecture Gate | Pass | `docs/architecture.md`, `docs/embedded-roadmap.md`, `crates/ferrisoxide-embedded/no_std-design.md` | Abstraction Review Engineer |
+| M3 RTOS Follow-Up Implementation Gate | Pass | `crates/ferrisoxide-embedded/`, `embedded/arm64/qemu/`, `embedded/arm64/zephyr/` | Test Automation Engineer |
 | M3 RTOS Follow-Up Testing Gate | Pass | `docs/validation-log.md`; workspace tests, QEMU demo manifest test, clippy, dependency tree | Verification and Validation Engineer |
 | M3 RTOS Follow-Up V&V Gate | Pass | `docs/verification-validation-report.md`, WRA-RQ-028 through WRA-RQ-030 traceability | QA Engineer |
 | M3 RTOS Follow-Up QA Gate | Pass | `docs/qa-review.md` | Security Engineer |
-| M3 RTOS Follow-Up Security Gate | Pass | `docs/security-review.md`, `cargo tree -p wra-embedded` | Performance Engineer |
+| M3 RTOS Follow-Up Security Gate | Pass | `docs/security-review.md`, `cargo tree -p ferrisoxide-embedded` | Performance Engineer |
 | M3 RTOS Follow-Up Performance Gate | Pass | `docs/performance-review.md`; no unsupported target/RTOS performance claims | Documentation Engineer |
-| M3 RTOS Follow-Up Documentation Gate | Pass | README, `docs/embedded-roadmap.md`, `crates/wra-embedded/README.md`, QEMU and Zephyr READMEs | Code Reviewer |
+| M3 RTOS Follow-Up Documentation Gate | Pass | README, `docs/embedded-roadmap.md`, `crates/ferrisoxide-embedded/README.md`, QEMU and Zephyr READMEs | Code Reviewer |
 | M3 RTOS Follow-Up Code Review Gate | Pass | `docs/code-review.md`, `docs/m3-rtos-follow-up-pipeline-report.md` | Evaluation Engineer |
 | M3 RTOS Follow-Up Evaluation Gate | Pass | `docs/evaluation-report.md` | Release Engineer |
 | M3 RTOS Follow-Up Release Gate | Pass | PR #41 merged after required `rust` CI passed; merge commit `36e6d20523c14441e493f7fd48d4776e891f894a` | GitHub Maintainer Specialist |
@@ -237,27 +237,27 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 | M6 Issue Planning Gate | Pass | Milestone #6 and issues #43-#47 created | Software Architect |
 | M6 Requirements Gate | Pass | `requirements.md` WRA-RQ-031; issue #43 | Software Architect |
 | M6 Architecture Gate | Pass | `docs/architecture.md`, `docs/measurements.md`, `docs/m6-measurement-engine-pipeline-report.md` | Abstraction Review Engineer |
-| M6 Implementation Gate | Pass | `crates/wra-measurements/`, `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/criteria.rs` | Test Automation Engineer |
+| M6 Implementation Gate | Pass | `crates/ferrisoxide-measurements/`, `crates/ferrisoxide-core/src/analysis.rs`, `crates/ferrisoxide-core/src/criteria.rs` | Test Automation Engineer |
 | M6 Testing Gate | Pass | `docs/validation-log.md`; fmt, workspace tests, clippy, dependency tree, and diff check passed | Verification and Validation Engineer |
 | M6 V&V Gate | Pass | `docs/verification-validation-report.md`, WRA-RQ-031 traceability | QA Engineer |
 | M6 QA Gate | Pass | `docs/qa-review.md` | Security Engineer |
-| M6 Security Gate | Pass | `docs/security-review.md`, `docs/dependency-review.md`, `cargo tree -p wra-measurements` | Performance Engineer |
+| M6 Security Gate | Pass | `docs/security-review.md`, `docs/dependency-review.md`, `cargo tree -p ferrisoxide-measurements` | Performance Engineer |
 | M6 Performance Gate | Pass | `docs/performance-review.md`; no unsupported performance claims | Documentation Engineer |
-| M6 Documentation Gate | Pass | README, `docs/measurements.md`, `crates/wra-measurements/README.md` | Code Reviewer |
+| M6 Documentation Gate | Pass | README, `docs/measurements.md`, `crates/ferrisoxide-measurements/README.md` | Code Reviewer |
 | M6 Code Review Gate | Pass | `docs/code-review.md`, `docs/m6-measurement-engine-pipeline-report.md` | Evaluation Engineer |
 | M6 Evaluation Gate | Pass | `docs/evaluation-report.md` | Release Engineer |
 | M6 Release Gate | Pass | PR #48 merged after required `rust` CI passed; merge commit `559c96151f6f1d9a99d3d399a0e6bd046bfe5f51` | GitHub Maintainer Specialist |
 | M6 Community Gate | Pass for M6-001 | Issue #43 closed; remaining milestone #6 issues later closed by PR #50 and PR #52 | Project Coordinator |
 | M6-003 Requirements Gate | Pass | `requirements.md` WRA-RQ-032; issue #45 | Software Architect |
 | M6-003 Architecture Gate | Pass | `docs/report-schema.md`, `docs/measurements.md`, `docs/m6-report-measurement-schema-pipeline-report.md` | Abstraction Review Engineer |
-| M6-003 Implementation Gate | Pass | `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs`, `crates/wra-cli/src/main.rs`, exact golden reports | Test Automation Engineer |
+| M6-003 Implementation Gate | Pass | `crates/ferrisoxide-core/src/analysis.rs`, `crates/ferrisoxide-core/src/report.rs`, `crates/ferrisoxide-cli/src/main.rs`, exact golden reports | Test Automation Engineer |
 | M6-003 Testing Gate | Pass | Measurement-link unit test, report tests, CLI tests, exact golden JSON tests, workspace tests | Verification and Validation Engineer |
 | M6-003 V&V Gate | Pass | `docs/m6-report-measurement-schema-pipeline-report.md`, WRA-RQ-032 traceability | QA Engineer |
 | M6-003 Release Gate | Pass | PR #50 merged after required `rust` CI passed; merge commit `f7e21695f501890669d591d0d7cbc9b731a541bb` | GitHub Maintainer Specialist |
 | M6-003 Community Gate | Pass | Issue #45 closed; remaining milestone #6 issues later closed by PR #52 | Project Coordinator |
 | M6 Completion Requirements Gate | Pass | `requirements.md` WRA-RQ-033 through WRA-RQ-035; issues #44, #46, and #47 | Software Architect |
 | M6 Completion Architecture Gate | Pass | `docs/architecture.md`, `docs/plotting.md`, `docs/criteria-dsl.md`, `docs/m6-completion-pipeline-report.md` | Abstraction Review Engineer |
-| M6 Completion Implementation Gate | Pass | `crates/wra-plot/src/lib.rs`, `crates/wra-cli/src/main.rs`, `validation/measurement_engine/`, docs | Test Automation Engineer |
+| M6 Completion Implementation Gate | Pass | `crates/ferrisoxide-plot/src/lib.rs`, `crates/ferrisoxide-cli/src/main.rs`, `validation/measurement_engine/`, docs | Test Automation Engineer |
 | M6 Completion Testing Gate | Pass | Workspace tests, annotated SVG CLI smoke, exact measurement-engine report test, and PR #52 required `rust` CI | Verification and Validation Engineer |
 | M6 Completion V&V Gate | Pass | `docs/m6-completion-pipeline-report.md`, WRA-RQ-033 through WRA-RQ-035 traceability | QA Engineer |
 | M6 Completion Release Gate | Pass | PR #52 merged after required `rust` CI passed; merge commit `dd9c4bf39a5866f8a2cf903247db2ca0ded6a2b9` | GitHub Maintainer Specialist |
@@ -266,13 +266,13 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 | v0.5.0 Human Approval Gate | Pass | User approved the milestone proposal before GitHub issue creation | Project Coordinator |
 | v0.5.0 Issue Planning Gate | Pass | Milestone #7 and issues #55 through #61 created | Core Software Engineer |
 | M7-001 Requirements Gate | Pass | WRA-RQ-036; issue #55 | Software Architect |
-| M7-001 Architecture Gate | Pass | Config-boundary schema and compatibility adapter in `crates/wra-core/src/config.rs` | Abstraction Review Engineer |
+| M7-001 Architecture Gate | Pass | Config-boundary schema and compatibility adapter in `crates/ferrisoxide-core/src/config.rs` | Abstraction Review Engineer |
 | M7-001 Implementation Gate | Pass | DSL config structs, shape validation, legacy conversion preservation, CLI invalid-config fixture | Test Automation Engineer |
 | M7-001 Testing Gate | Pass | `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, `git diff --check`, and PR #63 required `rust` CI passed | Verification and Validation Engineer |
 | M7-001 Release Gate | Pass | PR #63 merged after required `rust` CI passed; merge commit `9a8b0e667f9d829a1083168b7875db967ca4e960` | GitHub Maintainer Specialist |
 | M7-001 Community Gate | Pass | Issue #55 closed; issues #56-#61 remain open under milestone #7 | Project Coordinator |
 | M7-002 Requirements Gate | Pass | WRA-RQ-037 and WRA-RQ-038; issue #56 | Software Architect |
-| M7-002 Architecture Gate | Pass | Config-boundary operator and unit validation in `crates/wra-core/src/config.rs` | Abstraction Review Engineer |
+| M7-002 Architecture Gate | Pass | Config-boundary operator and unit validation in `crates/ferrisoxide-core/src/config.rs` | Abstraction Review Engineer |
 | M7-002 Implementation Gate | Pass | Operator enum, measurement kind output units, explicit unit validation, CLI invalid-config fixtures | Test Automation Engineer |
 | M7-002 Testing Gate | Pass | `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, `git diff --check`, and PR #65 required `rust` CI passed | Verification and Validation Engineer |
 | M7-002 Release Gate | Pass | PR #65 merged after required `rust` CI passed; merge commit `37cff043ff9ed16d7bb27ae2ddf315732ed20203` | GitHub Maintainer Specialist |
@@ -293,9 +293,14 @@ Expected deliverable: Start M7-003 / issue #57 through the implementation pipeli
 | v0.7.0 Controller-In-The-Loop Community Gate | Pass | Milestone #9 open with issues #77 through #86; active M7 issues #57 through #61 and planned M8 issues #67 through #74 remain open | Project Orchestrator |
 | v0.7.0 Platform Profile Requirements Gate | Pass | WRA-RQ-061 in `requirements.md`; issue #89 | Software Architect |
 | v0.7.0 Platform Profile Architecture Gate | Pass | `docs/platform-targets.md`; `aarch64-apple-darwin` and `aarch64-unknown-none` target names verified locally | Embedded RTOS Engineer |
-| v0.7.0 Platform Profile Target Check Gate | Pass locally | `cargo check --workspace --target aarch64-apple-darwin`; `cargo check -p wra-signal --target aarch64-unknown-none`; `cargo check -p wra-embedded --target aarch64-unknown-none` | Verification and Validation Engineer |
+| v0.7.0 Platform Profile Target Check Gate | Pass locally | `cargo check --workspace --target aarch64-apple-darwin`; `cargo check -p ferrisoxide-signal --target aarch64-unknown-none`; `cargo check -p ferrisoxide-embedded --target aarch64-unknown-none` | Verification and Validation Engineer |
 | v0.7.0 Platform Profile Release Gate | Pass | PR #90 merged after required `rust` CI passed; merge commit `d55969ba4c7ca7115dd87f5b379afefbded1fc8a` | GitHub Maintainer Specialist |
 | v0.7.0 Platform Profile Community Gate | Pass | Issue #89 closed; milestone #9 remains open for issues #77 through #86 | Project Coordinator |
+| BRAND-002 Requirements Gate | Pass | `requirements.md` WRA-RQ-064; issue #98 | Product Architect |
+| BRAND-002 Architecture Gate | Pass | `docs/brand-architecture.md`; ADR-006 | GitHub Maintainer Specialist |
+| BRAND-002 Implementation Gate | Pass locally | `Cargo.toml`, `Cargo.lock`, `crates/ferrisoxide-*`, README, docs, scripts, fixtures | Core Software Engineer |
+| BRAND-002 Testing Gate | Pass locally | `docs/validation-log.md`; metadata, fmt, tests, QEMU-demo test, clippy, CLI smokes, benchmark smoke, diff check, identifier scan | Verification and Validation Engineer |
+| BRAND-002 Release Gate | Pending | Protected-branch PR, required `rust` CI, issue #98 closure, and repository-host rename evidence still pending | GitHub Maintainer Specialist |
 
 ## Update Rules
 

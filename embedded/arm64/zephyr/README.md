@@ -2,16 +2,16 @@
 
 Status: M3-RTOS-004 feasibility prototype.
 
-This folder documents how a future Zephyr adapter could wrap `wra-embedded` without making Zephyr a dependency of `wra-signal`, `wra-core`, or `wra-cli`.
+This folder documents how a future Zephyr adapter could wrap `ferrisoxide-embedded` without making Zephyr a dependency of `ferrisoxide-signal`, `ferrisoxide-core`, or `ferrisoxide-cli`.
 
 ## Prototype Boundary
 
 ```text
 Zephyr sensor / GPIO / ADC driver
   -> ZephyrSampleSource
-  -> wra-embedded RuntimeHooks
-  -> wra-embedded streaming helper
-  -> wra-signal threshold / transient primitive
+  -> ferrisoxide-embedded RuntimeHooks
+  -> ferrisoxide-embedded streaming helper
+  -> ferrisoxide-signal threshold / transient primitive
   -> ZephyrEventSink
 ```
 

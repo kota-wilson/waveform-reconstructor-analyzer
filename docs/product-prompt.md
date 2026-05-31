@@ -2,7 +2,7 @@
 
 ## Product Name
 
-Waveform Reconstructor and Analyzer
+FerrisOxide Signal
 
 ## Project Type
 
@@ -27,8 +27,8 @@ Cross-platform CLI first. Future GUI and bindings should be possible but are out
 ## Recommended Tech Stack
 
 - Rust Cargo workspace.
-- `wra-core` library crate.
-- `wra-cli` CLI crate.
+- `ferrisoxide-core` library crate.
+- `ferrisoxide-cli` CLI crate.
 - Standard library only for initial skeleton.
 - Future dependency candidates require dependency review.
 

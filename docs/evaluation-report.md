@@ -14,9 +14,9 @@ Owner Role: Evaluation Engineer
 | Risk visibility | Pass | `risk-register.md`, gate reports, residual risks. |
 | Maintainability | Pass for MVP | Crate split, docs, CI, lockfile. |
 | M4 issue fit | Pass | M4 issues #27-#34 each map to code, docs, tests, or benchmark evidence. |
-| M5 issue fit | Pass | Issue #38 maps to `wra-plot`, CLI `plot`, fixture data, SVG tests, smoke commands, docs, dependency review, and risk controls. |
-| M3 follow-up issue fit | Pass | Issues #17-#19 map to QEMU proof, `wra-embedded`, Zephyr feasibility docs, tests, and risk controls. |
-| M6 issue fit | Pass | Issue #43 maps to `wra-measurements`, `wra-core` criteria integration, exact golden JSON compatibility tests, docs, dependency review, and risk controls. |
+| M5 issue fit | Pass | Issue #38 maps to `ferrisoxide-plot`, CLI `plot`, fixture data, SVG tests, smoke commands, docs, dependency review, and risk controls. |
+| M3 follow-up issue fit | Pass | Issues #17-#19 map to QEMU proof, `ferrisoxide-embedded`, Zephyr feasibility docs, tests, and risk controls. |
+| M6 issue fit | Pass | Issue #43 maps to `ferrisoxide-measurements`, `ferrisoxide-core` criteria integration, exact golden JSON compatibility tests, docs, dependency review, and risk controls. |
 | M6-003 issue fit | Pass | Issue #45 maps to report measurement records, result `measurement_id` links, exact golden JSON updates, schema docs, risk controls, and pipeline evidence. |
 | M6 completion issue fit | Pass | Issues #44, #46, and #47 map to annotated SVG overlays, criteria DSL direction docs, measurement validation fixtures, exact tests, traceability, and risk controls. |
 

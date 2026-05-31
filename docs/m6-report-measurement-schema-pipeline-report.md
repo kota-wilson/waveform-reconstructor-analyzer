@@ -8,7 +8,7 @@ Milestone: `v0.4.0: Measurement & Evidence Engine`
 
 Primary issue: #45, `M6-003 Add report measurement schema and golden JSON updates`
 
-PR: #50, `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/50`
+PR: #50, `https://github.com/kota-wilson/ferrisoxide-signal/pull/50`
 
 Merge commit: `f7e21695f501890669d591d0d7cbc9b731a541bb`
 
@@ -19,7 +19,7 @@ Out of scope for M6-003: annotated SVG overlays, criteria DSL syntax, batch anal
 ## Research
 
 - Owner role: Open Source Research Engineer / DX Engineer
-- Artifact: issue #45 plus local inspection of `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs`, CLI report construction, and exact golden report tests.
+- Artifact: issue #45 plus local inspection of `crates/ferrisoxide-core/src/analysis.rs`, `crates/ferrisoxide-core/src/report.rs`, CLI report construction, and exact golden report tests.
 - Evidence: reports previously embedded measurement evidence only inside `results`, while issue #45 requires reusable measurement records with stable IDs and criteria references.
 - Gate: Target Intake Gate.
 - Decision: Pass.
@@ -41,7 +41,7 @@ Out of scope for M6-003: annotated SVG overlays, criteria DSL syntax, batch anal
 
 - Owner role: Software Architect
 - Artifact: `docs/report-schema.md`, `docs/measurements.md`.
-- Design: add `MeasurementRecord`, `MeasurementMethodContext`, and `CriteriaEvaluation` in `wra-core::analysis`; preserve existing `evaluate_criteria` and `evaluate_criteria_with_tolerances` APIs by delegating to `evaluate_criteria_with_measurements`; add `measurements` to `AnalysisReport`; add `measurement_id` to `AnalysisResult`.
+- Design: add `MeasurementRecord`, `MeasurementMethodContext`, and `CriteriaEvaluation` in `ferrisoxide-core::analysis`; preserve existing `evaluate_criteria` and `evaluate_criteria_with_tolerances` APIs by delegating to `evaluate_criteria_with_measurements`; add `measurements` to `AnalysisReport`; add `measurement_id` to `AnalysisResult`.
 - Alternatives considered: duplicate all method context inside `results`; add a schema version field only; defer report schema until SVG overlays.
 - Decision rationale: reusable measurement records support report evidence and future annotated SVGs without removing existing result fields.
 - Gate: Architecture Gate.
@@ -62,7 +62,7 @@ Out of scope for M6-003: annotated SVG overlays, criteria DSL syntax, batch anal
 ## Implementation
 
 - Owner role: Core Software Engineer
-- Artifact: `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs`, `crates/wra-cli/src/main.rs`, `crates/wra-cli/src/bin/wra-bench.rs`, exact golden JSON reports, README, and usage docs.
+- Artifact: `crates/ferrisoxide-core/src/analysis.rs`, `crates/ferrisoxide-core/src/report.rs`, `crates/ferrisoxide-cli/src/main.rs`, `crates/ferrisoxide-cli/src/bin/ferrisoxide-signal-bench.rs`, exact golden JSON reports, README, and usage docs.
 - Behavior: criteria evaluation now returns both criteria results and reusable measurement records; reports render a `Measurements:` text section and a JSON `measurements` array; each criterion result includes `measurement_id`.
 - Gate: Implementation Gate.
 - Decision: Pass.
@@ -72,7 +72,7 @@ Out of scope for M6-003: annotated SVG overlays, criteria DSL syntax, batch anal
 ## Testing
 
 - Owner role: Test Automation Engineer
-- Artifact: `crates/wra-core` and `crates/wra-cli` tests plus exact golden JSON files.
+- Artifact: `crates/ferrisoxide-core` and `crates/ferrisoxide-cli` tests plus exact golden JSON files.
 - Evidence: `cargo test --workspace` passed after regenerating exact golden reports; report tests assert `measurements` and `measurement_id`; analysis tests assert stable result-to-measurement links.
 - Gate: Testing Gate.
 - Decision: Pass.
@@ -174,7 +174,7 @@ Out of scope for M6-003: annotated SVG overlays, criteria DSL syntax, batch anal
 
 - Owner role: Project Coordinator
 - Artifact: this report.
-- Lesson: separating measurement evidence from criteria decisions becomes straightforward once `wra-measurements` exists, but exact golden reports are essential to keep schema migrations auditable.
+- Lesson: separating measurement evidence from criteria decisions becomes straightforward once `ferrisoxide-measurements` exists, but exact golden reports are essential to keep schema migrations auditable.
 - Gate: Retrospective Gate.
 - Decision: Pass.
 - Residual risk: later SVG evidence should reuse measurement IDs instead of recalculating evidence independently.
@@ -184,7 +184,7 @@ Out of scope for M6-003: annotated SVG overlays, criteria DSL syntax, batch anal
 
 Role: Project Orchestrator / Core Software Engineer
 Goal: Add the M6-003 report measurement schema for issue #45.
-Files changed: `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs`, `crates/wra-cli/src/main.rs`, `crates/wra-cli/src/bin/wra-bench.rs`, exact golden JSON reports, validation reports, README, docs, requirements, traceability, risk, and project state.
+Files changed: `crates/ferrisoxide-core/src/analysis.rs`, `crates/ferrisoxide-core/src/report.rs`, `crates/ferrisoxide-cli/src/main.rs`, `crates/ferrisoxide-cli/src/bin/ferrisoxide-signal-bench.rs`, exact golden JSON reports, validation reports, README, docs, requirements, traceability, risk, and project state.
 Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`. Remaining check: protected GitHub CI after PR creation.
 Status: PR #50 merged; issue #45 closed.
 Known gaps: Issues #44, #46, and #47 remain open for annotated SVG evidence, criteria DSL direction, and measurement validation fixtures.

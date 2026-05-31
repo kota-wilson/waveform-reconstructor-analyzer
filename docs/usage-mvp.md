@@ -3,7 +3,7 @@
 This document describes the current MVP usage. The command shape can still change before a public release.
 
 ```bash
-cargo run --quiet --bin wra -- analyze \
+cargo run --quiet --bin ferrisoxide-signal -- analyze \
   --input examples/basic-waveform.csv \
   --config examples/basic-config.toml \
   --format text
@@ -40,7 +40,7 @@ Supported MVP filters:
 JSON output:
 
 ```bash
-cargo run --quiet --bin wra -- analyze \
+cargo run --quiet --bin ferrisoxide-signal -- analyze \
   --input examples/basic-waveform.csv \
   --config examples/basic-config.toml \
   --format json
@@ -51,7 +51,7 @@ The JSON report includes `waveform_metadata`, `evidence_context`, `overall_outco
 Explicit CLI criteria remain available for one-off checks:
 
 ```bash
-cargo run --quiet --bin wra -- analyze \
+cargo run --quiet --bin ferrisoxide-signal -- analyze \
   --input examples/basic-waveform.csv \
   --time-column time \
   --channels input_v \
@@ -64,7 +64,7 @@ cargo run --quiet --bin wra -- analyze \
 ADC quantization is also available in TOML config:
 
 ```bash
-cargo run --quiet --bin wra -- analyze \
+cargo run --quiet --bin ferrisoxide-signal -- analyze \
   --input examples/basic-waveform.csv \
   --config examples/adc-quantized-config.toml \
   --format text
@@ -97,7 +97,7 @@ Richer CSV dialect support and stable numerical filter guarantees remain planned
 Render a 2D SVG waveform plot:
 
 ```bash
-cargo run --quiet --bin wra -- plot \
+cargo run --quiet --bin ferrisoxide-signal -- plot \
   --input examples/basic-waveform.csv \
   --time-column time \
   --channels input_v,output_v \
@@ -107,7 +107,7 @@ cargo run --quiet --bin wra -- plot \
 Render a 3D SVG line plot with an auxiliary third-axis column:
 
 ```bash
-cargo run --quiet --bin wra -- plot \
+cargo run --quiet --bin ferrisoxide-signal -- plot \
   --input tests/fixtures/plot_three_axis.csv \
   --time-column time_s \
   --channels signal_v \
@@ -120,7 +120,7 @@ Plotting is desktop SVG output only. It does not add GUI, DAQ, embedded plotting
 Render a 2D SVG plot with criteria evidence overlays:
 
 ```bash
-cargo run --quiet --bin wra -- plot \
+cargo run --quiet --bin ferrisoxide-signal -- plot \
   --input tests/fixtures/dropout_event.csv \
   --config tests/configs/transient-event-dropout-fail.toml \
   --output dropout-evidence.svg

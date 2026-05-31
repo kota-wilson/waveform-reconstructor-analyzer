@@ -1,8 +1,8 @@
 # Orchestration Plan
 
-Project: Waveform Reconstructor and Analyzer
+Project: FerrisOxide Signal
 
-Project folder: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`
+Project folder: `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`
 
 Execution tier: Tier 2 MVP implementation
 

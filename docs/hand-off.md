@@ -2,13 +2,13 @@
 
 Role: Project Coordinator / Core Software Engineer / Test Automation Engineer
 
-Goal: Create the Waveform Reconstructor and Analyzer open-source product repository package and validate a dependency-reviewed Rust MVP slice.
+Goal: Create the FerrisOxide Signal open-source product repository package and validate a dependency-reviewed Rust MVP slice.
 
 Current status: Historical initial handoff. The repository is now public, protected `main` is active, and follow-up feature PRs through PR #25 have merged.
 
 Files changed:
 
-- `projects/waveform-reconstructor-analyzer/`
+- `projects/ferrisoxide-signal/`
 - `projects/00-project-registry.md`
 - `project/active-objectives.md`
 - `project/project-state.md`
@@ -19,9 +19,9 @@ Checks run:
 - `cargo fmt --check`
 - `cargo test --workspace`
 - `cargo clippy --workspace --all-targets -- -D warnings`
-- `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --time-column time --channels input_v --moving-average 2 --min input_v:0.0 --max input_v:5.5`
-- `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format text`
-- `cargo run --bin wra -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format json`
+- `cargo run --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --time-column time --channels input_v --moving-average 2 --min input_v:0.0 --max input_v:5.5`
+- `cargo run --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format text`
+- `cargo run --bin ferrisoxide-signal -- analyze --input examples/basic-waveform.csv --config examples/basic-config.toml --format json`
 
 Status: Dependency-reviewed MVP slice is created and locally validated.
 

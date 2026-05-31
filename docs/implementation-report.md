@@ -4,7 +4,7 @@ Date: 2026-05-30
 
 Updated: 2026-05-31
 
-Project: Waveform Reconstructor and Analyzer
+Project: FerrisOxide Signal
 
 Stage: Dependency-reviewed MVP implementation slice
 
@@ -21,21 +21,21 @@ Owner Role: Core Software Engineer
 ## Work Performed
 
 - What: Created a Rust Cargo workspace with core library and CLI crates, advanced the MVP to executable CSV analysis, then added approved dependencies for robust CSV parsing, TOML config, and JSON reports.
-- Where: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`
+- Where: `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`
 - How: Added project-local files only; third-party crates are pinned in `Cargo.lock` after dependency approval.
 - Why: The user requested an open-source Rust-centered waveform analyzer and approved proceeding through dependency, license, and publication gates.
 
 ## v0.2.0 Criteria Engine Update
 
 - What: Added real waveform fixtures, richer criteria, report evidence fields, config validation tests, and golden JSON report tests.
-- Where: `crates/wra-core/src/criteria.rs`, `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs`, `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, `tests/fixtures/`, `tests/configs/`, `tests/golden/`.
+- Where: `crates/ferrisoxide-core/src/criteria.rs`, `crates/ferrisoxide-core/src/analysis.rs`, `crates/ferrisoxide-core/src/report.rs`, `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-cli/src/main.rs`, `tests/fixtures/`, `tests/configs/`, `tests/golden/`.
 - How: Implemented criteria variants for state transitions, pulse width, transient duration, transient event detection, stable-state duration, and rise/fall time without adding new dependencies.
 - Why: v0.2.0 moves the project from repository skeleton to validated waveform criteria engine.
 
 ## M4 Signal Accuracy And Validation Update
 
 - What: Added known-answer validation data, time-axis validation, explicit criteria tolerances, expanded report evidence, validation metadata context, filter equation docs, environmental validation examples, and a repeatable large-CSV benchmark helper.
-- Where: `crates/wra-core/src/model.rs`, `config.rs`, `analysis.rs`, `report.rs`; `crates/wra-cli/src/main.rs`; `crates/wra-cli/src/bin/wra-bench.rs`; `validation/`; `scripts/benchmark-large-csv.sh`; `docs/filter-behavior.md`; `docs/time-axis-and-tolerances.md`; `docs/benchmarking.md`.
+- Where: `crates/ferrisoxide-core/src/model.rs`, `config.rs`, `analysis.rs`, `report.rs`; `crates/ferrisoxide-cli/src/main.rs`; `crates/ferrisoxide-cli/src/bin/ferrisoxide-signal-bench.rs`; `validation/`; `scripts/benchmark-large-csv.sh`; `docs/filter-behavior.md`; `docs/time-axis-and-tolerances.md`; `docs/benchmarking.md`.
 - How: Extended existing config-driven models and report schemas without new dependencies, preserving the raw/derived waveform boundary and local-file CLI scope.
 - Why: M4 moves the project from feature-complete criteria behavior toward a validated engineering-analysis core while avoiding hardware or certification claims.
 
@@ -43,19 +43,19 @@ Owner Role: Core Software Engineer
 
 | Area | Files |
 |---|---|
-| Core model | `crates/wra-core/src/model.rs`, `error.rs` |
-| CSV parser | `crates/wra-core/src/csv.rs` |
-| Config model | `crates/wra-core/src/config.rs`, `examples/basic-config.toml` |
-| Filters | `crates/wra-core/src/filter.rs` |
+| Core model | `crates/ferrisoxide-core/src/model.rs`, `error.rs` |
+| CSV parser | `crates/ferrisoxide-core/src/csv.rs` |
+| Config model | `crates/ferrisoxide-core/src/config.rs`, `examples/basic-config.toml` |
+| Filters | `crates/ferrisoxide-core/src/filter.rs` |
 | Criteria/report models | `criteria.rs`, `analysis.rs`, `report.rs` |
-| CLI analysis path | `crates/wra-cli/src/main.rs` |
-| Tests and fixtures | `crates/wra-core/tests/csv_fixture.rs`, `crates/wra-core/tests/criteria_engine.rs`, `tests/fixtures/`, `tests/configs/`, `tests/golden/` |
+| CLI analysis path | `crates/ferrisoxide-cli/src/main.rs` |
+| Tests and fixtures | `crates/ferrisoxide-core/tests/csv_fixture.rs`, `crates/ferrisoxide-core/tests/criteria_engine.rs`, `tests/fixtures/`, `tests/configs/`, `tests/golden/` |
 | Open-source metadata | README, LICENSE, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, CHANGELOG, GitHub templates, CI |
 
 ## MVP Behavior Added
 
-- `wra analyze` reads a local CSV path with explicit time and channel flags.
-- `wra analyze` can read TOML config from `--config`.
+- `ferrisoxide-signal analyze` reads a local CSV path with explicit time and channel flags.
+- `ferrisoxide-signal analyze` can read TOML config from `--config`.
 - CLI filters can be applied in command order with `--moving-average <samples>` and `--low-pass <hz>`.
 - CLI criteria can be supplied with `--min channel:value` and `--max channel:value`.
 - Text and JSON reports include input, overall outcome, measured values, thresholds, and units.
@@ -99,7 +99,7 @@ Owner Role: Core Software Engineer
 ### Work Performed
 
 - What: Added focused CSV parser edge-case tests.
-- Where: `crates/wra-core/src/csv.rs`.
+- Where: `crates/ferrisoxide-core/src/csv.rs`.
 - How: Used the existing `SimpleCsvParser`, `CsvParseOptions`, and `WaveformError` types without adding dependencies or changing parser architecture.
 - Why: M1-001 requires parser behavior evidence beyond the happy-path fixture.
 
@@ -127,8 +127,8 @@ Owner Role: Core Software Engineer
 
 Role: Core Software Engineer
 Goal: Address M1-001 CSV parser edge-case coverage.
-Files changed: `crates/wra-core/src/csv.rs`, `docs/implementation-report.md`, `docs/validation-log.md`, `traceability-matrix.md`
-Checks run: `cargo test -p wra-core csv::tests -- --nocapture`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`
+Files changed: `crates/ferrisoxide-core/src/csv.rs`, `docs/implementation-report.md`, `docs/validation-log.md`, `traceability-matrix.md`
+Checks run: `cargo test -p ferrisoxide-core csv::tests -- --nocapture`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`
 Status: Pass.
 Known gaps: No external DAQ export corpus included.
 Next recommended step: Historical M1-001 PR handoff is complete; use future parser issues for broader CSV dialect coverage.
@@ -141,14 +141,14 @@ Owner Role: Core Software Engineer
 
 ### Inputs
 
-- User request: create the embedded path separately from the desktop CLI path and start with `wra-signal`.
+- User request: create the embedded path separately from the desktop CLI path and start with `ferrisoxide-signal`.
 - GitHub issue: `M3-RTOS-001 Extract no_std signal primitives` (#20).
 - Architecture note: `docs/embedded-roadmap.md`.
 
 ### Work Performed
 
-- What: Added a dependency-free `wra-signal` crate for `no_std` signal primitives.
-- Where: `crates/wra-signal/`, root `Cargo.toml`, `embedded/`, README, changelog, requirements, and traceability files.
+- What: Added a dependency-free `ferrisoxide-signal` crate for `no_std` signal primitives.
+- Where: `crates/ferrisoxide-signal/`, root `Cargo.toml`, `embedded/`, README, changelog, requirements, and traceability files.
 - How: Used project-local Cargo tooling only; no new dependencies, no Python packages, and no global installation.
 - Why: The embedded foundation needs reusable signal-analysis logic before QEMU, RTOS, Embassy-style, or Zephyr adapter work.
 
@@ -162,7 +162,7 @@ Owner Role: Core Software Engineer
 
 ### Out Of Scope Preserved
 
-- No CSV parsing in `wra-signal`.
+- No CSV parsing in `ferrisoxide-signal`.
 - No file I/O.
 - No plotting.
 - No text or JSON reports.
@@ -181,7 +181,7 @@ Owner Role: Core Software Engineer
 
 Role: Core Software Engineer
 Goal: Add the first embedded foundation crate without touching the desktop CLI path.
-Files changed: `crates/wra-signal/`, `embedded/`, `Cargo.toml`, `Cargo.lock`, `README.md`, `CHANGELOG.md`, `requirements.md`, `traceability-matrix.md`, `docs/embedded-roadmap.md`
+Files changed: `crates/ferrisoxide-signal/`, `embedded/`, `Cargo.toml`, `Cargo.lock`, `README.md`, `CHANGELOG.md`, `requirements.md`, `traceability-matrix.md`, `docs/embedded-roadmap.md`
 Checks run: See `docs/validation-log.md`.
 Status: Pass.
 Known gaps: ARM64 QEMU and RTOS adapters remain future issues.
@@ -202,7 +202,7 @@ Owner Role: Core Software Engineer
 ### Work Performed
 
 - What: Added an ideal ADC quantization transform as an ordered filter-pipeline step.
-- Where: `crates/wra-core/src/filter.rs`, `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`.
+- Where: `crates/ferrisoxide-core/src/filter.rs`, `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-cli/src/main.rs`.
 - How: Added `AdcQuantizer`, `FilterStep`, and `apply_filter_chain`; wired TOML `[[filters]] type = "adc_quantize"` and CLI `--adc-quantize bits:min_v:max_v` into the same pre-criteria execution path.
 - Why: ADC quantization is a derived waveform transform that should preserve raw input data while allowing criteria to evaluate digitized code-level behavior.
 
@@ -233,7 +233,7 @@ Owner Role: Core Software Engineer
 
 Role: Core Software Engineer
 Goal: Add simulated ADC quantization before criteria evaluation.
-Files changed: `crates/wra-core/src/filter.rs`, `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, `examples/adc-quantized-config.toml`, `tests/configs/invalid-missing-adc-field.toml`, docs and traceability files
+Files changed: `crates/ferrisoxide-core/src/filter.rs`, `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-cli/src/main.rs`, `examples/adc-quantized-config.toml`, `tests/configs/invalid-missing-adc-field.toml`, docs and traceability files
 Checks run: See `docs/validation-log.md`.
 Status: Pass.
 Known gaps: Ideal quantization only; richer ADC hardware effects are out of scope.
@@ -254,7 +254,7 @@ Owner Role: Core Software Engineer / Documentation Engineer
 ### Work Performed
 
 - What: Added first-class waveform metadata and updated user-facing usage examples.
-- Where: `crates/wra-core/src/model.rs`, `crates/wra-core/src/csv.rs`, `crates/wra-core/src/filter.rs`, `crates/wra-core/src/report.rs`, `crates/wra-cli/src/main.rs`, `README.md`, `docs/usage-mvp.md`, `docs/report-schema.md`, and golden reports.
+- Where: `crates/ferrisoxide-core/src/model.rs`, `crates/ferrisoxide-core/src/csv.rs`, `crates/ferrisoxide-core/src/filter.rs`, `crates/ferrisoxide-core/src/report.rs`, `crates/ferrisoxide-cli/src/main.rs`, `README.md`, `docs/usage-mvp.md`, `docs/report-schema.md`, and golden reports.
 - How: Metadata is computed during waveform construction, configured units are carried from TOML into parser options, CLI input paths become source names, and derived transforms append ordered transform-history entries without mutating raw samples.
 - Why: Reports need to prove what data was analyzed before the project moves into deeper scientific validation.
 
@@ -288,7 +288,7 @@ Owner Role: Core Software Engineer / Documentation Engineer
 
 Role: Core Software Engineer / Documentation Engineer
 Goal: Finish open M1 metadata and README usage evidence before v0.3.0 validation work.
-Files changed: `crates/wra-core/src/model.rs`, `crates/wra-core/src/csv.rs`, `crates/wra-core/src/filter.rs`, `crates/wra-core/src/report.rs`, `crates/wra-cli/src/main.rs`, README, usage docs, report schema, golden reports, requirements, and traceability.
+Files changed: `crates/ferrisoxide-core/src/model.rs`, `crates/ferrisoxide-core/src/csv.rs`, `crates/ferrisoxide-core/src/filter.rs`, `crates/ferrisoxide-core/src/report.rs`, `crates/ferrisoxide-cli/src/main.rs`, README, usage docs, report schema, golden reports, requirements, and traceability.
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`; README text, JSON, and dropout CLI examples.
 Status: Pass; ready for protected-branch PR.
 Known gaps: Tolerance model, known-answer datasets, filter equations, confidence/evidence expansion, and benchmarks are planned for v0.3.0.
@@ -309,17 +309,17 @@ Owner Role: Core Software Engineer
 ### Work Performed
 
 - What: Added optional desktop SVG waveform plotting with 2D and 3D line-plot modes.
-- Where: `crates/wra-plot/src/lib.rs`, `crates/wra-cli/src/main.rs`, `tests/fixtures/plot_three_axis.csv`, `docs/plotting.md`.
-- How: Added an isolated `wra-plot` crate using Plotters with `default-features = false` and only `svg_backend` / `line_series` features enabled; exposed `wra plot` for local CSV-to-SVG rendering.
+- Where: `crates/ferrisoxide-plot/src/lib.rs`, `crates/ferrisoxide-cli/src/main.rs`, `tests/fixtures/plot_three_axis.csv`, `docs/plotting.md`.
+- How: Added an isolated `ferrisoxide-plot` crate using Plotters with `default-features = false` and only `svg_backend` / `line_series` features enabled; exposed `ferrisoxide-signal plot` for local CSV-to-SVG rendering.
 - Why: Users need a lightweight way to inspect waveform shape and optional auxiliary-axis context without adding GUI, DAQ, bitmap, or embedded plotting scope.
 
 ### Behavior Added
 
-- `wra plot --input <csv> --time-column <name> --channels <name[,name]> --output <svg>` renders 2D time/signal line plots.
-- `wra plot --z-column <name>` renders a 3D time/signal/auxiliary-axis line plot.
+- `ferrisoxide-signal plot --input <csv> --time-column <name> --channels <name[,name]> --output <svg>` renders 2D time/signal line plots.
+- `ferrisoxide-signal plot --z-column <name>` renders a 3D time/signal/auxiliary-axis line plot.
 - `PlotOptions` records output path, title, plotted channels, optional third-axis channel, and dimensions.
 - Plotting errors cover empty waveform, missing channel, invalid dimensions, reused third-axis channel, and missing output parent directory.
-- `wra-core` and `wra-signal` remain free of Plotters and plotting dependencies.
+- `ferrisoxide-core` and `ferrisoxide-signal` remain free of Plotters and plotting dependencies.
 
 ### Out Of Scope Preserved
 
@@ -341,7 +341,7 @@ Owner Role: Core Software Engineer
 
 Role: Core Software Engineer
 Goal: Add optional desktop SVG plotting with optional third-axis line plots.
-Files changed: `crates/wra-plot/`, `crates/wra-cli/src/main.rs`, root `Cargo.toml`, `Cargo.lock`, `tests/fixtures/plot_three_axis.csv`, README, usage docs, architecture docs, requirements, risk, and traceability.
+Files changed: `crates/ferrisoxide-plot/`, `crates/ferrisoxide-cli/src/main.rs`, root `Cargo.toml`, `Cargo.lock`, `tests/fixtures/plot_three_axis.csv`, README, usage docs, architecture docs, requirements, risk, and traceability.
 Checks run: See `docs/validation-log.md`.
 Status: Pass; ready for testing and protected-branch PR.
 Known gaps: SVG output only; no GUI, DAQ, embedded plotting, surface plotting, or interactive inspection.
@@ -358,20 +358,20 @@ Owner Role: Embedded RTOS Engineer / Core Software Engineer
 - GitHub issue #17, `M3-RTOS-002 Add ARM64 QEMU embedded demo`.
 - GitHub issue #18, `M3-RTOS-003 Add RTOS adapter abstraction`.
 - GitHub issue #19, `M3-RTOS-004 Add Zephyr feasibility prototype`.
-- Existing architecture direction: start with `wra-signal`, then add adapter boundaries before runtime-specific integrations.
+- Existing architecture direction: start with `ferrisoxide-signal`, then add adapter boundaries before runtime-specific integrations.
 
 ### Work Performed
 
 - What: Added a `no_std` embedded adapter crate, a host-checkable ARM64 QEMU proof slice, and an isolated Zephyr feasibility prototype.
-- Where: `crates/wra-embedded/`, `embedded/arm64/qemu/`, `embedded/arm64/zephyr/`, README, architecture, embedded roadmap, requirements, risk, and traceability files.
+- Where: `crates/ferrisoxide-embedded/`, `embedded/arm64/qemu/`, `embedded/arm64/zephyr/`, README, architecture, embedded roadmap, requirements, risk, and traceability files.
 - How: Kept runtime-specific concerns behind `SampleSource`, `EventSink`, and `RuntimeHooks` traits; used only local path dependencies and fixed sample data; documented QEMU/Zephyr assumptions without adding SDKs, HALs, unsafe FFI, or target installation.
 - Why: The remaining M3 issues need embedded-facing structure without contaminating the desktop CLI, plotting, report, or signal-core paths.
 
 ### Behavior Added
 
-- `wra-embedded` crate with `#![no_std]`.
+- `ferrisoxide-embedded` crate with `#![no_std]`.
 - `SampleSource`, `EventSink`, and `RuntimeHooks` adapter traits.
-- `run_threshold_stream` and `run_transient_event_stream` helpers around `wra-signal`.
+- `run_threshold_stream` and `run_transient_event_stream` helpers around `ferrisoxide-signal`.
 - `SliceSampleSource`, `LastResultSink`, and `NoopRuntime` for demos and tests.
 - ARM64 QEMU proof crate under `embedded/arm64/qemu/` with fixed samples and no desktop file I/O.
 - Zephyr feasibility sketch under `embedded/arm64/zephyr/` with toolchain assumptions, unsupported areas, and production-readiness risks.
@@ -395,7 +395,7 @@ Owner Role: Embedded RTOS Engineer / Core Software Engineer
 
 Role: Embedded RTOS Engineer / Core Software Engineer
 Goal: Address M3-RTOS-002 through M3-RTOS-004 without expanding into production RTOS integration.
-Files changed: `crates/wra-embedded/`, `embedded/arm64/qemu/`, `embedded/arm64/zephyr/`, README, architecture, embedded roadmap, requirements, risk, traceability, and validation docs.
+Files changed: `crates/ferrisoxide-embedded/`, `embedded/arm64/qemu/`, `embedded/arm64/zephyr/`, README, architecture, embedded roadmap, requirements, risk, traceability, and validation docs.
 Checks run: See `docs/validation-log.md`.
 Status: Pass; ready for V&V and protected-branch PR.
 Known gaps: No ARM64 target build, QEMU boot image, Zephyr SDK build, hardware HAL, unsafe FFI review, RTOS timing validation, or certification evidence.
@@ -416,8 +416,8 @@ Owner Role: Core Software Engineer
 ### Work Performed
 
 - What: Added reusable measurement primitives and routed existing criteria evidence through them.
-- Where: `crates/wra-measurements/`, `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/criteria.rs`, workspace Cargo files, README, architecture, requirements, risk, traceability, and measurement docs.
-- How: Implemented `wra-measurements` as a `#![no_std]`, allocation-free local crate over time/sample slices; re-exported `SignalState` and `EdgeDirection` through `wra_core::criteria`; preserved the current CLI behavior and JSON report schema.
+- Where: `crates/ferrisoxide-measurements/`, `crates/ferrisoxide-core/src/analysis.rs`, `crates/ferrisoxide-core/src/criteria.rs`, workspace Cargo files, README, architecture, requirements, risk, traceability, and measurement docs.
+- How: Implemented `ferrisoxide-measurements` as a `#![no_std]`, allocation-free local crate over time/sample slices; re-exported `SignalState` and `EdgeDirection` through `ferrisoxide_core::criteria`; preserved the current CLI behavior and JSON report schema.
 - Why: The project needs a measurement layer before criteria DSL expansion, annotated SVG evidence, and report measurement-schema work.
 
 ### Behavior Added
@@ -448,7 +448,7 @@ Owner Role: Core Software Engineer
 
 Role: Core Software Engineer
 Goal: Extract reusable measurement primitives before evidence-report and annotated-SVG expansion.
-Files changed: `crates/wra-measurements/`, `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/criteria.rs`, Cargo files, README, architecture docs, requirements, risk, traceability, dependency review, and measurement docs.
+Files changed: `crates/ferrisoxide-measurements/`, `crates/ferrisoxide-core/src/analysis.rs`, `crates/ferrisoxide-core/src/criteria.rs`, Cargo files, README, architecture docs, requirements, risk, traceability, dependency review, and measurement docs.
 Checks run: See `docs/validation-log.md`.
 Status: Pass; ready for testing, V&V, and protected-branch PR.
 Known gaps: Report measurement schema, annotated SVG overlays, criteria DSL refinement, and broader measurement validation fixtures remain tracked by issues #44-#47.
@@ -464,12 +464,12 @@ Owner Role: Core Software Engineer
 
 - GitHub issue #45, `M6-003 Add report measurement schema and golden JSON updates`.
 - Milestone #6, `v0.4.0: Measurement & Evidence Engine`.
-- Existing `wra-measurements` criteria integration and exact golden JSON reports.
+- Existing `ferrisoxide-measurements` criteria integration and exact golden JSON reports.
 
 ### Work Performed
 
 - What: Added reusable report measurement records and linked criteria results to those records.
-- Where: `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs`, `crates/wra-cli/src/main.rs`, `crates/wra-cli/src/bin/wra-bench.rs`, exact golden JSON reports, validation reports, README, usage docs, report schema docs, requirements, risk, traceability, and project state.
+- Where: `crates/ferrisoxide-core/src/analysis.rs`, `crates/ferrisoxide-core/src/report.rs`, `crates/ferrisoxide-cli/src/main.rs`, `crates/ferrisoxide-cli/src/bin/ferrisoxide-signal-bench.rs`, exact golden JSON reports, validation reports, README, usage docs, report schema docs, requirements, risk, traceability, and project state.
 - How: Added `MeasurementRecord`, `MeasurementMethodContext`, and `CriteriaEvaluation`; introduced `evaluate_criteria_with_measurements`; preserved existing result-only evaluation APIs; added `measurements` to `AnalysisReport`; added `measurement_id` to `AnalysisResult`; regenerated exact JSON reports.
 - Why: Reports need measurement evidence that can be reused by downstream report consumers and future annotated SVG overlays without burying all measured context inside pass/fail decisions.
 
@@ -500,7 +500,7 @@ Owner Role: Core Software Engineer
 
 Role: Core Software Engineer
 Goal: Add report measurement schema and golden JSON updates.
-Files changed: `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/report.rs`, `crates/wra-cli/src/main.rs`, `crates/wra-cli/src/bin/wra-bench.rs`, golden JSON reports, validation reports, README, docs, requirements, risk, traceability, and project state.
+Files changed: `crates/ferrisoxide-core/src/analysis.rs`, `crates/ferrisoxide-core/src/report.rs`, `crates/ferrisoxide-cli/src/main.rs`, `crates/ferrisoxide-cli/src/bin/ferrisoxide-signal-bench.rs`, golden JSON reports, validation reports, README, docs, requirements, risk, traceability, and project state.
 Checks run: See `docs/validation-log.md`.
 Status: Pass locally; ready for final checks, PR, CI, and merge.
 Known gaps: Annotated SVG overlays, criteria DSL direction, and measurement validation fixtures remain tracked by issues #44, #46, and #47.
@@ -522,8 +522,8 @@ Owner Role: Core Software Engineer
 ### Work Performed
 
 - What: Added 2D SVG evidence overlays, documented criteria DSL direction, and added known-answer measurement validation fixtures.
-- Where: `crates/wra-plot/src/lib.rs`, `crates/wra-cli/src/main.rs`, `validation/measurement_engine/`, `validation/reports/measurement_engine_known_answer.json`, `docs/criteria-dsl.md`, README, plotting docs, requirements, risk, traceability, and validation docs.
-- How: Derived `EvidenceOverlay` from `AnalysisResult` and `MeasurementRecord`; let `wra plot --config` run existing config/filter/criteria evaluation before rendering overlays; added a synthetic measurement fixture with independently documented expected values and exact JSON report comparison; documented future DSL concepts without changing runtime config parsing.
+- Where: `crates/ferrisoxide-plot/src/lib.rs`, `crates/ferrisoxide-cli/src/main.rs`, `validation/measurement_engine/`, `validation/reports/measurement_engine_known_answer.json`, `docs/criteria-dsl.md`, README, plotting docs, requirements, risk, traceability, and validation docs.
+- How: Derived `EvidenceOverlay` from `AnalysisResult` and `MeasurementRecord`; let `ferrisoxide-signal plot --config` run existing config/filter/criteria evaluation before rendering overlays; added a synthetic measurement fixture with independently documented expected values and exact JSON report comparison; documented future DSL concepts without changing runtime config parsing.
 - Why: SVG plots should become engineering evidence aids, DSL expansion needs auditable direction, and measurement primitives need known-answer coverage before broader evidence work.
 
 ### Behavior Added
@@ -531,7 +531,7 @@ Owner Role: Core Software Engineer
 - 2D SVG evidence status text.
 - Voltage threshold overlay lines.
 - Failed-criterion markers and labels with sample index, timestamp, channel, measured value, and required value.
-- `wra plot --config` evidence overlay workflow.
+- `ferrisoxide-signal plot --config` evidence overlay workflow.
 - Known-answer validation fixture covering transition count, pulse width, transient duration, stable-state duration, rise time, fall time, tolerance expectations, and time-axis assumptions.
 - Criteria DSL direction documentation with operator vocabulary and explicit-unit policy.
 

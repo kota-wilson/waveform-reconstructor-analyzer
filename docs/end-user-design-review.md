@@ -6,13 +6,13 @@ Branch: `feature/end-user-design-review`
 
 Review type: Domain end-user design review
 
-Pull request: #23, `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/23`
+Pull request: #23, `https://github.com/kota-wilson/ferrisoxide-signal/pull/23`
 
 Review status: Advisory design review; not a hardware validation, RTOS production-readiness determination, flight certification determination, legal opinion, or regulatory compliance claim.
 
 ## Scope
 
-This review evaluates the Waveform Reconstructor and Analyzer design from four end-user engineering perspectives:
+This review evaluates the FerrisOxide Signal design from four end-user engineering perspectives:
 
 - Electrical Signal Integrity Engineer.
 - Environmental Test Engineer.
@@ -45,7 +45,7 @@ The largest end-user gaps are not basic software structure. They are engineering
 
 - Electrical users need explicit units, tolerances, sample-rate assumptions, threshold semantics, filter latency/phase notes, and event terminology.
 - Environmental test users need realistic fixture coverage, operator-oriented report evidence, and configuration error examples.
-- Embedded/RTOS users now have the `wra-signal` `no_std` foundation, but still need target-build evidence before any RTOS claim.
+- Embedded/RTOS users now have the `ferrisoxide-signal` `no_std` foundation, but still need target-build evidence before any RTOS claim.
 - Certification-adjacent users need stronger claim boundaries, traceability discipline, configuration management evidence, and a clear statement that this tool is not qualified or certified.
 
 ## Findings
@@ -60,7 +60,7 @@ The largest end-user gaps are not basic software structure. They are engineering
 | EDR-006 | Environmental Test Engineer | High | README usage examples run the CLI, but operator workflow does not yet show "what failed, where, and by how much" for environmental test review. | Add an environmental test use-case guide with config example, expected text report, expected JSON report, and interpretation notes for transient events and dropouts. | Documentation Engineer / Environmental Test Engineer | Issue #13 docs. |
 | EDR-007 | Environmental Test Engineer | Medium | Config validation tests exist, but bad-config examples are not prominent in operator docs. | Add docs that show clear operator-facing errors for bad TOML, missing input sections, unknown criteria, and malformed thresholds. | Test Automation Engineer / Documentation Engineer | Invalid-config examples in usage docs. |
 | EDR-008 | Environmental Test Engineer | Medium | Source and channel metadata now exist; test article, run ID, environment condition, operator, and acquisition notes remain out of scope for M1. | Reserve optional acquisition/test-run fields for v0.3.0 metadata expansion before reports are used for review boards. | Software Architect | M4-006 metadata expansion issue. |
-| EDR-009 | Embedded RTOS Engineer | High | Current `main` includes `wra-signal` as a separate `#![no_std]` crate while desktop parsing/reporting remains outside the embedded path. | Preserve the separate `wra-signal` path before adding QEMU, RTOS, Embassy-style, or Zephyr adapters. Do not push CSV, file I/O, plotting, or reports into embedded crates. | Embedded RTOS Engineer / Core Software Engineer | M3 roadmap follow-up. |
+| EDR-009 | Embedded RTOS Engineer | High | Current `main` includes `ferrisoxide-signal` as a separate `#![no_std]` crate while desktop parsing/reporting remains outside the embedded path. | Preserve the separate `ferrisoxide-signal` path before adding QEMU, RTOS, Embassy-style, or Zephyr adapters. Do not push CSV, file I/O, plotting, or reports into embedded crates. | Embedded RTOS Engineer / Core Software Engineer | M3 roadmap follow-up. |
 | EDR-010 | Embedded RTOS Engineer | High | No ARM64 target-build evidence exists on `main`. | For M3-RTOS-002, require exact target, command, linker/runtime assumptions, memory layout assumptions, and CI or local log evidence before claiming ARM64 QEMU support. | Embedded RTOS Engineer / DevOps Engineer | M3-RTOS-002 test plan. |
 | EDR-011 | Embedded RTOS Engineer | Medium | Future RTOS adapter ownership for timebase, scheduler, memory, and I/O is not defined on `main`. | Add an RTOS adapter interface design that states who owns timestamps, sample ingestion cadence, buffer lifecycle, error handling, and result export. | Software Architect / Embedded RTOS Engineer | M3-RTOS-003 ADR. |
 | EDR-012 | Flight Certification Assurance Engineer | Critical | README says aerospace certification claims are out of scope, which is good; no certification evidence program exists. | Preserve explicit non-goals. Add a certification disclaimer to any future environmental/aerospace-facing docs: this is engineering analysis software, not certified tooling or qualified verification software. | Documentation Engineer / Project Coordinator | Certification claim-boundary note. |
@@ -75,7 +75,7 @@ The largest end-user gaps are not basic software structure. They are engineering
 | Domain Scope Gate | Project Orchestrator | Pass | Review scope, roles, reviewed artifacts, and non-goals listed above. | Future feature PRs may change some findings. | Electrical Signal Integrity Engineer |
 | Signal Semantics Gate | Electrical Signal Integrity Engineer | Pass with findings | `requirements.md`, `docs/architecture.md`, README, merged criteria-engine context. | Metadata gaps remain until implemented. | Software Architect |
 | Environmental Scenario Gate | Environmental Test Engineer | Pass with findings | README, fixtures, usage docs, merged criteria-engine context. | Operator interpretation docs remain incomplete. | Test Automation Engineer |
-| Embedded Boundary Gate | Embedded RTOS Engineer | Pass with findings | Current workspace layout and merged `wra-signal` context. | No embedded target build evidence yet. | Embedded RTOS Engineer |
+| Embedded Boundary Gate | Embedded RTOS Engineer | Pass with findings | Current workspace layout and merged `ferrisoxide-signal` context. | No embedded target build evidence yet. | Embedded RTOS Engineer |
 | Certification Claim Boundary Gate | Flight Certification Assurance Engineer | Pass with critical boundary note | README non-goals, traceability, validation logs, official FAA/EASA context links. | Any future aerospace-facing language needs fresh review. | Documentation Engineer |
 | Granularity Gate | Abstraction Review Engineer | Pass | Findings name files, docs, owners, and suggested next artifacts. | Implementation tasks still need issue-level acceptance criteria. | Project Coordinator |
 | Routing Gate | Project Coordinator | Pass | Findings mapped to owners and artifacts. | No new GitHub issues were created by this review. | Project Orchestrator |
@@ -92,11 +92,11 @@ The largest end-user gaps are not basic software structure. They are engineering
 | P1 | Add fixture matrix and environmental test guide. | Issues #13 and #14. |
 | P2 | Add filter assumption docs and timestamp/monotonic-time validation tests. | New issue or M1 follow-up. |
 | P2 | Add dependency advisory/license scanning. | New issue before safety-adjacent positioning. |
-| P2 | Add RTOS adapter ADR after `wra-signal` lands. | M3-RTOS-003. |
+| P2 | Add RTOS adapter ADR after `ferrisoxide-signal` lands. | M3-RTOS-003. |
 
 ## Review Conclusion
 
-The design is appropriate for a small CLI/core MVP and now has a merged v0.2.0 criteria engine plus a separate `wra-signal` embedded foundation. It should not be positioned as production-grade signal integrity software, embedded RTOS software, environmental test qualification software, or certification-supporting tooling yet.
+The design is appropriate for a small CLI/core MVP and now has a merged v0.2.0 criteria engine plus a separate `ferrisoxide-signal` embedded foundation. It should not be positioned as production-grade signal integrity software, embedded RTOS software, environmental test qualification software, or certification-supporting tooling yet.
 
 The next design maturity step is to turn the findings above into small issues or PRs: terminology cleanup, metadata modeling, fixture/report evidence, filter assumption documentation, embedded target evidence, and certification claim-boundary docs.
 

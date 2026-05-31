@@ -4,7 +4,7 @@ Date: 2026-05-31
 
 Issue: #95, `BRAND-001 Document FerrisOxide brand architecture proposal`
 
-Status: Implemented and merged through PR #96 as proposal documentation. No rename performed.
+Status: Implemented and merged through PR #96 as proposal documentation. No rename was performed in BRAND-001. The later BRAND-002 issue #98 supersedes this proposal for in-repository identifiers.
 
 ## Summary
 
@@ -34,7 +34,7 @@ Recommended first product identity if adoption proceeds:
 FerrisOxide Signal
 ```
 
-Current stable identifiers remain:
+At the time of BRAND-001, stable identifiers remained:
 
 - Repository: `waveform-reconstructor-analyzer`
 - Crates: `wra-*`
@@ -72,3 +72,7 @@ Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --works
 Status: Proposal validated locally and merged through PR #96.
 Known gaps: External availability, legal suitability, domain, crates.io, organization, logo, migration, and public communication reviews remain future work.
 Next recommended step: Keep current public identifiers until a separate naming adoption issue passes availability, legal suitability, and migration gates.
+
+## Supersession Note
+
+BRAND-002 / issue #98 later approved source-level adoption of `FerrisOxide Signal`, including Cargo workspace package renames and CLI binary rename. External organization, domain, crates.io, trademark, logo, and legal-suitability gates remain outside that source-level rename.

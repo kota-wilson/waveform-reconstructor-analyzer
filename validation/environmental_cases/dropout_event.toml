@@ -8,7 +8,7 @@ signal_unit = "V"
 test_run_id = "ENV-DROPOUT-001"
 acquisition_notes = "Synthetic environmental-style dropout case with a known 2 ms low event."
 environment = "software validation fixture"
-operator = "wra validation suite"
+operator = "FerrisOxide Signal validation suite"
 
 [tolerances]
 voltage_v = 0.0

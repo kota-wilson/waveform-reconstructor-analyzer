@@ -2,7 +2,7 @@
 
 Date: 2026-05-31
 
-Project: Waveform Reconstructor and Analyzer
+Project: FerrisOxide Signal
 
 Stage: Dependency Gate
 
@@ -18,11 +18,11 @@ Current status: Approved dependencies were added and pinned in `Cargo.lock`; the
 
 | Crate | Scope | Purpose | License Expectation | Alternative Considered | Decision |
 |---|---|---|---|---|---|
-| `csv` | `wra-core` | Robust header-based CSV parsing and records handling. | MIT / Unlicense family in the Rust ecosystem. | Continue hand-written parser. | Approved because CSV dialect risk is already tracked. |
-| `serde` | `wra-core` | Derive stable config and report data structures. | MIT / Apache-2.0 family. | Manual parsing/serialization. | Approved because structured data is central to config and reports. |
-| `serde_json` | `wra-core` | JSON report rendering for automation. | MIT / Apache-2.0 family. | Manual JSON strings. | Approved because manual JSON is error-prone. |
-| `toml` | `wra-cli` | Parse user-facing analysis config files. | MIT / Apache-2.0 family. | Keep CLI-only criteria. | Approved because the project already defines TOML config examples. |
-| `plotters` | `wra-plot` | Render optional desktop waveform plots to SVG, including 2D and 3D line charts. | MIT, per Plotters package metadata. | Hand-written SVG rendering. | Approved by user for M5 plotting; constrained with `default-features = false` and `svg_backend` / `line_series` only. |
+| `csv` | `ferrisoxide-core` | Robust header-based CSV parsing and records handling. | MIT / Unlicense family in the Rust ecosystem. | Continue hand-written parser. | Approved because CSV dialect risk is already tracked. |
+| `serde` | `ferrisoxide-core` | Derive stable config and report data structures. | MIT / Apache-2.0 family. | Manual parsing/serialization. | Approved because structured data is central to config and reports. |
+| `serde_json` | `ferrisoxide-core` | JSON report rendering for automation. | MIT / Apache-2.0 family. | Manual JSON strings. | Approved because manual JSON is error-prone. |
+| `toml` | `ferrisoxide-cli` | Parse user-facing analysis config files. | MIT / Apache-2.0 family. | Keep CLI-only criteria. | Approved because the project already defines TOML config examples. |
+| `plotters` | `ferrisoxide-plot` | Render optional desktop waveform plots to SVG, including 2D and 3D line charts. | MIT, per Plotters package metadata. | Hand-written SVG rendering. | Approved by user for M5 plotting; constrained with `default-features = false` and `svg_backend` / `line_series` only. |
 
 ## M5 Plotting Dependency Review
 
@@ -33,8 +33,8 @@ Plotters was reviewed for the approved plotting slice after the user approved ad
 | Crate scope | `plotters = { version = "0.3.7", default-features = false, features = ["svg_backend", "line_series"] }` | Pass |
 | Backend scope | SVG backend only; no bitmap, GUI, GIF, or interactive backend feature selected. | Pass |
 | License | Plotters Cargo metadata lists `license = "MIT"`. | Pass |
-| Transitive build surface | `cargo tree -p wra-plot` shows native active tree: `plotters`, `plotters-backend`, `plotters-svg`, `num-traits`, and `autocfg`, plus existing `wra-core` dependencies. | Pass |
-| Architecture boundary | Dependency lives in `wra-plot`; `wra-core` and `wra-signal` remain plotting-free. | Pass |
+| Transitive build surface | `cargo tree -p ferrisoxide-plot` shows native active tree: `plotters`, `plotters-backend`, `plotters-svg`, `num-traits`, and `autocfg`, plus existing `ferrisoxide-core` dependencies. | Pass |
+| Architecture boundary | Dependency lives in `ferrisoxide-plot`; `ferrisoxide-core` and `ferrisoxide-signal` remain plotting-free. | Pass |
 
 Reviewed sources:
 
@@ -48,10 +48,10 @@ The M3 RTOS adapter/prototype branch adds no new third-party crates.
 
 | Item | Evidence | Result |
 |---|---|---|
-| Adapter crate | `crates/wra-embedded/Cargo.toml` depends only on local `wra-signal`. | Pass |
-| QEMU proof crate | `embedded/arm64/qemu/Cargo.toml` depends only on local `wra-embedded` and `wra-signal`. | Pass |
+| Adapter crate | `crates/ferrisoxide-embedded/Cargo.toml` depends only on local `ferrisoxide-signal`. | Pass |
+| QEMU proof crate | `embedded/arm64/qemu/Cargo.toml` depends only on local `ferrisoxide-embedded` and `ferrisoxide-signal`. | Pass |
 | Zephyr prototype | `embedded/arm64/zephyr/` is not wired into Cargo and adds no SDK dependency. | Pass |
-| Dependency tree | `cargo tree -p wra-embedded` shows only `wra-embedded` -> `wra-signal`. | Pass |
+| Dependency tree | `cargo tree -p ferrisoxide-embedded` shows only `ferrisoxide-embedded` -> `ferrisoxide-signal`. | Pass |
 | Toolchain scope | No ARM64 target, QEMU binary, Zephyr SDK, west workspace, CMake, HAL, or unsafe FFI is added. | Pass |
 
 ## M6 Measurement Engine Dependency Review
@@ -60,18 +60,18 @@ The M6 measurement-engine extraction adds no new third-party crates.
 
 | Item | Evidence | Result |
 |---|---|---|
-| Measurement crate | `crates/wra-measurements/Cargo.toml` has no dependency entries. | Pass |
-| Core dependency | `crates/wra-core/Cargo.toml` depends on local `wra-measurements`. | Pass |
-| Dependency tree | `cargo tree -p wra-measurements` shows only `wra-measurements`. | Pass |
+| Measurement crate | `crates/ferrisoxide-measurements/Cargo.toml` has no dependency entries. | Pass |
+| Core dependency | `crates/ferrisoxide-core/Cargo.toml` depends on local `ferrisoxide-measurements`. | Pass |
+| Dependency tree | `cargo tree -p ferrisoxide-measurements` shows only `ferrisoxide-measurements`. | Pass |
 
 ## M6 Completion Dependency Review
 
-The M6 completion branch adds no new third-party crates. Annotated SVG overlays reuse the existing `wra-plot` Plotters SVG dependency, criteria DSL work is documentation-only, and measurement validation fixtures use existing workspace test and JSON report paths.
+The M6 completion branch adds no new third-party crates. Annotated SVG overlays reuse the existing `ferrisoxide-plot` Plotters SVG dependency, criteria DSL work is documentation-only, and measurement validation fixtures use existing workspace test and JSON report paths.
 
 | Check | Evidence | Result |
 |---|---|---|
 | Dependency files | No new dependency entries in workspace Cargo manifests. | Pass |
-| Plotting backend | Evidence overlays reuse existing SVG line/text/marker rendering in `wra-plot`. | Pass |
+| Plotting backend | Evidence overlays reuse existing SVG line/text/marker rendering in `ferrisoxide-plot`. | Pass |
 | Runtime surface | No GUI, bitmap, web, DAQ, plugin, RTOS SDK, HAL, or FFI dependency added. | Pass |
 | Scope boundary | No parser, plotting, report, file I/O, DAQ, RTOS SDK, HAL, or plugin dependency is added. | Pass |
 

@@ -45,7 +45,7 @@ Next role: Core Software Engineer.
 
 ## Update 2026-05-31
 
-Follow-up decision: Proceeded through dependency review, public release, v0.2.0 criteria work, `wra-signal`, and ADC quantization while preserving the original architecture boundaries.
+Follow-up decision: Proceeded through dependency review, public release, v0.2.0 criteria work, `ferrisoxide-signal`, and ADC quantization while preserving the original architecture boundaries.
 
 Evidence:
 

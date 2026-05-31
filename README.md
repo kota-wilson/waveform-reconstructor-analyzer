@@ -1,12 +1,12 @@
-# Waveform Reconstructor and Analyzer
+# FerrisOxide Signal
 
-Waveform Reconstructor and Analyzer is a Rust-centered open-source tool for importing CSV time-series waveform data, reconstructing analog signal channels, applying simulated filters and ADC quantization, and evaluating waveform behavior against configurable pass/fail criteria.
+FerrisOxide Signal is a Rust-centered open-source tool for importing CSV time-series waveform data, reconstructing analog signal channels, applying simulated filters and ADC quantization, and evaluating waveform behavior against configurable pass/fail criteria.
 
 The first MVP is a CLI and core library slice. It focuses on CSV waveform loading, channel mapping, waveform data structures, low-pass and moving-average filters, ideal ADC quantization, reusable waveform measurements, waveform criteria, TOML config files, text/JSON report output, and optional SVG plotting.
 
 ## Current Status
 
-This repository is in validated MVP stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria, including waveform metadata, ordered pre-criteria transforms such as moving average, low-pass filtering, and ideal ADC quantization. Criteria consume reusable measurement primitives from `wra-measurements`, reports expose reusable measurement records with stable result links, and the desktop CLI can also render SVG waveform plots. The workspace has `no_std` crates for signal and embedded paths: `wra-signal`, `wra-measurements`, and `wra-embedded`.
+This repository is in validated MVP stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria, including waveform metadata, ordered pre-criteria transforms such as moving average, low-pass filtering, and ideal ADC quantization. Criteria consume reusable measurement primitives from `ferrisoxide-measurements`, reports expose reusable measurement records with stable result links, and the desktop CLI can also render SVG waveform plots. The workspace has `no_std` crates for signal and embedded paths: `ferrisoxide-signal`, `ferrisoxide-measurements`, and `ferrisoxide-embedded`.
 
 ## MVP Scope
 
@@ -36,12 +36,12 @@ This repository is in validated MVP stage. The Rust workspace builds a small cor
 ## Repository Layout
 
 ```text
-crates/wra-core/        Rust core library
-crates/wra-cli/         CLI entry point
-crates/wra-embedded/    no_std RTOS/ARM64 adapter boundaries
-crates/wra-measurements/no_std measurement primitives used by criteria evidence
-crates/wra-plot/        Desktop SVG plotting support
-crates/wra-signal/      no_std signal primitives
+crates/ferrisoxide-core/        Rust core library
+crates/ferrisoxide-cli/         CLI entry point
+crates/ferrisoxide-embedded/    no_std RTOS/ARM64 adapter boundaries
+crates/ferrisoxide-measurements/no_std measurement primitives used by criteria evidence
+crates/ferrisoxide-plot/        Desktop SVG plotting support
+crates/ferrisoxide-signal/      no_std signal primitives
 docs/                  Product, architecture, and MVP docs
 embedded/              Future embedded and ARM64 adapter notes
 examples/              Example CSV and config files
@@ -66,14 +66,14 @@ No global package installation is required.
 
 ## Embedded Foundation
 
-`crates/wra-signal` is a dependency-free `#![no_std]` crate for fixed-size waveform buffers, streaming sample ingestion, min/max threshold evaluation, and transient event detection. `crates/wra-embedded` is a `#![no_std]` adapter-boundary crate with sample-source, event-sink, and runtime-hook traits for future ARM64 and RTOS wrappers.
+`crates/ferrisoxide-signal` is a dependency-free `#![no_std]` crate for fixed-size waveform buffers, streaming sample ingestion, min/max threshold evaluation, and transient event detection. `crates/ferrisoxide-embedded` is a `#![no_std]` adapter-boundary crate with sample-source, event-sink, and runtime-hook traits for future ARM64 and RTOS wrappers.
 
 The embedded track now has a host-checkable ARM64 QEMU proof slice under `embedded/arm64/qemu/` and an isolated Zephyr feasibility sketch under `embedded/arm64/zephyr/`. These prototypes intentionally exclude CSV parsing, file I/O, plotting, text/JSON reports, GUI, DAQ integration, hardware HALs, production RTOS readiness, and certification evidence.
 
 ## MVP Usage
 
 ```bash
-cargo run --quiet --bin wra -- analyze \
+cargo run --quiet --bin ferrisoxide-signal -- analyze \
   --input examples/basic-waveform.csv \
   --config examples/basic-config.toml \
   --format text
@@ -104,7 +104,7 @@ Criteria:
 JSON output is also available and includes the same waveform metadata plus reusable measurement evidence:
 
 ```bash
-cargo run --quiet --bin wra -- analyze \
+cargo run --quiet --bin ferrisoxide-signal -- analyze \
   --input examples/basic-waveform.csv \
   --config examples/basic-config.toml \
   --format json
@@ -174,7 +174,7 @@ Expected JSON output:
       "sample_index": 0,
       "timestamp": 0.0,
       "method_context": {
-        "source": "wra-measurements",
+        "source": "ferrisoxide-measurements",
         "threshold_v": null,
         "low_threshold_v": null,
         "high_threshold_v": null,
@@ -194,7 +194,7 @@ Expected JSON output:
       "sample_index": 4,
       "timestamp": 0.004,
       "method_context": {
-        "source": "wra-measurements",
+        "source": "ferrisoxide-measurements",
         "threshold_v": null,
         "low_threshold_v": null,
         "high_threshold_v": null,
@@ -242,7 +242,7 @@ Expected JSON output:
 For quick one-off checks, criteria can still be supplied through CLI flags:
 
 ```bash
-cargo run --quiet --bin wra -- analyze \
+cargo run --quiet --bin ferrisoxide-signal -- analyze \
   --input examples/basic-waveform.csv \
   --time-column time \
   --channels input_v \
@@ -273,7 +273,7 @@ Implemented transform equations are documented in [filter behavior](docs/filter-
 The desktop CLI can render SVG plots without adding GUI or DAQ scope:
 
 ```bash
-cargo run --quiet --bin wra -- plot \
+cargo run --quiet --bin ferrisoxide-signal -- plot \
   --input examples/basic-waveform.csv \
   --time-column time \
   --channels input_v,output_v \
@@ -283,7 +283,7 @@ cargo run --quiet --bin wra -- plot \
 Use `--z-column` for a 3D line plot with an auxiliary third axis:
 
 ```bash
-cargo run --quiet --bin wra -- plot \
+cargo run --quiet --bin ferrisoxide-signal -- plot \
   --input tests/fixtures/plot_three_axis.csv \
   --time-column time_s \
   --channels signal_v \
@@ -294,7 +294,7 @@ cargo run --quiet --bin wra -- plot \
 Use `--config` for a 2D SVG plot with criteria evidence overlays:
 
 ```bash
-cargo run --quiet --bin wra -- plot \
+cargo run --quiet --bin ferrisoxide-signal -- plot \
   --input tests/fixtures/dropout_event.csv \
   --config tests/configs/transient-event-dropout-fail.toml \
   --output dropout-evidence.svg
@@ -307,7 +307,7 @@ See [SVG plotting](docs/plotting.md) for scope, commands, and limits.
 Transient event detection checks for unintended short state changes. This dropout example fails because `supply_v` drops below `2.5 V` for `0.002 s`, while the config allows only `0.001 s`.
 
 ```bash
-cargo run --quiet --bin wra -- analyze \
+cargo run --quiet --bin ferrisoxide-signal -- analyze \
   --input tests/fixtures/dropout_event.csv \
   --config tests/configs/transient-event-dropout-fail.toml \
   --format text

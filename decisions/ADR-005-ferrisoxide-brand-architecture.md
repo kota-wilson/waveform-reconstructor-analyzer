@@ -2,7 +2,7 @@
 
 Date: 2026-05-31
 
-Status: Proposed and merged through PR #96
+Status: Superseded for in-repository identifiers by ADR-006 / BRAND-002. External organization, domain, crates.io publishing, trademark, and legal-suitability checks remain outside this ADR.
 
 ## Context
 
@@ -64,11 +64,12 @@ Negative:
 
 ## Guardrails
 
-- Keep current repository and crate names until a separate adoption gate.
+- At the time of ADR-005, keep current repository and crate names until a separate adoption gate.
 - Do not claim GitHub organization, crates.io, domain, or trademark availability.
 - Do not imply affiliation with the Rust Project, Rust Foundation, or Rust language maintainers.
 - Prefer `FerrisOxide Signal` as the first product name if the current repository is renamed later.
-- Keep `wra-*` crate names stable until a crate migration plan exists.
+- At the time of ADR-005, keep `wra-*` crate names stable until a crate migration plan exists.
+- ADR-006 records the later approved in-repository adoption of `FerrisOxide Signal`, including crate and binary renames.
 
 ## Verification
 
@@ -89,9 +90,9 @@ For future adoption:
 ## Hand-Off Note
 
 Role: Product Architect / GitHub Maintainer Specialist
-Goal: Decide how to represent FerrisOxide in planning without changing public identifiers.
+Goal: Decide how to represent FerrisOxide in planning before changing public identifiers.
 Files changed: `decisions/ADR-005-ferrisoxide-brand-architecture.md`.
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Proposed and merged through PR #96.
+Status: Historical proposal, superseded for in-repository identifiers by ADR-006 / BRAND-002.
 Known gaps: External availability and legal suitability checks are not complete.
-Next recommended step: Use `docs/brand-architecture.md` as the naming reference until a separate adoption issue is approved.
+Next recommended step: Use ADR-006 for the approved in-repository rename boundary and keep this ADR as proposal history.

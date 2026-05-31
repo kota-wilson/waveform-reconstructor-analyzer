@@ -40,7 +40,7 @@ Out of scope:
 ## Research
 
 - Owner role: Software Architect / Core Software Engineer
-- Artifact: Issue #56, `docs/criteria-dsl.md`, and `crates/wra-core/src/config.rs`.
+- Artifact: Issue #56, `docs/criteria-dsl.md`, and `crates/ferrisoxide-core/src/config.rs`.
 - Evidence: M6 documented the approved operator vocabulary and explicit-unit preference; M7-001 added config-layer DSL structs.
 - Gate: Intake Gate.
 - Decision: Pass.
@@ -60,7 +60,7 @@ Out of scope:
 ## Architecture
 
 - Owner role: Software Architect
-- Artifact: `crates/wra-core/src/config.rs`.
+- Artifact: `crates/ferrisoxide-core/src/config.rs`.
 - Design: Keep validation at the config boundary with `CriterionOperator`, `CriterionMeasurementKind`, supported-unit checks, expected-unit checks, and no evaluator changes.
 - Gate: Architecture Gate.
 - Decision: Pass.
@@ -80,7 +80,7 @@ Out of scope:
 ## Implementation
 
 - Owner role: Core Software Engineer
-- Artifact: `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, and invalid DSL config fixtures.
+- Artifact: `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-cli/src/main.rs`, and invalid DSL config fixtures.
 - Behavior:
   - `CriterionOperator` validates the five approved operators.
   - `CriterionMeasurementKind` validates existing candidate measurement names and expected output units.
@@ -216,7 +216,7 @@ Out of scope:
 
 Role: Core Software Engineer
 Goal: Complete M7-002 / issue #56.
-Files changed: `crates/wra-core/src/config.rs`, `crates/wra-cli/src/main.rs`, invalid DSL config fixtures, requirements, traceability, project state, and this report.
+Files changed: `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-cli/src/main.rs`, invalid DSL config fixtures, requirements, traceability, project state, and this report.
 Checks run: `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
 Status: Implemented and merged in PR #65.
 Known gaps: Runtime DSL evaluation, parity golden tests, full invalid matrix, and user-facing docs remain in issues #57 through #61.

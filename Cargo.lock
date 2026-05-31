@@ -48,6 +48,49 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
+name = "ferrisoxide-cli"
+version = "0.1.0"
+dependencies = [
+ "ferrisoxide-core",
+ "ferrisoxide-plot",
+ "toml",
+]
+
+[[package]]
+name = "ferrisoxide-core"
+version = "0.1.0"
+dependencies = [
+ "csv",
+ "ferrisoxide-measurements",
+ "serde",
+ "serde_json",
+ "toml",
+]
+
+[[package]]
+name = "ferrisoxide-embedded"
+version = "0.1.0"
+dependencies = [
+ "ferrisoxide-signal",
+]
+
+[[package]]
+name = "ferrisoxide-measurements"
+version = "0.1.0"
+
+[[package]]
+name = "ferrisoxide-plot"
+version = "0.1.0"
+dependencies = [
+ "ferrisoxide-core",
+ "plotters",
+]
+
+[[package]]
+name = "ferrisoxide-signal"
+version = "0.1.0"
+
+[[package]]
 name = "futures-core"
 version = "0.3.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -369,49 +412,6 @@ checksum = "df79d97927682d2fd8adb29682d1140b343be4ac0f08fd68b7765d9c059d3945"
 dependencies = [
  "memchr",
 ]
-
-[[package]]
-name = "wra-cli"
-version = "0.1.0"
-dependencies = [
- "toml",
- "wra-core",
- "wra-plot",
-]
-
-[[package]]
-name = "wra-core"
-version = "0.1.0"
-dependencies = [
- "csv",
- "serde",
- "serde_json",
- "toml",
- "wra-measurements",
-]
-
-[[package]]
-name = "wra-embedded"
-version = "0.1.0"
-dependencies = [
- "wra-signal",
-]
-
-[[package]]
-name = "wra-measurements"
-version = "0.1.0"
-
-[[package]]
-name = "wra-plot"
-version = "0.1.0"
-dependencies = [
- "plotters",
- "wra-core",
-]
-
-[[package]]
-name = "wra-signal"
-version = "0.1.0"
 
 [[package]]
 name = "zmij"

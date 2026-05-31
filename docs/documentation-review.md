@@ -35,13 +35,13 @@ M6 review update: M6 adds measurement-engine docs; M6-003 adds report measuremen
 | `docs/plotting.md` | Pass |
 | M5 README and usage plotting examples | Pass |
 | M5 dependency, risk, and traceability updates | Pass |
-| `crates/wra-embedded/README.md` | Pass |
-| `crates/wra-embedded/no_std-design.md` | Pass |
+| `crates/ferrisoxide-embedded/README.md` | Pass |
+| `crates/ferrisoxide-embedded/no_std-design.md` | Pass |
 | `embedded/arm64/qemu/README.md` | Pass |
 | `embedded/arm64/zephyr/README.md` | Pass |
 | M3 embedded roadmap, risk, and traceability updates | Pass |
 | `docs/measurements.md` | Pass |
-| `crates/wra-measurements/README.md` | Pass |
+| `crates/ferrisoxide-measurements/README.md` | Pass |
 | M6 README, architecture, dependency, risk, and traceability updates | Pass |
 | M6-003 report schema migration docs and pipeline report | Pass |
 | M6 completion plotting, criteria DSL, measurement validation, and pipeline docs | Pass |

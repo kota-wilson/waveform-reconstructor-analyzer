@@ -8,7 +8,7 @@ Milestone: `v0.4.0: Measurement & Evidence Engine`
 
 Primary issue: #43, `M6-001 Extract measurement engine from criteria evaluation`
 
-Merged PR: #48, `https://github.com/kota-wilson/waveform-reconstructor-analyzer/pull/48`
+Merged PR: #48, `https://github.com/kota-wilson/ferrisoxide-signal/pull/48`
 
 Merge commit: `559c96151f6f1d9a99d3d399a0e6bd046bfe5f51`
 
@@ -19,8 +19,8 @@ Out of scope for M6-001: report schema migration, annotated SVG overlays, new TO
 ## Research
 
 - Owner role: Open Source Research Engineer / DX Engineer
-- Artifact: issue set #43-#47, local code inspection of `wra-core` analysis/criteria/report paths.
-- Evidence: Existing criteria logic lived in `crates/wra-core/src/analysis.rs`; existing exact golden JSON tests already protected evidence values.
+- Artifact: issue set #43-#47, local code inspection of `ferrisoxide-core` analysis/criteria/report paths.
+- Evidence: Existing criteria logic lived in `crates/ferrisoxide-core/src/analysis.rs`; existing exact golden JSON tests already protected evidence values.
 - Gate: Target Intake Gate.
 - Decision: Pass.
 - Residual risk: Measurement extraction could alter evidence values if tie behavior changes.
@@ -41,7 +41,7 @@ Out of scope for M6-001: report schema migration, annotated SVG overlays, new TO
 
 - Owner role: Software Architect
 - Artifact: `docs/architecture.md`, `docs/measurements.md`.
-- Design: add `crates/wra-measurements` as a no_std slice-based measurement crate; keep `wra-core` responsible for criteria policy, tolerances, errors, report wording, and public re-exports.
+- Design: add `crates/ferrisoxide-measurements` as a no_std slice-based measurement crate; keep `ferrisoxide-core` responsible for criteria policy, tolerances, errors, report wording, and public re-exports.
 - Alternatives considered: keep measurement logic embedded in `analysis.rs`; move waveform model into measurement crate; add report schema in same PR.
 - Decision rationale: a local primitive crate avoids dependency cycles and keeps M6-001 reviewable.
 - Gate: Architecture Gate.
@@ -63,7 +63,7 @@ Out of scope for M6-001: report schema migration, annotated SVG overlays, new TO
 
 - Owner role: Core Software Engineer
 - Artifact: `docs/implementation-report.md`.
-- Files changed: `crates/wra-measurements/`, `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/criteria.rs`, Cargo files, README, architecture, requirements, risk, traceability, and docs.
+- Files changed: `crates/ferrisoxide-measurements/`, `crates/ferrisoxide-core/src/analysis.rs`, `crates/ferrisoxide-core/src/criteria.rs`, Cargo files, README, architecture, requirements, risk, traceability, and docs.
 - Behavior: criteria now call reusable extrema, transition-count, state-run, and rise/fall measurement primitives while preserving exact current evidence output.
 - Gate: Implementation Gate.
 - Decision: Pass.
@@ -74,7 +74,7 @@ Out of scope for M6-001: report schema migration, annotated SVG overlays, new TO
 
 - Owner role: Test Automation Engineer
 - Artifact: `docs/validation-log.md`.
-- Evidence: `cargo test --workspace` passed with 80 tests, including 5 new `wra-measurements` tests and unchanged golden JSON comparisons.
+- Evidence: `cargo test --workspace` passed with 80 tests, including 5 new `ferrisoxide-measurements` tests and unchanged golden JSON comparisons.
 - Gate: Testing Gate.
 - Decision: Pass.
 - Residual risk: CI remains the external protected-branch gate after PR creation.
@@ -105,7 +105,7 @@ Out of scope for M6-001: report schema migration, annotated SVG overlays, new TO
 
 - Owner role: Security Engineer
 - Artifact: `docs/security-review.md`, `docs/dependency-review.md`.
-- Evidence: no new third-party crates, no unsafe Rust, no new file/network/credential/FFI/plugin/RTOS surface; `cargo tree -p wra-measurements` shows only the local crate.
+- Evidence: no new third-party crates, no unsafe Rust, no new file/network/credential/FFI/plugin/RTOS surface; `cargo tree -p ferrisoxide-measurements` shows only the local crate.
 - Gate: Security Gate.
 - Decision: Pass.
 - Residual risk: Future plugin/runtime work would need a new security model.
@@ -124,7 +124,7 @@ Out of scope for M6-001: report schema migration, annotated SVG overlays, new TO
 ## Documentation
 
 - Owner role: Documentation Engineer / Technical Writer
-- Artifact: README, `docs/measurements.md`, `crates/wra-measurements/README.md`, `docs/documentation-review.md`.
+- Artifact: README, `docs/measurements.md`, `crates/ferrisoxide-measurements/README.md`, `docs/documentation-review.md`.
 - Evidence: user-facing docs state behavior, compatibility, and out-of-scope boundaries.
 - Gate: Documentation Gate.
 - Decision: Pass.
@@ -185,8 +185,8 @@ Out of scope for M6-001: report schema migration, annotated SVG overlays, new TO
 
 Role: Project Orchestrator / Core Software Engineer
 Goal: Start v0.4.0 by extracting reusable measurement primitives for issue #43.
-Files changed: Cargo workspace files, `crates/wra-measurements/`, `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/criteria.rs`, README, docs, requirements, traceability, risk, and project state.
-Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-measurements`; `git diff --check`.
+Files changed: Cargo workspace files, `crates/ferrisoxide-measurements/`, `crates/ferrisoxide-core/src/analysis.rs`, `crates/ferrisoxide-core/src/criteria.rs`, README, docs, requirements, traceability, risk, and project state.
+Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p ferrisoxide-measurements`; `git diff --check`.
 Status: PR #48 merged; issue #43 closed.
 Known gaps: Issues #44-#47 remain open for annotated SVG evidence, report measurement schema, DSL documentation, and broader validation fixtures.
 Next recommended step: Select the next v0.4.0 issue, likely #45 report measurement schema or #44 annotated SVG evidence overlays.

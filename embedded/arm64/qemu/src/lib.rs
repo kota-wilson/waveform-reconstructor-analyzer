@@ -1,13 +1,13 @@
 #![no_std]
 
-//! ARM64 QEMU proof slice for `wra-embedded`.
+//! ARM64 QEMU proof slice for `ferrisoxide-embedded`.
 //!
 //! This library is intentionally host-checkable and does not open files,
 //! allocate memory, or depend on QEMU at test time. The README documents the
 //! target/QEMU assumptions for turning this into a freestanding demo image.
 
-use wra_embedded::{run_threshold_stream, LastResultSink, NoopRuntime, SliceSampleSource};
-use wra_signal::{Sample, ThresholdCheck, ThresholdLimits};
+use ferrisoxide_embedded::{run_threshold_stream, LastResultSink, NoopRuntime, SliceSampleSource};
+use ferrisoxide_signal::{Sample, ThresholdCheck, ThresholdLimits};
 
 pub const DEMO_SAMPLES: [Sample; 4] = [
     Sample::new(0.0, 0.0),

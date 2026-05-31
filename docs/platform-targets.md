@@ -31,9 +31,9 @@ Current desktop/std crates:
 
 | Crate | Runtime Profile | Notes |
 |---|---|---|
-| `wra-core` | `std` | CSV, config, criteria, analysis, filters, and report model. |
-| `wra-cli` | `std` | CLI analysis, plotting, benchmark, and future export workflows. |
-| `wra-plot` | `std` | Desktop SVG plotting with Plotters. |
+| `ferrisoxide-core` | `std` | CSV, config, criteria, analysis, filters, and report model. |
+| `ferrisoxide-cli` | `std` | CLI analysis, plotting, benchmark, and future export workflows. |
+| `ferrisoxide-plot` | `std` | Desktop SVG plotting with Plotters. |
 
 ## Embedded Target
 
@@ -62,16 +62,16 @@ Current embedded/no_std crates:
 
 | Crate | Runtime Profile | Notes |
 |---|---|---|
-| `wra-signal` | `no_std` | Fixed-size buffers, threshold evaluation, transient event primitives. |
-| `wra-embedded` | `no_std` | Sample source, event sink, runtime hook, and streaming adapter traits around `wra-signal`. |
+| `ferrisoxide-signal` | `no_std` | Fixed-size buffers, threshold evaluation, transient event primitives. |
+| `ferrisoxide-embedded` | `no_std` | Sample source, event sink, runtime hook, and streaming adapter traits around `ferrisoxide-signal`. |
 
 Planned embedded-compatible crates:
 
 | Crate | Runtime Profile | Notes |
 |---|---|---|
-| `wra-rule-schema` | `no_std`-compatible subset expected | Portable rule package schema from v0.6.0 planning. |
-| `wra-rule-engine` | `no_std`-compatible subset expected | Shared rule execution semantics from v0.6.0 planning. |
-| `wra-control-schema` | `no_std`-compatible subset expected | Production control config schema from v0.7.0 planning. |
+| `ferrisoxide-rule-schema` | `no_std`-compatible subset expected | Portable rule package schema from v0.6.0 planning. |
+| `ferrisoxide-rule-engine` | `no_std`-compatible subset expected | Shared rule execution semantics from v0.6.0 planning. |
+| `ferrisoxide-control-schema` | `no_std`-compatible subset expected | Production control config schema from v0.7.0 planning. |
 
 ## Optional Microcontroller Target
 
@@ -115,9 +115,9 @@ Future optional crate:
 
 | Crate | Runtime Profile | Notes |
 |---|---|---|
-| `wra-pico-runtime` | `no_std` | Future microcontroller adapter for fixed-size buffers, compact binary config, threshold/timing criteria, simple moving average, GPIO/PWM output actions, and no heap requirement where practical. |
+| `ferrisoxide-pico-runtime` | `no_std` | Future microcontroller adapter for fixed-size buffers, compact binary config, threshold/timing criteria, simple moving average, GPIO/PWM output actions, and no heap requirement where practical. |
 
-`wra-pico-runtime` is intentionally not created yet. It should be added only after the portable rule package, shared rule engine, and controller I/O boundaries define the minimum deployable rule subset for microcontrollers.
+`ferrisoxide-pico-runtime` is intentionally not created yet. It should be added only after the portable rule package, shared rule engine, and controller I/O boundaries define the minimum deployable rule subset for microcontrollers.
 
 Spec references reviewed for this profile:
 
@@ -186,8 +186,8 @@ Initial host-checkable commands:
 
 ```sh
 cargo check --workspace --target aarch64-apple-darwin
-cargo check -p wra-signal --target aarch64-unknown-none
-cargo check -p wra-embedded --target aarch64-unknown-none
+cargo check -p ferrisoxide-signal --target aarch64-unknown-none
+cargo check -p ferrisoxide-embedded --target aarch64-unknown-none
 ```
 
 Local evidence recorded on 2026-05-31:
@@ -197,8 +197,8 @@ Local evidence recorded on 2026-05-31:
 | `rustc --print target-list` includes `aarch64-apple-darwin` and `aarch64-unknown-none` | Pass |
 | `rustup target list --installed` includes `aarch64-apple-darwin` and `aarch64-unknown-none` | Pass |
 | `cargo check --workspace --target aarch64-apple-darwin` | Pass |
-| `cargo check -p wra-signal --target aarch64-unknown-none` | Pass |
-| `cargo check -p wra-embedded --target aarch64-unknown-none` | Pass |
+| `cargo check -p ferrisoxide-signal --target aarch64-unknown-none` | Pass |
+| `cargo check -p ferrisoxide-embedded --target aarch64-unknown-none` | Pass |
 
 Future parity tests should prove that Apple Silicon desktop logic and Raspberry Pi 5 bare-metal-compatible logic consume the same rule/control definitions and produce matching expected results for shared test vectors.
 
@@ -225,14 +225,14 @@ Out of scope until separate approval:
 - Zephyr production support.
 - Real-time timing guarantees.
 - Safety, hardware qualification, or certification claims.
-- Creating `wra-pico-runtime`, adding Pico 2 HAL support, or claiming Pico 2 runtime validation.
+- Creating `ferrisoxide-pico-runtime`, adding Pico 2 HAL support, or claiming Pico 2 runtime validation.
 
 ## Hand-Off Note
 
 Role: Software Architect / Embedded RTOS Engineer
 Goal: Define the Apple Silicon desktop and Raspberry Pi 5 bare-metal platform profiles.
 Files changed: `docs/platform-targets.md`.
-Checks run: `rustc --print target-list`; `rustup target list --installed`; `cargo check --workspace --target aarch64-apple-darwin`; `cargo check -p wra-signal --target aarch64-unknown-none`; `cargo check -p wra-embedded --target aarch64-unknown-none`.
+Checks run: `rustc --print target-list`; `rustup target list --installed`; `cargo check --workspace --target aarch64-apple-darwin`; `cargo check -p ferrisoxide-signal --target aarch64-unknown-none`; `cargo check -p ferrisoxide-embedded --target aarch64-unknown-none`.
 Status: Planned platform profile.
 Known gaps: CI target checks, Raspberry Pi 5 boot validation, target HALs, deployment loader, and parity test implementation remain future work.
 Next recommended step: Route issue #89 through implementation when v0.7.0 platform validation is prioritized.

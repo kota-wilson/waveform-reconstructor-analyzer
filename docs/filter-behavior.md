@@ -4,7 +4,7 @@ Date: 2026-05-31
 
 ## Scope
 
-This document describes the implemented transform equations used by `crates/wra-core/src/filter.rs`. These are software model definitions for review and testing. They are not validated hardware models, frequency-response guarantees, ADC calibration models, or DAQ behavior claims.
+This document describes the implemented transform equations used by `crates/ferrisoxide-core/src/filter.rs`. These are software model definitions for review and testing. They are not validated hardware models, frequency-response guarantees, ADC calibration models, or DAQ behavior claims.
 
 ## Moving Average
 
@@ -84,4 +84,4 @@ Corresponding tests:
 - `filter::tests::adc_quantizer_snaps_samples_to_code_levels_without_mutating_input`
 - `filter::tests::adc_quantizer_rejects_invalid_parameters`
 - `config::tests::converts_adc_quantizer_config_to_filter_step`
-- `wra-cli::tests::runs_analysis_with_adc_quantization_before_criteria`
+- `ferrisoxide-cli::tests::runs_analysis_with_adc_quantization_before_criteria`
