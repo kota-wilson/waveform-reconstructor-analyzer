@@ -35,6 +35,13 @@
 | WRA-RQ-033 | SVG plotting shall support 2D criteria evidence overlays. | M6-002 / issue #44 | High | `wra plot --config` renders 2D SVG overlays with pass/fail status, threshold lines, and failed-criterion labels containing sample index, timestamp, channel, measured value, and required value; plotting remains in `wra-plot` with no GUI, bitmap, web, DAQ, or embedded plotting scope. | Core Software Engineer / Documentation Engineer | Implemented |
 | WRA-RQ-034 | The project shall document criteria DSL direction before expanding syntax. | M6-004 / issue #46 | Medium | Documentation defines measurement-backed criteria concepts, initial operator vocabulary, explicit unit fields, compatibility expectations for existing `[[criteria]]`, and non-goals. | Software Architect / Documentation Engineer | Implemented |
 | WRA-RQ-035 | The project shall add measurement-engine known-answer validation fixtures. | M6-005 / issue #47 | High | Validation fixtures independently document expected values for state transition count, pulse width, transient duration, stable-state duration, rise time, fall time, tolerance expectations, and time-axis assumptions, with exact JSON report comparison. | Verification and Validation Engineer | Implemented |
+| WRA-RQ-036 | The config model shall support measurement-backed DSL criteria. | Proposed v0.5.0 / M7-001 | High | TOML supports `[criteria.measurement]` and `[criteria.requirement]` sections for existing measurement types without breaking existing criteria configs. | Software Architect / Core Software Engineer | Proposed |
+| WRA-RQ-037 | The DSL shall use a small auditable operator vocabulary. | Proposed v0.5.0 / M7-002 | High | `less_than`, `less_than_or_equal`, `greater_than`, `greater_than_or_equal`, and `equal_to` are parsed, validated, tested, and reported. | Core Software Engineer / V&V Engineer | Proposed |
+| WRA-RQ-038 | The DSL shall require explicit units. | Proposed v0.5.0 / M7-002 | High | Requirement and threshold values include explicit units; missing, unsupported, or mismatched units return clear errors without panics. | Core Software Engineer / V&V Engineer | Proposed |
+| WRA-RQ-039 | DSL criteria shall evaluate through existing measurement evidence paths. | Proposed v0.5.0 / M7-003 | High | DSL and legacy criteria produce equivalent pass/fail decisions, measurement records, result fields, and JSON report evidence for equivalent configs. | Core Software Engineer | Proposed |
+| WRA-RQ-040 | Existing criteria configs shall remain compatible. | Proposed v0.5.0 / M7-004 | High | Current fixtures, examples, and golden reports continue to pass without modification unless an intentional additive report field is approved. | Test Automation Engineer | Proposed |
+| WRA-RQ-041 | DSL invalid-config coverage shall be explicit. | Proposed v0.5.0 / M7-005 | Medium | Tests cover missing measurement sections, unknown operators, unsupported units, missing requirement values, incompatible measurement parameters, and duplicate/ambiguous criteria shapes. | Test Automation Engineer / V&V Engineer | Proposed |
+| WRA-RQ-042 | DSL docs shall be usable by engineering reviewers. | Proposed v0.5.0 / M7-006 / M7-007 | Medium | README, example config, criteria DSL docs, and report/schema docs show before/after configs, expected output, unit rules, and non-goals. | Documentation Engineer | Proposed |
 
 ## Assumptions
 
@@ -80,6 +87,13 @@
 | WRA-RQ-033 | SVG unit, CLI, and smoke tests | `wra-plot` overlay SVG test, `wra-cli` annotated plot test, CLI smoke command with `--config`, plotting docs, workspace tests, clippy, and diff check. |
 | WRA-RQ-034 | Documentation review | `docs/criteria-dsl.md`, README/doc links, workspace tests, fmt check, and diff check. |
 | WRA-RQ-035 | Known-answer validation tests | `validation/measurement_engine/`, `expected-measurements.md`, exact report `measurement_engine_known_answer.json`, workspace tests, clippy, and diff check. |
+| WRA-RQ-036 | Config, CLI, and compatibility tests | DSL config deserialization tests, legacy config regression tests, and CLI smoke with DSL config. |
+| WRA-RQ-037 | Unit and config tests | Operator parsing, validation, report evidence, and comparator behavior tests. |
+| WRA-RQ-038 | Invalid-config tests | Missing, unsupported, and mismatched unit tests with clear error assertions. |
+| WRA-RQ-039 | Golden and parity tests | Equivalent DSL/legacy configs compare exact JSON evidence or a documented additive schema difference. |
+| WRA-RQ-040 | Regression tests | Existing fixtures, examples, and golden JSON reports continue to pass. |
+| WRA-RQ-041 | Invalid-config matrix tests | Unknown operators, unsupported units, missing fields, incompatible parameters, and ambiguous mixed criteria shape tests. |
+| WRA-RQ-042 | Documentation review | README, example DSL config, `docs/criteria-dsl.md`, and report/schema docs review. |
 
 ## Rules
 

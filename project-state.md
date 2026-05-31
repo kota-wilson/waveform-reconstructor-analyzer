@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Record completion evidence after closing all open GitHub issues.
+Propose the next milestone after closing all open GitHub issues.
 
 ## Current Stage
 
-The repository has zero open GitHub issues. Milestone #6, `v0.4.0: Measurement & Evidence Engine`, is closed with issues #43 through #47 closed. PR #52 merged the final M6 scope: 2D SVG evidence overlays, criteria DSL direction docs, measurement-engine known-answer fixtures, exact report validation, and pipeline evidence. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
+The repository has zero open GitHub issues. Milestone #6, `v0.4.0: Measurement & Evidence Engine`, is closed with issues #43 through #47 closed. PR #52 merged the final M6 scope: 2D SVG evidence overlays, criteria DSL direction docs, measurement-engine known-answer fixtures, exact report validation, and pipeline evidence. A proposed next milestone, `v0.5.0: Measurement-Backed Criteria DSL`, is documented in `docs/v0.5.0-criteria-dsl-milestone-proposal.md`. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -46,6 +46,8 @@ The repository has zero open GitHub issues. Milestone #6, `v0.4.0: Measurement &
   Owner: Documentation Engineer / Verification and Validation Engineer
 - Risk: Criteria DSL expansion may introduce ambiguous operators or unit parsing.
   Owner: Software Architect / Core Software Engineer
+- Risk: Criteria DSL implementation may break existing TOML configs or report consumers.
+  Owner: Core Software Engineer / V&V Engineer
 
 ## Pending Decisions
 
@@ -75,17 +77,17 @@ The repository has zero open GitHub issues. Milestone #6, `v0.4.0: Measurement &
 
 Role: Project Orchestrator / Project Coordinator
 
-Expected deliverable: Keep the repository at zero open issues until the next approved milestone is created.
+Expected deliverable: Review the proposed `v0.5.0: Measurement-Backed Criteria DSL` milestone and request approval before GitHub milestone/issue creation.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: None active; `v0.4.0: Measurement & Evidence Engine` is closed.
+- Current milestone: Proposed only; `v0.5.0: Measurement-Backed Criteria DSL`.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
-- Next gate: Define and approve the next milestone before opening additional scope.
-- Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, criteria DSL implementation, or expanded annotated SVG features without a fresh issue/gate.
+- Next gate: Human approval before creating the GitHub milestone/issues or implementing criteria DSL runtime behavior.
+- Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, criteria DSL implementation, or expanded annotated SVG features without approval of the proposed milestone/issues.
 
 ## Granularity Status
 
@@ -104,7 +106,7 @@ Expected deliverable: Keep the repository at zero open issues until the next app
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, and M6 requirements WRA-RQ-031 through WRA-RQ-035.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, and proposed v0.5.0 requirements WRA-RQ-036 through WRA-RQ-042.
 
 ## Gate Decisions
 
@@ -227,6 +229,8 @@ Expected deliverable: Keep the repository at zero open issues until the next app
 | M6 Completion V&V Gate | Pass | `docs/m6-completion-pipeline-report.md`, WRA-RQ-033 through WRA-RQ-035 traceability | QA Engineer |
 | M6 Completion Release Gate | Pass | PR #52 merged after required `rust` CI passed; merge commit `dd9c4bf39a5866f8a2cf903247db2ca0ded6a2b9` | GitHub Maintainer Specialist |
 | M6 Completion Community Gate | Pass | Issues #43-#47 closed; milestone #6 closed with 5 closed issues and 0 open issues; repository issue list empty | Project Coordinator |
+| v0.5.0 Proposal Requirements Gate | Pass | `docs/v0.5.0-criteria-dsl-milestone-proposal.md`; WRA-RQ-036 through WRA-RQ-042 | Project Coordinator |
+| v0.5.0 Proposal Human Approval Gate | Pending | Approval required before GitHub milestone/issues or runtime implementation | User / Project Coordinator |
 
 ## Update Rules
 

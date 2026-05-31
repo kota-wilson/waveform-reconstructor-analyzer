@@ -19,6 +19,7 @@
 | WRA-RISK-015 | Report schema migration may break consumers that assumed all evidence lived only in `results`. | Medium | Medium | Preserve existing result fields, add `measurement_id` instead of removing fields, document the migration in `docs/report-schema.md`, and update exact golden JSON tests. | Documentation Engineer / Core Software Engineer | Active | Report schema or downstream export changes. |
 | WRA-RISK-016 | Annotated SVG evidence may be overread as complete engineering proof instead of visual software evidence. | Medium | High | Reuse report measurement evidence, label scope in plotting docs, keep overlays 2D/SVG-only, and avoid hardware or certification claims. | Documentation Engineer / Verification and Validation Engineer | Active | Plot evidence overlay changes. |
 | WRA-RISK-017 | Criteria DSL expansion may introduce ambiguous operators or unit parsing. | Medium | Medium | Document operator vocabulary and require explicit unit fields before implementing shorthand values or new parser behavior. | Software Architect / Core Software Engineer | Active | Criteria config syntax changes. |
+| WRA-RISK-018 | Criteria DSL implementation may break existing TOML configs or report consumers. | Medium | High | Treat legacy configs as compatibility fixtures, keep DSL additive, reject ambiguous mixed shapes, and preserve M6 report evidence fields unless an explicit schema migration is approved. | Core Software Engineer / V&V Engineer | Proposed | v0.5.0 criteria DSL implementation. |
 
 ## Escalation
 
