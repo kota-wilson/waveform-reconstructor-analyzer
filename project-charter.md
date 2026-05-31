@@ -1,6 +1,6 @@
 # Project Charter
 
-Project Name: FerrisOxide Signal
+Project Name: FerrisOxide
 
 Project Type: Rust-centered open-source product repository
 
@@ -10,7 +10,7 @@ Owner: Project Coordinator
 
 ## Primary Goal
 
-Build a robust, modular Rust application/library that imports CSV waveform data, reconstructs analog waveforms from recorded channel samples, applies simulated signal filters, and evaluates waveforms against configurable pass/fail criteria.
+Build a robust, modular Rust application/library platform whose current FerrisOxide Signal slice imports CSV waveform data, reconstructs analog waveforms from recorded channel samples, applies simulated signal filters, and evaluates waveforms against configurable pass/fail criteria.
 
 ## Target User
 
@@ -100,7 +100,7 @@ Out of scope:
 ## Development Environment
 
 - Isolation level: Level 1 project-local workspace.
-- Environment path: `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`.
+- Environment path: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`.
 - Dependency manager: Cargo.
 - Lockfile strategy: Commit `Cargo.lock` for CLI/application reproducibility.
 

@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Work the open v0.6.0 portable rule package issues through the protected-branch pipeline after closing v0.5.0 criteria DSL.
+Correct the main repository host to `ferrisoxide`, then work the remaining open v0.6.0 portable rule package issues through the protected-branch pipeline.
 
 ## Current Stage
 
-Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is closed after PRs #101 through #105 completed issues #57 through #61 and the required `rust` CI passed. M8-001 / issue #67 is complete through PR #106: `crates/ferrisoxide-rule-schema` owns the first versioned portable FerrisOxide Rule Package schema types for package metadata, target profiles, sample timing, channels, units, thresholds, filters, measurement-backed criteria, and unit-bearing requirements. M8-002 / issue #71 is complete through PR #107: `docs/rule-package-format.md` defines `rules.toml`, `rules.json`, future `rules.bin`, `manifest.json`, `checksum.txt`, `validation-report.json`, and `qualification-evidence.svg` roles, with parse-tested examples in `examples/rule-package/`. M8-003 / issue #68 is complete through PR #108: `ferrisoxide-rule-schema` validates packages before export or execution with structured error kind, field, and message values. M8-004 / issue #69 is complete through PR #109: the CLI exports `rules.toml`, `rules.json`, and `validation-report.json` from validated config and analysis evidence, validates the package before writing, compares expected artifacts in tests, and refuses to overwrite existing artifacts. M8-005 / issue #70 is implemented locally on branch `feature/m8-005-rule-package-manifest-checksum`: the schema crate defines deterministic manifest/checksum metadata, the CLI export also writes `manifest.json` and `checksum.txt`, and tests cover deterministic checksum output, checksum mismatch errors, manifest metadata, and exact exported artifacts. PR #75 planned milestone #8, `v0.6.0: Portable Rule Package System`, with issues #67 through #74 for desktop rule authoring/export and embedded/controller deployment through one schema and one shared rule engine. PR #87 planned milestone #9, `v0.7.0: Controller Simulation and Deployment Config System`, with issues #77 through #86 for desktop digital-twin simulation, separate production control and test verification configs, deployment packages, and RTOS verification mode. PR #90 closed issue #89 and defined Apple Silicon desktop authoring plus Raspberry Pi 5 bare-metal ARM64 embedded runtime platform profiles. PR #93 closed issue #92 and defined Raspberry Pi Pico 2 as a future optional microcontroller runtime profile for compact deterministic rule execution. PR #96 closed issue #95 and documented FerrisOxide as a proposed umbrella brand. PR #99 closed issue #98 and completed BRAND-002 adoption of FerrisOxide Signal across in-repository package names, CLI binary, docs, examples, scripts, local workspace folder, and GitHub repository host `kota-wilson/ferrisoxide-signal`. GUI, live DAQ vendor SDKs, embedded plotting, hardware HALs, Pico 2 runtime implementation, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, certification claims, binary package serialization, cryptographic signing, and external brand expansion remain out of scope until separately gated.
+Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is closed after PRs #101 through #105 completed issues #57 through #61 and the required `rust` CI passed. M8-001 / issue #67 is complete through PR #106: `crates/ferrisoxide-rule-schema` owns the first versioned portable FerrisOxide Rule Package schema types for package metadata, target profiles, sample timing, channels, units, thresholds, filters, measurement-backed criteria, and unit-bearing requirements. M8-002 / issue #71 is complete through PR #107: `docs/rule-package-format.md` defines `rules.toml`, `rules.json`, future `rules.bin`, `manifest.json`, `checksum.txt`, `validation-report.json`, and `qualification-evidence.svg` roles, with parse-tested examples in `examples/rule-package/`. M8-003 / issue #68 is complete through PR #108: `ferrisoxide-rule-schema` validates packages before export or execution with structured error kind, field, and message values. M8-004 / issue #69 is complete through PR #109: the CLI exports `rules.toml`, `rules.json`, and `validation-report.json` from validated config and analysis evidence, validates the package before writing, compares expected artifacts in tests, and refuses to overwrite existing artifacts. M8-005 / issue #70 is complete through PR #110: the schema crate defines deterministic manifest/checksum metadata, the CLI export also writes `manifest.json` and `checksum.txt`, and tests cover deterministic checksum output, checksum mismatch errors, manifest metadata, and exact exported artifacts. PR #75 planned milestone #8, `v0.6.0: Portable Rule Package System`, with issues #67 through #74 for desktop rule authoring/export and embedded/controller deployment through one schema and one shared rule engine. PR #87 planned milestone #9, `v0.7.0: Controller Simulation and Deployment Config System`, with issues #77 through #86 for desktop digital-twin simulation, separate production control and test verification configs, deployment packages, and RTOS verification mode. PR #90 closed issue #89 and defined Apple Silicon desktop authoring plus Raspberry Pi 5 bare-metal ARM64 embedded runtime platform profiles. PR #93 closed issue #92 and defined Raspberry Pi Pico 2 as a future optional microcontroller runtime profile for compact deterministic rule execution. PR #96 closed issue #95 and documented FerrisOxide as a proposed umbrella brand. PR #99 closed issue #98 and completed BRAND-002 adoption of FerrisOxide Signal across in-repository package names, CLI binary, docs, examples, and scripts. REPO-001 / issue #111 corrects the main repository host, local workspace path, and current repository metadata to `kota-wilson/ferrisoxide`, while keeping `ferrisoxide-signal` as the signal-analysis crate and CLI binary. GUI, live DAQ vendor SDKs, embedded plotting, hardware HALs, Pico 2 runtime implementation, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, certification claims, binary package serialization, cryptographic signing, and external brand expansion remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -64,7 +64,7 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is closed after PRs #10
   Owner: Embedded RTOS Engineer / DX Engineer
 - Risk: Pico 2 may be over-scoped as a full controller-computer runtime despite microcontroller memory and I/O constraints.
   Owner: Embedded RTOS Engineer / Documentation Engineer
-- Risk: The FerrisOxide Signal rename may confuse users, break links or scripts, overclaim Rust affiliation, or conflict with unavailable external names.
+- Risk: FerrisOxide repository, product-family, and crate names may be confused, break links or scripts, overclaim Rust affiliation, or conflict with unavailable external names.
   Owner: Product Architect / GitHub Maintainer Specialist
 
 ## Pending Decisions
@@ -105,21 +105,24 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is closed after PRs #10
 - Decision: Use FerrisOxide Signal as the adopted in-repository product identity while keeping external namespace/legal checks gated.
   Owner: Product Architect / GitHub Maintainer Specialist
   Status: Implemented through BRAND-002 / issue #98 / PR #99 in `decisions/ADR-006-ferrisoxide-signal-identity-adoption.md`; organization, domain, crates.io, trademark, logo, and legal-suitability checks remain deferred.
+- Decision: Use FerrisOxide as the main repository host while keeping FerrisOxide Signal as the current signal-analysis crate and CLI identity.
+  Owner: Product Architect / GitHub Maintainer Specialist
+  Status: Accepted locally in `decisions/ADR-007-repository-host-ferrisoxide.md`; issue #111 and protected PR/CI/merge remain pending.
 
 ## Next Responsible Role
 
 Role: Project Orchestrator / Core Software Engineer
 
-Expected deliverable: Complete M8-005 PR/CI/merge, then continue M8 issues in dependency order.
+Expected deliverable: Complete REPO-001 PR/CI/merge, then continue M8 issues in dependency order beginning with shared rule execution (#73).
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
-- Repository URL: `https://github.com/kota-wilson/ferrisoxide-signal`.
-- Current milestone: #8, `v0.6.0: Portable Rule Package System`; M7 is closed; BRAND-002 / issue #98 is complete; future milestone #9, `v0.7.0: Controller Simulation and Deployment Config System`, is planned; issue #89 added platform profiles to milestone #9 and issue #92 added the optional Pico 2 micro-runtime profile.
+- Repository URL: `https://github.com/kota-wilson/ferrisoxide`.
+- Current milestone: #8, `v0.6.0: Portable Rule Package System`; M7 is closed; M8-005 / issue #70 is complete through PR #110; BRAND-002 / issue #98 is complete; REPO-001 / issue #111 is in local implementation; future milestone #9, `v0.7.0: Controller Simulation and Deployment Config System`, is planned; issue #89 added platform profiles to milestone #9 and issue #92 added the optional Pico 2 micro-runtime profile.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
-- Next gate: Open, validate, and merge the M8-005 PR; then proceed to shared rule execution (#73).
+- Next gate: Open, validate, and merge the REPO-001 repository-host correction PR; then proceed to shared rule execution (#73).
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, Pico 2 runtime crate work, new third-party dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, binary package serialization, cryptographic signing, rule execution behavior, unit shorthand parsing, new measurements, expanded annotated SVG features, or external brand expansion without a fresh issue/gate.
 
 ## Granularity Status
@@ -130,7 +133,7 @@ Expected deliverable: Complete M8-005 PR/CI/merge, then continue M8 issues in de
 
 ## Environment Status
 
-- Project root: `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`.
+- Project root: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`.
 - Isolation level: Level 1 Cargo workspace.
 - Local environment: Rust/Cargo; no global dependencies installed.
 - Dependency status: Approved crates added and pinned in `Cargo.lock`; see `docs/dependency-review.md`. M3 follow-up adds no third-party dependencies; `ferrisoxide-embedded` depends only on local `ferrisoxide-signal`. M6-001 adds no third-party dependencies; `ferrisoxide-measurements` is local and dependency-free.
@@ -139,7 +142,7 @@ Expected deliverable: Complete M8-005 PR/CI/merge, then continue M8 issues in de
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, WRA-RQ-036 release evidence for issue #55, WRA-RQ-037 and WRA-RQ-038 release evidence for issue #56, WRA-RQ-039 release evidence for issue #57 / PR #101, WRA-RQ-040 release evidence for issue #58 / PR #102, WRA-RQ-041 release evidence for issue #59 / PR #103, WRA-RQ-042 release evidence for issues #60 and #61 / PRs #104 and #105, WRA-RQ-043 release evidence for issues #67 and #71, WRA-RQ-044 release evidence for issue #71, WRA-RQ-045 release evidence for issue #68, WRA-RQ-046 release evidence for issue #69 / PR #109, WRA-RQ-047 local evidence for issue #70, planned remaining v0.6.0 requirements WRA-RQ-048 through WRA-RQ-050 mapped to issues #73, #72, and #74, WRA-RQ-051 through WRA-RQ-060 mapped to issues #77 through #86, WRA-RQ-061 release evidence for issue #89, WRA-RQ-062 release evidence for issue #92, WRA-RQ-063 release evidence for issue #95, and WRA-RQ-064 release evidence for issue #98 / PR #99.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, M6 requirements WRA-RQ-031 through WRA-RQ-035, WRA-RQ-036 release evidence for issue #55, WRA-RQ-037 and WRA-RQ-038 release evidence for issue #56, WRA-RQ-039 release evidence for issue #57 / PR #101, WRA-RQ-040 release evidence for issue #58 / PR #102, WRA-RQ-041 release evidence for issue #59 / PR #103, WRA-RQ-042 release evidence for issues #60 and #61 / PRs #104 and #105, WRA-RQ-043 release evidence for issues #67 and #71, WRA-RQ-044 release evidence for issue #71 / PR #107, WRA-RQ-045 release evidence for issue #68 / PR #108, WRA-RQ-046 release evidence for issue #69 / PR #109, WRA-RQ-047 release evidence for issue #70 / PR #110, planned remaining v0.6.0 requirements WRA-RQ-048 through WRA-RQ-050 mapped to issues #73, #72, and #74, WRA-RQ-051 through WRA-RQ-060 mapped to issues #77 through #86, WRA-RQ-061 release evidence for issue #89, WRA-RQ-062 release evidence for issue #92, WRA-RQ-063 release evidence for issue #95, WRA-RQ-064 release evidence for issue #98 / PR #99, and WRA-RQ-065 local evidence for issue #111.
 
 ## Gate Decisions
 
@@ -328,7 +331,12 @@ Expected deliverable: Complete M8-005 PR/CI/merge, then continue M8 issues in de
 | BRAND-002 Architecture Gate | Pass | `docs/brand-architecture.md`; ADR-006 | GitHub Maintainer Specialist |
 | BRAND-002 Implementation Gate | Pass locally | `Cargo.toml`, `Cargo.lock`, `crates/ferrisoxide-*`, README, docs, scripts, fixtures | Core Software Engineer |
 | BRAND-002 Testing Gate | Pass locally | `docs/validation-log.md`; metadata, fmt, tests, QEMU-demo test, clippy, CLI smokes, benchmark smoke, diff check, identifier scan | Verification and Validation Engineer |
-| BRAND-002 Release Gate | Pass | PR #99 merged after required `rust` CI passed; issue #98 closed; repository host renamed to `kota-wilson/ferrisoxide-signal`; local remote updated to `https://github.com/kota-wilson/ferrisoxide-signal.git` | GitHub Maintainer Specialist |
+| BRAND-002 Release Gate | Pass | PR #99 merged after required `rust` CI passed; issue #98 closed; repository host was renamed to `kota-wilson/ferrisoxide-signal` and is now amended by REPO-001 | GitHub Maintainer Specialist |
+| REPO-001 Requirements Gate | Pass | WRA-RQ-065; issue #111 | Product Architect |
+| REPO-001 Architecture Gate | Pass | ADR-007 separates repository host identity from `ferrisoxide-signal` crate and CLI identity | Software Architect |
+| REPO-001 Implementation Gate | Pass locally | `Cargo.toml`, README, ADRs, brand docs, project memory, requirements, traceability, risk, and environment docs updated | Core Software Engineer |
+| REPO-001 Testing Gate | Pass locally | `gh repo view`; `git remote -v`; Cargo metadata; docs scan; fmt; workspace tests; clippy; diff check | Verification and Validation Engineer |
+| REPO-001 Release Gate | Pending PR | Open protected PR with `Fixes #111`, wait for required `rust` CI, merge, and close issue #111 | GitHub Maintainer Specialist |
 
 ## Update Rules
 

@@ -2,13 +2,13 @@
 
 Date: 2026-05-31
 
-Status: Adopted for in-repository identity through BRAND-002 / issue #98 and PR #99. Repository host renamed to `kota-wilson/ferrisoxide-signal`. External organization, domain, crates.io publishing or reservation, trademark, legal-suitability, and logo work remain separate gates.
+Status: Adopted for in-repository identity through BRAND-002 / issue #98 and PR #99, then amended by REPO-001 / issue #111 to use `kota-wilson/ferrisoxide` as the main repository host. `ferrisoxide-signal` remains the signal-analysis crate and CLI identity. External organization, domain, crates.io publishing or reservation, trademark, legal-suitability, and logo work remain separate gates.
 
 ## Summary
 
-FerrisOxide is the preferred umbrella brand for the broader platform direction.
+FerrisOxide is the preferred umbrella brand for the broader platform direction and the correct main repository name.
 
-The current product identity is FerrisOxide Signal. It is accurate for the current CLI/core scope and leaves room for the roadmap to expand into signal analysis, qualification testing, controller simulation, rule authoring, embedded deployment, DAQ abstraction, and runtime targets.
+The current signal-analysis product slice is FerrisOxide Signal. It is accurate for the current CLI/core scope and leaves room for the main repository to expand into signal analysis, qualification testing, controller simulation, rule authoring, embedded deployment, DAQ abstraction, and runtime targets.
 
 The brand decision should separate:
 
@@ -56,7 +56,7 @@ Recommended public product names:
 
 ## Crate And Repository Direction
 
-Current crate names use the FerrisOxide Signal identity:
+Current crate names use the FerrisOxide family identity:
 
 ```text
 ferrisoxide-*
@@ -77,7 +77,8 @@ Candidate future crates or repositories:
 
 | Candidate | Role |
 |---|---|
-| `ferrisoxide-signal` | Main signal-analysis product repository target. |
+| `ferrisoxide` | Main multi-crate repository for the platform workspace. |
+| `ferrisoxide-signal` | Signal-analysis crate, CLI binary, and product slice. |
 | `ferrisoxide-runtime` | Shared embedded/controller runtime components. |
 | `ferrisoxide-daq` | DAQ abstraction and adapters after dependency and environment gates. |
 | `ferrisoxide-control` | Controller config, simulation, and I/O abstraction. |
@@ -125,7 +126,7 @@ Current BRAND-002 scope:
 
 After protected-branch PR merge and explicit maintainer approval:
 
-- Rename repository host to the approved target, `ferrisoxide-signal`.
+- Rename repository host to the approved main repository target, `ferrisoxide`.
 - Verify GitHub redirects.
 - Update README badges, clone URLs, docs, examples, CI references, issue templates, and project memory.
 - Keep compatibility language for the old name.
@@ -152,10 +153,11 @@ Best eventual organization structure:
 
 ```text
 FerrisOxide/
-  ferrisoxide-signal
-  ferrisoxide-runtime
-  ferrisoxide-daq
-  ferrisoxide-control
+  ferrisoxide/
+    crates/ferrisoxide-signal
+    crates/ferrisoxide-runtime
+    crates/ferrisoxide-daq
+    crates/ferrisoxide-control
   ferrisoxide-docs
 ```
 
@@ -185,6 +187,6 @@ Role: Product Architect / GitHub Maintainer Specialist
 Goal: Capture FerrisOxide as the adopted in-repository identity and retain external namespace gates.
 Files changed: `docs/brand-architecture.md`.
 Checks run: `cargo metadata --format-version 1 --no-deps`; `cargo clean`; `cargo fmt --check`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; CLI analyze smoke; CLI plot smoke; SVG overlay scan; benchmark smoke; `git diff --check`; identifier scan.
-Status: In-repository adoption implemented through issue #98 / PR #99; repository-host rename complete.
+Status: In-repository adoption implemented through issue #98 / PR #99; main repository host corrected through REPO-001 / issue #111 to `kota-wilson/ferrisoxide`.
 Known gaps: GitHub organization availability, domain availability, crates.io availability, trademark/legal suitability, Rust-affiliation risk, logo/assets, external package migration, and broad public communication are not verified.
-Next recommended step: Return to M7-003 / issue #57 unless a new external namespace/legal gate is explicitly opened.
+Next recommended step: Complete REPO-001 release evidence, then return to M8 shared rule-engine work.

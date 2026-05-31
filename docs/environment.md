@@ -2,7 +2,7 @@
 
 ## Project Root
 
-`/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`
+`/Users/kota/Desktop/softwareai/projects/ferrisoxide`
 
 ## Isolation Level
 

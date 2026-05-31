@@ -977,3 +977,48 @@ Checks run: `cargo tree -p ferrisoxide-rule-schema`; `cargo tree -p ferrisoxide-
 Status: Pass locally; protected PR, CI, merge, and issue closure pending.
 Known gaps: Binary package serialization, shared rule execution, no_std compatibility, desktop-vs-embedded parity tests, runtime loaders, and cryptographic signing remain out of scope.
 Next recommended step: Open a protected-branch PR with `Fixes #70`, wait for required `rust` CI, merge, then proceed to M8-006 / issue #73.
+
+## REPO-001 FerrisOxide Repository Host Validation Update
+
+Date: 2026-05-31
+
+Stage: Testing main repository host correction
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, DAQ SDKs, HALs, RTOS toolchains, or controller SDKs installed.
+- New third-party dependencies: None.
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `gh repo view kota-wilson/ferrisoxide --json nameWithOwner,url` | Passed | Output resolved to `kota-wilson/ferrisoxide` and `https://github.com/kota-wilson/ferrisoxide`. |
+| `git remote -v` | Passed | `origin` fetch/push URLs use `https://github.com/kota-wilson/ferrisoxide.git`. |
+| `cargo metadata --format-version 1 --no-deps` | Passed | Workspace metadata loaded successfully and reported `https://github.com/kota-wilson/ferrisoxide` for workspace packages. |
+| Current-doc identity scan | Passed | Remaining old-host references in selected current files are historical release evidence or ADR context. |
+| `cargo fmt --check` | Passed | Rust formatting clean. |
+| `cargo test --workspace` | Passed | 123 workspace tests passed across CLI, core, criteria integration, embedded, measurements, plot, rule schema, signal, and doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Gate Decision
+
+- Gate: Testing Gate for REPO-001.
+- Decision: Pass locally.
+- Reason: The GitHub host, local remote, Cargo metadata, current repository docs, formatting, workspace tests, clippy, and whitespace checks all passed.
+- Residual risk: Protected GitHub CI, PR merge, and issue closure remain pending; historical reports still contain old-host links as audit evidence.
+- Owner for residual risk: GitHub Maintainer Specialist.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate REPO-001 main repository host correction.
+Files changed: `Cargo.toml`, README, `AGENTS.md`, ADRs, brand docs, environment docs, project memory, requirements, traceability, risk register, validation log, and pipeline report.
+Checks run: `gh repo view kota-wilson/ferrisoxide --json nameWithOwner,url`; `git remote -v`; `cargo metadata --format-version 1 --no-deps`; current-doc identity scan; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally; protected PR, CI, merge, and issue #111 closure pending.
+Known gaps: External organization, domain, crates.io, trademark, logo, legal-suitability, and crate publication checks remain separate gates.
+Next recommended step: Open a protected-branch PR with `Fixes #111`, wait for required `rust` CI, merge, then resume M8 shared rule-engine work.

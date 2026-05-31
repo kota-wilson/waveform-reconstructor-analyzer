@@ -1,12 +1,12 @@
-# FerrisOxide Signal
+# FerrisOxide
 
-FerrisOxide Signal is a Rust-centered open-source tool for importing CSV time-series waveform data, reconstructing analog signal channels, applying simulated filters and ADC quantization, and evaluating waveform behavior against configurable pass/fail criteria.
+FerrisOxide is a Rust-centered open-source engineering signal validation workspace. Its current implemented product slice, FerrisOxide Signal, imports CSV time-series waveform data, reconstructs analog signal channels, applies simulated filters and ADC quantization, and evaluates waveform behavior against configurable pass/fail criteria.
 
 The first MVP is a CLI and core library slice. It focuses on CSV waveform loading, channel mapping, waveform data structures, low-pass and moving-average filters, ideal ADC quantization, reusable waveform measurements, waveform criteria, TOML config files, text/JSON report output, and optional SVG plotting.
 
 ## Current Status
 
-This repository is in validated MVP stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria, including waveform metadata, ordered pre-criteria transforms such as moving average, low-pass filtering, and ideal ADC quantization. Criteria consume reusable measurement primitives from `ferrisoxide-measurements`, reports expose reusable measurement records with stable result links, and the desktop CLI can also render SVG waveform plots. The workspace has `no_std` crates for signal and embedded paths: `ferrisoxide-signal`, `ferrisoxide-measurements`, and `ferrisoxide-embedded`; `ferrisoxide-rule-schema` defines the first portable rule package schema for future desktop-to-embedded workflows.
+This repository is in validated MVP stage. The main repository is `kota-wilson/ferrisoxide`; `ferrisoxide-signal` remains the crate and CLI binary name for the current signal-analysis slice. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria, including waveform metadata, ordered pre-criteria transforms such as moving average, low-pass filtering, and ideal ADC quantization. Criteria consume reusable measurement primitives from `ferrisoxide-measurements`, reports expose reusable measurement records with stable result links, and the desktop CLI can also render SVG waveform plots. The workspace has `no_std` crates for signal and embedded paths: `ferrisoxide-signal`, `ferrisoxide-measurements`, and `ferrisoxide-embedded`; `ferrisoxide-rule-schema` defines the first portable rule package schema for future desktop-to-embedded workflows.
 
 ## MVP Scope
 

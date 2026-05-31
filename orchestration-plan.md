@@ -1,8 +1,8 @@
 # Orchestration Plan
 
-Project: FerrisOxide Signal
+Project: FerrisOxide
 
-Project folder: `/Users/kota/Desktop/softwareai/projects/ferrisoxide-signal`
+Project folder: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
 
 Execution tier: Tier 2 MVP implementation
 

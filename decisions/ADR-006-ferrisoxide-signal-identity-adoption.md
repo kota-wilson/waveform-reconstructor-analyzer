@@ -2,7 +2,7 @@
 
 Date: 2026-05-31
 
-Status: Accepted and implemented for in-repository identifiers through BRAND-002 / issue #98 and PR #99. Repository host renamed to `kota-wilson/ferrisoxide-signal`. GitHub organization creation, crates.io publishing or reservation, domain registration, trademark clearance, and logo work remain separate gates.
+Status: Accepted and implemented for in-repository identifiers through BRAND-002 / issue #98 and PR #99. Amended by ADR-007 / REPO-001: the main repository host is `kota-wilson/ferrisoxide`, while `ferrisoxide-signal` remains the signal-analysis crate and CLI binary. GitHub organization creation, crates.io publishing or reservation, domain registration, trademark clearance, and logo work remain separate gates.
 
 ## Context
 
@@ -19,7 +19,7 @@ Rename in-repository identifiers as follows:
 | Old Identifier Class | New Identifier |
 |---|---|
 | Product name | `FerrisOxide Signal` |
-| Repository target name | `ferrisoxide-signal` |
+| Repository target name | `ferrisoxide` |
 | CLI binary | `ferrisoxide-signal` |
 | Core crate | `ferrisoxide-core` |
 | CLI crate | `ferrisoxide-cli` |
@@ -40,7 +40,7 @@ Stable historical traceability identifiers such as `WRA-RQ-*`, `WRA-RISK-*`, and
 
 ## Compatibility Position
 
-This rename does not add a legacy `wra` binary alias. The project has no formal stable release yet, so retaining both command names would create avoidable dual identity in examples, tests, and support material. Users should migrate scripts to:
+This rename does not add a legacy `wra` binary alias. The project has no formal stable release yet, so retaining both command names would create avoidable dual identity in examples, tests, and support material. The main repository is `ferrisoxide`; users should run the signal-analysis CLI binary as:
 
 ```text
 ferrisoxide-signal
@@ -65,6 +65,7 @@ The rename is verified by:
 - Cargo metadata showing `ferrisoxide-*` workspace packages and `ferrisoxide-signal` binary target.
 - Workspace formatting, tests, clippy, QEMU-demo host test, CLI analyze smoke, CLI plot smoke, benchmark helper smoke, and whitespace checks.
 - Documentation scan for unintended old public identifiers, with stable `WRA-*` audit IDs allowed.
+- GitHub repository and local remote verification showing `kota-wilson/ferrisoxide`.
 - GitHub PR review and protected-branch CI before merge.
 
 ## Consequences
@@ -84,9 +85,9 @@ Negative:
 ## Hand-Off Note
 
 Role: Product Architect / GitHub Maintainer Specialist
-Goal: Adopt FerrisOxide Signal as the in-repository identity while preserving audit traceability.
+Goal: Adopt FerrisOxide Signal as the signal-analysis identity while preserving audit traceability and clarifying that the main repository is FerrisOxide.
 Files changed: `decisions/ADR-006-ferrisoxide-signal-identity-adoption.md`.
 Checks run: `cargo metadata --format-version 1 --no-deps`; `cargo clean`; `cargo fmt --check`; `cargo test --workspace`; `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`; `cargo clippy --workspace --all-targets -- -D warnings`; CLI analyze smoke; CLI plot smoke; SVG overlay scan; benchmark smoke; `git diff --check`; identifier scan.
-Status: Accepted and implemented through issue #98 / PR #99; repository-host rename complete.
+Status: Accepted and implemented through issue #98 / PR #99; repository-host scope amended by ADR-007 / REPO-001.
 Known gaps: External organization, domain, crates.io, trademark, visual identity, and legal-suitability checks remain separate gates.
-Next recommended step: Return to M7-003 / issue #57 unless a new external namespace/legal gate is explicitly opened.
+Next recommended step: Complete REPO-001 release evidence, then return to M8 shared rule-engine work.
