@@ -142,6 +142,19 @@ The M8-006 shared rule engine branch adds no new third-party crates. It adds loc
 | Dependency tree | `cargo tree -p ferrisoxide-rule-engine` is recorded in `docs/m8-006-shared-rule-engine-pipeline-report.md`. | Pass |
 | Future work boundary | no_std rule-engine compatibility remains #72; exact desktop-vs-embedded parity fixtures remain #74. | Pass |
 
+## M8-007 no_std Rule Boundary Dependency Review
+
+The M8-007 no_std boundary branch adds no new third-party crates. It makes `ferrisoxide-rule-engine` a `#![no_std]` crate, keeps its runtime dependency limited to local `ferrisoxide-measurements`, and separates the desktop-style owned evidence API from a borrowed summary API for constrained embedded-compatible callers.
+
+| Check | Evidence | Result |
+|---|---|---|
+| Dependency files | No new workspace or crate dependency entries are added. | Pass |
+| Rule-engine target boundary | `cargo check -p ferrisoxide-rule-engine --target aarch64-unknown-none` passes. | Pass |
+| Embedded target boundary | `cargo check -p ferrisoxide-embedded --target aarch64-unknown-none` passes. | Pass |
+| Dependency tree | `cargo tree -p ferrisoxide-rule-engine --target aarch64-unknown-none` and `cargo tree -p ferrisoxide-embedded --target aarch64-unknown-none` show only local embedded-compatible crates in the constrained path. | Pass |
+| Scope boundary | The no_std engine keeps CSV parsing, TOML parsing, file I/O, plotting, report rendering, DAQ/controller I/O, hardware HALs, target SDKs, RTOS integration, signing, binary package loading, hardware qualification, and certification claims out of scope. | Pass |
+| Heap boundary | The full evidence API uses `alloc` for owned desktop result records; `evaluate_borrowed_rule` returns borrowed/static result and error data for basic no-heap pass/fail evaluation where practical. | Pass |
+
 ## Risk Assessment
 
 - Supply-chain risk: Medium; dependencies are common Rust ecosystem crates, but exact transitive dependencies must remain visible in `Cargo.lock`.
@@ -151,13 +164,13 @@ The M8-006 shared rule engine branch adds no new third-party crates. It adds loc
 - Plotting risk: Low/Medium; SVG output is local-file only, but future plotting backends could expand native or GUI dependencies if not gated.
 - Embedded toolchain risk: Medium; future RTOS SDKs, HALs, FFI, or target CI require fresh review before adoption.
 - Measurement extraction risk: Medium; evidence values and tie behavior must remain guarded by exact golden reports.
-- Rule package drift risk: Medium; the schema crate, parse-tested examples, validator, export command, manifest/checksum evidence, and shared rule engine reduce duplicated shapes and semantics, but no_std and exact parity tests are still required before runtime claims.
+- Rule package drift risk: Medium; the schema crate, parse-tested examples, validator, export command, manifest/checksum evidence, shared rule engine, and no_std boundary reduce duplicated shapes and semantics, but exact parity tests are still required before runtime claims.
 
 ## Gate Decision
 
 - Gate: Dependency Gate.
 - Decision: Pass.
-- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up, M6 measurement-engine work, M6 completion work, M8-001 rule-schema work, M8-002 package-format work, M8-003 validator work, M8-004 export work, and M8-005 manifest/checksum work add no new third-party dependencies.
+- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up, M6 measurement-engine work, M6 completion work, M8-001 rule-schema work, M8-002 package-format work, M8-003 validator work, M8-004 export work, M8-005 manifest/checksum work, M8-006 shared-rule work, and M8-007 no_std boundary work add no new third-party dependencies.
 - Residual risk: Dependency license and advisory scanning is not automated yet.
 - Next owner: Core Software Engineer.
 

@@ -1079,3 +1079,59 @@ Checks run: `cargo tree -p ferrisoxide-rule-engine`; `cargo tree -p ferrisoxide-
 Status: Pass locally; protected PR, CI, merge, and issue #73 closure pending.
 Known gaps: no_std rule-engine boundary, allocation-free embedded execution, exact desktop-vs-embedded parity fixtures, runtime package loaders, and certification evidence remain out of scope.
 Next recommended step: Open a protected-branch PR with `Fixes #73`, wait for required `rust` CI, merge, then proceed to M8-007 / issue #72.
+
+## M8-007 no_std Rule Boundary Validation Update
+
+Date: 2026-05-31
+
+Stage: Testing no_std rule-engine boundary
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, DAQ SDKs, HALs, RTOS toolchains, controller SDKs, QEMU images, or Zephyr tooling installed.
+- New third-party dependencies: None. `ferrisoxide-rule-engine` depends only on local `ferrisoxide-measurements`.
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-rule-engine` | Passed | 7 rule-engine tests passed, including borrowed summary and borrowed/static error coverage. |
+| `cargo check -p ferrisoxide-rule-engine --target aarch64-unknown-none` | Passed | Rule engine compiles for the bare-metal ARM64 target. |
+| `cargo check -p ferrisoxide-embedded --target aarch64-unknown-none` | Passed | Embedded adapter crate still compiles for the bare-metal ARM64 target. |
+| `cargo tree -p ferrisoxide-rule-engine --target aarch64-unknown-none` | Passed | Shows local `ferrisoxide-measurements` dependency only. |
+| `cargo tree -p ferrisoxide-embedded --target aarch64-unknown-none` | Passed | Runtime dependency remains `ferrisoxide-signal`; dev-dependency path includes local `ferrisoxide-rule-engine`. |
+| `cargo fmt --check` | Passed | Rust formatting clean. |
+| `cargo test --workspace` | Passed | Workspace tests passed across CLI, core, embedded, measurements, plot, rule engine, rule schema, signal, and doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Exact Tests Added Or Preserved
+
+| Test | Coverage |
+|---|---|
+| `ferrisoxide_rule_engine::tests::borrowed_summary_evaluates_basic_rule_without_owned_rule_data` | Verifies borrowed criterion data can evaluate a basic transition-count rule and return compact summary evidence. |
+| `ferrisoxide_rule_engine::tests::borrowed_summary_detects_transient_event` | Verifies borrowed transient-event evaluation reports pass/fail evidence without owned criterion/result strings. |
+| `ferrisoxide_rule_engine::tests::borrowed_summary_errors_use_borrowed_static_data` | Verifies borrowed-path errors return borrowed/static data for constrained callers. |
+| Existing `ferrisoxide-rule-engine` owned evidence tests | Verifies the desktop/full evidence API remains stable. |
+| Existing workspace tests | Verifies CLI, core reports, embedded adapter tests, rule schema tests, plotting tests, and golden reports still pass. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M8-007.
+- Decision: Pass locally.
+- Reason: The no_std rule-engine boundary, borrowed summary API, borrowed/static error path, target checks, dependency tree checks, workspace tests, formatting, clippy, and whitespace checks all passed.
+- Residual risk: Exact desktop-vs-embedded parity fixtures, runtime package loaders, protected GitHub CI, PR merge, and issue closure remain pending.
+- Owner for residual risk: Verification and Validation Engineer / GitHub Maintainer Specialist.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate M8-007 no_std rule boundary.
+Files changed: `crates/ferrisoxide-rule-engine/src/lib.rs`, `crates/ferrisoxide-rule-engine/README.md`, README, architecture docs, dependency review, rule package docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
+Checks run: `cargo test -p ferrisoxide-rule-engine`; `cargo check -p ferrisoxide-rule-engine --target aarch64-unknown-none`; `cargo check -p ferrisoxide-embedded --target aarch64-unknown-none`; `cargo tree -p ferrisoxide-rule-engine --target aarch64-unknown-none`; `cargo tree -p ferrisoxide-embedded --target aarch64-unknown-none`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally; protected PR, CI, merge, and issue #72 closure pending.
+Known gaps: Exact desktop-vs-embedded parity fixtures, runtime package loaders, binary package serialization, signing, HAL/SDK integration, and certification evidence remain out of scope.
+Next recommended step: Open a protected-branch PR with `Fixes #72`, wait for required `rust` CI, merge, then proceed to M8-008 / issue #74.
