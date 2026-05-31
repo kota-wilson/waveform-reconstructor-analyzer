@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-Plan v0.7.0 controller simulation and deployment config system while preserving active v0.5.0 and planned v0.6.0 work.
+Continue v0.5.0 criteria DSL implementation after planning v0.7.0 controller-in-the-loop workflows.
 
 ## Current Stage
 
-Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 and #56 closed and issues #57 through #61 open. PR #65 merged M7-002: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. PR #75 planned milestone #8, `v0.6.0: Portable Rule Package System`, with issues #67 through #74 for desktop rule authoring/export and embedded/controller deployment through one schema and one shared rule engine. Milestone #9, `v0.7.0: Controller Simulation and Deployment Config System`, is open with issues #77 through #86 for desktop digital-twin simulation, separate production control and test verification configs, deployment packages, and RTOS verification mode. GUI, live DAQ vendor SDKs, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
+Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55 and #56 closed and issues #57 through #61 open. PR #65 merged M7-002: the config layer validates the approved DSL operator vocabulary, requires explicit units for requirement and threshold values, supports `V`, `s`, and `count`, rejects mismatched units, and still defers runtime DSL evaluation. PR #75 planned milestone #8, `v0.6.0: Portable Rule Package System`, with issues #67 through #74 for desktop rule authoring/export and embedded/controller deployment through one schema and one shared rule engine. PR #87 planned milestone #9, `v0.7.0: Controller Simulation and Deployment Config System`, with issues #77 through #86 for desktop digital-twin simulation, separate production control and test verification configs, deployment packages, and RTOS verification mode. GUI, live DAQ vendor SDKs, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, production readiness, and certification claims remain out of scope until separately gated.
 
 ## Open Risks
 
@@ -95,7 +95,7 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is open with issues #55
 
 Role: Project Orchestrator / Project Coordinator
 
-Expected deliverable: Open and validate the v0.7.0 controller-in-the-loop planning PR without displacing active M7 or planned M8 issues.
+Expected deliverable: Start M7-003 / issue #57 through the implementation pipeline unless v0.6.0 or v0.7.0 is explicitly reprioritized.
 
 ## Orchestration Status
 
@@ -104,7 +104,7 @@ Expected deliverable: Open and validate the v0.7.0 controller-in-the-loop planni
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
 - Current milestone: #7, `v0.5.0: Measurement-Backed Criteria DSL`; future milestones #8, `v0.6.0: Portable Rule Package System`, and #9, `v0.7.0: Controller Simulation and Deployment Config System`, are planned.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
-- Next gate: Open and merge the v0.7.0 controller-in-the-loop planning PR, then return to M7-003 / issue #57 unless reprioritized.
+- Next gate: Implement DSL criteria evaluation through existing measurement evidence for issue #57 unless v0.6.0 or v0.7.0 is explicitly reprioritized.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, unit shorthand parsing, new measurements, or expanded annotated SVG features without a fresh issue/gate.
 
 ## Granularity Status
@@ -274,6 +274,8 @@ Expected deliverable: Open and validate the v0.7.0 controller-in-the-loop planni
 | v0.7.0 Controller-In-The-Loop Architecture Gate | Pass for proposal | `docs/controller-in-the-loop-workflow.md` | Abstraction Review Engineer |
 | v0.7.0 Controller-In-The-Loop Scope Gate | Pass | Proposal excludes GUI, vendor DAQ SDKs, hardware HALs, production RTOS integration, real-time guarantees, safety certification, and hardware qualification claims | Project Orchestrator |
 | v0.7.0 Controller-In-The-Loop Issue Planning Gate | Pass | GitHub milestone #9 and issues #77 through #86 created | GitHub Maintainer Specialist |
+| v0.7.0 Controller-In-The-Loop Release Gate | Pass | PR #87 merged after required `rust` CI passed; merge commit `ac5733a5fb3d65d36278a0e98d0cb1c9566ac3dc` | Project Coordinator |
+| v0.7.0 Controller-In-The-Loop Community Gate | Pass | Milestone #9 open with issues #77 through #86; active M7 issues #57 through #61 and planned M8 issues #67 through #74 remain open | Project Orchestrator |
 
 ## Update Rules
 
