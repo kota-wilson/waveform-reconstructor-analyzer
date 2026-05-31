@@ -46,6 +46,15 @@ No blocking security issues found for the M3 RTOS follow-up branch:
 - QEMU proof slice is host-checkable and uses fixed in-memory sample data.
 - Zephyr feasibility sketch is documentation/prototype-only and not wired into the workspace build.
 
+## M6 Measurement Engine Update
+
+No blocking security issues found for the M6 measurement-engine extraction:
+
+- No new third-party dependencies.
+- `wra-measurements` has no dependency entries and is consumed by `wra-core` as a local path dependency.
+- No unsafe Rust, FFI, credentials, network access, shell execution, file I/O, parser surface, plotting backend, DAQ integration, RTOS SDK, HAL, or plugin runtime was added.
+- Existing CLI file-handling behavior is unchanged.
+
 ## Evidence
 
 | Area | Evidence | Result |
@@ -61,13 +70,15 @@ No blocking security issues found for the M3 RTOS follow-up branch:
 | M5 file surface | CLI reads local CSV and writes local SVG only | Pass |
 | M3 embedded dependency surface | `cargo tree -p wra-embedded` shows only local `wra-signal` | Pass |
 | M3 embedded file surface | No embedded file I/O, SDK, HAL, FFI, network, or credential handling added | Pass |
+| M6 measurement dependency surface | `cargo tree -p wra-measurements` shows only `wra-measurements` | Pass |
+| M6 product surface | No new file, network, unsafe, FFI, plotting, DAQ, RTOS, or plugin surface added | Pass |
 
 ## Gate Decision
 
 - Gate: Security Gate.
 - Decision: Pass.
-- Reason: Dependencies were explicitly approved, lockfile is committed, no secret-bearing files were added, M4 adds no new dependency/network/unsafe surface, M5 confines Plotters to an SVG-only plotting crate, and M3 follow-up work adds no external embedded dependency, unsafe FFI, SDK, or HAL surface.
-- Residual risk: Formal dependency license/security scanning is not automated yet; future plotting backends or RTOS SDK integrations could expand native dependency surface.
+- Reason: Dependencies were explicitly approved, lockfile is committed, no secret-bearing files were added, M4 adds no new dependency/network/unsafe surface, M5 confines Plotters to an SVG-only plotting crate, M3 follow-up work adds no external embedded dependency, unsafe FFI, SDK, or HAL surface, and M6 measurement extraction adds only a local no-dependency crate.
+- Residual risk: Formal dependency license/security scanning is not automated yet; future plotting backends, plugin runtimes, or RTOS SDK integrations could expand native dependency surface.
 - Next owner: Performance Engineer.
 
 ## Hand-Off Note
@@ -77,5 +88,5 @@ Goal: Review MVP security posture for the initial public release gate.
 Files changed: `docs/security-review.md`
 Checks run: File and dependency review.
 Status: Pass.
-Known gaps: No automated advisory/license scanner or embedded SDK provenance review yet.
+Known gaps: No automated advisory/license scanner, plugin-runtime security model, or embedded SDK provenance review yet.
 Next recommended step: Performance review.

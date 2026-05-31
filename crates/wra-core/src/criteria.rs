@@ -1,3 +1,5 @@
+pub use wra_measurements::{EdgeDirection, SignalState};
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Criterion {
     pub id: String,
@@ -246,52 +248,6 @@ impl TransientEventKind {
             Self::Dropout => "dropout",
             Self::NoiseInducedTransition => "noise-induced transition",
             Self::ThresholdCrossingEvent => "threshold crossing event",
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum SignalState {
-    High,
-    Low,
-}
-
-impl SignalState {
-    pub fn from_config(value: &str) -> Option<Self> {
-        match value {
-            "high" => Some(Self::High),
-            "low" => Some(Self::Low),
-            _ => None,
-        }
-    }
-
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Self::High => "high",
-            Self::Low => "low",
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum EdgeDirection {
-    Rise,
-    Fall,
-}
-
-impl EdgeDirection {
-    pub fn from_config(value: &str) -> Option<Self> {
-        match value {
-            "rise" => Some(Self::Rise),
-            "fall" => Some(Self::Fall),
-            _ => None,
-        }
-    }
-
-    pub fn as_str(self) -> &'static str {
-        match self {
-            Self::Rise => "rise",
-            Self::Fall => "fall",
         }
     }
 }

@@ -2,11 +2,11 @@
 
 Waveform Reconstructor and Analyzer is a Rust-centered open-source tool for importing CSV time-series waveform data, reconstructing analog signal channels, applying simulated filters and ADC quantization, and evaluating waveform behavior against configurable pass/fail criteria.
 
-The first MVP is a CLI and core library slice. It focuses on CSV waveform loading, channel mapping, waveform data structures, low-pass and moving-average filters, ideal ADC quantization, waveform criteria, TOML config files, text/JSON report output, and optional SVG plotting.
+The first MVP is a CLI and core library slice. It focuses on CSV waveform loading, channel mapping, waveform data structures, low-pass and moving-average filters, ideal ADC quantization, reusable waveform measurements, waveform criteria, TOML config files, text/JSON report output, and optional SVG plotting.
 
 ## Current Status
 
-This repository is in validated MVP stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria, including waveform metadata, ordered pre-criteria transforms such as moving average, low-pass filtering, and ideal ADC quantization. The desktop CLI can also render SVG waveform plots. The workspace has `no_std` embedded crates: `wra-signal` for signal primitives and `wra-embedded` for RTOS/ARM64 adapter boundaries.
+This repository is in validated MVP stage. The Rust workspace builds a small core library and CLI that can analyze simple CSV fixtures with either TOML config files or explicit command-line criteria, including waveform metadata, ordered pre-criteria transforms such as moving average, low-pass filtering, and ideal ADC quantization. Criteria consume reusable measurement primitives from `wra-measurements`, while the desktop CLI can also render SVG waveform plots. The workspace has `no_std` crates for signal and embedded paths: `wra-signal`, `wra-measurements`, and `wra-embedded`.
 
 ## MVP Scope
 
@@ -15,6 +15,7 @@ This repository is in validated MVP stage. The Rust workspace builds a small cor
 - Reconstruct typed waveform objects.
 - Preserve waveform metadata for source name, optional validation context, units, sample interval, sample rate, lineage, transform history, and tolerance policy.
 - Apply basic low-pass, moving-average, and ideal ADC quantization transforms as derived waveform outputs.
+- Reuse measurement primitives for extrema, state-transition counts, pulse widths, transient durations, stable-state durations, and rise/fall times.
 - Define pass/fail criteria for voltage limits, state transitions, pulse width, transient event duration, stable-state duration, and rise/fall time with optional voltage/time tolerances.
 - Run analysis from a CLI.
 - Produce text and JSON reports with pass/fail evidence, tolerance evidence, and engineering-validation context.
@@ -38,6 +39,7 @@ This repository is in validated MVP stage. The Rust workspace builds a small cor
 crates/wra-core/        Rust core library
 crates/wra-cli/         CLI entry point
 crates/wra-embedded/    no_std RTOS/ARM64 adapter boundaries
+crates/wra-measurements/no_std measurement primitives used by criteria evidence
 crates/wra-plot/        Desktop SVG plotting support
 crates/wra-signal/      no_std signal primitives
 docs/                  Product, architecture, and MVP docs
@@ -217,7 +219,7 @@ max_v = 5.0
 
 The quantizer clips samples outside the configured range, snaps in-range samples to the nearest ideal ADC code level, and keeps output samples in volts so normal voltage criteria can evaluate the digitized waveform. See [ADC quantization transform](docs/adc-quantization.md) for assumptions and limits.
 
-Implemented transform equations are documented in [filter behavior](docs/filter-behavior.md). Time-axis validation and tolerance semantics are documented in [time axis and tolerances](docs/time-axis-and-tolerances.md).
+Implemented transform equations are documented in [filter behavior](docs/filter-behavior.md). Measurement primitives are documented in [measurement engine](docs/measurements.md). Time-axis validation and tolerance semantics are documented in [time axis and tolerances](docs/time-axis-and-tolerances.md).
 
 ## Plotting
 

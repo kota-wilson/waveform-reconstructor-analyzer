@@ -34,3 +34,4 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - Project-local large-CSV benchmark helper and baseline benchmark documentation.
 - Optional desktop SVG plotting with 2D waveform plots and 3D line plots using a configured third-axis column.
 - `wra-embedded` `no_std` adapter boundary plus ARM64 QEMU and Zephyr feasibility prototype artifacts.
+- `wra-measurements` `no_std` crate with reusable extrema, state-transition, state-run duration, and rise/fall measurement primitives used by criteria evidence.

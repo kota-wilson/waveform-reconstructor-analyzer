@@ -53,12 +53,22 @@ The MVP validates against the user request for a Rust-centered open-source wavef
 | Embedded boundary | `wra-signal` remains runtime-independent; `wra-embedded` owns source/sink/runtime traits | Pass |
 | Scope control | No SDK, target install, HAL, unsafe FFI, file I/O, CSV parsing, plotting, DAQ, or certification claim | Pass |
 
+## M6 Measurement Engine Update
+
+| M6 Area | Evidence | Result |
+|---|---|---|
+| Requirement traceability | WRA-RQ-031 in `requirements.md` and `traceability-matrix.md`; issue #43 | Pass |
+| Measurement boundary | `crates/wra-measurements` is no_std, allocation-free, and has no third-party dependency | Pass |
+| Criteria integration | `crates/wra-core/src/analysis.rs` consumes measurement primitives while preserving criteria APIs | Pass |
+| Compatibility | Existing exact golden JSON criteria reports pass unchanged | Pass |
+| Scope control | `docs/measurements.md` states no report schema, annotated SVG, DSL, GUI, DAQ, RTOS expansion, or certification claim in M6-001 | Pass |
+
 ## Gate Decision
 
 - Gate: V&V Gate.
 - Decision: Pass.
-- Reason: Requirements have implementation and validation evidence, with residual risks recorded. M4 adds known-answer and environmental software-validation evidence, M5 adds optional desktop SVG plotting evidence, and M3 follow-up work adds embedded adapter/prototype evidence without overclaiming GUI, DAQ, RTOS production readiness, hardware, or certification confidence.
-- Residual risk: Filter numerical behavior, CSV dialect coverage, hardware capture corpora, DAQ accuracy, visual regression coverage, ARM64 target execution, Zephyr SDK validation, RTOS timing behavior, and certification use need broader validation before production claims.
+- Reason: Requirements have implementation and validation evidence, with residual risks recorded. M4 adds known-answer and environmental software-validation evidence, M5 adds optional desktop SVG plotting evidence, M3 follow-up work adds embedded adapter/prototype evidence, and M6 extracts reusable measurement primitives without changing current report behavior or overclaiming GUI, DAQ, RTOS production readiness, hardware, or certification confidence.
+- Residual risk: Filter numerical behavior, CSV dialect coverage, measurement schema migration, annotated SVG evidence quality, hardware capture corpora, DAQ accuracy, visual regression coverage, ARM64 target execution, Zephyr SDK validation, RTOS timing behavior, and certification use need broader validation before production claims.
 - Next owner: QA Engineer.
 
 ## Hand-Off Note
@@ -68,5 +78,5 @@ Goal: Confirm implemented behavior traces to requirements and user intent.
 Files changed: `docs/verification-validation-report.md`
 Checks run: Reviewed validation evidence in `docs/validation-log.md`.
 Status: Pass.
-Known gaps: No external hardware signal corpus, formal filter frequency-response validation, DAQ validation, visual regression testing, ARM64 QEMU boot image, Zephyr SDK build, RTOS timing validation, or certification evidence yet.
+Known gaps: No external hardware signal corpus, formal filter frequency-response validation, measurement schema migration, annotated SVG evidence validation, DAQ validation, visual regression testing, ARM64 QEMU boot image, Zephyr SDK build, RTOS timing validation, or certification evidence yet.
 Next recommended step: QA review.

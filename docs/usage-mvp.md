@@ -43,7 +43,7 @@ cargo run --quiet --bin wra -- analyze \
   --format json
 ```
 
-The JSON report includes `waveform_metadata`, `evidence_context`, `overall_outcome`, and the same per-criterion evidence shown in the text report.
+The JSON report includes `waveform_metadata`, `evidence_context`, `overall_outcome`, and the same per-criterion evidence shown in the text report. The current criteria evidence is backed by reusable measurement primitives in `wra-measurements`, but the public report shape is unchanged in M6-001.
 
 Explicit CLI criteria remain available for one-off checks:
 
@@ -85,7 +85,7 @@ Criteria:
 - input_max_after_adc: Pass channel=input_v measured=5.000000 V required=5.000000 V tolerance=0.000000 sample_index=3 timestamp=0.003000 reason=maximum observed voltage was 5.000000 V
 ```
 
-Richer CSV dialect support and stable numerical filter guarantees remain planned. See `docs/filter-behavior.md` and `docs/time-axis-and-tolerances.md` for current transform and tolerance semantics.
+Richer CSV dialect support and stable numerical filter guarantees remain planned. See `docs/filter-behavior.md`, `docs/measurements.md`, and `docs/time-axis-and-tolerances.md` for current transform, measurement, and tolerance semantics.
 
 ## SVG Plotting
 

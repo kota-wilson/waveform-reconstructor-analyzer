@@ -43,6 +43,15 @@ No blocking QA defects found for the M3 RTOS follow-up branch. The review scope 
 - Zephyr feasibility documentation and adapter sketch under `embedded/arm64/zephyr/`.
 - Explicit limits around SDKs, target installs, HALs, unsafe FFI, DAQ, GUI, and certification claims.
 
+## M6 Measurement Engine Update
+
+No blocking QA defects found for the M6 measurement-engine extraction. The review scope includes:
+
+- `wra-measurements` no_std measurement primitive tests.
+- Existing exact golden JSON criteria reports passing unchanged.
+- `wra-core` re-export compatibility for `SignalState` and `EdgeDirection`.
+- User-facing docs that state M6-001 does not add report schema changes, annotated SVG overlays, batch analysis, plugin runtime, GUI, DAQ, RTOS expansion, or certification scope.
+
 ## Checks
 
 | Check | Evidence | Result |
@@ -55,13 +64,14 @@ No blocking QA defects found for the M3 RTOS follow-up branch. The review scope 
 | M4 branch validation | `docs/validation-log.md` M4 section | Pass |
 | M5 plotting validation | `docs/validation-log.md` M5 section | Pass |
 | M3 RTOS follow-up validation | `docs/validation-log.md` M3 adapter/prototype section | Pass |
+| M6 measurement validation | `docs/validation-log.md` M6 section | Pass |
 
 ## Gate Decision
 
 - Gate: QA Gate.
 - Decision: Pass.
-- Reason: No blocking defects found in local, CI, M4 validation, M5 plotting, or M3 adapter/prototype evidence.
-- Residual risk: Additional malformed CSV dialect coverage, external capture validation, visual regression coverage, ARM64 target execution, and Zephyr SDK validation remain future work.
+- Reason: No blocking defects found in local, CI, M4 validation, M5 plotting, M3 adapter/prototype evidence, or M6 measurement extraction evidence.
+- Residual risk: Additional malformed CSV dialect coverage, external capture validation, report measurement-schema migration, annotated SVG evidence review, visual regression coverage, ARM64 target execution, and Zephyr SDK validation remain future work.
 - Next owner: Security Engineer.
 
 ## Hand-Off Note
@@ -71,5 +81,5 @@ Goal: Review MVP repository quality for the initial public publication gate.
 Files changed: `docs/qa-review.md`
 Checks run: Reviewed local and CI validation evidence.
 Status: Pass.
-Known gaps: Negative-path matrix, visual regression coverage, target execution, and RTOS SDK validation are intentionally light.
+Known gaps: Negative-path matrix, measurement-schema migration, annotated SVG evidence review, visual regression coverage, target execution, and RTOS SDK validation are intentionally light.
 Next recommended step: Security review.

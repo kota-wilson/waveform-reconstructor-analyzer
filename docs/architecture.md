@@ -24,6 +24,7 @@ Current status: This proposal has been implemented through the validated MVP fea
 | `wra-core` | `crates/wra-core` | Data model, CSV parser interface, filters, criteria, analysis results, report model. | Library API for CLI, future GUI, and bindings. |
 | `wra-cli` | `crates/wra-cli` | Command-line argument handling and orchestration. | `wra` binary. |
 | `wra-embedded` | `crates/wra-embedded` | `no_std` adapter traits and streaming helpers for ARM64/RTOS wrappers. | Embedded adapters around `wra-signal`. |
+| `wra-measurements` | `crates/wra-measurements` | `no_std` measurement primitives over time/sample slices. | Extrema, transition count, state-run duration, and rise/fall measurements used by criteria evidence. |
 | `wra-plot` | `crates/wra-plot` | Desktop SVG plotting for waveform data. | SVG plot renderer used by the CLI. |
 | `wra-signal` | `crates/wra-signal` | `no_std` signal primitives for future embedded adapters. | Dependency-free embedded-oriented primitives. |
 
@@ -40,6 +41,7 @@ Current status: This proposal has been implemented through the validated MVP fea
 | `report` | `crates/wra-core/src/report.rs` | Report model with text and JSON rendering. |
 | `error` | `crates/wra-core/src/error.rs` | Project error types. |
 | `wra-embedded` | `crates/wra-embedded/src/lib.rs` | `SampleSource`, `EventSink`, `RuntimeHooks`, and no_std streaming helper loops. |
+| `wra-measurements` | `crates/wra-measurements/src/lib.rs` | Slice-based measurement functions with no allocation, file I/O, parsing, plotting, or reporting. |
 | `wra-plot` | `crates/wra-plot/src/lib.rs` | SVG plotting with 2D and optional third-axis 3D line rendering. |
 
 ## Core Data Flow
@@ -49,6 +51,7 @@ CSV input
   -> Parser options and channel mapping
   -> Waveform model
   -> Ordered transform chain produces derived waveform
+  -> Measurement primitives
   -> Criteria evaluator
   -> Analysis report
   -> CLI output
@@ -78,6 +81,7 @@ Embedded sample source
 | `WaveformParser` | `csv.rs` | Parses input into `Waveform`. |
 | `Filter` | `filter.rs` | Applies a transformation to a waveform and returns derived output. |
 | `FilterStep` | `filter.rs` | Enum-backed ordered pipeline step for config-driven transforms. |
+| `minimum_sample`, `maximum_sample`, `count_state_transitions`, `state_run_extremum`, `measure_rise_time`, `measure_fall_time` | `wra-measurements/src/lib.rs` | Reusable measurement primitives used by `wra-core` criteria evaluation. |
 | `Criterion` | `criteria.rs` | Defines a measurable pass/fail rule. |
 | `AnalysisResult` | `analysis.rs` | Records criterion outcome, measured value, threshold, applied tolerance, sample index, timestamp, channel, and reason. |
 | `SampleSource`, `EventSink`, `RuntimeHooks` | `wra-embedded/src/lib.rs` | Define source, sink, and runtime boundaries for future embedded adapters. |
@@ -109,6 +113,7 @@ Embedded sample source
 - Implemented transform equations are documented in `docs/filter-behavior.md`.
 - Time-axis validation and tolerance semantics are documented in `docs/time-axis-and-tolerances.md`.
 - Embedded adapters are bounded by `wra-embedded`; `wra-signal` remains runtime-independent.
+- Measurement primitives are bounded by `wra-measurements`; `wra-core` applies criteria policy and report wording.
 - Plotting is a desktop-only SVG renderer in `wra-plot`; `wra-core` and `wra-signal` do not depend on Plotters.
 
 ## Test Plan
@@ -123,6 +128,7 @@ Embedded sample source
 | ADC quantization | `filter.rs`, `config.rs`, and `wra-cli` tests | Samples quantize to ideal code levels before criteria evaluation. |
 | Time-axis validation | `analysis.rs`, `model.rs`, and validation fixture tests | Duplicate/decreasing duration inputs are rejected; increasing non-uniform inputs are accepted and recorded in metadata. |
 | Tolerance policy | `analysis.rs`, `config.rs`, and validation reports | Voltage/time tolerances affect criteria decisions and are recorded in result/report metadata. |
+| Measurement extraction | `crates/wra-measurements` tests and existing golden criteria tests | Measurement primitives produce the same evidence values currently expected by criteria reports. |
 | CLI smoke | `crates/wra-cli` tests and `cargo run --bin wra -- analyze ...` | CLI loads a fixture, applies optional filters, evaluates criteria, and renders text. |
 | Embedded adapter boundary | `crates/wra-embedded` tests and QEMU demo manifest check | no_std source/sink/runtime traits wrap `wra-signal` without desktop file I/O. |
 | SVG plotting | `crates/wra-plot` tests and `wra-cli` plot tests | CLI writes 2D and 3D SVG files from CSV fixtures. |

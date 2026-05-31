@@ -54,6 +54,17 @@ The M3 RTOS adapter/prototype branch adds no new third-party crates.
 | Dependency tree | `cargo tree -p wra-embedded` shows only `wra-embedded` -> `wra-signal`. | Pass |
 | Toolchain scope | No ARM64 target, QEMU binary, Zephyr SDK, west workspace, CMake, HAL, or unsafe FFI is added. | Pass |
 
+## M6 Measurement Engine Dependency Review
+
+The M6 measurement-engine extraction adds no new third-party crates.
+
+| Item | Evidence | Result |
+|---|---|---|
+| Measurement crate | `crates/wra-measurements/Cargo.toml` has no dependency entries. | Pass |
+| Core dependency | `crates/wra-core/Cargo.toml` depends on local `wra-measurements`. | Pass |
+| Dependency tree | `cargo tree -p wra-measurements` shows only `wra-measurements`. | Pass |
+| Scope boundary | No parser, plotting, report, file I/O, DAQ, RTOS SDK, HAL, or plugin dependency is added. | Pass |
+
 ## Risk Assessment
 
 - Supply-chain risk: Medium; dependencies are common Rust ecosystem crates, but exact transitive dependencies must remain visible in `Cargo.lock`.
@@ -62,12 +73,13 @@ The M3 RTOS adapter/prototype branch adds no new third-party crates.
 - Security risk: Medium; malformed input parsing expands attack surface and needs tests.
 - Plotting risk: Low/Medium; SVG output is local-file only, but future plotting backends could expand native or GUI dependencies if not gated.
 - Embedded toolchain risk: Medium; future RTOS SDKs, HALs, FFI, or target CI require fresh review before adoption.
+- Measurement extraction risk: Medium; evidence values and tie behavior must remain guarded by exact golden reports.
 
 ## Gate Decision
 
 - Gate: Dependency Gate.
 - Decision: Pass.
-- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up work adds no third-party dependencies.
+- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up and M6 measurement-engine work add no third-party dependencies.
 - Residual risk: Dependency license and advisory scanning is not automated yet.
 - Next owner: Core Software Engineer.
 

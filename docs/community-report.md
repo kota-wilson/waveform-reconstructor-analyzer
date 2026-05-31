@@ -37,12 +37,18 @@ Owner Role: Community Engineering Lead
 - Milestone `M3: RTOS / embedded no_std foundation` is closed with 4 closed issues and 0 open issues.
 - Follow-up community messaging should avoid claiming ARM64 target execution, Zephyr support, RTOS production readiness, hardware validation, or certification evidence.
 
+## M6 Measurement Engine Community Update
+
+- Issues #43-#47 record the v0.4.0 measurement and evidence-engine roadmap.
+- Issue #43 is the first implementation slice for reusable measurement extraction.
+- Follow-up community messaging should describe M6-001 as internal measurement reuse and compatibility preservation, not a new report schema, annotated SVG feature, batch-analysis feature, plugin runtime, hardware validation, or certification claim.
+
 ## Gate Decision
 
 - Gate: Community Gate.
-- Decision: Pass for initial publication, M5 issue/milestone closure, and M3 issue/milestone closure.
-- Reason: Public repository exists with templates, contribution docs, CI, clear scope, M4/M5 issue closure evidence, and M3 issue/milestone closure evidence.
-- Residual risk: Community onboarding quality, plotting usability, and embedded adapter usability are untested until external issue/PR feedback.
+- Decision: Pass for initial publication, M5 issue/milestone closure, M3 issue/milestone closure, and M6 issue planning.
+- Reason: Public repository exists with templates, contribution docs, CI, clear scope, M4/M5 issue closure evidence, M3 issue/milestone closure evidence, and M6 roadmap issues.
+- Residual risk: Community onboarding quality, plotting usability, measurement-schema usability, and embedded adapter usability are untested until external issue/PR feedback.
 - Next owner: Project Coordinator.
 
 ## Hand-Off Note

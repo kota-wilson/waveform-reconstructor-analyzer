@@ -41,6 +41,16 @@ No blocking code-review findings for the M3 RTOS follow-up branch. Review notes:
 - Zephyr prototype is intentionally a non-built feasibility sketch with no SDK, HAL, unsafe FFI, or workspace dependency.
 - Tests cover threshold streaming, transient-event streaming, empty input, non-monotonic timestamps, and the QEMU proof outcome.
 
+## M6 Measurement Engine Update
+
+No blocking code-review findings for the M6 measurement-engine extraction. Review notes:
+
+- `wra-measurements` is isolated from CSV parsing, TOML config, plotting, reporting, file I/O, DAQ, RTOS SDKs, and plugin runtime concerns.
+- `wra-core` criteria evaluation now calls reusable measurement primitives while continuing to own pass/fail policy, tolerance application, and evidence wording.
+- `SignalState` and `EdgeDirection` are re-exported through `wra_core::criteria`, preserving the existing caller path.
+- Golden JSON reports pass unchanged, which protects evidence values and tie behavior.
+- No new third-party dependency or unsafe Rust is added.
+
 ## Review Notes
 
 | Area | Result |
@@ -53,13 +63,14 @@ No blocking code-review findings for the M3 RTOS follow-up branch. Review notes:
 | M4 validation | Pass: known-answer, environmental, tolerance, time-axis, report, and benchmark evidence exist. |
 | M5 plotting | Pass: optional SVG plotting is isolated, tested, and documented. |
 | M3 RTOS follow-up | Pass: adapter/prototype work is isolated, no_std, tested, and documented. |
+| M6 measurement extraction | Pass: measurement primitives are isolated, tested, and report-compatible. |
 
 ## Gate Decision
 
 - Gate: Code Review Gate.
 - Decision: Pass.
-- Reason: No blocking defects found and validation is green for the current MVP, M4 validation work, M5 plotting slice, and M3 RTOS adapter/prototype slice.
-- Residual risk: CLI parsing is still hand-rolled; a future CLI parser crate could improve UX after review. Visual regression, target execution, and RTOS SDK validation are not yet automated.
+- Reason: No blocking defects found and validation is green for the current MVP, M4 validation work, M5 plotting slice, M3 RTOS adapter/prototype slice, and M6 measurement extraction slice.
+- Residual risk: CLI parsing is still hand-rolled; a future CLI parser crate could improve UX after review. Measurement schema migration, visual regression, target execution, and RTOS SDK validation are not yet automated.
 - Next owner: Evaluation Engineer.
 
 ## Hand-Off Note
@@ -69,5 +80,5 @@ Goal: Review MVP code for the initial public publication gate.
 Files changed: `docs/code-review.md`
 Checks run: Code inspection plus validation evidence review.
 Status: Pass.
-Known gaps: More negative-path tests, visual regression tests, target execution tests, RTOS SDK validation, and CLI UX polish are future work.
+Known gaps: More negative-path tests, measurement schema migration tests, visual regression tests, target execution tests, RTOS SDK validation, and CLI UX polish are future work.
 Next recommended step: Evaluation.

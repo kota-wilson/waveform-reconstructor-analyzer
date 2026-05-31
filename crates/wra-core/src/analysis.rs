@@ -2,6 +2,10 @@ use crate::criteria::{Criterion, CriterionCheck, EdgeDirection, SignalState};
 use crate::error::{Result, WaveformError};
 use crate::model::{Channel, TolerancePolicy, Waveform};
 use serde::Serialize;
+use wra_measurements::{
+    count_state_transitions, maximum_sample, measure_fall_time, measure_rise_time, minimum_sample,
+    state_run_extremum, MeasurementError, RunSelection,
+};
 
 const FLOAT_TOLERANCE: f64 = 1.0e-12;
 
@@ -93,8 +97,9 @@ fn evaluate_criterion(
 
     match &criterion.check {
         CriterionCheck::MinimumVoltage { threshold_v, .. } => {
-            let (sample_index, measured) = minimum_sample(channel);
-            let outcome = if measured + tolerances.voltage_v >= *threshold_v {
+            let measurement =
+                minimum_sample(&waveform.time, &channel.samples).map_err(measurement_error)?;
+            let outcome = if measurement.value + tolerances.voltage_v >= *threshold_v {
                 Outcome::Pass
             } else {
                 Outcome::Fail
@@ -103,19 +108,20 @@ fn evaluate_criterion(
                 criterion,
                 outcome,
                 Evidence {
-                    measured_value: measured,
+                    measured_value: measurement.value,
                     required_value: *threshold_v,
                     tolerance_used: tolerances.voltage_v,
                     unit: "V",
-                    sample_index,
-                    timestamp: waveform.time[sample_index],
-                    reason: format!("minimum observed voltage was {measured:.6} V"),
+                    sample_index: measurement.sample_index,
+                    timestamp: measurement.timestamp,
+                    reason: format!("minimum observed voltage was {:.6} V", measurement.value),
                 },
             ))
         }
         CriterionCheck::MaximumVoltage { threshold_v, .. } => {
-            let (sample_index, measured) = maximum_sample(channel);
-            let outcome = if measured - tolerances.voltage_v <= *threshold_v {
+            let measurement =
+                maximum_sample(&waveform.time, &channel.samples).map_err(measurement_error)?;
+            let outcome = if measurement.value - tolerances.voltage_v <= *threshold_v {
                 Outcome::Pass
             } else {
                 Outcome::Fail
@@ -124,13 +130,13 @@ fn evaluate_criterion(
                 criterion,
                 outcome,
                 Evidence {
-                    measured_value: measured,
+                    measured_value: measurement.value,
                     required_value: *threshold_v,
                     tolerance_used: tolerances.voltage_v,
                     unit: "V",
-                    sample_index,
-                    timestamp: waveform.time[sample_index],
-                    reason: format!("maximum observed voltage was {measured:.6} V"),
+                    sample_index: measurement.sample_index,
+                    timestamp: measurement.timestamp,
+                    reason: format!("maximum observed voltage was {:.6} V", measurement.value),
                 },
             ))
         }
@@ -268,26 +274,6 @@ fn round_evidence(value: f64) -> f64 {
     }
 }
 
-fn minimum_sample(channel: &Channel) -> (usize, f64) {
-    extremum_sample(channel, |candidate, current| candidate < current)
-}
-
-fn maximum_sample(channel: &Channel) -> (usize, f64) {
-    extremum_sample(channel, |candidate, current| candidate > current)
-}
-
-fn extremum_sample(channel: &Channel, is_better: impl Fn(f64, f64) -> bool) -> (usize, f64) {
-    let mut best_index = 0;
-    let mut best_value = channel.samples[0];
-    for (index, value) in channel.samples.iter().copied().enumerate().skip(1) {
-        if is_better(value, best_value) {
-            best_index = index;
-            best_value = value;
-        }
-    }
-    (best_index, best_value)
-}
-
 fn evaluate_state_transitions(
     waveform: &Waveform,
     channel: &Channel,
@@ -296,9 +282,16 @@ fn evaluate_state_transitions(
     expected_count: usize,
     tolerances: TolerancePolicy,
 ) -> Result<AnalysisResult> {
-    let transitions = transition_indices(channel, threshold_v, tolerances.voltage_v);
-    let measured = transitions.len();
-    let sample_index = transitions.first().copied().unwrap_or(0);
+    let transitions = count_state_transitions(
+        &waveform.time,
+        &channel.samples,
+        threshold_v,
+        tolerances.voltage_v,
+    )
+    .map_err(measurement_error)?;
+    let measured = transitions.count;
+    let sample_index = transitions.first_index.unwrap_or(0);
+    let timestamp = transitions.first_timestamp.unwrap_or(waveform.time[0]);
     let outcome = if measured == expected_count {
         Outcome::Pass
     } else {
@@ -314,7 +307,7 @@ fn evaluate_state_transitions(
             tolerance_used: 0.0,
             unit: "transitions",
             sample_index,
-            timestamp: waveform.time[sample_index],
+            timestamp,
             reason: format!("observed {measured} state transitions at {threshold_v:.6} V"),
         },
     ))
@@ -342,14 +335,34 @@ fn evaluate_pulse_width(
         });
     }
 
-    let runs = state_runs(waveform, channel, spec.threshold_v, tolerances.voltage_v);
-    let state_runs: Vec<_> = runs
-        .iter()
-        .filter(|run| run.state == spec.state)
-        .copied()
-        .collect();
+    let shortest = if spec.min_width_s.is_some() {
+        state_run_extremum(
+            &waveform.time,
+            &channel.samples,
+            spec.state,
+            spec.threshold_v,
+            tolerances.voltage_v,
+            RunSelection::Shortest,
+        )
+        .map_err(measurement_error)?
+    } else {
+        None
+    };
+    let longest = if spec.max_width_s.is_some() {
+        state_run_extremum(
+            &waveform.time,
+            &channel.samples,
+            spec.state,
+            spec.threshold_v,
+            tolerances.voltage_v,
+            RunSelection::Longest,
+        )
+        .map_err(measurement_error)?
+    } else {
+        None
+    };
 
-    if state_runs.is_empty() {
+    if shortest.or(longest).is_none() {
         return Ok(result(
             criterion,
             Outcome::Fail,
@@ -366,7 +379,7 @@ fn evaluate_pulse_width(
     }
 
     if let Some(min_width_s) = spec.min_width_s {
-        let shortest = shortest_run(&state_runs);
+        let shortest = shortest.expect("state run should exist after empty check");
         if shortest.duration_s + tolerances.time_s + FLOAT_TOLERANCE < min_width_s {
             return Ok(result(
                 criterion,
@@ -389,7 +402,7 @@ fn evaluate_pulse_width(
     }
 
     if let Some(max_width_s) = spec.max_width_s {
-        let longest = longest_run(&state_runs);
+        let longest = longest.expect("state run should exist after empty check");
         if longest.duration_s - tolerances.time_s - FLOAT_TOLERANCE > max_width_s {
             return Ok(result(
                 criterion,
@@ -411,10 +424,9 @@ fn evaluate_pulse_width(
         }
     }
 
-    let measured = spec
-        .min_width_s
-        .map(|_| shortest_run(&state_runs))
-        .unwrap_or_else(|| longest_run(&state_runs));
+    let measured = shortest
+        .or(longest)
+        .expect("state run should exist after empty check");
     Ok(result(
         criterion,
         Outcome::Pass,
@@ -450,16 +462,15 @@ fn evaluate_transient_duration(
     tolerances: TolerancePolicy,
 ) -> Result<AnalysisResult> {
     let transient_state = opposite_state(spec.expected_state);
-    let runs = state_runs(waveform, channel, spec.threshold_v, tolerances.voltage_v);
-    let transient_runs: Vec<_> = runs
-        .iter()
-        .filter(|run| run.state == transient_state)
-        .copied()
-        .collect();
-    let longest = transient_runs
-        .as_slice()
-        .split_first()
-        .map(|_| longest_run(&transient_runs));
+    let longest = state_run_extremum(
+        &waveform.time,
+        &channel.samples,
+        transient_state,
+        spec.threshold_v,
+        tolerances.voltage_v,
+        RunSelection::Longest,
+    )
+    .map_err(measurement_error)?;
 
     let (measured, sample_index, timestamp) = longest
         .map(|run| (run.duration_s, run.start_index, run.start_time))
@@ -499,16 +510,15 @@ fn evaluate_stable_state_duration(
     min_duration_s: f64,
     tolerances: TolerancePolicy,
 ) -> Result<AnalysisResult> {
-    let runs = state_runs(waveform, channel, threshold_v, tolerances.voltage_v);
-    let stable_runs: Vec<_> = runs
-        .iter()
-        .filter(|run| run.state == state)
-        .copied()
-        .collect();
-    let longest = stable_runs
-        .as_slice()
-        .split_first()
-        .map(|_| longest_run(&stable_runs));
+    let longest = state_run_extremum(
+        &waveform.time,
+        &channel.samples,
+        state,
+        threshold_v,
+        tolerances.voltage_v,
+        RunSelection::Longest,
+    )
+    .map_err(measurement_error)?;
     let (measured, sample_index, timestamp) = longest
         .map(|run| (run.duration_s, run.start_index, run.start_time))
         .unwrap_or((0.0, 0, waveform.time[0]));
@@ -560,21 +570,22 @@ fn evaluate_rise_fall_time(
     }
 
     let measurement = match spec.direction {
-        EdgeDirection::Rise => measure_rise(
-            waveform,
-            channel,
+        EdgeDirection::Rise => measure_rise_time(
+            &waveform.time,
+            &channel.samples,
             spec.low_threshold_v,
             spec.high_threshold_v,
             tolerances.voltage_v,
         ),
-        EdgeDirection::Fall => measure_fall(
-            waveform,
-            channel,
+        EdgeDirection::Fall => measure_fall_time(
+            &waveform.time,
+            &channel.samples,
             spec.low_threshold_v,
             spec.high_threshold_v,
             tolerances.voltage_v,
         ),
-    };
+    }
+    .map_err(measurement_error)?;
 
     let (measured, sample_index, timestamp, observed) = measurement
         .map(|transition| {
@@ -618,172 +629,21 @@ fn evaluate_rise_fall_time(
     ))
 }
 
-fn transition_indices(channel: &Channel, threshold_v: f64, voltage_tolerance_v: f64) -> Vec<usize> {
-    channel
-        .samples
-        .windows(2)
-        .enumerate()
-        .filter_map(|(index, pair)| {
-            let previous = sample_state(pair[0], threshold_v, voltage_tolerance_v);
-            let next = sample_state(pair[1], threshold_v, voltage_tolerance_v);
-            (previous != next).then_some(index + 1)
-        })
-        .collect()
-}
-
-#[derive(Debug, Clone, Copy, PartialEq)]
-struct StateRun {
-    state: SignalState,
-    start_index: usize,
-    start_time: f64,
-    duration_s: f64,
-}
-
-fn state_runs(
-    waveform: &Waveform,
-    channel: &Channel,
-    threshold_v: f64,
-    voltage_tolerance_v: f64,
-) -> Vec<StateRun> {
-    let mut runs = Vec::new();
-    let mut start_index = 0;
-    let mut current_state = sample_state(channel.samples[0], threshold_v, voltage_tolerance_v);
-
-    for index in 1..channel.samples.len() {
-        let state = sample_state(channel.samples[index], threshold_v, voltage_tolerance_v);
-        if state != current_state {
-            runs.push(run_from_indices(
-                waveform,
-                current_state,
-                start_index,
-                index - 1,
-            ));
-            start_index = index;
-            current_state = state;
-        }
-    }
-    runs.push(run_from_indices(
-        waveform,
-        current_state,
-        start_index,
-        channel.samples.len() - 1,
-    ));
-    runs
-}
-
-fn run_from_indices(
-    waveform: &Waveform,
-    state: SignalState,
-    start_index: usize,
-    end_index: usize,
-) -> StateRun {
-    let end_time = waveform
-        .time
-        .get(end_index + 1)
-        .copied()
-        .unwrap_or(waveform.time[end_index]);
-    StateRun {
-        state,
-        start_index,
-        start_time: waveform.time[start_index],
-        duration_s: end_time - waveform.time[start_index],
-    }
-}
-
-fn shortest_run(runs: &[StateRun]) -> StateRun {
-    runs.iter()
-        .copied()
-        .min_by(|left, right| left.duration_s.total_cmp(&right.duration_s))
-        .expect("caller should provide at least one run")
-}
-
-fn longest_run(runs: &[StateRun]) -> StateRun {
-    runs.iter()
-        .copied()
-        .max_by(|left, right| left.duration_s.total_cmp(&right.duration_s))
-        .expect("caller should provide at least one run")
-}
-
-fn sample_state(value: f64, threshold_v: f64, voltage_tolerance_v: f64) -> SignalState {
-    if value + voltage_tolerance_v >= threshold_v {
-        SignalState::High
-    } else {
-        SignalState::Low
+fn measurement_error(error: MeasurementError) -> WaveformError {
+    match error {
+        MeasurementError::EmptyInput => WaveformError::EmptyInput,
+        MeasurementError::MismatchedLength => WaveformError::InvalidWaveform {
+            reason: "measurement time and sample arrays must have the same length".to_string(),
+        },
+        MeasurementError::NonMonotonicTimeAxis => WaveformError::InvalidWaveform {
+            reason: "time samples must be strictly increasing for duration measurements"
+                .to_string(),
+        },
     }
 }
 
 fn opposite_state(state: SignalState) -> SignalState {
-    match state {
-        SignalState::High => SignalState::Low,
-        SignalState::Low => SignalState::High,
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
-struct TransitionMeasurement {
-    end_index: usize,
-    end_time: f64,
-    duration_s: f64,
-}
-
-fn measure_rise(
-    waveform: &Waveform,
-    channel: &Channel,
-    low_threshold_v: f64,
-    high_threshold_v: f64,
-    voltage_tolerance_v: f64,
-) -> Option<TransitionMeasurement> {
-    let start_index = channel
-        .samples
-        .iter()
-        .position(|value| *value + voltage_tolerance_v >= low_threshold_v)?;
-    let end_index = channel
-        .samples
-        .iter()
-        .enumerate()
-        .skip(start_index)
-        .find_map(|(index, value)| {
-            (*value + voltage_tolerance_v >= high_threshold_v).then_some(index)
-        })?;
-    Some(TransitionMeasurement {
-        end_index,
-        end_time: waveform.time[end_index],
-        duration_s: waveform.time[end_index] - waveform.time[start_index],
-    })
-}
-
-fn measure_fall(
-    waveform: &Waveform,
-    channel: &Channel,
-    low_threshold_v: f64,
-    high_threshold_v: f64,
-    voltage_tolerance_v: f64,
-) -> Option<TransitionMeasurement> {
-    let high_index = channel
-        .samples
-        .iter()
-        .position(|value| *value + voltage_tolerance_v >= high_threshold_v)?;
-    let start_index = channel
-        .samples
-        .iter()
-        .enumerate()
-        .skip(high_index)
-        .find_map(|(index, value)| {
-            (*value - voltage_tolerance_v <= high_threshold_v).then_some(index)
-        })?;
-    let end_index = channel
-        .samples
-        .iter()
-        .enumerate()
-        .skip(start_index)
-        .find_map(|(index, value)| {
-            (*value - voltage_tolerance_v <= low_threshold_v).then_some(index)
-        })?;
-    Some(TransitionMeasurement {
-        end_index,
-        end_time: waveform.time[end_index],
-        duration_s: waveform.time[end_index] - waveform.time[start_index],
-    })
+    state.opposite()
 }
 
 #[cfg(test)]

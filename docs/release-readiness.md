@@ -10,7 +10,7 @@ Owner Role: Release Engineer / GitHub Maintainer Specialist
 
 ## Current Status
 
-This review records the initial public-repository publication gate. Since publication, PR #16, #21, #22, #23, #25, #36, #37, #39, #40, and #41 have merged into protected `main` with required `rust` CI passing. The release notes below describe the initial publication slice, not the full current feature set.
+This review records the initial public-repository publication gate. Since publication, PR #16, #21, #22, #23, #25, #36, #37, #39, #40, #41, and #42 have merged into protected `main` with required `rust` CI passing. The release notes below describe the initial publication slice, not the full current feature set.
 
 ## Scope
 
@@ -97,6 +97,20 @@ Residual risk: This is mainline repository evidence, not a tagged product releas
 Gate: Release Gate for M3 RTOS follow-up.
 Decision: Pass.
 Residual risk: This is mainline repository evidence, not a tagged product release, ARM64 boot claim, Zephyr SDK validation, hardware validation, RTOS production readiness claim, or certification artifact.
+
+## M6 Measurement Engine Release Preparation
+
+- Issue: #43, `M6-001 Extract measurement engine from criteria evaluation`
+- Milestone: `v0.4.0: Measurement & Evidence Engine`
+- Branch: `feature/m6-measurement-engine`
+- Scope: reusable no_std measurement primitives and criteria integration only.
+- Validation: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-measurements`; `git diff --check`.
+- Dependency evidence: no new third-party dependencies; `wra-measurements` is a local no-dependency crate.
+- Deferred issues: #44 annotated SVG overlays, #45 report measurement schema, #46 criteria DSL direction, and #47 measurement validation fixtures.
+
+Gate: Release Gate for M6-001.
+Decision: Pass for PR creation.
+Residual risk: This is branch evidence, not a tagged product release, report schema migration, annotated SVG evidence, hardware validation, or certification artifact.
 
 ## Hand-Off Note
 

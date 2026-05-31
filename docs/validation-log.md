@@ -19,7 +19,53 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - Working directory: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`
 - Cargo: `cargo 1.95.0 (f2d3ce0bd 2026-03-21)`
 - Rust: `rustc 1.95.0 (59807616e 2026-04-14)`
-- Dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
+- External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
+- Local workspace dependencies include `wra-measurements`, `wra-signal`, `wra-embedded`, `wra-plot`, `wra-core`, and `wra-cli`.
+
+## M6 Measurement Engine Branch
+
+Current as of the M6 measurement-engine branch on 2026-05-31.
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo fmt` | Passed | Rust sources formatted after adding `wra-measurements` and criteria integration. |
+| `cargo test --workspace` | Passed | 80 tests passed: 9 CLI, 38 core, 9 criteria-engine fixture/golden/validation tests, 1 CSV fixture integration test, 4 `wra-embedded`, 5 `wra-measurements`, 5 `wra-plot`, 9 `wra-signal`, plus doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings after replacing an indexed measurement loop with iterator/enumerate style. |
+| `cargo tree -p wra-measurements` | Passed | Dependency tree is limited to `wra-measurements`; no external crates added. |
+| `cargo fmt --check` | Passed | Formatting remained clean after final edits. |
+| `git diff --check` | Passed | No whitespace errors in the branch diff. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `wra_measurements::tests::measures_voltage_extrema` | Minimum and maximum sample evidence includes sample index, timestamp, and value. |
+| `wra_measurements::tests::counts_state_transitions` | Threshold-based state transition counts include first transition evidence. |
+| `wra_measurements::tests::selects_shortest_and_longest_state_runs` | State-run duration selection covers shortest and longest run behavior. |
+| `wra_measurements::tests::measures_rise_and_fall_time` | Rise/fall measurements return start/end evidence and duration. |
+| `wra_measurements::tests::rejects_non_monotonic_time_for_duration_measurements` | Duration measurements reject duplicate or decreasing timestamps. |
+
+### Compatibility Evidence
+
+Existing exact golden JSON tests still pass without updating expected reports. This verifies M6-001 did not change the current public report shape or evidence values.
+
+### Gate Decision
+
+- Gate: Testing Gate for M6-001.
+- Decision: Pass.
+- Reason: Formatting, workspace tests, clippy, dependency tree, and whitespace checks pass. Existing exact golden JSON reports pass unchanged.
+- Residual risk: Measurement schema and SVG evidence expansion remain future issues and may need additional golden output review.
+- Owner for residual risk: Verification and Validation Engineer / Documentation Engineer.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer
+Goal: Validate reusable measurement extraction without changing current report behavior.
+Files changed: `docs/validation-log.md`
+Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo tree -p wra-measurements`; `git diff --check`.
+Status: Pass.
+Known gaps: Report measurement schema, annotated SVG evidence overlays, criteria DSL refinement, and validation fixture expansion remain in issues #44-#47.
+Next recommended step: Protected-branch PR.
 
 ## M3 RTOS Adapter And Prototype Branch
 

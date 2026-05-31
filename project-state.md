@@ -4,11 +4,11 @@ Last updated: 2026-05-31
 
 ## Current Objective
 
-M3 RTOS adapter/prototype work is merged; record post-merge release/community evidence.
+Start v0.4.0 by extracting reusable measurement primitives for M6-001 before expanding report evidence, annotated SVGs, or criteria DSL syntax.
 
 ## Current Stage
 
-The repository now includes merged M3 RTOS follow-up work for issues #17-#19. Mainline includes a `no_std` `wra-embedded` adapter crate, a host-checkable ARM64 QEMU proof slice, and an isolated Zephyr feasibility prototype. PR #41 merged with required `rust` CI passing, issues #17-#20 are closed, and M3 milestone #3 is closed. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, QEMU boot images, production RTOS readiness, and certification claims remain out of scope.
+The repository now has milestone #6, `v0.4.0: Measurement & Evidence Engine`, with issues #43-#47. The M6-001 branch adds a local `no_std` `wra-measurements` crate and routes existing `wra-core` criteria evidence through reusable measurement primitives while preserving exact JSON report output. GUI, DAQ, embedded plotting, hardware HALs, unsafe FFI, RTOS SDK integration, plugin runtime, batch analysis, report schema migration, annotated SVG overlays, production readiness, and certification claims remain out of scope for this slice.
 
 ## Open Risks
 
@@ -38,6 +38,8 @@ The repository now includes merged M3 RTOS follow-up work for issues #17-#19. Ma
   Owner: Embedded RTOS Engineer / Documentation Engineer
 - Risk: Target-specific ARM64 and Zephyr toolchains may drift or require global setup if adopted too early.
   Owner: DX Engineer / Security Engineer
+- Risk: Measurement extraction may subtly change evidence sample selection or reported values.
+  Owner: Verification and Validation Engineer / Core Software Engineer
 
 ## Pending Decisions
 
@@ -59,22 +61,25 @@ The repository now includes merged M3 RTOS follow-up work for issues #17-#19. Ma
 - Decision: Keep M3 RTOS follow-up work host-checkable and adapter/prototype-only until a fresh target-toolchain gate.
   Owner: Embedded RTOS Engineer / Verification and Validation Engineer
   Status: Accepted in `docs/m3-rtos-follow-up-pipeline-report.md`.
+- Decision: Start v0.4.0 with a local `wra-measurements` crate before report schema, annotated SVG, batch, or plugin work.
+  Owner: Software Architect / Verification and Validation Engineer
+  Status: Accepted in `docs/m6-measurement-engine-pipeline-report.md`.
 
 ## Next Responsible Role
 
-Role: GitHub Maintainer Specialist
+Role: Release Engineer / GitHub Maintainer Specialist
 
-Expected deliverable: Finish post-merge release/community evidence update for M3.
+Expected deliverable: Run final M6 validation, open a protected-branch PR for issue #43, wait for required CI, then merge and record post-merge evidence.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/waveform-reconstructor-analyzer`.
-- Current milestone: M3 RTOS / embedded no_std foundation.
-- Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`.
-- Next gate: Post-merge evidence PR for M3.
-- Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, or expanding into GUI/DAQ/embedded plotting/certification work.
+- Current milestone: `v0.4.0: Measurement & Evidence Engine`.
+- Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`.
+- Next gate: M6 final validation and protected-branch PR for issue #43.
+- Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, more dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, report schema migration, or annotated SVG overlays without a fresh issue/gate.
 
 ## Granularity Status
 
@@ -87,13 +92,13 @@ Expected deliverable: Finish post-merge release/community evidence update for M3
 - Project root: `/Users/kota/Desktop/softwareai/projects/waveform-reconstructor-analyzer`.
 - Isolation level: Level 1 Cargo workspace.
 - Local environment: Rust/Cargo; no global dependencies installed.
-- Dependency status: Approved crates added and pinned in `Cargo.lock`; see `docs/dependency-review.md`. M3 follow-up adds no third-party dependencies; `wra-embedded` depends only on local `wra-signal`.
+- Dependency status: Approved crates added and pinned in `Cargo.lock`; see `docs/dependency-review.md`. M3 follow-up adds no third-party dependencies; `wra-embedded` depends only on local `wra-signal`. M6-001 adds no third-party dependencies; `wra-measurements` is local and dependency-free.
 
 ## Traceability Status
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, and M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030.
+- Verification matrix: `traceability-matrix.md` updated with current MVP, M3-RTOS-001, WRA-RQ-018 ADC quantization evidence, M1 metadata evidence, M4 requirements WRA-RQ-019 through WRA-RQ-026, M5 requirement WRA-RQ-027, M3 follow-up requirements WRA-RQ-028 through WRA-RQ-030, and M6 requirement WRA-RQ-031.
 
 ## Gate Decisions
 
@@ -188,6 +193,20 @@ Expected deliverable: Finish post-merge release/community evidence update for M3
 | M3 RTOS Follow-Up Evaluation Gate | Pass | `docs/evaluation-report.md` | Release Engineer |
 | M3 RTOS Follow-Up Release Gate | Pass | PR #41 merged after required `rust` CI passed; merge commit `36e6d20523c14441e493f7fd48d4776e891f894a` | GitHub Maintainer Specialist |
 | M3 RTOS Follow-Up Community Gate | Pass | Issues #17-#20 closed; M3 milestone #3 closed with 4 closed issues and 0 open issues | Project Coordinator |
+| M6 Issue Planning Gate | Pass | Milestone #6 and issues #43-#47 created | Software Architect |
+| M6 Requirements Gate | Pass | `requirements.md` WRA-RQ-031; issue #43 | Software Architect |
+| M6 Architecture Gate | Pass | `docs/architecture.md`, `docs/measurements.md`, `docs/m6-measurement-engine-pipeline-report.md` | Abstraction Review Engineer |
+| M6 Implementation Gate | Pass | `crates/wra-measurements/`, `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/criteria.rs` | Test Automation Engineer |
+| M6 Testing Gate | Pass | `docs/validation-log.md`; fmt, workspace tests, clippy, dependency tree, and diff check passed | Verification and Validation Engineer |
+| M6 V&V Gate | Pass | `docs/verification-validation-report.md`, WRA-RQ-031 traceability | QA Engineer |
+| M6 QA Gate | Pass | `docs/qa-review.md` | Security Engineer |
+| M6 Security Gate | Pass | `docs/security-review.md`, `docs/dependency-review.md`, `cargo tree -p wra-measurements` | Performance Engineer |
+| M6 Performance Gate | Pass | `docs/performance-review.md`; no unsupported performance claims | Documentation Engineer |
+| M6 Documentation Gate | Pass | README, `docs/measurements.md`, `crates/wra-measurements/README.md` | Code Reviewer |
+| M6 Code Review Gate | Pass | `docs/code-review.md`, `docs/m6-measurement-engine-pipeline-report.md` | Evaluation Engineer |
+| M6 Evaluation Gate | Pass | `docs/evaluation-report.md` | Release Engineer |
+| M6 Release Gate | Pass for PR creation | `docs/release-readiness.md` | GitHub Maintainer Specialist |
+| M6 Community Gate | Pending PR creation/CI | `docs/community-report.md` | Project Coordinator |
 
 ## Update Rules
 

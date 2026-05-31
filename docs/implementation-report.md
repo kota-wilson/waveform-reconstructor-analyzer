@@ -400,3 +400,56 @@ Checks run: See `docs/validation-log.md`.
 Status: Pass; ready for V&V and protected-branch PR.
 Known gaps: No ARM64 target build, QEMU boot image, Zephyr SDK build, hardware HAL, unsafe FFI review, RTOS timing validation, or certification evidence.
 Next recommended step: Testing and V&V gates for M3 RTOS adapter/prototype work.
+
+## M6 Measurement Engine Implementation Update
+
+Date: 2026-05-31
+
+Owner Role: Core Software Engineer
+
+### Inputs
+
+- GitHub issue #43, `M6-001 Extract measurement engine from criteria evaluation`.
+- Milestone #6, `v0.4.0: Measurement & Evidence Engine`.
+- Existing exact golden JSON reports and criteria tests.
+
+### Work Performed
+
+- What: Added reusable measurement primitives and routed existing criteria evidence through them.
+- Where: `crates/wra-measurements/`, `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/criteria.rs`, workspace Cargo files, README, architecture, requirements, risk, traceability, and measurement docs.
+- How: Implemented `wra-measurements` as a `#![no_std]`, allocation-free local crate over time/sample slices; re-exported `SignalState` and `EdgeDirection` through `wra_core::criteria`; preserved the current CLI behavior and JSON report schema.
+- Why: The project needs a measurement layer before criteria DSL expansion, annotated SVG evidence, and report measurement-schema work.
+
+### Behavior Added
+
+- `minimum_sample` and `maximum_sample` measurement primitives.
+- `count_state_transitions` with first-transition evidence.
+- `state_run_extremum` for shortest/longest high/low state runs.
+- `measure_rise_time` and `measure_fall_time` over configured thresholds.
+- Exact criteria output compatibility, including existing equal-duration longest-run tie behavior.
+
+### Out Of Scope Preserved
+
+- No report schema change in M6-001.
+- No annotated SVG overlays in M6-001.
+- No new criteria DSL syntax in M6-001.
+- No batch analysis, plugin runtime, GUI, DAQ, RTOS expansion, hardware qualification, or certification claim.
+- No third-party dependency added.
+
+### Gate Decision
+
+- Gate: M6 Implementation Gate.
+- Decision: Pass.
+- Reason: Issue #43 has a focused local crate, criteria integration, compatibility-preserving tests, docs, risk, and traceability updates.
+- Residual risk: Future report/SVG work could expose measurement-schema compatibility concerns and needs separate golden-output review.
+- Owner for residual risk: Verification and Validation Engineer / Documentation Engineer.
+
+### Hand-Off Note
+
+Role: Core Software Engineer
+Goal: Extract reusable measurement primitives before evidence-report and annotated-SVG expansion.
+Files changed: `crates/wra-measurements/`, `crates/wra-core/src/analysis.rs`, `crates/wra-core/src/criteria.rs`, Cargo files, README, architecture docs, requirements, risk, traceability, dependency review, and measurement docs.
+Checks run: See `docs/validation-log.md`.
+Status: Pass; ready for testing, V&V, and protected-branch PR.
+Known gaps: Report measurement schema, annotated SVG overlays, criteria DSL refinement, and broader measurement validation fixtures remain tracked by issues #44-#47.
+Next recommended step: Testing Gate for M6 measurement extraction.

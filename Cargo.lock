@@ -387,6 +387,7 @@ dependencies = [
  "serde",
  "serde_json",
  "toml",
+ "wra-measurements",
 ]
 
 [[package]]
@@ -395,6 +396,10 @@ version = "0.1.0"
 dependencies = [
  "wra-signal",
 ]
+
+[[package]]
+name = "wra-measurements"
+version = "0.1.0"
 
 [[package]]
 name = "wra-plot"

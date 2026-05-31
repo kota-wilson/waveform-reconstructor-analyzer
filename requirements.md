@@ -30,6 +30,7 @@
 | WRA-RQ-028 | The project shall provide a host-checkable ARM64 QEMU embedded demo path. | M3-RTOS-002 | Medium | `embedded/arm64/qemu/` contains a no_std demo crate that streams fixed sample data through `wra-embedded` and `wra-signal` without desktop file I/O, with documented ARM64/QEMU target assumptions and out-of-scope limits. | Embedded RTOS Engineer | Implemented |
 | WRA-RQ-029 | The project shall define a no_std RTOS adapter abstraction before runtime-specific integrations. | M3-RTOS-003 | High | `crates/wra-embedded` defines sample source, event sink, and runtime hook traits plus no_std streaming helpers; `wra-signal` remains independent from RTOS APIs; host unit tests verify the adapter boundary. | Embedded RTOS Engineer | Implemented |
 | WRA-RQ-030 | The project shall provide an isolated Zephyr feasibility prototype without production-readiness claims. | M3-RTOS-004 | Medium | `embedded/arm64/zephyr/` contains a feasibility sketch and documentation for toolchain assumptions, unsupported areas, and production-readiness risks; Zephyr remains optional and is not added to core, CLI, plotting, or signal crates. | Embedded RTOS Engineer / Documentation Engineer | Implemented |
+| WRA-RQ-031 | The project shall provide reusable measurement primitives before expanding evidence reports and annotated SVGs. | M6-001 / issue #43 | High | A `wra-measurements` crate provides no_std, allocation-free primitives for extrema, state-transition count, state-run duration, and rise/fall time; `wra-core` criteria evaluation consumes those primitives while preserving current CLI behavior and exact JSON report output. | Core Software Engineer / V&V Engineer | Implemented in branch |
 
 ## Assumptions
 
@@ -70,6 +71,7 @@
 | WRA-RQ-028 | Demo manifest tests and docs review | `cargo test --manifest-path embedded/arm64/qemu/Cargo.toml`, QEMU README target assumptions, and no desktop I/O inspection. |
 | WRA-RQ-029 | Unit and dependency tests | `wra-embedded` unit tests, workspace tests, clippy, and `cargo tree -p wra-embedded`. |
 | WRA-RQ-030 | Prototype and documentation review | Zephyr feasibility sketch, README risk section, and file inspection showing no Zephyr dependency or workspace integration. |
+| WRA-RQ-031 | Unit, golden, and workspace tests | `wra-measurements` unit tests, existing `wra-core` criteria tests, exact golden JSON report tests, workspace tests, clippy, and dependency tree inspection. |
 
 ## Rules
 
