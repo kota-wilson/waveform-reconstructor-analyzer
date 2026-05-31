@@ -1,3 +1,5 @@
+#![no_std]
+
 //! Shared rule execution semantics for FerrisOxide Signal.
 //!
 //! This crate evaluates rule criteria over caller-provided time/sample slices.
@@ -5,6 +7,13 @@
 //! plotting, file I/O, DAQ/controller I/O, hardware HALs, RTOS SDKs, and
 //! certification claims.
 
+extern crate alloc;
+
+use alloc::{
+    format,
+    string::{String, ToString},
+    vec::Vec,
+};
 use core::fmt;
 
 use ferrisoxide_measurements::{
@@ -25,6 +34,36 @@ pub enum RuleEngineError {
 }
 
 impl fmt::Display for RuleEngineError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Self::EmptyInput => write!(formatter, "empty input"),
+            Self::MissingChannel { channel } => write!(formatter, "missing channel `{channel}`"),
+            Self::InvalidWaveform { reason } => write!(formatter, "invalid waveform: {reason}"),
+            Self::InvalidParameter { name, reason } => {
+                write!(formatter, "invalid parameter `{name}`: {reason}")
+            }
+        }
+    }
+}
+
+pub type BorrowedRuleResult<'a, T> = core::result::Result<T, BorrowedRuleError<'a>>;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BorrowedRuleError<'a> {
+    EmptyInput,
+    MissingChannel {
+        channel: &'a str,
+    },
+    InvalidWaveform {
+        reason: &'static str,
+    },
+    InvalidParameter {
+        name: &'static str,
+        reason: &'static str,
+    },
+}
+
+impl<'a> fmt::Display for BorrowedRuleError<'a> {
     fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::EmptyInput => write!(formatter, "empty input"),
@@ -155,6 +194,98 @@ impl<'a> RuleWaveform<'a> {
 pub struct RuleChannel<'a> {
     pub name: &'a str,
     pub samples: &'a [f64],
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct BorrowedRuleCriterion<'a> {
+    pub id: &'a str,
+    pub check: BorrowedRuleCriterionCheck<'a>,
+}
+
+impl<'a> BorrowedRuleCriterion<'a> {
+    pub fn channel(&self) -> &'a str {
+        self.check.channel()
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum BorrowedRuleCriterionCheck<'a> {
+    MinimumVoltage {
+        channel: &'a str,
+        threshold_v: f64,
+    },
+    MaximumVoltage {
+        channel: &'a str,
+        threshold_v: f64,
+    },
+    StateTransitions {
+        channel: &'a str,
+        threshold_v: f64,
+        expected_count: usize,
+    },
+    PulseWidth {
+        channel: &'a str,
+        state: SignalState,
+        threshold_v: f64,
+        min_width_s: Option<f64>,
+        max_width_s: Option<f64>,
+    },
+    TransientDuration {
+        channel: &'a str,
+        expected_state: SignalState,
+        threshold_v: f64,
+        max_duration_s: f64,
+    },
+    TransientEvent {
+        channel: &'a str,
+        event_kind: &'a str,
+        expected_state: SignalState,
+        threshold_v: f64,
+        max_duration_s: f64,
+    },
+    StableStateDuration {
+        channel: &'a str,
+        state: SignalState,
+        threshold_v: f64,
+        min_duration_s: f64,
+    },
+    RiseFallTime {
+        channel: &'a str,
+        direction: EdgeDirection,
+        low_threshold_v: f64,
+        high_threshold_v: f64,
+        max_duration_s: f64,
+    },
+}
+
+impl<'a> BorrowedRuleCriterionCheck<'a> {
+    pub fn channel(&self) -> &'a str {
+        match self {
+            Self::MinimumVoltage { channel, .. }
+            | Self::MaximumVoltage { channel, .. }
+            | Self::StateTransitions { channel, .. }
+            | Self::PulseWidth { channel, .. }
+            | Self::TransientDuration { channel, .. }
+            | Self::TransientEvent { channel, .. }
+            | Self::StableStateDuration { channel, .. }
+            | Self::RiseFallTime { channel, .. } => channel,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct RuleSummary<'a> {
+    pub criterion_id: &'a str,
+    pub outcome: RuleOutcome,
+    pub failed_criterion: Option<&'a str>,
+    pub channel: &'a str,
+    pub measured_value: f64,
+    pub required_value: f64,
+    pub tolerance_used: f64,
+    pub unit: &'static str,
+    pub sample_index: usize,
+    pub timestamp: f64,
+    pub method: &'static str,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -337,6 +468,201 @@ pub fn evaluate_rule_set(
     })
 }
 
+pub fn evaluate_borrowed_rule<'a>(
+    waveform: RuleWaveform<'_>,
+    criterion: BorrowedRuleCriterion<'a>,
+    tolerances: RuleTolerances,
+) -> BorrowedRuleResult<'a, RuleSummary<'a>> {
+    validate_borrowed_tolerances(tolerances)?;
+    validate_time_axis_for_borrowed_rule(waveform, criterion)?;
+    let channel =
+        waveform
+            .channel(criterion.channel())
+            .ok_or(BorrowedRuleError::MissingChannel {
+                channel: criterion.channel(),
+            })?;
+
+    match criterion.check {
+        BorrowedRuleCriterionCheck::MinimumVoltage { threshold_v, .. } => {
+            let measurement = minimum_sample(waveform.time, channel.samples)
+                .map_err(borrowed_measurement_error)?;
+            let outcome = if measurement.value + tolerances.voltage_v >= threshold_v {
+                RuleOutcome::Pass
+            } else {
+                RuleOutcome::Fail
+            };
+            Ok(summary(
+                criterion,
+                outcome,
+                SummaryEvidence {
+                    measured_value: measurement.value,
+                    required_value: threshold_v,
+                    tolerance_used: tolerances.voltage_v,
+                    unit: "V",
+                    sample_index: measurement.sample_index,
+                    timestamp: measurement.timestamp,
+                    method: "minimum_sample",
+                },
+            ))
+        }
+        BorrowedRuleCriterionCheck::MaximumVoltage { threshold_v, .. } => {
+            let measurement = maximum_sample(waveform.time, channel.samples)
+                .map_err(borrowed_measurement_error)?;
+            let outcome = if measurement.value - tolerances.voltage_v <= threshold_v {
+                RuleOutcome::Pass
+            } else {
+                RuleOutcome::Fail
+            };
+            Ok(summary(
+                criterion,
+                outcome,
+                SummaryEvidence {
+                    measured_value: measurement.value,
+                    required_value: threshold_v,
+                    tolerance_used: tolerances.voltage_v,
+                    unit: "V",
+                    sample_index: measurement.sample_index,
+                    timestamp: measurement.timestamp,
+                    method: "maximum_sample",
+                },
+            ))
+        }
+        BorrowedRuleCriterionCheck::StateTransitions {
+            threshold_v,
+            expected_count,
+            ..
+        } => {
+            let transitions = count_state_transitions(
+                waveform.time,
+                channel.samples,
+                threshold_v,
+                tolerances.voltage_v,
+            )
+            .map_err(borrowed_measurement_error)?;
+            let measured = transitions.count;
+            let outcome = if measured == expected_count {
+                RuleOutcome::Pass
+            } else {
+                RuleOutcome::Fail
+            };
+            Ok(summary(
+                criterion,
+                outcome,
+                SummaryEvidence {
+                    measured_value: measured as f64,
+                    required_value: expected_count as f64,
+                    tolerance_used: 0.0,
+                    unit: "transitions",
+                    sample_index: transitions.first_index.unwrap_or(0),
+                    timestamp: transitions.first_timestamp.unwrap_or(waveform.time[0]),
+                    method: "state_transition_count",
+                },
+            ))
+        }
+        BorrowedRuleCriterionCheck::PulseWidth {
+            state,
+            threshold_v,
+            min_width_s,
+            max_width_s,
+            ..
+        } => evaluate_borrowed_pulse_width(
+            waveform,
+            channel,
+            criterion,
+            BorrowedPulseWidthSpec {
+                state,
+                threshold_v,
+                min_width_s,
+                max_width_s,
+            },
+            tolerances,
+        ),
+        BorrowedRuleCriterionCheck::TransientDuration {
+            expected_state,
+            threshold_v,
+            max_duration_s,
+            ..
+        } => evaluate_borrowed_transient_duration(
+            waveform,
+            channel,
+            criterion,
+            expected_state,
+            threshold_v,
+            max_duration_s,
+            tolerances,
+        ),
+        BorrowedRuleCriterionCheck::TransientEvent {
+            expected_state,
+            threshold_v,
+            max_duration_s,
+            ..
+        } => evaluate_borrowed_transient_duration(
+            waveform,
+            channel,
+            criterion,
+            expected_state,
+            threshold_v,
+            max_duration_s,
+            tolerances,
+        ),
+        BorrowedRuleCriterionCheck::StableStateDuration {
+            state,
+            threshold_v,
+            min_duration_s,
+            ..
+        } => {
+            let longest = state_run_extremum(
+                waveform.time,
+                channel.samples,
+                state,
+                threshold_v,
+                tolerances.voltage_v,
+                RunSelection::Longest,
+            )
+            .map_err(borrowed_measurement_error)?;
+            let (measured, sample_index, timestamp) = longest
+                .map(|run| (run.duration_s, run.start_index, run.start_time))
+                .unwrap_or((0.0, 0, waveform.time[0]));
+            let outcome = if measured + tolerances.time_s + FLOAT_TOLERANCE >= min_duration_s {
+                RuleOutcome::Pass
+            } else {
+                RuleOutcome::Fail
+            };
+            Ok(summary(
+                criterion,
+                outcome,
+                SummaryEvidence {
+                    measured_value: measured,
+                    required_value: min_duration_s,
+                    tolerance_used: tolerances.time_s,
+                    unit: "s",
+                    sample_index,
+                    timestamp,
+                    method: "state_run_duration",
+                },
+            ))
+        }
+        BorrowedRuleCriterionCheck::RiseFallTime {
+            direction,
+            low_threshold_v,
+            high_threshold_v,
+            max_duration_s,
+            ..
+        } => evaluate_borrowed_rise_fall_time(
+            waveform,
+            channel,
+            criterion,
+            BorrowedRiseFallTimeSpec {
+                direction,
+                low_threshold_v,
+                high_threshold_v,
+                max_duration_s,
+            },
+            tolerances,
+        ),
+    }
+}
+
 fn validate_time_axis_for_criteria(
     waveform: RuleWaveform<'_>,
     criteria: &[RuleCriterion],
@@ -361,6 +687,40 @@ fn validate_time_axis_for_criteria(
     Ok(())
 }
 
+fn validate_borrowed_tolerances<'a>(tolerances: RuleTolerances) -> BorrowedRuleResult<'a, ()> {
+    if !tolerances.voltage_v.is_finite() || tolerances.voltage_v < 0.0 {
+        return Err(BorrowedRuleError::InvalidParameter {
+            name: "tolerances.voltage_v",
+            reason: "must be a finite non-negative value",
+        });
+    }
+    if !tolerances.time_s.is_finite() || tolerances.time_s < 0.0 {
+        return Err(BorrowedRuleError::InvalidParameter {
+            name: "tolerances.time_s",
+            reason: "must be a finite non-negative value",
+        });
+    }
+    Ok(())
+}
+
+fn validate_time_axis_for_borrowed_rule<'a>(
+    waveform: RuleWaveform<'_>,
+    criterion: BorrowedRuleCriterion<'_>,
+) -> BorrowedRuleResult<'a, ()> {
+    if !is_borrowed_time_dependent(criterion) {
+        return Ok(());
+    }
+
+    for pair in waveform.time.windows(2) {
+        if pair[1] <= pair[0] {
+            return Err(BorrowedRuleError::InvalidWaveform {
+                reason: "time samples must be strictly increasing for duration criteria",
+            });
+        }
+    }
+    Ok(())
+}
+
 fn is_time_dependent(criterion: &RuleCriterion) -> bool {
     matches!(
         &criterion.check,
@@ -373,6 +733,282 @@ fn is_time_dependent(criterion: &RuleCriterion) -> bool {
         &criterion.check,
         RuleCriterionCheck::Measurement { measurement, .. } if measurement.is_time_dependent()
     )
+}
+
+fn is_borrowed_time_dependent(criterion: BorrowedRuleCriterion<'_>) -> bool {
+    matches!(
+        criterion.check,
+        BorrowedRuleCriterionCheck::PulseWidth { .. }
+            | BorrowedRuleCriterionCheck::TransientDuration { .. }
+            | BorrowedRuleCriterionCheck::TransientEvent { .. }
+            | BorrowedRuleCriterionCheck::StableStateDuration { .. }
+            | BorrowedRuleCriterionCheck::RiseFallTime { .. }
+    )
+}
+
+struct SummaryEvidence {
+    measured_value: f64,
+    required_value: f64,
+    tolerance_used: f64,
+    unit: &'static str,
+    sample_index: usize,
+    timestamp: f64,
+    method: &'static str,
+}
+
+fn summary<'a>(
+    criterion: BorrowedRuleCriterion<'a>,
+    outcome: RuleOutcome,
+    evidence: SummaryEvidence,
+) -> RuleSummary<'a> {
+    RuleSummary {
+        criterion_id: criterion.id,
+        outcome,
+        failed_criterion: (outcome == RuleOutcome::Fail).then_some(criterion.id),
+        channel: criterion.channel(),
+        measured_value: round_evidence(evidence.measured_value),
+        required_value: round_evidence(evidence.required_value),
+        tolerance_used: round_evidence(evidence.tolerance_used),
+        unit: evidence.unit,
+        sample_index: evidence.sample_index,
+        timestamp: round_evidence(evidence.timestamp),
+        method: evidence.method,
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+struct BorrowedPulseWidthSpec {
+    state: SignalState,
+    threshold_v: f64,
+    min_width_s: Option<f64>,
+    max_width_s: Option<f64>,
+}
+
+fn evaluate_borrowed_pulse_width<'a>(
+    waveform: RuleWaveform<'_>,
+    channel: &RuleChannel<'_>,
+    criterion: BorrowedRuleCriterion<'a>,
+    spec: BorrowedPulseWidthSpec,
+    tolerances: RuleTolerances,
+) -> BorrowedRuleResult<'a, RuleSummary<'a>> {
+    if spec.min_width_s.is_none() && spec.max_width_s.is_none() {
+        return Err(BorrowedRuleError::InvalidParameter {
+            name: "criteria.pulse_width",
+            reason: "min_width_s or max_width_s is required",
+        });
+    }
+
+    let shortest = if spec.min_width_s.is_some() {
+        state_run_extremum(
+            waveform.time,
+            channel.samples,
+            spec.state,
+            spec.threshold_v,
+            tolerances.voltage_v,
+            RunSelection::Shortest,
+        )
+        .map_err(borrowed_measurement_error)?
+    } else {
+        None
+    };
+    let longest = if spec.max_width_s.is_some() {
+        state_run_extremum(
+            waveform.time,
+            channel.samples,
+            spec.state,
+            spec.threshold_v,
+            tolerances.voltage_v,
+            RunSelection::Longest,
+        )
+        .map_err(borrowed_measurement_error)?
+    } else {
+        None
+    };
+
+    if shortest.or(longest).is_none() {
+        return Ok(summary(
+            criterion,
+            RuleOutcome::Fail,
+            SummaryEvidence {
+                measured_value: 0.0,
+                required_value: spec.min_width_s.or(spec.max_width_s).unwrap_or_default(),
+                tolerance_used: tolerances.time_s,
+                unit: "s",
+                sample_index: 0,
+                timestamp: waveform.time[0],
+                method: "state_run_duration",
+            },
+        ));
+    }
+
+    if let Some(min_width_s) = spec.min_width_s {
+        let shortest = shortest.expect("state run should exist after empty check");
+        if shortest.duration_s + tolerances.time_s + FLOAT_TOLERANCE < min_width_s {
+            return Ok(summary(
+                criterion,
+                RuleOutcome::Fail,
+                SummaryEvidence {
+                    measured_value: shortest.duration_s,
+                    required_value: min_width_s,
+                    tolerance_used: tolerances.time_s,
+                    unit: "s",
+                    sample_index: shortest.start_index,
+                    timestamp: shortest.start_time,
+                    method: "state_run_duration",
+                },
+            ));
+        }
+    }
+
+    if let Some(max_width_s) = spec.max_width_s {
+        let longest = longest.expect("state run should exist after empty check");
+        if longest.duration_s - tolerances.time_s - FLOAT_TOLERANCE > max_width_s {
+            return Ok(summary(
+                criterion,
+                RuleOutcome::Fail,
+                SummaryEvidence {
+                    measured_value: longest.duration_s,
+                    required_value: max_width_s,
+                    tolerance_used: tolerances.time_s,
+                    unit: "s",
+                    sample_index: longest.start_index,
+                    timestamp: longest.start_time,
+                    method: "state_run_duration",
+                },
+            ));
+        }
+    }
+
+    let measured = shortest
+        .or(longest)
+        .expect("state run should exist after empty check");
+    Ok(summary(
+        criterion,
+        RuleOutcome::Pass,
+        SummaryEvidence {
+            measured_value: measured.duration_s,
+            required_value: spec.min_width_s.or(spec.max_width_s).unwrap_or_default(),
+            tolerance_used: tolerances.time_s,
+            unit: "s",
+            sample_index: measured.start_index,
+            timestamp: measured.start_time,
+            method: "state_run_duration",
+        },
+    ))
+}
+
+fn evaluate_borrowed_transient_duration<'a>(
+    waveform: RuleWaveform<'_>,
+    channel: &RuleChannel<'_>,
+    criterion: BorrowedRuleCriterion<'a>,
+    expected_state: SignalState,
+    threshold_v: f64,
+    max_duration_s: f64,
+    tolerances: RuleTolerances,
+) -> BorrowedRuleResult<'a, RuleSummary<'a>> {
+    let transient_state = expected_state.opposite();
+    let longest = state_run_extremum(
+        waveform.time,
+        channel.samples,
+        transient_state,
+        threshold_v,
+        tolerances.voltage_v,
+        RunSelection::Longest,
+    )
+    .map_err(borrowed_measurement_error)?;
+    let (measured, sample_index, timestamp) = longest
+        .map(|run| (run.duration_s, run.start_index, run.start_time))
+        .unwrap_or((0.0, 0, waveform.time[0]));
+    let outcome = if measured <= max_duration_s + tolerances.time_s + FLOAT_TOLERANCE {
+        RuleOutcome::Pass
+    } else {
+        RuleOutcome::Fail
+    };
+
+    Ok(summary(
+        criterion,
+        outcome,
+        SummaryEvidence {
+            measured_value: measured,
+            required_value: max_duration_s,
+            tolerance_used: tolerances.time_s,
+            unit: "s",
+            sample_index,
+            timestamp,
+            method: "state_run_duration",
+        },
+    ))
+}
+
+#[derive(Debug, Clone, Copy)]
+struct BorrowedRiseFallTimeSpec {
+    direction: EdgeDirection,
+    low_threshold_v: f64,
+    high_threshold_v: f64,
+    max_duration_s: f64,
+}
+
+fn evaluate_borrowed_rise_fall_time<'a>(
+    waveform: RuleWaveform<'_>,
+    channel: &RuleChannel<'_>,
+    criterion: BorrowedRuleCriterion<'a>,
+    spec: BorrowedRiseFallTimeSpec,
+    tolerances: RuleTolerances,
+) -> BorrowedRuleResult<'a, RuleSummary<'a>> {
+    if spec.low_threshold_v >= spec.high_threshold_v {
+        return Err(BorrowedRuleError::InvalidParameter {
+            name: "criteria.low_threshold_v",
+            reason: "must be lower than high_threshold_v",
+        });
+    }
+
+    let measurement = match spec.direction {
+        EdgeDirection::Rise => measure_rise_time(
+            waveform.time,
+            channel.samples,
+            spec.low_threshold_v,
+            spec.high_threshold_v,
+            tolerances.voltage_v,
+        ),
+        EdgeDirection::Fall => measure_fall_time(
+            waveform.time,
+            channel.samples,
+            spec.low_threshold_v,
+            spec.high_threshold_v,
+            tolerances.voltage_v,
+        ),
+    }
+    .map_err(borrowed_measurement_error)?;
+    let (measured, sample_index, timestamp, observed) = measurement
+        .map(|transition| {
+            (
+                transition.duration_s,
+                transition.end_index,
+                transition.end_time,
+                true,
+            )
+        })
+        .unwrap_or((f64::INFINITY, 0, waveform.time[0], false));
+    let outcome =
+        if observed && measured <= spec.max_duration_s + tolerances.time_s + FLOAT_TOLERANCE {
+            RuleOutcome::Pass
+        } else {
+            RuleOutcome::Fail
+        };
+
+    Ok(summary(
+        criterion,
+        outcome,
+        SummaryEvidence {
+            measured_value: measured,
+            required_value: spec.max_duration_s,
+            tolerance_used: tolerances.time_s,
+            unit: "s",
+            sample_index,
+            timestamp,
+            method: "edge_time",
+        },
+    ))
 }
 
 fn evaluate_criterion(
@@ -606,7 +1242,13 @@ struct Evidence {
 
 fn round_evidence(value: f64) -> f64 {
     if value.is_finite() {
-        (value * 1_000_000_000.0).round() / 1_000_000_000.0
+        let scaled = value * 1_000_000_000.0;
+        let rounded = if scaled >= 0.0 {
+            (scaled + 0.5) as i64
+        } else {
+            (scaled - 0.5) as i64
+        };
+        rounded as f64 / 1_000_000_000.0
     } else {
         value
     }
@@ -1430,19 +2072,37 @@ fn measurement_error(error: MeasurementError) -> RuleEngineError {
     }
 }
 
+fn borrowed_measurement_error<'a>(error: MeasurementError) -> BorrowedRuleError<'a> {
+    match error {
+        MeasurementError::EmptyInput => BorrowedRuleError::EmptyInput,
+        MeasurementError::MismatchedLength => BorrowedRuleError::InvalidWaveform {
+            reason: "measurement time and sample arrays must have the same length",
+        },
+        MeasurementError::NonMonotonicTimeAxis => BorrowedRuleError::InvalidWaveform {
+            reason: "time samples must be strictly increasing for duration measurements",
+        },
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
-    fn waveform<'a>(time: &'a [f64], samples: &'a [f64]) -> RuleWaveform<'a> {
-        let channel = RuleChannel {
+    fn evaluate_owned(
+        time: &[f64],
+        samples: &[f64],
+        criteria: &[RuleCriterion],
+        tolerances: RuleTolerances,
+    ) -> RuleEvaluation {
+        let channels = [RuleChannel {
             name: "input_v",
             samples,
-        };
-        RuleWaveform {
+        }];
+        let waveform = RuleWaveform {
             time,
-            channels: Box::leak(Box::new([channel])),
-        }
+            channels: &channels,
+        };
+        evaluate_rule_set(waveform, criteria, tolerances).expect("rule set should evaluate")
     }
 
     #[test]
@@ -1466,12 +2126,7 @@ mod tests {
             },
         ];
 
-        let evaluation = evaluate_rule_set(
-            waveform(&time, &samples),
-            &criteria,
-            RuleTolerances::default(),
-        )
-        .expect("rule set should evaluate");
+        let evaluation = evaluate_owned(&time, &samples, &criteria, RuleTolerances::default());
 
         assert_eq!(evaluation.results[0].outcome, RuleOutcome::Pass);
         assert_eq!(evaluation.results[1].outcome, RuleOutcome::Pass);
@@ -1507,12 +2162,7 @@ mod tests {
             },
         ];
 
-        let evaluation = evaluate_rule_set(
-            waveform(&time, &samples),
-            &criteria,
-            RuleTolerances::default(),
-        )
-        .expect("rule set should evaluate");
+        let evaluation = evaluate_owned(&time, &samples, &criteria, RuleTolerances::default());
 
         assert_eq!(evaluation.results[0].outcome, RuleOutcome::Pass);
         assert_eq!(evaluation.results[1].outcome, RuleOutcome::Fail);
@@ -1536,15 +2186,15 @@ mod tests {
             },
         }];
 
-        let evaluation = evaluate_rule_set(
-            waveform(&time, &samples),
+        let evaluation = evaluate_owned(
+            &time,
+            &samples,
             &criteria,
             RuleTolerances {
                 voltage_v: 0.02,
                 time_s: 0.0,
             },
-        )
-        .expect("rule set should evaluate");
+        );
 
         assert_eq!(evaluation.results[0].outcome, RuleOutcome::Pass);
         assert_eq!(evaluation.results[0].tolerance_used, 0.02);
@@ -1565,13 +2215,111 @@ mod tests {
             },
         }];
 
-        let error = evaluate_rule_set(
-            waveform(&time, &samples),
-            &criteria,
-            RuleTolerances::default(),
-        )
-        .expect_err("non-monotonic time should fail");
+        let channels = [RuleChannel {
+            name: "input_v",
+            samples: &samples,
+        }];
+        let waveform = RuleWaveform {
+            time: &time,
+            channels: &channels,
+        };
+        let error = evaluate_rule_set(waveform, &criteria, RuleTolerances::default())
+            .expect_err("non-monotonic time should fail");
 
         assert!(matches!(error, RuleEngineError::InvalidWaveform { .. }));
+    }
+
+    #[test]
+    fn borrowed_summary_evaluates_basic_rule_without_owned_rule_data() {
+        let time = [0.0, 0.001, 0.002, 0.003, 0.004];
+        let samples = [0.0, 0.0, 5.0, 5.0, 0.0];
+        let channels = [RuleChannel {
+            name: "input_v",
+            samples: &samples,
+        }];
+        let waveform = RuleWaveform {
+            time: &time,
+            channels: &channels,
+        };
+        let criterion = BorrowedRuleCriterion {
+            id: "transition_count",
+            check: BorrowedRuleCriterionCheck::StateTransitions {
+                channel: "input_v",
+                threshold_v: 2.5,
+                expected_count: 2,
+            },
+        };
+
+        let summary = evaluate_borrowed_rule(waveform, criterion, RuleTolerances::default())
+            .expect("borrowed rule should evaluate");
+
+        assert_eq!(summary.outcome, RuleOutcome::Pass);
+        assert_eq!(summary.criterion_id, "transition_count");
+        assert_eq!(summary.channel, "input_v");
+        assert_eq!(summary.measured_value, 2.0);
+        assert_eq!(summary.method, "state_transition_count");
+    }
+
+    #[test]
+    fn borrowed_summary_detects_transient_event() {
+        let time = [0.0, 0.001, 0.002, 0.003];
+        let samples = [5.0, 0.0, 0.0, 5.0];
+        let channels = [RuleChannel {
+            name: "supply_v",
+            samples: &samples,
+        }];
+        let waveform = RuleWaveform {
+            time: &time,
+            channels: &channels,
+        };
+        let criterion = BorrowedRuleCriterion {
+            id: "dropout",
+            check: BorrowedRuleCriterionCheck::TransientEvent {
+                channel: "supply_v",
+                event_kind: "dropout",
+                expected_state: SignalState::High,
+                threshold_v: 2.5,
+                max_duration_s: 0.001,
+            },
+        };
+
+        let summary = evaluate_borrowed_rule(waveform, criterion, RuleTolerances::default())
+            .expect("borrowed transient rule should evaluate");
+
+        assert_eq!(summary.outcome, RuleOutcome::Fail);
+        assert_eq!(summary.failed_criterion, Some("dropout"));
+        assert_eq!(summary.measured_value, 0.002);
+        assert_eq!(summary.unit, "s");
+    }
+
+    #[test]
+    fn borrowed_summary_errors_use_borrowed_static_data() {
+        let time = [0.0, 0.001];
+        let samples = [0.0, 5.0];
+        let channels = [RuleChannel {
+            name: "input_v",
+            samples: &samples,
+        }];
+        let waveform = RuleWaveform {
+            time: &time,
+            channels: &channels,
+        };
+        let criterion = BorrowedRuleCriterion {
+            id: "missing",
+            check: BorrowedRuleCriterionCheck::MinimumVoltage {
+                channel: "missing_v",
+                threshold_v: 0.0,
+            },
+        };
+
+        let error = evaluate_borrowed_rule(waveform, criterion, RuleTolerances::default())
+            .expect_err("missing channel should fail");
+
+        assert_eq!(
+            error,
+            BorrowedRuleError::MissingChannel {
+                channel: "missing_v"
+            }
+        );
     }
 }
