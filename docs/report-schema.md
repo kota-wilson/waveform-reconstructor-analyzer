@@ -49,7 +49,7 @@ M10-006 implements the additive `waveform_metadata.transform_steps` field descri
 - Skip `transform_steps` for raw or untransformed waveform reports unless a later schema migration explicitly changes that rule.
 - Update exact golden reports whenever structured transform metadata intentionally changes.
 
-Current transform records cover `moving_average`, `low_pass`, `adc_quantize`, `offset`, `gain`, `invert`, `clamp`, `deadband`, `dc_remove`, `baseline_subtract`, and `moving_median`. Each record includes `sequence_index`, `history_label`, `name`, `category`, channel behavior, parameters with units, sample-rate requirement, statefulness, causality, phase effect, streaming/offline flags, runtime profile, capability status, and evidence level.
+Current transform records cover `moving_average`, `low_pass`, `adc_quantize`, `offset`, `gain`, `invert`, `clamp`, `deadband`, `dc_remove`, `baseline_subtract`, `high_pass_baseline`, and `moving_median`. Each record includes `sequence_index`, `history_label`, `name`, `category`, channel behavior, parameters with units, sample-rate requirement, statefulness, causality, phase effect, streaming/offline flags, runtime profile, capability status, and evidence level.
 
 M12 event reports reuse the same metadata shape inside `event_records[].transform_metadata` and `event_validations[].transform_metadata`. Event transforms use `output_channels.kind = event_records`; validation transforms use `output_channels.kind = validation_records`.
 

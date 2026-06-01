@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M10-001 / issue #132 architecture artifact updated by M12 local implementation. This document defines vocabulary and capability boundaries; current implementation status is limited to rows marked `implemented`.
+Status: M10-001 / issue #132 architecture artifact updated by M14 local implementation. This document defines vocabulary and capability boundaries; current implementation status is limited to rows marked `implemented`.
 
 ## Purpose
 
@@ -133,8 +133,8 @@ This matrix records M10-001 vocabulary boundaries. Later issues own implementati
 | Existing criteria evidence | voltage ranges, response latency, stable state, transient event | `ValidationTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested`, `parity_tested` where rule-engine paths apply | `desktop`, `pi5_no_std_candidate` where no_std rule-engine paths apply |
 | Pointwise MVP | `offset`, `gain`, `invert`, `clamp`, `deadband` | `PointwiseTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; embedded candidacy requires later evidence |
 | Baseline MVP | `dc_remove`, `baseline_subtract` | `BaselineTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; embedded candidacy requires later evidence |
+| High-pass baseline correction | `high_pass_baseline` | `StatefulTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; embedded candidacy and package export require later evidence |
 | Moving median MVP | `moving_median` | `WindowedTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; embedded candidacy requires later evidence |
-| High-pass baseline correction | first-order high-pass baseline correction | `StatefulTransform` | `planned` | `documented_only` | `desktop`; deferred from M11 pending separate timing behavior issue |
 | Event MVP | Schmitt trigger, debounce, glitch removal, edges, bounce | `EventTransform`, `PulseEventTransform`, `StatefulTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` through CLI JSON report coverage | `desktop`; Schmitt primitive is no_std-compatible in the rule engine, broader event reporting remains desktop-only |
 | Event validation MVP | missing pulse, extra pulse, dwell-time, timeout | `ValidationTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` through CLI JSON report coverage | `desktop`; embedded validation runtime requires later bounded-buffer design |
 | Spectral analysis | FFT, PSD, coherence, THD, ENOB | `FrequencyTransform` | `research` | `documented_only` | `future_gated` |
@@ -204,6 +204,6 @@ Role: Software Architect
 Goal: Complete M10-001 / issue #132 by defining transform capability vocabulary and matrix boundaries.
 Files changed: `docs/transform-capability-model.md`
 Checks run: Documentation and traceability review.
-Status: Updated by M13 implementation in PR #164; milestone #13 is closed.
-Known gaps: Bounded-buffer embedded event runtime and high-pass baseline correction remain future gated work.
+Status: Updated by M14 planning and implementation work for high-pass baseline correction.
+Known gaps: Bounded-buffer embedded event runtime and package/runtime transform exposure remain future gated work.
 Next recommended step: Use the M13 runtime-profile validator before future transform package or runtime exposure.

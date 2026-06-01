@@ -6,9 +6,9 @@ Project folder: `/Users/kota/Desktop/codexprojects/softwaredev/projects/ferrisox
 
 Execution tier: Tier 2 MVP plus roadmap-controlled follow-on milestones
 
-Current objective: Hold after completing M13 transform runtime-profile validation through validation, PR, issue closure, and milestone closure.
+Current objective: Advance M14 high-pass baseline correction after M13 transform runtime-profile validation closure and user approval to continue.
 
-Current stage: M13 is complete through PR #164; issues #158 through #163 and milestone #13 are closed.
+Current stage: M13 is complete through PR #164; issues #158 through #163 and milestone #13 are closed. M14 local implementation and validation are complete; GitHub milestone #14 and issues #167 through #172 are open until PR merge.
 
 Selected workflow: `workflows/project-orchestration-pipeline.md`
 
@@ -25,6 +25,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 - Transform taxonomy: `docs/analog-transform-taxonomy.md`
 - Next milestone roadmap: `docs/next-milestones-roadmap.md`
 - M13 proposal: `docs/v0.11.0-transform-runtime-profile-validation-milestone-proposal.md`
+- M14 proposal: `docs/v0.12.0-high-pass-baseline-correction-milestone-proposal.md`
 - Selected standards: Rust, signal-processing, open-source library, data-analysis, environment, granularity.
 
 ## Milestones
@@ -36,6 +37,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | M11 / v0.9.0 | Pointwise and windowed transform MVP | Core Software Engineer / Systems Engineer | M10 architecture accepted and user requested next milestone | Pointwise, baseline, moving median, metadata, raw-preservation tests, docs, PR #147, closed issues #140 through #146, closed milestone #11 | Complete |
 | M12 / v0.10.0 | Event and validation transform MVP | Core Software Engineer / V&V Engineer | M10 accepted, M11 compatibility path established, and user approved M12 | Event records, Schmitt trigger, debounce, glitch removal, event validation, fixtures, docs, PR #156, closed issues #149 through #155, closed milestone #12 | Complete |
 | M13 / v0.11.0 | Transform runtime-profile validation | Software Architect / Core Software Engineer / V&V Engineer | M12 closed and user approved continuing | Runtime-profile validator API, timing-evidence checks, waveform/event metadata rejection tests, docs guardrails, PR #164, closed issues #158 through #163, closed milestone #13 | Complete |
+| M14 / v0.12.0 | High-pass baseline correction | Systems Engineer / Core Software Engineer / V&V Engineer | M13 closed and user approved continuing | `high_pass_baseline` config, first-order high-pass recurrence, invalid timing checks, metadata tests, CLI/config guardrails, docs, traceability, PR, closed issues, closed milestone | Local implementation and validation complete; PR/CI/closure pending |
 
 ## Zoom-Level Plan
 
@@ -46,6 +48,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | M11 implementation | 3-5 | Transform modules, config validation, CLI/report integration, fixtures | Yes |
 | M12 implementation | 3-5 | Event records, validation records, known-answer fixtures, parity tests | Yes |
 | M13 implementation | 3-5 | Runtime validator module, structured errors, timing evidence, transform metadata tests, docs | Yes |
+| M14 implementation | 3-5 | Filter enum/config wiring, high-pass recurrence, invalid timing tests, metadata tests, CLI/config coverage, export guardrail test, docs | Yes |
 
 ## Task Queue
 
@@ -70,6 +73,9 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | WRA-TASK-025 | Create M13 runtime-profile validation proposal | Software Architect / Project Coordinator | M10/M12 known gaps, transform metadata model, user approval to continue | `docs/v0.11.0-transform-runtime-profile-validation-milestone-proposal.md`; WRA-RQ-087 through WRA-RQ-092 | Requirements Gate | Complete |
 | WRA-TASK-026 | Approve M13 and create GitHub issues | Project Coordinator / GitHub Maintainer Specialist | M13 proposal and placeholders M13-001 through M13-006 | GitHub milestone #13 and issues #158 through #163 | Human Approval Gate | Complete |
 | WRA-TASK-027 | Implement M13 runtime-profile validator | Core Software Engineer / V&V Engineer / Documentation Engineer | Issues #158 through #163, M10 metadata model, M12 event metadata | `crates/ferrisoxide-core/src/runtime_profile.rs`, docs, tests, traceability, and pipeline report | Implementation/Release Gate | Complete through PR #164 |
+| WRA-TASK-028 | Create M14 high-pass baseline correction proposal | Systems Engineer / Project Coordinator | Deferred WRA-RQ-078, M11/M13 metadata and runtime-profile model, user approval to continue | `docs/v0.12.0-high-pass-baseline-correction-milestone-proposal.md`; WRA-RQ-093 through WRA-RQ-098 | Requirements Gate | Complete locally |
+| WRA-TASK-029 | Approve M14 and create GitHub issues | Project Coordinator / GitHub Maintainer Specialist | M14 proposal and placeholders M14-001 through M14-006 | GitHub milestone #14 and issues #167 through #172 | Human Approval Gate | Complete |
+| WRA-TASK-030 | Implement M14 high-pass baseline correction | Core Software Engineer / V&V Engineer / Documentation Engineer | Issues #167 through #172, existing `[[filters]]` config, M10 metadata model, M13 runtime-profile guardrails | `crates/ferrisoxide-core/src/filter.rs`, config/CLI tests, example config, docs, traceability, risk, and pipeline report | Implementation/Release Gate | Complete locally; PR pending |
 
 ## Approval Gates
 
@@ -80,6 +86,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | M11 issue creation and implementation approval | Before creating GitHub issues and editing code for pointwise/windowed transforms | User / Project Coordinator | User request to continue the pipeline with the next milestone; M11 proposal and M10 closure evidence | Passed |
 | M12 issue creation and implementation approval | Before creating GitHub issues and editing code for event/validation transforms | User / Project Coordinator | User message "M12 approved" on 2026-06-01; M12 proposal, M10/M11 closure evidence | Passed |
 | M13 issue creation and implementation approval | Before creating GitHub issues and editing code for runtime-profile validation | User / Project Coordinator | User approved continuing after M12 closure on 2026-06-01; M13 proposal, M12 closure evidence | Passed for planning and issue creation |
+| M14 issue creation and implementation approval | Before creating GitHub issues and editing code for high-pass baseline correction | User / Project Coordinator | User approved continuing after M13 closure on 2026-06-01; M14 proposal, M13 closure evidence | Passed for planning, issue creation, and implementation |
 | Dependency approval | Before adding third-party crates | User / Security Engineer | Dependency reason, license, alternatives, no_std impact | Pending |
 | Schema compatibility approval | Before incompatible report/config schema changes | Project Coordinator / V&V Engineer | Migration plan, golden tests, compatibility statement | Pending |
 | Hardware/runtime approval | Before live DAQ, HAL, RTOS SDK, target hardware, unsafe FFI, or global setup | User / Technical Director | Environment plan, risk review, rollback plan, validation scope | Pending |
@@ -93,6 +100,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | Baseline transforms hiding real failures | Systems Engineer / V&V Engineer | Preserve raw data, require transform metadata and known-answer fixtures | M11 implementation |
 | Desktop/embedded event drift | Embedded RTOS Engineer / V&V Engineer | Shared deterministic logic where practical and parity tests | M12 implementation |
 | Runtime-profile validation overclaim | Software Architect / Documentation Engineer | Keep M13 scoped to metadata rejection evidence and require separate gates for runtime execution, hardware, or certification claims | M13 implementation |
+| High-pass baseline correction hiding failures | Systems Engineer / V&V Engineer | Preserve raw data, require explicit config, reject invalid timing/cutoff values, and document phase/edge behavior | M14 implementation |
 
 ## State Updates Required
 
@@ -108,19 +116,20 @@ You are the Project Orchestrator / Core Software Engineer.
 
 Purpose
 
-Hold after M13 transform runtime-profile validation closure and wait for explicit approval before M14 or new scope.
+Advance M14 high-pass baseline correction through PR, required CI, issue closure, milestone closure, and closure evidence.
 
 Responsibilities
 
 - Keep changes inside this project.
 - Do not add third-party crates without dependency approval.
-- Do not create additional GitHub milestones/issues beyond M13 without approval.
-- Do not start M14 or hardware/runtime work without explicit user approval.
+- Create only the approved M14 GitHub milestone/issues from the local proposal.
+- Do not start M15 or hardware/runtime work without explicit user approval.
 - Preserve raw waveform data and avoid unsupported algorithm, hardware, runtime, or certification claims.
 
 Deliverables
 
-- M13 runtime-profile validation is implemented, validated, merged in PR #164, and closed with milestone #13.
+- M14 high-pass baseline correction proposal, issue planning, requirements, traceability, risk, docs, implementation, tests, PR, and milestone closure.
+- High-pass baseline correction remains desktop-only and does not add rule-package export, live DAQ, HAL/RTOS, target hardware, dependencies, or certification claims.
 - Handoff note.
 
 Expected format to receive deliverables

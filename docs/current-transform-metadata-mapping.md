@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: Current mapping artifact updated by M12 issues #149 through #155.
+Status: Current mapping artifact updated by M14 issues #167 through #172.
 
 ## Purpose
 
@@ -18,6 +18,7 @@ FerrisOxide currently implements waveform transform steps in `crates/ferrisoxide
 - `deadband`
 - `dc_remove`
 - `baseline_subtract`
+- `high_pass_baseline`
 - `moving_median`
 
 M12 also implements event and validation transform metadata in `crates/ferrisoxide-core/src/event.rs` for `event_records[].transform_metadata` and `event_validations[].transform_metadata`.
@@ -38,6 +39,7 @@ The existing `transform_history` strings remain the compatibility field:
 - `deadband(threshold_v={threshold_v})`
 - `dc_remove()`
 - `baseline_subtract(baseline_v={baseline_v})`
+- `high_pass_baseline(cutoff_hz={cutoff_hz})`
 - `moving_median(window_samples={window_samples})`
 
 Structured metadata must keep `history_label` equal to the matching `transform_history` entry for the same sequence index.
@@ -85,9 +87,10 @@ Event metadata is nested under event and validation evidence rather than `wavefo
 | Deadband | `deadband` | `PointwiseTransform` | `threshold_v` in `V` | false | false | true | `nonlinear` | true | false |
 | DC removal | `dc_remove` | `BaselineTransform` | none | false | true | false | `none` | false | true |
 | Baseline subtraction | `baseline_subtract` | `BaselineTransform` | `baseline_v` in `V` | false | false | true | `none` | true | false |
+| High-pass baseline correction | `high_pass_baseline` | `StatefulTransform` | `cutoff_hz` in `Hz` | true | true | true | `delay` | true | false |
 | Moving median | `moving_median` | `WindowedTransform` | `window_samples` in `samples` | false | true | true | `nonlinear` | true | false |
 
-M11 defers first-order high-pass baseline correction. That transform needs explicit time-axis behavior and should not be inferred from the M11 baseline subtraction support.
+M14 implements first-order high-pass baseline correction as desktop-only support. It is not portable rule-package export support, embedded runtime support, calibrated drift removal, or hardware timing evidence.
 
 ## Moving Average
 
@@ -294,9 +297,9 @@ moving_average(window_samples=2) -> adc_quantize(bits=8,min_v=0,max_v=5)
 ## Hand-Off Note
 
 Role: Systems Engineer / Software Architect
-Goal: Complete M10-003 / issue #134 by mapping current implemented transforms to structured metadata values.
+Goal: Complete M10-003 / issue #134 by mapping current implemented transforms to structured metadata values, updated by M14 high-pass baseline correction.
 Files changed: `docs/current-transform-metadata-mapping.md`
 Checks run: Documentation and compatibility review.
-Status: Complete through PR #138 and updated by M12 PR #156 for event/validation metadata.
-Known gaps: Bounded embedded event exposure and future runtime/package transform exposure remain gated work. M13 adds runtime-profile validator code for this mapping through PR #164.
+Status: Complete through PR #138, updated by M12 PR #156 for event/validation metadata, and updated locally by M14 high-pass baseline correction work.
+Known gaps: Bounded embedded event exposure and future runtime/package transform exposure remain gated work. M13 adds runtime-profile validator code for this mapping through PR #164; M14 keeps high-pass baseline correction desktop-only.
 Next recommended step: Use this mapping with the M13 validator before future transform package or runtime exposure.

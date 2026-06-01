@@ -40,7 +40,7 @@ Corresponding tests:
 
 ## Baseline Transforms
 
-Implemented types: `DcRemoveTransform` and `BaselineSubtractTransform`.
+Implemented types: `DcRemoveTransform`, `BaselineSubtractTransform`, and `HighPassBaselineFilter`.
 
 Equations:
 
@@ -51,20 +51,32 @@ y[i] = x[i] - mean
 
 baseline_subtract:
 y[i] = x[i] - baseline_v
+
+high_pass_baseline:
+y[0] = 0
+rc = 1 / (2 * pi * cutoff_hz)
+alpha[i] = rc / (rc + dt[i])
+y[i] = alpha[i] * (y[i-1] + x[i] - x[i-1])
 ```
 
 Behavior:
 
 - DC removal computes one mean per channel across the full waveform, so it is marked non-causal, non-streaming, and offline-only in structured metadata.
 - Baseline subtraction uses a configured baseline value in the input signal unit.
+- High-pass baseline correction is a causal first-order recurrence that requires `cutoff_hz` to be finite and greater than zero.
+- High-pass baseline correction requires finite, strictly increasing time samples, uses adjacent timestamp deltas, and initializes `y[0] = 0`.
+- High-pass baseline correction records `sample_rate_required = true`, `stateful = true`, and `phase_effect = delay`.
 - These transforms make baseline assumptions explicit in `transform_history` and `transform_steps`; they do not prove calibrated sensor accuracy.
 - Raw input waveform samples are not mutated.
-- First-order high-pass baseline correction is deferred from M11 and remains future-gated.
 
 Corresponding tests:
 
 - `filter::tests::deadband_and_baseline_transforms_preserve_raw_samples`
+- `filter::tests::high_pass_baseline_removes_constant_baseline_and_records_metadata`
+- `filter::tests::high_pass_baseline_attenuates_slow_drift`
+- `filter::tests::high_pass_baseline_rejects_invalid_time_axis`
 - `config::tests::filter_config_covers_m11_transform_types`
+- `config::tests::filter_config_covers_m14_high_pass_baseline`
 
 ## Moving Average
 
