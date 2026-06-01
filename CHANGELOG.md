@@ -49,3 +49,4 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - `ferrisoxide-deployment` crate with RTOS/controller deployment package manifest schema, required artifact roles, validation helpers, checksum drift-detection wording, and a heated-actuator package fixture.
 - Deployment manifest mode profiles that separate `production_control`, `test_verification`, and `signal_validation` purposes and reject mixed production/test artifact combinations.
 - Controller config parity test comparing desktop simulation state/evidence with embedded-compatible borrowed-rule evidence over the same configs, channel map, and waveform input.
+- Qualification evidence report schema and exact JSON fixture linking config versions, channel map, simulation trace, criteria evidence, deployment metadata, checksum evidence, generated timestamp, and non-certification scope notes.

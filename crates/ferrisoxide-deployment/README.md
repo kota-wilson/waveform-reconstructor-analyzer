@@ -1,6 +1,6 @@
 # ferrisoxide-deployment
 
-`ferrisoxide-deployment` defines the reviewable deployment package manifest format for controller-in-the-loop workflows.
+`ferrisoxide-deployment` defines the reviewable deployment package manifest and qualification evidence report formats for controller-in-the-loop workflows.
 
 The crate is intentionally schema- and validation-focused. It does not export packages, sign artifacts, load RTOS configs, talk to hardware, bind HALs, or claim hardware qualification/certification status.
 
@@ -11,6 +11,8 @@ Current scope:
 - required artifact roles,
 - manifest validation,
 - checksum index text generation,
+- qualification evidence report schema and validation,
+- exact JSON qualification report fixture,
 - explicit non-signing and non-certification wording.
 
 Required artifact roles:
@@ -25,3 +27,4 @@ Required artifact roles:
 - `generated-at.txt`
 
 See `docs/rtos-deployment-package-format.md` for the human-readable package contract.
+See `docs/qualification-evidence-report.md` for the human-readable report contract.

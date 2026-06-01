@@ -22,6 +22,59 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, and `ferrisoxide-cli`.
 
+## M9-010 Qualification Evidence Report Validation Update
+
+Date: 2026-06-01
+
+Stage: Testing qualification evidence report format
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, GUI frameworks, live DAQ SDKs, HALs, RTOS SDKs, target toolchains, QEMU images, signing tools, runtime loaders, or new third-party dependencies installed.
+- GitHub issue: #86, `M9-010 Add qualification evidence report format`
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-deployment` | Passed | 10 deployment tests passed, including exact qualification report JSON, missing checksum link, missing non-certification scope note, and empty trace/criteria validation. |
+| `cargo tree -p ferrisoxide-deployment` | Passed | Runtime dependency is existing approved `serde`; dev-dependency is existing approved `serde_json`; no new third-party dependency, GUI, DAQ SDK, HAL, RTOS SDK, target runtime, signing, or hardware dependency appears. |
+| `cargo fmt --check` | Passed | Formatting clean. |
+| `cargo test --workspace` | Passed | 176 workspace unit, integration, and doctest checks passed. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| README/evidence/deployment/pipeline local Markdown link-target scan | Passed | Local links in README, qualification evidence docs, controller workflow, deployment README, documentation review, and pipeline report resolved. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `example_qualification_evidence_report_validates_and_matches_exact_json` | Parses, validates, serializes, and exactly compares `examples/deployment-package/heated-actuator/qualification-report.json`. |
+| `qualification_evidence_requires_non_certification_scope_note` | Confirms validation requires an explicit "not flight certification evidence" scope note. |
+| `qualification_evidence_requires_checksum_links` | Confirms checksum evidence must include linked deployment artifact roles such as `test_verification_config`. |
+| `qualification_evidence_requires_trace_and_criteria_records` | Confirms reports cannot omit simulation trace frames or criteria evidence records. |
+
+### Gate Decision
+
+- Gate: Testing and V&V Gates for M9-010.
+- Decision: Pass locally.
+- Reason: Exact report fixture tests, dependency tree review, formatting, workspace tests, clippy, Markdown local-link scan, and whitespace checks passed without adding a CLI exporter, embedded controller runtime, target loader, GUI, live DAQ SDK, HAL, RTOS SDK, signing, authentication, target hardware execution, hardware qualification evidence, or certification claims.
+- Residual risk: Protected GitHub CI, PR merge, issue #86 closure, milestone #9 closure, deployment package export command, live DAQ SDK integration, RTOS runtime binding, target hardware validation, and certification evidence remain pending.
+- Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate M9-010 qualification evidence report format.
+Files changed: `crates/ferrisoxide-deployment/`, `examples/deployment-package/heated-actuator/qualification-report.json`, `docs/qualification-evidence-report.md`, README, architecture/controller workflow docs, deployment crate README, requirements, traceability, risk register, documentation review, validation log, pipeline report, changelog, and project state.
+Checks run: `cargo test -p ferrisoxide-deployment`; `cargo tree -p ferrisoxide-deployment`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; README/evidence/deployment/pipeline local Markdown link-target scan; `git diff --check`.
+Status: Pass locally; PR, protected CI, merge, issue #86 closure, and milestone #9 closure pending.
+Known gaps: No deployment package export command, live DAQ SDK, RTOS binding, target hardware timing evidence, cryptographic signing, or certification evidence.
+Next recommended step: Open PR with `Fixes #86`, wait for required CI, and merge only after checks pass.
+
 ## M9-009 Config Parity Tests Validation Update
 
 Date: 2026-06-01
@@ -47,6 +100,7 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
 | README/parity/pipeline local Markdown link-target scan | Passed | Local links in README, parity docs, controller workflow, documentation review, and pipeline report resolved. |
 | `git diff --check` | Passed | No whitespace errors. |
+| PR #129 protected `rust` CI | Passed | Required GitHub status check passed before merge. |
 
 ### Exact Test Added
 
@@ -57,9 +111,9 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 ### Gate Decision
 
 - Gate: Testing and V&V Gates for M9-009.
-- Decision: Pass locally.
-- Reason: Focused parity test, dependency tree review, formatting, workspace tests, clippy, Markdown local-link scan, and whitespace checks passed without adding an embedded controller runtime, target loader, GUI, live DAQ SDK, HAL, RTOS SDK, signing, authentication, target hardware execution, hardware qualification evidence, or certification claims.
-- Residual risk: Protected GitHub CI, PR merge, issue #85 closure, qualification evidence report schema, live DAQ SDK integration, RTOS runtime binding, target hardware validation, and certification evidence remain pending.
+- Decision: Pass.
+- Reason: Focused parity test, dependency tree review, formatting, workspace tests, clippy, Markdown local-link scan, whitespace checks, and protected PR #129 CI passed without adding an embedded controller runtime, target loader, GUI, live DAQ SDK, HAL, RTOS SDK, signing, authentication, target hardware execution, hardware qualification evidence, or certification claims.
+- Residual risk: Qualification evidence report schema, live DAQ SDK integration, RTOS runtime binding, target hardware validation, and certification evidence remain pending.
 - Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
 
 ### Hand-Off Note
@@ -68,9 +122,9 @@ Role: Test Automation Engineer / Verification and Validation Engineer
 Goal: Validate M9-009 config and behavior parity tests.
 Files changed: `crates/ferrisoxide-cli/`, `tests/controller_parity/README.md`, README, architecture/controller workflow docs, controller config parity docs, requirements, traceability, risk register, documentation review, validation log, pipeline report, changelog, and project state.
 Checks run: `cargo test -p ferrisoxide-cli controller_config_and_behavior_paths_match_portable_parity_evidence`; `cargo tree -p ferrisoxide-cli`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; README/parity/pipeline local Markdown link-target scan; `git diff --check`.
-Status: Pass locally; PR, protected CI, merge, and issue #85 closure pending.
+Status: Pass; PR #129 merged and issue #85 closed.
 Known gaps: No embedded controller runtime output, target loader, live DAQ SDK, RTOS binding, target hardware timing evidence, or certification evidence.
-Next recommended step: Open PR with `Fixes #85`, wait for required CI, and merge only after checks pass.
+Next recommended step: Continue M9-010 qualification evidence report work.
 
 ## M9-008 Production/Test Mode Separation Validation Update
 

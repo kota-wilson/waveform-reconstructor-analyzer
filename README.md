@@ -35,6 +35,7 @@ The main repository is `kota-wilson/ferrisoxide`. The current CLI binary is stil
 - [Desktop Simulation Workflow](#desktop-simulation-workflow)
 - [Portable Rule Packages](#portable-rule-packages)
 - [Controller Deployment Package Format](#controller-deployment-package-format)
+- [Qualification Evidence Reports](#qualification-evidence-reports)
 - [Embedded And no_std Boundary](#embedded-and-nostd-boundary)
 - [Validation Assets](#validation-assets)
 - [Testing The Repository](#testing-the-repository)
@@ -135,6 +136,7 @@ Implemented today:
 - RTOS/controller deployment package format schema, validator, manifest, required artifact roles, checksum wording, and example package fixture.
 - Manifest-level production, test-verification, and signal-validation mode profiles that reject mixed production/test behavior.
 - Controller config and behavior parity test comparing desktop simulation evidence with embedded-compatible borrowed-rule evidence over the same configs, channel map, and waveform input.
+- Qualification evidence report schema with exact JSON fixture tests linking configs, channel map, simulation trace, criteria evidence, deployment metadata, checksum evidence, timestamp, and non-certification scope notes.
 - `no_std` signal, measurement, rule-engine, and embedded-boundary crates.
 - Desktop-vs-embedded-compatible parity tests for rule evidence.
 - Software-only heated actuator qualification scenario.
@@ -208,8 +210,8 @@ crates/ferrisoxide-controller-io/
                                   Host-checkable controller input/output
                                   abstraction.
 
-crates/ferrisoxide-deployment/   Deployment package manifest schema and
-                                  validator for controller/runtime packages.
+crates/ferrisoxide-deployment/   Deployment package manifest and
+                                  qualification evidence report schemas.
 
 crates/ferrisoxide-plot/         Desktop SVG plotting support.
                                   Isolated so core and embedded crates do not
@@ -1057,7 +1059,35 @@ Invalid mixed mode profiles return structured validation errors before a runtime
 
 The checksum index is only for artifact drift detection. It is not signing, authentication, hardware qualification, flight certification, or production readiness evidence.
 
-See [RTOS deployment package format](docs/rtos-deployment-package-format.md) and [controller operating modes](docs/controller-operating-modes.md).
+See [RTOS deployment package format](docs/rtos-deployment-package-format.md), [controller operating modes](docs/controller-operating-modes.md), and [qualification evidence report](docs/qualification-evidence-report.md).
+
+## Qualification Evidence Reports
+
+FerrisOxide now defines a qualification evidence report format for controller-in-the-loop workflows. The report is a software evidence artifact, not a certification artifact. It is designed to make one simulated qualification run auditable by linking:
+
+- production control config name, version, path, and checksum,
+- test verification config name, version, path, and checksum,
+- channel map path and checksum,
+- controller simulation trace frames,
+- per-criterion pass/fail measurement evidence,
+- deployment package metadata and mode profiles,
+- checksum evidence for package artifacts,
+- generated timestamp,
+- explicit non-certification scope notes.
+
+Example report:
+
+```text
+examples/deployment-package/heated-actuator/qualification-report.json
+```
+
+The exact fixture is tested by parsing, validating, serializing, and comparing the JSON byte-for-byte:
+
+```bash
+cargo test -p ferrisoxide-deployment example_qualification_evidence_report_validates_and_matches_exact_json
+```
+
+See [qualification evidence report](docs/qualification-evidence-report.md).
 
 ## Embedded And no_std Boundary
 
@@ -1181,6 +1211,7 @@ Start here:
 - [RTOS deployment package format](docs/rtos-deployment-package-format.md)
 - [Controller operating modes](docs/controller-operating-modes.md)
 - [Controller config parity](docs/controller-config-parity.md)
+- [Qualification evidence report](docs/qualification-evidence-report.md)
 - [Validation log](docs/validation-log.md)
 - [Traceability matrix](traceability-matrix.md)
 - [Requirements](requirements.md)
