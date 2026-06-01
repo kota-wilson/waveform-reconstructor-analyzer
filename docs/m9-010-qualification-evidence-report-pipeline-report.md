@@ -27,8 +27,8 @@ Define a qualification evidence report format for controller-in-the-loop workflo
 | Documentation | Documentation Engineer | `docs/qualification-evidence-report.md` | Documentation Gate | Pass locally |
 | Code Review | Code Review Engineer | Local review of schema fields, validation rules, and non-certification wording | Code Review Gate | Pass locally |
 | Evaluation | Evaluation Engineer | Definition of Done review in this report | Evaluation Gate | Pass locally |
-| Release | Release Engineer | Branch, issue link, intended PR body, validation evidence | Release Gate | Pending PR |
-| Community | GitHub Maintainer Specialist | PR, CI, merge, issue close, milestone close | Community Gate | Pending PR/CI |
+| Release | Release Engineer | PR #130, issue link, validation evidence, protected CI | Release Gate | Pass |
+| Community | GitHub Maintainer Specialist | PR #130 merged; issue #86 closed; milestone #9 closed | Community Gate | Pass |
 | Retrospective | Project Coordinator | This report captures lessons and residual risk | Retrospective Gate | Pass locally |
 
 ## Requirements And Acceptance Mapping
@@ -58,6 +58,8 @@ Define a qualification evidence report format for controller-in-the-loop workflo
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
 | README/evidence/deployment/pipeline local Markdown link-target scan | Passed | Local links in README, qualification evidence docs, controller workflow, deployment README, documentation review, and pipeline report resolved. |
 | `git diff --check` | Passed | No whitespace errors. |
+| PR #130 protected `rust` CI | Passed | Required GitHub status check passed before merge. |
+| Milestone #9 closure | Passed | GitHub milestone #9 closed with 12 closed issues and 0 open issues. |
 
 ## Hand-Off Note
 
@@ -65,6 +67,6 @@ Role: Software Architect / Verification and Validation Engineer
 Goal: Implement issue #86 qualification evidence report format.
 Files changed: `crates/ferrisoxide-deployment/`, `examples/deployment-package/heated-actuator/qualification-report.json`, `docs/qualification-evidence-report.md`, README, architecture/controller workflow docs, requirements, traceability, risk register, documentation review, validation log, pipeline report, changelog, and project state.
 Checks run: See validation log.
-Status: Pass locally after validation; PR, protected CI, merge, issue #86 closure, and milestone #9 closure pending.
+Status: Pass; PR #130 merged, issue #86 closed, and milestone #9 closed.
 Known gaps: No CLI export command for deployment packages, live DAQ SDK, RTOS loader, target hardware execution, cryptographic signing, hardware timing evidence, or certification evidence.
-Next recommended step: Open PR with `Fixes #86`, wait for required CI, and merge only after checks pass.
+Next recommended step: Start a fresh milestone proposal for deployment export/runtime follow-up work.
