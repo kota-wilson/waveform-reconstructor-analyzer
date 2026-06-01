@@ -138,7 +138,7 @@ Recommended future crate/module boundaries:
 | `ferrisoxide-rule-engine` | Shared test verification rule execution semantics. | Exists. |
 | `ferrisoxide-control-schema` | Production control config schema and state-machine model. | Exists as an M9-001 schema boundary; execution remains future work. |
 | `ferrisoxide-verification-schema` | Test verification config schema for expected transitions, limits, timing windows, evidence, and report settings. | Exists as an M9-002 schema boundary; execution remains future work. |
-| `ferrisoxide-simulator` | Desktop virtual controller simulation engine. | Future v0.7.0 work. |
+| `ferrisoxide-simulator` | Desktop virtual controller simulation engine over production control config and abstract sample frames. | Exists as an M9-003 engine boundary; CLI/desktop workflow integration remains future work. |
 | `ferrisoxide-deployment` | Deployment package manifest/export model. | Future v0.7.0 work. |
 | `ferrisoxide-daq` | DAQ input abstraction, initially host/test double friendly. | Future v0.7.0 work. |
 | `ferrisoxide-embedded` | no_std adapter boundaries for runtime integration. | Exists as foundation. |
@@ -357,5 +357,5 @@ Goal: Define the controller-in-the-loop workflow and deployment configuration ar
 Files changed: `docs/controller-in-the-loop-workflow.md`.
 Checks run: Architecture review by inspection.
 Status: Planned architecture direction; not implemented.
-Known gaps: No simulator, DAQ abstraction, controller I/O abstraction, deployment package implementation, or RTOS verification runtime exists yet.
-Next recommended step: Continue M9 issues in dependency order: virtual controller simulation, DAQ/controller I/O abstractions, desktop simulation workflow, deployment format, parity tests, and qualification evidence reports.
+Known gaps: No DAQ abstraction, controller I/O abstraction, deployment package implementation, desktop simulation workflow, or RTOS verification runtime exists yet.
+Next recommended step: Continue M9 issues in dependency order: DAQ/controller I/O abstractions, desktop simulation workflow, deployment format, parity tests, and qualification evidence reports.

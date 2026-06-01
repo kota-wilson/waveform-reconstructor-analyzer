@@ -121,6 +121,14 @@ name = "ferrisoxide-signal"
 version = "0.1.0"
 
 [[package]]
+name = "ferrisoxide-simulator"
+version = "0.1.0"
+dependencies = [
+ "ferrisoxide-control-schema",
+ "serde",
+]
+
+[[package]]
 name = "ferrisoxide-verification-schema"
 version = "0.1.0"
 dependencies = [

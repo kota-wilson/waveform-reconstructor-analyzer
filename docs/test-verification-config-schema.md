@@ -196,8 +196,7 @@ The schema is intentionally data-only. It does not execute criteria, transform w
 
 Future M9 issues should build on this in order:
 
-1. Add a virtual controller simulation engine.
-2. Add DAQ and controller I/O abstractions.
-3. Add desktop simulation workflow.
-4. Add deployment package format and parity tests.
-5. Add qualification evidence report format.
+1. Add DAQ and controller I/O abstractions.
+2. Add desktop simulation workflow.
+3. Add deployment package format and parity tests.
+4. Add qualification evidence report format.

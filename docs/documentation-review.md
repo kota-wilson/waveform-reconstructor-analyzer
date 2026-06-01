@@ -24,6 +24,8 @@ M9-001 review update: Issue #77 adds `docs/control-config-schema.md`, README and
 
 M9-002 review update: Issue #80 adds `docs/test-verification-config-schema.md`, README and architecture references, controller workflow status updates, and a pipeline report for the new test verification config schema boundary while preserving separation from production controller behavior, DAQ SDKs, report rendering, criteria execution, RTOS runtime loading, and certification scope.
 
+M9-003 review update: Issue #78 adds `docs/simulator.md`, README and architecture references, controller workflow status updates, and a pipeline report for the deterministic virtual controller simulation engine while preserving no-GUI, no-live-DAQ, no-HAL, no-production-RTOS-binding, no-real-time-guarantee, no-hardware-qualification, and no-certification scope.
+
 ## Evidence
 
 | Artifact | Result |
@@ -57,12 +59,13 @@ M9-002 review update: Issue #80 adds `docs/test-verification-config-schema.md`, 
 | DOCS-001 expanded README product guide and pipeline report | Pass |
 | M9-001 production control config schema docs and pipeline report | Pass |
 | M9-002 test verification config schema docs and pipeline report | Pass |
+| M9-003 virtual controller simulator docs and pipeline report | Pass |
 
 ## Gate Decision
 
 - Gate: Documentation Gate.
 - Decision: Pass.
-- Reason: Public usage, contribution, security, change, validation, plotting, embedded adapter/prototype, measurement, report schema, criteria DSL direction/migration/schema, README product workflow, production/test verification schema boundaries, traceability, current-state, and M4/M5/M3/M6/M7/DOCS-001/M9-001/M9-002 follow-up documentation exist and are human-readable.
+- Reason: Public usage, contribution, security, change, validation, plotting, embedded adapter/prototype, measurement, report schema, criteria DSL direction/migration/schema, README product workflow, production/test verification schema boundaries, simulator boundary, traceability, current-state, and M4/M5/M3/M6/M7/DOCS-001/M9-001/M9-002/M9-003 follow-up documentation exist and are human-readable.
 - Residual risk: API docs, external reader feedback, embedded target build docs, simulator docs, automated README example refresh, and automated Markdown link checking are still thin.
 - Next owner: Code Reviewer.
 
@@ -70,8 +73,8 @@ M9-002 review update: Issue #80 adds `docs/test-verification-config-schema.md`, 
 
 Role: Documentation Engineer
 Goal: Confirm MVP docs are accurate and readable after the validated-MVP feature baseline.
-Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05-31.md`, `docs/plotting.md`, `docs/measurements.md`, `docs/control-config-schema.md`, `docs/test-verification-config-schema.md`, criteria DSL docs, embedded docs, README, current-state docs, traceability docs, validation log, and historical pipeline reports.
+Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05-31.md`, `docs/plotting.md`, `docs/measurements.md`, `docs/control-config-schema.md`, `docs/test-verification-config-schema.md`, `docs/simulator.md`, criteria DSL docs, embedded docs, README, current-state docs, traceability docs, validation log, and historical pipeline reports.
 Checks run: Documentation inspection plus the validation commands recorded in `docs/documentation-audit-2026-05-31.md`.
 Status: Pass.
 Known gaps: Add API docs, external reader feedback, embedded target build docs, simulator docs, automated README example refresh, and automated docs/link checking later.
-Next recommended step: Continue M9 issue review after M9-002 completion.
+Next recommended step: Continue M9 issue review after M9-003 completion.

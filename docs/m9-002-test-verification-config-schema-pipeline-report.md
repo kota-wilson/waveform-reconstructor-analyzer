@@ -69,17 +69,17 @@ git diff --check                                                  # passed
 | Requirements Traceability Gate | Pass | WRA-RQ-052 maps to concrete files, tests, and docs. | Future issue work must connect schema to simulation/deployment flows. | Requirements Engineer |
 | Architecture Gate | Pass | Separate crate prevents conflating production behavior with verification criteria. | Future mapping to rule package/export remains pending. | Software Architect |
 | Granularity Gate | Pass | Files, structs, validation rules, tests, and docs are named directly. | None. | Abstraction Review Engineer |
-| Implementation Gate | Pass locally | Schema crate and example config are added without runtime expansion. | Protected CI pending. | Core Software Engineer |
-| Testing Gate | Pass locally | Unit tests cover valid config, TOML/JSON round trip, invalid references/values, approval metadata, and manifest-only production link validation. | Protected CI pending. | Test Automation Engineer |
+| Implementation Gate | Pass | Schema crate and example config are added without runtime expansion; PR #122 merged. | Future simulator/deployment mapping remains pending. | Core Software Engineer |
+| Testing Gate | Pass | Unit tests, workspace checks, and protected GitHub CI passed for PR #122. | No hardware validation. | Test Automation Engineer |
 | V&V Gate | Pass locally | Criteria families and evidence/report fields match issue acceptance criteria. | No hardware qualification evidence. | V&V Engineer |
 | QA Gate | Pass locally | Docs explain purpose, boundaries, examples, and current limits. | External reader feedback may reveal unclear schema names. | QA Engineer |
 | Security Gate | Pass locally | Uses existing Serde/TOML/JSON dependencies only; no SDKs, secrets, or hardware bindings. | Future deployment package signing remains separate work. | Security Engineer |
 | Performance Gate | Not Applicable | Data-only schema; no runtime analysis path changed. | None. | Performance Engineer |
 | Documentation Gate | Pass locally | README, architecture, controller workflow, schema doc, validation log, requirements, traceability, risk, and project state are updated. | Future docs drift. | Documentation Engineer |
-| Code Review Gate | Pass locally | Local review found no intentional coupling to production controller internals. | PR review pending. | Code Review Engineer |
-| Evaluation Gate | Pass locally | Definition of Done is satisfied locally except external PR/CI/merge. | Community gate pending. | Evaluation Engineer |
-| Release Gate | Pending PR | Branch must be pushed and PR opened. | Protected CI pending. | Release Engineer |
-| Community Gate | Pending PR/CI | PR must pass required `rust` check and merge to close issue #80. | Maintainer feedback possible. | GitHub Maintainer Specialist |
+| Code Review Gate | Pass | Local review and protected CI found no blocking schema issues. | Future reader feedback possible. | Code Review Engineer |
+| Evaluation Gate | Pass | Definition of Done was satisfied and PR #122 merged. | No tagged release was cut. | Evaluation Engineer |
+| Release Gate | Pass | PR #122 was opened with `Fixes #80` and validation evidence. | Mainline evidence only; no tagged release. | Release Engineer |
+| Community Gate | Pass | PR #122 passed required `rust` CI, merged, and closed issue #80. | Maintainer feedback possible on later schema use. | GitHub Maintainer Specialist |
 | Retrospective Gate | Pass locally | Lesson recorded: verification config should describe qualification intent, not controller behavior. | Keep future simulation mapping explicit. | Project Coordinator |
 
 ## Files Changed
@@ -106,6 +106,6 @@ Role: Software Architect / Core Software Engineer / V&V Engineer
 Goal: Implement issue #80 test verification config schema boundary.
 Files changed: `Cargo.toml`, `crates/ferrisoxide-verification-schema/`, `examples/test-verification-config/test-verification-config.toml`, README, architecture/controller workflow docs, schema docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
 Checks run: See validation log.
-Status: Pass locally; PR, protected CI, merge, and issue #80 closure pending.
+Status: Pass; PR #122 merged and issue #80 closed.
 Known gaps: No simulator, DAQ abstraction, controller I/O abstraction, deployment package mapping, runtime loader, or hardware validation.
-Next recommended step: Open PR with `Fixes #80`, wait for required CI, then merge only after checks pass.
+Next recommended step: Continue M9 with virtual controller simulation, DAQ/controller I/O abstractions, deployment package mapping, runtime loader, and parity tests.
