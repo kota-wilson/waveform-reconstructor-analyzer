@@ -21,6 +21,7 @@ pub enum FilterStep {
     Deadband(DeadbandTransform),
     DcRemove(DcRemoveTransform),
     BaselineSubtract(BaselineSubtractTransform),
+    HighPassBaseline(HighPassBaselineFilter),
     MovingAverage(MovingAverageFilter),
     MovingMedian(MovingMedianFilter),
     LowPass(LowPassFilter),
@@ -37,6 +38,7 @@ impl Filter for FilterStep {
             Self::Deadband(filter) => filter.name(),
             Self::DcRemove(filter) => filter.name(),
             Self::BaselineSubtract(filter) => filter.name(),
+            Self::HighPassBaseline(filter) => filter.name(),
             Self::MovingAverage(filter) => filter.name(),
             Self::MovingMedian(filter) => filter.name(),
             Self::LowPass(filter) => filter.name(),
@@ -53,6 +55,7 @@ impl Filter for FilterStep {
             Self::Deadband(filter) => filter.apply(waveform),
             Self::DcRemove(filter) => filter.apply(waveform),
             Self::BaselineSubtract(filter) => filter.apply(waveform),
+            Self::HighPassBaseline(filter) => filter.apply(waveform),
             Self::MovingAverage(filter) => filter.apply(waveform),
             Self::MovingMedian(filter) => filter.apply(waveform),
             Self::LowPass(filter) => filter.apply(waveform),
@@ -321,6 +324,53 @@ impl Filter for BaselineSubtractTransform {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
+pub struct HighPassBaselineFilter {
+    pub cutoff_hz: f64,
+}
+
+impl Filter for HighPassBaselineFilter {
+    fn name(&self) -> &'static str {
+        "high_pass_baseline"
+    }
+
+    fn apply(&self, waveform: &Waveform) -> Result<Waveform> {
+        validate_positive_frequency("cutoff_hz", self.cutoff_hz)?;
+        validate_time_axis(&waveform.time, "high-pass baseline correction")?;
+
+        let channels = waveform
+            .channels
+            .iter()
+            .map(|channel| {
+                validate_finite_samples("high_pass_baseline", &channel.samples)?;
+                let samples =
+                    first_order_high_pass(&waveform.time, &channel.samples, self.cutoff_hz);
+                Ok(Channel::new(
+                    channel.name.clone(),
+                    channel.unit.clone(),
+                    samples,
+                ))
+            })
+            .collect::<Result<Vec<_>>>()?;
+
+        let history_label = format!("high_pass_baseline(cutoff_hz={})", self.cutoff_hz);
+        let transform_step = TransformStepMetadata::implemented_desktop(
+            history_label,
+            "high_pass_baseline",
+            TransformCategory::Stateful,
+            vec![TransformParameterMetadata::float(
+                "cutoff_hz",
+                self.cutoff_hz,
+                "Hz",
+            )],
+            true,
+            true,
+            TransformPhaseEffect::Delay,
+        );
+        derived_waveform(waveform, channels, transform_step)
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct MovingAverageFilter {
     pub window_samples: usize,
 }
@@ -443,7 +493,7 @@ impl Filter for LowPassFilter {
                 reason: "must be greater than zero".to_string(),
             });
         }
-        validate_time_axis(&waveform.time)?;
+        validate_time_axis(&waveform.time, "low-pass filtering")?;
 
         let channels = waveform
             .channels
@@ -621,6 +671,17 @@ fn validate_finite_parameter(name: &str, value: f64) -> Result<()> {
     Ok(())
 }
 
+fn validate_positive_frequency(name: &str, value: f64) -> Result<()> {
+    validate_finite_parameter(name, value)?;
+    if value <= 0.0 {
+        return Err(WaveformError::InvalidParameter {
+            name: name.to_string(),
+            reason: "must be greater than zero".to_string(),
+        });
+    }
+    Ok(())
+}
+
 fn validate_finite_samples(transform_name: &str, samples: &[f64]) -> Result<()> {
     if samples.iter().any(|sample| !sample.is_finite()) {
         return Err(WaveformError::InvalidWaveform {
@@ -658,16 +719,39 @@ fn trailing_moving_median(samples: &[f64], window_samples: usize) -> Result<Vec<
     Ok(filtered)
 }
 
-fn validate_time_axis(time: &[f64]) -> Result<()> {
+fn validate_time_axis(time: &[f64], transform_name: &str) -> Result<()> {
+    if time.iter().any(|sample_time| !sample_time.is_finite()) {
+        return Err(WaveformError::InvalidWaveform {
+            reason: format!("time samples must be finite for {transform_name}"),
+        });
+    }
     for pair in time.windows(2) {
         if pair[1] <= pair[0] {
             return Err(WaveformError::InvalidWaveform {
-                reason: "time samples must be strictly increasing for low-pass filtering"
-                    .to_string(),
+                reason: format!("time samples must be strictly increasing for {transform_name}"),
             });
         }
     }
     Ok(())
+}
+
+fn first_order_high_pass(time: &[f64], samples: &[f64], cutoff_hz: f64) -> Vec<f64> {
+    if samples.is_empty() {
+        return Vec::new();
+    }
+
+    let rc = 1.0 / (TAU * cutoff_hz);
+    let mut filtered = Vec::with_capacity(samples.len());
+    filtered.push(0.0);
+
+    for index in 1..samples.len() {
+        let dt = time[index] - time[index - 1];
+        let alpha = rc / (rc + dt);
+        let previous = filtered[index - 1];
+        filtered.push(alpha * (previous + samples[index] - samples[index - 1]));
+    }
+
+    filtered
 }
 
 fn first_order_low_pass(time: &[f64], samples: &[f64], cutoff_hz: f64) -> Vec<f64> {
@@ -864,6 +948,46 @@ mod tests {
     }
 
     #[test]
+    fn high_pass_baseline_removes_constant_baseline_and_records_metadata() {
+        let input = waveform(vec![5.0, 5.0, 5.0, 5.0]);
+        let filtered = HighPassBaselineFilter { cutoff_hz: 0.5 }
+            .apply(&input)
+            .expect("high-pass baseline should apply");
+
+        assert_eq!(input.channels[0].samples, vec![5.0, 5.0, 5.0, 5.0]);
+        assert_eq!(filtered.channels[0].samples, vec![0.0, 0.0, 0.0, 0.0]);
+        assert_eq!(
+            filtered.metadata.transform_history,
+            vec!["high_pass_baseline(cutoff_hz=0.5)"]
+        );
+
+        let step = &filtered.metadata.transform_steps[0];
+        assert_common_transform_metadata(step);
+        assert_eq!(step.name, "high_pass_baseline");
+        assert_eq!(step.category, TransformCategory::Stateful);
+        assert_eq!(
+            step.parameters[0].value,
+            TransformParameterValue::Float(0.5)
+        );
+        assert_eq!(step.parameters[0].unit.as_deref(), Some("Hz"));
+        assert!(step.sample_rate_required);
+        assert!(step.stateful);
+        assert_eq!(step.phase_effect, TransformPhaseEffect::Delay);
+    }
+
+    #[test]
+    fn high_pass_baseline_attenuates_slow_drift() {
+        let input = waveform(vec![10.0, 10.1, 10.2, 10.3]);
+        let filtered = HighPassBaselineFilter { cutoff_hz: 0.5 }
+            .apply(&input)
+            .expect("high-pass baseline should apply");
+
+        assert_eq!(filtered.channels[0].samples[0], 0.0);
+        assert!(filtered.channels[0].samples[1] > 0.0);
+        assert!(filtered.channels[0].samples[3].abs() < 0.2);
+    }
+
+    #[test]
     fn m11_transforms_reject_invalid_parameters() {
         let input = waveform(vec![0.0, 1.0, 2.0, 3.0]);
 
@@ -904,6 +1028,59 @@ mod tests {
         assert!(matches!(
             MovingMedianFilter { window_samples: 0 }.apply(&input),
             Err(WaveformError::InvalidParameter { .. })
+        ));
+        assert!(matches!(
+            HighPassBaselineFilter { cutoff_hz: 0.0 }.apply(&input),
+            Err(WaveformError::InvalidParameter { .. })
+        ));
+        assert!(matches!(
+            HighPassBaselineFilter {
+                cutoff_hz: f64::NAN,
+            }
+            .apply(&input),
+            Err(WaveformError::InvalidParameter { .. })
+        ));
+        assert!(matches!(
+            HighPassBaselineFilter { cutoff_hz: 1.0 }.apply(&waveform(vec![
+                f64::NAN,
+                1.0,
+                2.0,
+                3.0
+            ])),
+            Err(WaveformError::InvalidWaveform { .. })
+        ));
+    }
+
+    #[test]
+    fn high_pass_baseline_rejects_invalid_time_axis() {
+        let duplicate_time = Waveform::new(
+            vec![0.0, 1.0, 1.0, 2.0],
+            vec![Channel::new(
+                "input_v",
+                Unit::volts(),
+                vec![0.0, 1.0, 2.0, 3.0],
+            )],
+        )
+        .expect("test waveform should construct");
+
+        assert!(matches!(
+            HighPassBaselineFilter { cutoff_hz: 1.0 }.apply(&duplicate_time),
+            Err(WaveformError::InvalidWaveform { .. })
+        ));
+
+        let non_finite_time = Waveform::new(
+            vec![0.0, 1.0, f64::NAN, 2.0],
+            vec![Channel::new(
+                "input_v",
+                Unit::volts(),
+                vec![0.0, 1.0, 2.0, 3.0],
+            )],
+        )
+        .expect("test waveform should construct");
+
+        assert!(matches!(
+            HighPassBaselineFilter { cutoff_hz: 1.0 }.apply(&non_finite_time),
+            Err(WaveformError::InvalidWaveform { .. })
         ));
     }
 

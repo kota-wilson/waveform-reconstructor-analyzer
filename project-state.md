@@ -4,11 +4,11 @@ Last updated: 2026-06-01
 
 ## Current Objective
 
-Hold after completing FerrisOxide M13 transform runtime-profile validation through PR, issue, milestone, and closure-record updates. M10-001 / issue #132 through M10-006 / issue #137 are closed through PR #138; M11 issues #140 through #146 are closed through PR #147; M12 issues #149 through #155 are closed through PR #156; M13 issues #158 through #163 are closed through PR #164; PR #165 records M13 release/community closure; and milestone #13 is closed. No dependencies, live DAQ, HAL/RTOS, hardware, certification work, or M14 implementation has started.
+Advance FerrisOxide M14 high-pass baseline correction after M13 closure and user approval to continue. M10-001 / issue #132 through M10-006 / issue #137 are closed through PR #138; M11 issues #140 through #146 are closed through PR #147; M12 issues #149 through #155 are closed through PR #156; M13 issues #158 through #163 are closed through PR #164; PR #165 records M13 release/community closure; PR #166 records explicit M13 V&V/QA gates; and milestone #13 is closed. M14 local implementation and validation are complete, and GitHub milestone #14 plus issues #167 through #172 are open until PR merge. No dependencies, rule-package transform export, live DAQ, HAL/RTOS, hardware, certification work, or M15 implementation has started.
 
 ## Current Stage
 
-The M10-M13 transform sequence is complete. `docs/next-milestones-roadmap.md` defines the sequence, `docs/v0.8.0-transform-architecture-milestone-proposal.md` covers WRA-RQ-070 through WRA-RQ-074, `docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md` covers WRA-RQ-075 through WRA-RQ-080, `docs/v0.10.0-event-validation-transform-milestone-proposal.md` covers WRA-RQ-081 through WRA-RQ-086, `docs/v0.11.0-transform-runtime-profile-validation-milestone-proposal.md` covers WRA-RQ-087 through WRA-RQ-092, and `docs/next-milestones-issue-planning-report.md` tracks M10 through M13 closure. GitHub milestone #10 is closed with M10-001 through M10-006 as closed issues #132 through #137 and merged PR #138. GitHub milestone #11 is closed with M11-001 through M11-007 as closed issues #140 through #146 and merged PR #147. GitHub milestone #12 is closed with M12-001 through M12-007 as closed issues #149 through #155 and merged PR #156. GitHub milestone #13 is closed with M13-001 through M13-006 as closed issues #158 through #163 and merged PR #164; PR #165 records release/community closure artifacts. M13 adds `crates/ferrisoxide-core/src/runtime_profile.rs` with structured runtime-profile validation, timing-evidence checks, waveform metadata rejection tests, and event/validation metadata rejection tests. The next gate is explicit approval before M14 or new scope.
+The M10-M13 transform sequence is complete, and M14 local implementation and validation are complete. `docs/next-milestones-roadmap.md` defines the sequence, `docs/v0.8.0-transform-architecture-milestone-proposal.md` covers WRA-RQ-070 through WRA-RQ-074, `docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md` covers WRA-RQ-075 through WRA-RQ-080, `docs/v0.10.0-event-validation-transform-milestone-proposal.md` covers WRA-RQ-081 through WRA-RQ-086, `docs/v0.11.0-transform-runtime-profile-validation-milestone-proposal.md` covers WRA-RQ-087 through WRA-RQ-092, `docs/v0.12.0-high-pass-baseline-correction-milestone-proposal.md` covers WRA-RQ-093 through WRA-RQ-098, and `docs/next-milestones-issue-planning-report.md` tracks M10 through M14 planning/closure. GitHub milestone #10 is closed with M10-001 through M10-006 as closed issues #132 through #137 and merged PR #138. GitHub milestone #11 is closed with M11-001 through M11-007 as closed issues #140 through #146 and merged PR #147. GitHub milestone #12 is closed with M12-001 through M12-007 as closed issues #149 through #155 and merged PR #156. GitHub milestone #13 is closed with M13-001 through M13-006 as closed issues #158 through #163 and merged PR #164; PR #165 records release/community closure artifacts and PR #166 records explicit M13 V&V/QA gates. GitHub milestone #14 is open with M14-001 through M14-006 as issues #167 through #172 until PR merge. M14 implements `high_pass_baseline` as a desktop-only first-order timing-dependent transform. The current gate is PR, required CI, issue closure, and milestone closure.
 
 Historical closure context:
 
@@ -96,6 +96,8 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is closed after PRs #10
   Owner: Embedded RTOS Engineer / Core Software Engineer / Verification and Validation Engineer
 - Risk: Runtime-profile validation may be mistaken for embedded runtime, hardware, or certification support.
   Owner: Software Architect / Embedded RTOS Engineer / Documentation Engineer
+- Risk: High-pass baseline correction may hide real low-frequency failures or be mistaken for calibrated drift removal.
+  Owner: Systems Engineer / V&V Engineer / Documentation Engineer
 
 ## Pending Decisions
 
@@ -149,16 +151,16 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is closed after PRs #10
 
 Role: Project Coordinator / Software Architect
 
-Expected deliverable: Hold before M14 or new scope until explicit approval.
+Expected deliverable: Open and merge the M14 implementation PR, close issues #167 through #172, and close milestone #14.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/ferrisoxide`.
-- Current milestone: #13, `v0.11.0: Transform Runtime Profile Validation`, is closed with issues #158 through #163 closed by PR #164. Milestone #12, `v0.10.0: Event And Validation Transform MVP`, is closed with issues #149 through #155 closed by PR #156. M7, M8, M9, M10, and M11 are closed; TEST-001, DOCS-001, BRAND-002, and REPO-001 are complete.
+- Current milestone: #14, `v0.12.0: High-Pass Baseline Correction`, has local implementation and validation complete and remains open with issues #167 through #172 until PR merge. Milestone #13, `v0.11.0: Transform Runtime Profile Validation`, is closed with issues #158 through #163 closed by PR #164. Milestone #12, `v0.10.0: Event And Validation Transform MVP`, is closed with issues #149 through #155 closed by PR #156. M7, M8, M9, M10, and M11 are closed; TEST-001, DOCS-001, BRAND-002, and REPO-001 are complete.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
-- Next gate: Explicit approval before M14 or new scope. New algorithms, deployment exporters, runtime loaders, live DAQ SDKs, HAL/RTOS adapters, cryptographic signing, M14+ work, and hardware/certification evidence remain separately gated.
+- Next gate: Open and merge the M14 implementation PR without expanding into broad filter families, deployment exporters, runtime loaders, live DAQ SDKs, HAL/RTOS adapters, cryptographic signing, M15+ work, or hardware/certification evidence.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, Pico 2 runtime crate work, new third-party dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, binary package serialization, cryptographic signing, live controller simulation, live DAQ integration, unit shorthand parsing, expanded annotated SVG features, or external brand expansion without a fresh issue/gate.
 
 ## Granularity Status
@@ -178,7 +180,7 @@ Expected deliverable: Hold before M14 or new scope until explicit approval.
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with implemented evidence through WRA-RQ-092. Milestones #9, #10, #11, #12, and #13 are closed.
+- Verification matrix: `traceability-matrix.md` updated with implemented local evidence through WRA-RQ-098. Milestones #9, #10, #11, #12, and #13 are closed; milestone #14 closure is pending PR merge.
 
 ## Gate Decisions
 
@@ -426,6 +428,14 @@ Expected deliverable: Hold before M14 or new scope until explicit approval.
 | M13 Runtime Profile Validation QA Gate | Pass | Formatting, diff check, local Markdown link-target scan, PR #164 protected `rust` CI, and PR #165 protected `rust` CI passed. | QA Engineer |
 | M13 Runtime Profile Validation Release Gate | Pass | PR #164 merged after required `rust` CI passed; squash commit `ae0366dcd20a81a71262f38d2409dc2b85774051`. | GitHub Maintainer Specialist |
 | M13 Runtime Profile Validation Community Gate | Pass | Issues #158 through #163 closed; milestone #13 closed with 6 closed items and 0 open items. | Project Coordinator |
+| M14 High-Pass Baseline Correction Requirements Gate | Pass for proposal | `requirements.md` WRA-RQ-093 through WRA-RQ-098; `docs/v0.12.0-high-pass-baseline-correction-milestone-proposal.md` | Software Architect |
+| M14 High-Pass Baseline Correction Architecture Gate | Pass locally | M14 uses existing `[[filters]]`, transform metadata, runtime-profile, and report paths without schema migration. | Abstraction Review Engineer |
+| M14 High-Pass Baseline Correction Human Approval Gate | Pass for planning, issue creation, and implementation | User approved continuing after M13 closure on 2026-06-01 | Project Coordinator |
+| M14 High-Pass Baseline Correction Issue Planning Gate | Pass | GitHub milestone #14 and issues #167 through #172 created. | GitHub Maintainer Specialist |
+| M14 High-Pass Baseline Correction Implementation Gate | Pass locally | `high_pass_baseline` filter/config support, first-order recurrence, invalid input checks, metadata, CLI/config coverage, export guardrail test, docs, traceability, risk, and pipeline report are complete locally. | Core Software Engineer |
+| M14 High-Pass Baseline Correction Testing Gate | Pass locally | Focused M14 tests, full workspace tests, clippy, formatting, diff check, and local Markdown link scan pass locally. | Test Automation Engineer |
+| M14 High-Pass Baseline Correction V&V Gate | Pass locally | WRA-RQ-093 through WRA-RQ-098 map to implementation, tests, docs, and guardrail evidence without hardware, DAQ, HAL/RTOS, runtime, or certification claims. | V&V Engineer |
+| M14 High-Pass Baseline Correction QA Gate | Pass locally | M14 pipeline report records explicit QA, security, performance, docs, code-review, evaluation, release, community, and retrospective status. | QA Engineer |
 
 ## Update Rules
 

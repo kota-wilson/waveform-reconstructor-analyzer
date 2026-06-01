@@ -1,0 +1,36 @@
+# Example M14 high-pass baseline correction config for `ferrisoxide-signal analyze --config`.
+# This is a desktop software transform for derived waveform analysis, not calibrated drift removal.
+
+[input]
+time_column = "time"
+channels = ["input_v", "output_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[filters]]
+type = "high_pass_baseline"
+cutoff_hz = 50.0
+
+[[criteria]]
+id = "input_high_pass_max"
+channel = "input_v"
+
+[criteria.measurement]
+type = "maximum_sample"
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 3.5
+unit = "V"
+
+[[criteria]]
+id = "output_high_pass_min"
+channel = "output_v"
+
+[criteria.measurement]
+type = "minimum_sample"
+
+[criteria.requirement]
+operator = "greater_than_or_equal"
+value = -0.1
+unit = "V"

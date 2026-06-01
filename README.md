@@ -119,7 +119,7 @@ Implemented today:
 - CSV waveform loading.
 - Named time and channel mapping.
 - Waveform metadata for units, source, sample count, sample interval, nominal sample rate, lineage, legacy transform history, structured transform steps, validation context, and tolerance policy.
-- Moving-average, moving-median, first-order low-pass, ideal ADC quantization, pointwise, and baseline transforms.
+- Moving-average, moving-median, first-order low-pass, high-pass baseline correction, ideal ADC quantization, pointwise, and baseline transforms.
 - Transform architecture docs that classify current support, planned transform families, and runtime compatibility boundaries.
 - Measurement primitives for extrema, state transitions, pulse width, stable-state duration, transient duration, and rise/fall time.
 - Criteria for min/max voltage, state transitions, response latency, pulse width, transient events, stable-state duration, and rise/fall time.
@@ -597,6 +597,7 @@ The broader transform taxonomy is planning input, not implemented support. See [
 | Deadband | `deadband` | Set small values around zero to zero. |
 | DC removal | `dc_remove` | Subtract the channel mean over the full waveform. |
 | Baseline subtraction | `baseline_subtract` | Subtract a configured baseline value in signal units. |
+| High-pass baseline correction | `high_pass_baseline` | Reduce slow baseline wander with a causal first-order high-pass recurrence over a strictly increasing time axis. |
 | Moving average | `moving_average` | Smooth samples with a trailing window that includes the current sample. |
 | Moving median | `moving_median` | Smooth spikes with a trailing median window. |
 | First-order low-pass | `low_pass` | Apply a simple low-pass smoothing model over a strictly increasing time axis. |
@@ -611,9 +612,9 @@ Timing and unit assumptions remain transform-specific:
 - Moving average uses a sample-count window and does not require a nominal sample rate.
 - Moving median uses a trailing sample-count window, records nonlinear phase behavior, and does not require a nominal sample rate.
 - Low-pass uses a cutoff in hertz and requires a strictly increasing time axis.
+- High-pass baseline correction uses a cutoff in hertz, requires a strictly increasing time axis, records phase delay, and remains a derived software transform rather than calibrated drift removal.
 - ADC quantization uses a configured voltage range and outputs volts; it is not a calibrated physical ADC model.
 - DC removal is offline-only because it subtracts the mean of the full waveform.
-- First-order high-pass baseline correction remains planned, not implemented.
 - Event validations contribute to report-level pass/fail outcome and remain software-only evidence.
 - Portable rule-package export still supports the earlier portable filter subset (`moving_average`, `low_pass`, and `adc_quantize`) until transform package semantics are separately designed. That legacy export support is not a blanket runtime-profile claim; future transform-package or deployment-package exposure must pass runtime-profile validation first.
 
@@ -641,6 +642,14 @@ gain = 2.0
 [[filters]]
 type = "moving_median"
 window_samples = 3
+```
+
+Example M14 high-pass baseline config:
+
+```toml
+[[filters]]
+type = "high_pass_baseline"
+cutoff_hz = 50.0
 ```
 
 Example M12 event validation config:

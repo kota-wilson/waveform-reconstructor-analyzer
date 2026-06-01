@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M10-002 / issue #133 design artifact, extended by M11 issues #140 through #146 for pointwise, baseline, and moving-median transforms.
+Status: M10-002 / issue #133 design artifact, extended by M11 issues #140 through #146 for pointwise, baseline, and moving-median transforms, and by M14 for high-pass baseline correction.
 
 ## Purpose
 
@@ -129,6 +129,7 @@ M10-003 owns final mappings for current transforms. This document records the di
 | Deadband | `deadband` | `PointwiseTransform` | false | false | true | `nonlinear` |
 | DC removal | `dc_remove` | `BaselineTransform` | false | true | false | `none` |
 | Baseline subtraction | `baseline_subtract` | `BaselineTransform` | false | false | true | `none` |
+| High-pass baseline correction | `high_pass_baseline` | `StatefulTransform` | true | true | true | `delay` |
 | Moving median | `moving_median` | `WindowedTransform` | false | true | true | `nonlinear` |
 
 ## Report Schema Direction
@@ -148,7 +149,7 @@ M10-006 adds exact tests for these expectations:
 - Raw waveform reports with no transforms should stay byte-for-byte stable if `transform_steps` is skipped when empty.
 - Transformed waveform reports should add structured metadata in transform order.
 - Each `transform_steps[].history_label` should match the corresponding `transform_history[]` entry.
-- Tests should assert field values for implemented transform metadata, including moving average, low-pass, ADC quantization, pointwise transforms, baseline transforms, and moving median.
+- Tests should assert field values for implemented transform metadata, including moving average, low-pass, ADC quantization, pointwise transforms, baseline transforms, high-pass baseline correction, and moving median.
 - Existing result and measurement evidence fields should remain unchanged unless a separate schema migration is approved.
 
 ## Rust Model
@@ -191,5 +192,5 @@ Goal: Complete M10-002 / issue #133 by defining the structured transform metadat
 Files changed: `docs/structured-transform-metadata.md`
 Checks run: Documentation and schema compatibility review.
 Status: Complete through PR #138; issue #133 and milestone #10 are closed.
-Known gaps: Embedded/no_std transform exposure remains future gated work. M13 adds runtime-profile validation code for current metadata through PR #164.
+Known gaps: Embedded/no_std transform exposure remains future gated work. M13 adds runtime-profile validation code for current metadata through PR #164; M14 keeps high-pass baseline correction desktop-only.
 Next recommended step: Use this design with the M13 validator as the compatibility baseline for future transform additions and package/runtime exposure.

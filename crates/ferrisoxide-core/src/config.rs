@@ -15,8 +15,8 @@ use crate::event::{
 };
 use crate::filter::{
     AdcQuantizer, BaselineSubtractTransform, ClampTransform, DcRemoveTransform, DeadbandTransform,
-    FilterStep, GainTransform, InvertTransform, LowPassFilter, MovingAverageFilter,
-    MovingMedianFilter, OffsetTransform,
+    FilterStep, GainTransform, HighPassBaselineFilter, InvertTransform, LowPassFilter,
+    MovingAverageFilter, MovingMedianFilter, OffsetTransform,
 };
 use crate::model::{MetadataContext, TolerancePolicy, Unit};
 
@@ -165,6 +165,9 @@ impl FilterConfig {
                 baseline_v: self
                     .baseline_v
                     .ok_or_else(|| missing_filter_field("baseline_v"))?,
+            })),
+            "high_pass_baseline" => Ok(FilterStep::HighPassBaseline(HighPassBaselineFilter {
+                cutoff_hz: required_positive_filter_float("cutoff_hz", self.cutoff_hz)?,
             })),
             "moving_average" => Ok(FilterStep::MovingAverage(MovingAverageFilter {
                 window_samples: self
@@ -1174,6 +1177,23 @@ fn missing_filter_field(field: &str) -> WaveformError {
     }
 }
 
+fn required_positive_filter_float(field: &str, value: Option<f64>) -> Result<f64> {
+    let value = value.ok_or_else(|| missing_filter_field(field))?;
+    if !value.is_finite() {
+        return Err(WaveformError::InvalidParameter {
+            name: format!("filters.{field}"),
+            reason: "must be finite".to_string(),
+        });
+    }
+    if value <= 0.0 {
+        return Err(WaveformError::InvalidParameter {
+            name: format!("filters.{field}"),
+            reason: "must be greater than zero".to_string(),
+        });
+    }
+    Ok(value)
+}
+
 fn missing_event_transform_field(field: &str) -> WaveformError {
     WaveformError::InvalidParameter {
         name: format!("event_transforms.{field}"),
@@ -1421,6 +1441,37 @@ threshold_v = 5.5
                 FilterStep::BaselineSubtract(BaselineSubtractTransform { baseline_v: 1.25 }),
                 FilterStep::MovingMedian(MovingMedianFilter { window_samples: 3 }),
             ]
+        );
+    }
+
+    #[test]
+    fn filter_config_covers_m14_high_pass_baseline() {
+        let config: AnalysisConfig = toml::from_str(
+            r#"
+[input]
+time_column = "time"
+channels = ["input_v"]
+
+[[filters]]
+type = "high_pass_baseline"
+cutoff_hz = 0.5
+
+[[criteria]]
+id = "input_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 5.5
+"#,
+        )
+        .expect("M14 filter config should deserialize");
+
+        let filters = config.filters().expect("filters should convert");
+
+        assert_eq!(
+            filters,
+            vec![FilterStep::HighPassBaseline(HighPassBaselineFilter {
+                cutoff_hz: 0.5
+            })]
         );
     }
 
@@ -2163,6 +2214,58 @@ threshold_v = 5.5
             assert!(matches!(
                 result,
                 Err(WaveformError::InvalidParameter { name, .. }) if name == expected_name
+            ));
+        }
+    }
+
+    #[test]
+    fn rejects_incomplete_m14_filter_config() {
+        let config: AnalysisConfig = toml::from_str(
+            r#"
+[input]
+time_column = "time"
+channels = ["input_v"]
+
+[[filters]]
+type = "high_pass_baseline"
+
+[[criteria]]
+id = "input_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 5.5
+"#,
+        )
+        .expect("config should deserialize");
+
+        assert_eq!(
+            config.filters(),
+            Err(WaveformError::InvalidParameter {
+                name: "filters.cutoff_hz".to_string(),
+                reason: "field is required for this filter type".to_string(),
+            })
+        );
+    }
+
+    #[test]
+    fn rejects_invalid_m14_filter_config() {
+        for cutoff_hz in [0.0, -1.0, f64::NAN] {
+            let config = FilterConfig {
+                kind: "high_pass_baseline".to_string(),
+                window_samples: None,
+                cutoff_hz: Some(cutoff_hz),
+                offset_v: None,
+                gain: None,
+                threshold_v: None,
+                baseline_v: None,
+                bits: None,
+                min_v: None,
+                max_v: None,
+            };
+
+            assert!(matches!(
+                config.to_filter_step(),
+                Err(WaveformError::InvalidParameter { .. })
             ));
         }
     }

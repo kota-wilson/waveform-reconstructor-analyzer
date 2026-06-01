@@ -22,6 +22,46 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, and `ferrisoxide-cli`.
 
+## M14 High-Pass Baseline Correction Validation Update
+
+Date: 2026-06-01
+
+Stage: Focused local validation for high-pass baseline correction
+
+### Commands
+
+```text
+cargo fmt
+cargo test -p ferrisoxide-core high_pass_baseline -- --nocapture
+cargo test -p ferrisoxide-core m14 -- --nocapture
+cargo test -p ferrisoxide-cli high_pass_baseline -- --nocapture
+cargo fmt --check
+git diff --check
+cargo test --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+local Markdown link-target scan
+```
+
+### Result
+
+- `cargo fmt`: Pass.
+- `cargo test -p ferrisoxide-core high_pass_baseline -- --nocapture`: Pass; 4 focused high-pass baseline tests passed.
+- `cargo test -p ferrisoxide-core m14 -- --nocapture`: Pass; 3 focused M14 config tests passed.
+- `cargo test -p ferrisoxide-cli high_pass_baseline -- --nocapture`: Pass; 2 focused CLI/export guardrail tests passed.
+- `cargo fmt --check`: Pass.
+- `git diff --check`: Pass.
+- `cargo test --workspace`: Pass; 211 workspace unit, integration, and doctest checks passed.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- Local Markdown link-target scan over 19 changed Markdown files and 74 local links: Pass.
+
+### Scope Notes
+
+- No new dependencies.
+- No report/config schema migration.
+- No rule-package or deployment-package transform export support.
+- No live DAQ, HAL/RTOS SDK, target hardware execution, real-time, hardware qualification, calibrated drift-removal, broad filter-family, or certification claim.
+- PR, required `rust` CI, issue closure, and milestone closure remain pending.
+
 ## M13 Runtime Profile Validation Update
 
 Date: 2026-06-01

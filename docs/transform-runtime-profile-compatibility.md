@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M10-004 / issue #135 compatibility artifact updated by M13. M13 implements validator code for metadata/profile checks; it does not expose transforms to deployment packages or embedded runtimes.
+Status: M10-004 / issue #135 compatibility artifact updated by M14. M13 implements validator code for metadata/profile checks; M14 adds high-pass baseline correction as desktop-only support and does not expose transforms to deployment packages or embedded runtimes.
 
 ## Purpose
 
@@ -104,6 +104,7 @@ Current transform mappings come from `docs/current-transform-metadata-mapping.md
 | `deadband` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented for desktop analysis; nonlinear threshold behavior is not exposed to runtime profiles yet. |
 | `dc_remove` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented for desktop analysis; offline-only full-waveform mean removal is not a runtime transform. |
 | `baseline_subtract` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented for desktop analysis; no no_std/fixed-buffer parity evidence yet. |
+| `high_pass_baseline` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented for desktop analysis; no no_std/fixed-buffer timing, resource, or parity evidence yet. |
 | `moving_median` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented for desktop analysis; nonlinear window behavior lacks embedded-compatible parity evidence. |
 
 This matrix does not remove existing desktop analysis support. It only prevents runtime/deployment overclaims.
@@ -137,7 +138,7 @@ Runtime profile compatibility does not claim:
 Role: Embedded RTOS Engineer / Software Architect
 Goal: Complete M10-004 / issue #135 and support M13 runtime-profile validation.
 Files changed: `docs/transform-runtime-profile-compatibility.md`, `crates/ferrisoxide-core/src/runtime_profile.rs`
-Checks run: Documentation review; focused M13 runtime-profile tests.
-Status: M10 rules are complete through PR #138; M13 validator implementation is complete through PR #164.
+Checks run: Documentation review; focused M13 runtime-profile tests; M14 high-pass baseline tests.
+Status: M10 rules are complete through PR #138; M13 validator implementation is complete through PR #164; M14 keeps high-pass baseline correction desktop-only.
 Known gaps: Deployment exposure and embedded/no_std transform exposure remain future gated work.
 Next recommended step: Use the validator before any future transform metadata is exposed to rule packages, deployment packages, Pi 5, or Pico 2 runtime paths.

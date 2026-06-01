@@ -2202,6 +2202,62 @@ mod tests {
     }
 
     #[test]
+    fn analyzes_config_with_m14_high_pass_baseline() {
+        let output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            "../../examples/basic-waveform.csv".to_string(),
+            "--config".to_string(),
+            "../../examples/m14-high-pass-baseline-config.toml".to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("M14 high-pass baseline config should analyze");
+
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        assert!(output.contains("\"name\": \"high_pass_baseline\""));
+        assert!(output.contains("\"category\": \"StatefulTransform\""));
+        assert!(output.contains("\"sample_rate_required\": true"));
+        assert!(output.contains("\"phase_effect\": \"delay\""));
+    }
+
+    #[test]
+    fn rule_package_export_rejects_high_pass_baseline() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path = format!("{manifest_dir}/../../examples/basic-waveform.csv");
+        let config_path =
+            format!("{manifest_dir}/../../examples/m14-high-pass-baseline-config.toml");
+        let temp_dir = env::temp_dir().join(format!(
+            "ferrisoxide-m14-rule-package-{}",
+            std::process::id()
+        ));
+        if temp_dir.exists() {
+            fs::remove_dir_all(&temp_dir).expect("stale temp dir should be removable");
+        }
+
+        let error = run(vec![
+            "export-rule-package".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--config".to_string(),
+            config_path,
+            "--output-dir".to_string(),
+            temp_dir.display().to_string(),
+            "--package-name".to_string(),
+            "m14-high-pass".to_string(),
+            "--package-version".to_string(),
+            "0.12.0".to_string(),
+        ])
+        .expect_err("high-pass baseline should not export to rule packages yet");
+
+        assert!(error
+            .contains("rule package export does not yet support transform `high_pass_baseline`"));
+        if temp_dir.exists() {
+            fs::remove_dir_all(&temp_dir).expect("temp dir should be removable");
+        }
+    }
+
+    #[test]
     fn analyzes_config_with_m12_event_validation_transforms() {
         let manifest_dir = env!("CARGO_MANIFEST_DIR");
         let input_path = format!("{manifest_dir}/../../examples/switch-bounce-waveform.csv");
