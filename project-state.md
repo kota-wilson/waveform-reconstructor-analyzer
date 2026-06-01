@@ -422,6 +422,8 @@ Expected deliverable: Hold before M14 or new scope until explicit approval.
 | M13 Runtime Profile Validation Human Approval Gate | Pass for planning and issue creation | User approved continuing after M12 closure on 2026-06-01 | Project Coordinator |
 | M13 Runtime Profile Validation Issue Planning Gate | Pass | GitHub milestone #13 and issues #158 through #163 created. | GitHub Maintainer Specialist |
 | M13 Runtime Profile Validation Implementation Gate | Pass | Runtime-profile validator, timing evidence, waveform/event metadata tests, docs, and traceability merged in PR #164. | Core Software Engineer |
+| M13 Runtime Profile Validation V&V Gate | Pass | WRA-RQ-087 through WRA-RQ-092 map to runtime-profile unit tests, workspace validation, protected CI, closed issues #158 through #163, and closed milestone #13 without hardware, DAQ, RTOS timing, or certification claims. | V&V Engineer |
+| M13 Runtime Profile Validation QA Gate | Pass | Formatting, diff check, local Markdown link-target scan, PR #164 protected `rust` CI, and PR #165 protected `rust` CI passed. | QA Engineer |
 | M13 Runtime Profile Validation Release Gate | Pass | PR #164 merged after required `rust` CI passed; squash commit `ae0366dcd20a81a71262f38d2409dc2b85774051`. | GitHub Maintainer Specialist |
 | M13 Runtime Profile Validation Community Gate | Pass | Issues #158 through #163 closed; milestone #13 closed with 6 closed items and 0 open items. | Project Coordinator |
 

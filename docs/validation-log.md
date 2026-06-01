@@ -39,6 +39,7 @@ cargo test --workspace
 cargo clippy --workspace --all-targets -- -D warnings
 local Markdown link-target scan
 PR #164 protected rust CI
+PR #165 protected rust CI
 milestone #13 closure verification
 ```
 
@@ -52,6 +53,7 @@ milestone #13 closure verification
 - `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
 - Local Markdown link-target scan over changed Markdown files: Pass.
 - PR #164 protected `rust` CI: Pass.
+- PR #165 protected `rust` CI: Pass for release/community closure records.
 - Milestone #13 closure verification: Pass; issues #158 through #163 closed, milestone #13 closed with 6 closed issues and 0 open issues.
 
 ### Scope Notes

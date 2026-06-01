@@ -40,10 +40,12 @@ Out of scope:
 | Requirements | Pass | WRA-RQ-087 through WRA-RQ-092; issues #158 through #163. | Requirements may need update if package-export behavior changes later. | Software Architect |
 | Architecture | Pass | Validator uses existing M10 metadata and runtime-profile vocabulary without report/config schema migration. | Future package exposure still needs a separate migration gate. | Abstraction Review Engineer |
 | Implementation | Pass locally | `runtime_profile.rs` provides validator, timing evidence, and structured errors. | Not wired into a runtime loader because no runtime loader exists. | Core Software Engineer |
-| Testing | Pass locally | Focused runtime-profile tests, formatting, workspace tests, clippy, link scan, and diff check pass. | Protected CI still pending. | V&V Engineer |
-| Security | Pass locally | No new dependencies, network behavior, signing, credentials, unsafe FFI, SDK, or HAL changes. | Future package enforcement may require schema review. | Security Engineer |
+| Testing | Pass | Focused runtime-profile tests, formatting, workspace tests, clippy, link scan, diff check, and protected `rust` CI pass. | Future runtime/package integration will need its own tests. | Test Engineer |
+| V&V | Pass | WRA-RQ-087 through WRA-RQ-092 map to unit tests, workspace validation, PR #164 protected CI, closed issues #158 through #163, and closed milestone #13. | No hardware, DAQ, RTOS timing, or certification validation is claimed. | V&V Engineer |
+| QA | Pass | `cargo fmt --check`, `git diff --check`, local Markdown link-target scan, PR #164 protected CI, and PR #165 protected CI passed for implementation and closure records. | Automated Markdown link checking remains future tooling. | QA Engineer |
+| Security | Pass | No new dependencies, network behavior, signing, credentials, unsafe FFI, SDK, or HAL changes. | Future package enforcement may require schema review. | Security Engineer |
 | Performance | Not Applicable | Metadata validation is small control-path logic, not a waveform hot path claim. | No throughput or real-time claim is made. | Performance Engineer |
-| Documentation | Pass locally | Docs clarify legacy rule-package export is not broad transform runtime support. | More docs may be needed before package/schema migration. | Documentation Engineer |
+| Documentation | Pass | Docs clarify legacy rule-package export is not broad transform runtime support. | More docs may be needed before package/schema migration. | Documentation Engineer |
 | Code Review | Pass | PR #164 review path and protected `rust` CI passed before merge. | Future reviewers may request follow-up refinements. | Code Reviewer |
 | Evaluation | Pass | Requirements, traceability, tests, docs, and pipeline report map issues #158 through #163 to evidence. | Future package/runtime exposure still needs separate gates. | Evaluation Engineer |
 | Release | Pass | PR #164 merged after required `rust` CI passed; squash commit `ae0366dcd20a81a71262f38d2409dc2b85774051`. | No GitHub release tag was published. | GitHub Maintainer Specialist |
