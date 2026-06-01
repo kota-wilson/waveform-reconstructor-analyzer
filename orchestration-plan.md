@@ -6,9 +6,9 @@ Project folder: `/Users/kota/Desktop/codexprojects/softwaredev/projects/ferrisox
 
 Execution tier: Tier 2 MVP plus roadmap-controlled follow-on milestones
 
-Current objective: Complete M12 event and validation transform MVP through validation, PR, issue, and milestone closure.
+Current objective: Hold after completing M12 event and validation transform MVP through validation, PR, issue, and milestone closure.
 
-Current stage: M11 is complete through PR #147; issues #140 through #146 and milestone #11 are closed. M12 milestone #12 and issues #149 through #155 are approved, implemented, and validated locally pending protected PR closure.
+Current stage: M12 is complete through PR #156; issues #149 through #155 and milestone #12 are closed.
 
 Selected workflow: `workflows/project-orchestration-pipeline.md`
 
@@ -33,7 +33,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | M1-M9 | Validated MVP, embedded/no_std foundation, validation, plotting, measurement/evidence, DSL, portable rule package, controller simulation/deployment config | Multiple roles | Historical gates | Implemented requirements WRA-RQ-001 through WRA-RQ-069 and closed M9 | Complete |
 | M10 / v0.8.0 | Transform architecture and capability metadata | Software Architect | Human approval and issue creation | Metadata model, existing-transform mappings, compatibility tests, docs, merged PR #138, closed issues #132 through #137, closed milestone #10 | Complete |
 | M11 / v0.9.0 | Pointwise and windowed transform MVP | Core Software Engineer / Systems Engineer | M10 architecture accepted and user requested next milestone | Pointwise, baseline, moving median, metadata, raw-preservation tests, docs, PR #147, closed issues #140 through #146, closed milestone #11 | Complete |
-| M12 / v0.10.0 | Event and validation transform MVP | Core Software Engineer / V&V Engineer | M10 accepted, M11 compatibility path established, and user approved M12 | Event records, Schmitt trigger, debounce, glitch removal, event validation, fixtures, docs, PR closure, closed issues #149 through #155, closed milestone #12 | Implemented locally; PR closure pending |
+| M12 / v0.10.0 | Event and validation transform MVP | Core Software Engineer / V&V Engineer | M10 accepted, M11 compatibility path established, and user approved M12 | Event records, Schmitt trigger, debounce, glitch removal, event validation, fixtures, docs, PR #156, closed issues #149 through #155, closed milestone #12 | Complete |
 
 ## Zoom-Level Plan
 
@@ -63,7 +63,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | WRA-TASK-021 | Approve M11 and create GitHub issues | Project Coordinator / GitHub Maintainer Specialist | M11 proposal and placeholders M11-001 through M11-007 | GitHub milestone #11 and issues #140 through #146 | Human Approval Gate | Complete |
 | WRA-TASK-022 | Implement M11 pointwise/windowed transform MVP | Core Software Engineer / Systems Engineer / V&V Engineer / Documentation Engineer | Issues #140 through #146, M10 metadata model | `crates/ferrisoxide-core`, CLI config test, `examples/m11-transform-config.toml`, docs, traceability, and pipeline report | Implementation/Release Gate | Complete |
 | WRA-TASK-023 | Approve M12 and create GitHub issues | Project Coordinator / GitHub Maintainer Specialist | M12 proposal and placeholders M12-001 through M12-007 | GitHub milestone #12 and issues #149 through #155 | Human Approval Gate | Complete |
-| WRA-TASK-024 | Implement M12 event/validation transform MVP | Core Software Engineer / V&V Engineer / Documentation Engineer | Issues #149 through #155, M10/M11 metadata model | `crates/ferrisoxide-core/src/event.rs`, config/report/CLI integration, rule-engine Schmitt primitive, examples, docs, traceability, and pipeline report | Implementation/Release Gate | Implemented and validated locally; PR closure pending |
+| WRA-TASK-024 | Implement M12 event/validation transform MVP | Core Software Engineer / V&V Engineer / Documentation Engineer | Issues #149 through #155, M10/M11 metadata model | `crates/ferrisoxide-core/src/event.rs`, config/report/CLI integration, rule-engine Schmitt primitive, examples, docs, traceability, and pipeline report | Implementation/Release Gate | Complete through PR #156 |
 
 ## Approval Gates
 
@@ -100,7 +100,7 @@ You are the Project Orchestrator / Core Software Engineer.
 
 Purpose
 
-Complete M12 validation and protected PR closure without expanding scope.
+Hold after M12 completion and wait for explicit approval before M13 or new scope.
 
 Responsibilities
 
@@ -114,7 +114,7 @@ Deliverables
 
 - M12 event and validation transforms are implemented for desktop analysis through additive `[[event_transforms]]` and `[[event_validations]]` config paths.
 - Requirements, traceability, risk, docs, tests, and pipeline reports are updated for issues #149 through #155.
-- Protected PR CI, issue closure, and milestone #12 closure are recorded before final release/community closure.
+- PR #156, required `rust` CI, issue closure, and milestone #12 closure are recorded.
 - Handoff note.
 
 Expected format to receive deliverables

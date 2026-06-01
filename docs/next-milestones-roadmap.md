@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M10 and M11 complete. PR #138 merged M10 and closed milestone #10; PR #147 merged M11 and closed milestone #11 with issues #140 through #146. M12 milestone #12 and issues #149 through #155 are approved and implemented locally pending PR closure.
+Status: M10, M11, and M12 complete. PR #138 merged M10 and closed milestone #10; PR #147 merged M11 and closed milestone #11; PR #156 merged M12 and closed milestone #12 with issues #149 through #155.
 
 ## Purpose
 
@@ -14,7 +14,7 @@ This roadmap sequences the next three milestones:
 |---|---|---|---|
 | M10 | v0.8.0 | Transform architecture and capability metadata | Complete; PR #138 merged and milestone #10 closed |
 | M11 | v0.9.0 | Pointwise and windowed transform MVP | Complete in PR #147; milestone #11 closed |
-| M12 | v0.10.0 | Event and validation transform MVP | Implemented locally; PR closure pending |
+| M12 | v0.10.0 | Event and validation transform MVP | Complete in PR #156; milestone #12 closed |
 
 ## Sequencing Rationale
 
@@ -107,7 +107,9 @@ The following remain outside M10 through M12 unless a fresh proposal and approva
 | Human Approval Gate | Pass for M10 issue creation and implementation | User approved M10 issue creation and later approved external PR/issue/milestone actions on 2026-06-01. | Project Coordinator |
 | Issue Planning Gate | Pass for M10 | GitHub milestone #10 and issues #132 through #137 were created, then closed through PR #138 and milestone closure. | GitHub Maintainer Specialist |
 | Issue Planning Gate | Pass for M12 | GitHub milestone #12 and issues #149 through #155 were created after approval. | GitHub Maintainer Specialist |
-| Implementation Gate | Pass locally for M12 | M12 implementation is local with event records, validation records, examples, docs, and targeted tests; protected PR closure remains pending. | Core Software Engineer |
+| Implementation Gate | Pass for M12 | M12 implementation merged in PR #156 with event records, validation records, examples, docs, and tests. | Core Software Engineer |
+| Release Gate | Pass for M12 | PR #156 merged after required `rust` CI passed; squash commit `a4885578de9d136cd8df213e1da489a7232cf702`. | GitHub Maintainer Specialist |
+| Community Gate | Pass for M12 | Issues #149 through #155 closed and milestone #12 closed with 8 closed items and 0 open items. | Project Coordinator |
 | Release Gate | Pass for M11 | PR #147 merged after required `rust` CI passed; squash commit `793a2ab1323526b2695fa7b59a1246f2e29d9c43`. | GitHub Maintainer Specialist |
 | Community Gate | Pass for M11 | Issues #140 through #146 are closed and milestone #11 is closed with 8 closed items and 0 open items. | Project Coordinator |
 
@@ -117,6 +119,6 @@ Role: Project Coordinator / Product Architect
 Goal: Convert the transform taxonomy into a staged local milestone roadmap.
 Files changed: This roadmap plus M10, M11, M12, issue-planning, requirements, traceability, risk, orchestration, and state files.
 Checks run: Documentation and traceability inspection.
-Status: M10 and M11 complete; M12 implemented locally pending PR closure.
-Known gaps: M12 protected PR CI, issue closure, milestone closure, and release/community closure remain pending.
-Next recommended step: Complete M12 validation and PR closure.
+Status: M10, M11, and M12 complete.
+Known gaps: No GitHub release tag was published for M12; M13 and hardware/runtime work remain unapproved.
+Next recommended step: Hold before M13 or new scope until explicit approval.

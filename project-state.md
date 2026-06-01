@@ -4,11 +4,11 @@ Last updated: 2026-06-01
 
 ## Current Objective
 
-Complete FerrisOxide M12 event and validation transform MVP through PR, issue, and milestone closure. M10-001 / issue #132 through M10-006 / issue #137 are closed through PR #138; M11 issues #140 through #146 are closed through PR #147, and milestone #11 is closed. M12 milestone #12 and issues #149 through #155 are approved, implemented, and validated locally pending protected PR closure. No dependencies, live DAQ, HAL/RTOS, hardware, certification work, or M13 implementation has started.
+Hold after completing FerrisOxide M12 event and validation transform MVP through PR, issue, and milestone closure. M10-001 / issue #132 through M10-006 / issue #137 are closed through PR #138; M11 issues #140 through #146 are closed through PR #147; M12 issues #149 through #155 are closed through PR #156, and milestone #12 is closed. No dependencies, live DAQ, HAL/RTOS, hardware, certification work, or M13 implementation has started.
 
 ## Current Stage
 
-Local milestone planning is complete for the M10-M12 transform sequence. `docs/next-milestones-roadmap.md` defines the sequence, `docs/v0.8.0-transform-architecture-milestone-proposal.md` covers WRA-RQ-070 through WRA-RQ-074, `docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md` covers WRA-RQ-075 through WRA-RQ-080, `docs/v0.10.0-event-validation-transform-milestone-proposal.md` covers WRA-RQ-081 through WRA-RQ-086, and `docs/next-milestones-issue-planning-report.md` tracks M10/M11 closure plus M12 issues #149 through #155. GitHub milestone #10 is closed with M10-001 through M10-006 as closed issues #132 through #137 and merged PR #138. GitHub milestone #11 is closed with M11-001 through M11-007 as closed issues #140 through #146 and merged PR #147. M12 adds event records, Schmitt trigger state conversion, debounce/glitch handling, edge extraction, bounce detection, event validation records, switch/bounce fixtures, and Schmitt no_std-compatible tests. The next gate is protected PR closure for M12.
+The M10-M12 transform sequence is complete. `docs/next-milestones-roadmap.md` defines the sequence, `docs/v0.8.0-transform-architecture-milestone-proposal.md` covers WRA-RQ-070 through WRA-RQ-074, `docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md` covers WRA-RQ-075 through WRA-RQ-080, `docs/v0.10.0-event-validation-transform-milestone-proposal.md` covers WRA-RQ-081 through WRA-RQ-086, and `docs/next-milestones-issue-planning-report.md` tracks M10, M11, and M12 closure. GitHub milestone #10 is closed with M10-001 through M10-006 as closed issues #132 through #137 and merged PR #138. GitHub milestone #11 is closed with M11-001 through M11-007 as closed issues #140 through #146 and merged PR #147. GitHub milestone #12 is closed with M12-001 through M12-007 as closed issues #149 through #155 and merged PR #156. M12 adds event records, Schmitt trigger state conversion, debounce/glitch handling, edge extraction, bounce detection, event validation records, switch/bounce fixtures, and Schmitt no_std-compatible tests. The next gate is explicit approval before M13 or new scope.
 
 Historical closure context:
 
@@ -141,22 +141,22 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is closed after PRs #10
   Status: Accepted for local milestone planning in `docs/analog-transform-taxonomy.md`, `docs/next-milestones-roadmap.md`, and the M10-M12 proposals; M10 GitHub issues #132 through #137 are closed through PR #138.
 - Decision: Sequence transform work as M10 architecture first, M11 pointwise/windowed transforms second, and M12 event/validation transforms third.
   Owner: Project Coordinator / Software Architect
-  Status: Accepted; M11 is complete through PR #147, and M12 is approved, implemented, and validated locally pending PR closure.
+  Status: Accepted; M12 is complete through PR #156, and milestone #12 is closed.
 
 ## Next Responsible Role
 
-Role: Project Orchestrator / Core Software Engineer
+Role: Project Coordinator / Software Architect
 
-Expected deliverable: Complete M12 validation, protected PR closure, issue closure, and milestone #12 closure.
+Expected deliverable: Hold before M13 or new scope until explicit approval.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/ferrisoxide`.
-- Current milestone: #12, `v0.10.0: Event And Validation Transform MVP`, is open with issues #149 through #155 implemented locally pending PR closure. M7, M8, M9, M10, and M11 are closed; TEST-001, DOCS-001, BRAND-002, and REPO-001 are complete.
+- Current milestone: #12, `v0.10.0: Event And Validation Transform MVP`, is closed with issues #149 through #155 closed by PR #156. M7, M8, M9, M10, and M11 are closed; TEST-001, DOCS-001, BRAND-002, and REPO-001 are complete.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
-- Next gate: Protected PR closure for M12. Deployment exporters, runtime loaders, live DAQ SDKs, HAL/RTOS adapters, cryptographic signing, M13+ work, and hardware/certification evidence remain separately gated.
+- Next gate: Explicit approval before M13 or new scope. Deployment exporters, runtime loaders, live DAQ SDKs, HAL/RTOS adapters, cryptographic signing, M13+ work, and hardware/certification evidence remain separately gated.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, Pico 2 runtime crate work, new third-party dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, binary package serialization, cryptographic signing, live controller simulation, live DAQ integration, unit shorthand parsing, expanded annotated SVG features, or external brand expansion without a fresh issue/gate.
 
 ## Granularity Status
@@ -412,7 +412,9 @@ Expected deliverable: Complete M12 validation, protected PR closure, issue closu
 | M12 Event/Validation Transform Architecture Gate | Pass locally | M10 dependency is satisfied by merged PR #138, M11 compatibility path is merged by PR #147, and M12 event/report architecture is documented in `docs/event-validation-transforms.md` | Abstraction Review Engineer |
 | Next Milestones Issue Planning Gate | Pass for M12 | GitHub milestone #12 and issues #149 through #155 were created after approval | GitHub Maintainer Specialist |
 | Next Milestones Human Approval Gate | Pass for M12 issue creation and implementation | User approved M12 on 2026-06-01 | Project Coordinator |
-| Next Milestones Implementation Gate | Pass locally for M12 | M12 implementation, examples, docs, and full local validation are complete pending PR closure | Core Software Engineer |
+| Next Milestones Implementation Gate | Pass for M12 | M12 implementation, examples, docs, and full local validation merged in PR #156 | Core Software Engineer |
+| M12 Event/Validation Transform Release Gate | Pass | PR #156 merged after required `rust` CI passed; squash commit `a4885578de9d136cd8df213e1da489a7232cf702` | GitHub Maintainer Specialist |
+| M12 Event/Validation Transform Community Gate | Pass | Issues #149 through #155 closed; milestone #12 closed with 8 closed items and 0 open items | Project Coordinator |
 
 ## Update Rules
 

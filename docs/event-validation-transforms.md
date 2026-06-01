@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M12 local implementation artifact for issues #149 through #155.
+Status: M12 implementation artifact for issues #149 through #155, closed by PR #156.
 
 ## Scope
 
@@ -91,6 +91,6 @@ Role: Core Software Engineer / Verification and Validation Engineer
 Goal: Document M12 event and validation transform behavior.
 Files changed: `crates/ferrisoxide-core/src/event.rs`, `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-core/src/report.rs`, `crates/ferrisoxide-cli/src/main.rs`, `crates/ferrisoxide-rule-engine/src/lib.rs`, `examples/switch-bounce-waveform.csv`, `examples/m12-event-validation-config.toml`, and this document.
 Checks run: Targeted event, config, report, CLI, and rule-engine tests; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; local Markdown link-target scan; stale current M12 wording scan; `git diff --check`.
-Status: Implemented and validated locally pending protected PR closure.
+Status: Implemented in PR #156; issues #149 through #155 and milestone #12 are closed.
 Known gaps: No live hardware, DAQ SDK, target runtime, or certification evidence.
-Next recommended step: Complete M12 through PR/milestone closure.
+Next recommended step: Hold before M13 or new scope until explicit approval.

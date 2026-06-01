@@ -297,6 +297,6 @@ Role: Systems Engineer / Software Architect
 Goal: Complete M10-003 / issue #134 by mapping current implemented transforms to structured metadata values.
 Files changed: `docs/current-transform-metadata-mapping.md`
 Checks run: Documentation and compatibility review.
-Status: Complete through PR #138 and updated by M12 local implementation for event/validation metadata.
+Status: Complete through PR #138 and updated by M12 PR #156 for event/validation metadata.
 Known gaps: Runtime profile validation code and bounded embedded event exposure remain future gated work.
 Next recommended step: Use this mapping for M12 PR review and future runtime-profile validation code.

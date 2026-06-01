@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: Local implementation and full validation complete for GitHub milestone #12 and issues #149 through #155. Protected PR closure remains pending.
+Status: Complete. PR #156 merged after required `rust` CI passed; issues #149 through #155 and milestone #12 are closed.
 
 ## Scope
 
@@ -22,18 +22,18 @@ Out of scope: new dependencies, live DAQ, vendor SDKs, HAL/RTOS SDKs, unsafe FFI
 | Architecture | Pass | `crates/ferrisoxide-core/src/event.rs`, `docs/event-validation-transforms.md`, and report-schema updates. | Event pipeline is desktop/report oriented; only Schmitt primitive is no_std-compatible. | Abstraction Review Engineer |
 | Abstraction Review | Pass | Event evidence and validation decisions are separate arrays with linked event IDs. | Event metadata output kinds are additive and must remain documented. | Abstraction Review Engineer |
 | Approval Gate | Pass | User approved M12 with "M12 approved" on 2026-06-01. | No approval for dependencies, hardware, SDKs, or certification claims. | Project Coordinator |
-| Implementation | Pass locally | Core event module, config conversion, CLI analyze path, report outcome integration, rule-engine Schmitt primitive, and examples. | PR review may require adjustments. | Core Software Engineer |
-| Testing | Pass locally | Targeted M12 tests, `cargo fmt --check`, `cargo test --workspace`, and clippy pass locally. | Protected CI still required before merge. | Test Automation Engineer |
-| V&V | Pass locally | Switch/bounce fixture expected behavior documented in `docs/event-validation-transforms.md`; full workspace tests pass. | Hardware validation is explicitly not claimed. | Verification and Validation Engineer |
-| QA | Pass locally | `git diff --check`, Markdown link scan, and current M12 stale wording scan passed. | Protected PR review/CI can still find issues. | QA Engineer |
+| Implementation | Pass | Core event module, config conversion, CLI analyze path, report outcome integration, rule-engine Schmitt primitive, and examples merged in PR #156. | Future refinements should use new issues. | Core Software Engineer |
+| Testing | Pass | Targeted M12 tests, `cargo fmt --check`, `cargo test --workspace`, clippy, and protected `rust` CI passed. | Future runtime work needs separate coverage. | Test Automation Engineer |
+| V&V | Pass | Switch/bounce fixture expected behavior documented in `docs/event-validation-transforms.md`; full workspace tests and protected CI passed. | Hardware validation is explicitly not claimed. | Verification and Validation Engineer |
+| QA | Pass | `git diff --check`, Markdown link scan, current M12 stale wording scan, and protected CI passed. | Future docs must preserve software-only scope. | QA Engineer |
 | Security | Pass locally | No new dependencies, signing, authentication, unsafe FFI, SDK, or credential changes. | Dependency/security gate required for any future SDK or signing work. | Security Engineer |
 | Performance | Not Applicable | Event fixture and tests are small deterministic software checks. | No throughput or real-time performance claim is made. | Performance Engineer |
-| Documentation | Pass locally | Event docs, report-schema updates, roadmap, issue planning, requirements, traceability, risk, README, and validation log. | Release/community wording will need post-merge evidence. | Documentation Engineer |
-| Code Review | Pass locally | Local code review pass; PR review remains pending. | Protected PR review/CI can still find issues. | Code Reviewer |
-| Evaluation | Pass locally | Requirements, traceability, validation log, and pipeline report map issues #149 through #155 to tests and docs. | Metrics cannot be final before protected CI. | Evaluation Engineer |
-| Release | Pending | No release, tag, or milestone closure yet. | Must not close milestone before PR and issues close. | GitHub Maintainer Specialist |
-| Community | Pending | Issues #149 through #155 open until PR closure. | Maintainer-facing closure must cite PR and CI evidence. | Project Coordinator |
-| Retrospective | Pending | To be completed after PR/milestone closure. | Residual risk list may change after review. | Project Coordinator |
+| Documentation | Pass | Event docs, report-schema updates, roadmap, issue planning, requirements, traceability, risk, README, validation log, and closure artifacts updated. | Future runtime-profile docs remain separate. | Documentation Engineer |
+| Code Review | Pass | Local review plus protected PR #156 `rust` CI passed before merge. | Future reviewers may request follow-up refinements. | Code Reviewer |
+| Evaluation | Pass | Requirements, traceability, validation log, and pipeline report map issues #149 through #155 to tests, docs, CI, and PR #156. | Future runtime-profile work remains separately gated. | Evaluation Engineer |
+| Release | Pass | PR #156 merged after required `rust` CI passed; squash commit `a4885578de9d136cd8df213e1da489a7232cf702`. | No GitHub release tag was published. | GitHub Maintainer Specialist |
+| Community | Pass | Issues #149 through #155 closed and milestone #12 closed with 8 closed items and 0 open items. | M13 and hardware/runtime work remain unapproved. | Project Coordinator |
+| Retrospective | Pass | This report records M12 residual risks and non-goals after milestone closure. | Future event runtime work needs a fresh plan. | Project Coordinator |
 
 ## Issue Mapping
 
@@ -61,6 +61,8 @@ cargo clippy --workspace --all-targets -- -D warnings
 local Markdown link-target scan
 stale current M12 wording scan
 git diff --check
+PR #156 protected rust CI
+milestone #12 closure verification
 ```
 
 `cargo test --workspace` passed with 197 workspace unit, integration, and doctest checks.
@@ -71,6 +73,6 @@ Role: Project Orchestrator / Core Software Engineer
 Goal: Complete M12 event and validation transform MVP through the contribution pipeline.
 Files changed: M12 implementation, examples, docs, requirements, traceability, risk, orchestration, and state artifacts.
 Checks run: Full local validation listed above.
-Status: Local implementation and validation complete; PR release remains pending.
-Known gaps: Protected PR CI, issue closure, milestone closure, release/community closure, and retrospective are not complete yet.
-Next recommended step: Open PR with `Closes #149` through `Closes #155`, wait for protected CI, merge, close milestone #12, and update closure artifacts.
+Status: Complete through PR #156, closed issues #149 through #155, and closed milestone #12.
+Known gaps: No GitHub release tag was published; live DAQ, hardware runtime, bounded embedded event runtime, hardware validation, certification evidence, and M13 work remain separately gated.
+Next recommended step: Hold before M13 or new scope until explicit approval.

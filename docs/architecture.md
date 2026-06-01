@@ -162,7 +162,7 @@ Platform split
 - Edge behavior, latency, and sample-rate assumptions must be documented before filter algorithms are considered production-stable.
 - Future transform work is organized by the planning taxonomy in `docs/analog-transform-taxonomy.md`; not every named transform is implemented.
 - The transform taxonomy is not a support matrix; implemented/planned/research/gated status lives in `docs/transform-capability-model.md`.
-- M12 event/validation transforms are implemented locally pending protected PR closure; further transform work requires its own GitHub issue-creation and approval gates.
+- M12 event/validation transforms are implemented in PR #156; further transform work requires its own GitHub issue-creation and approval gates.
 - Transform category, metadata, runtime profile, support-status, and evidence-level vocabulary is defined in `docs/transform-capability-model.md`.
 - Structured transform report metadata is defined in `docs/structured-transform-metadata.md`; existing `transform_history` remains the compatibility field, and `transform_steps` is emitted only when non-empty.
 - Current transform mappings to structured metadata values are defined in `docs/current-transform-metadata-mapping.md`.

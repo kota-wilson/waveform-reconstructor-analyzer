@@ -50,6 +50,8 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 | Local Markdown link-target scan | Passed | Local Markdown links resolved. |
 | Stale current M12 wording scan | Passed | No stale "M12 pending/proposed" wording in active M12 docs/state artifacts. |
 | `git diff --check` | Passed | No whitespace errors. |
+| PR #156 protected `rust` CI | Passed | Required GitHub status check passed before merge. |
+| Milestone #12 closure | Passed | GitHub milestone #12 closed with 8 closed items and 0 open items. |
 
 ### Exact Tests Added
 
@@ -72,7 +74,7 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 - Gate: Testing and V&V Gates for M12.
 - Decision: Pass locally.
 - Reason: Targeted tests and full workspace validation cover M12 event records, event validations, config conversion, report outcome behavior, example fixture behavior, and no_std-compatible Schmitt state logic without adding dependencies or hardware scope.
-- Residual risk: Protected PR CI, issue closure, milestone closure, and release/community closure remain pending.
+- Residual risk: No GitHub release tag was published; hardware/runtime and certification evidence remain out of scope.
 - Owner for residual risk: GitHub Maintainer Specialist / Project Coordinator.
 
 ### Hand-Off Note
@@ -81,9 +83,9 @@ Role: Test Automation Engineer / Verification and Validation Engineer
 Goal: Validate M12 event and validation transform MVP.
 Files changed: `crates/ferrisoxide-core/src/event.rs`, `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-core/src/report.rs`, `crates/ferrisoxide-cli/src/main.rs`, `crates/ferrisoxide-rule-engine/src/lib.rs`, examples, report schema, event docs, roadmap, requirements, traceability, risk register, validation log, project state, orchestration plan, and M12 pipeline report.
 Checks run: Targeted M12 tests plus `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; local Markdown link-target scan; stale current M12 wording scan; `git diff --check`.
-Status: Pass locally; PR closure pending.
-Known gaps: Protected PR CI, issue closure, milestone closure, release/community closure, hardware evidence, and certification evidence remain pending.
-Next recommended step: Complete PR/milestone closure.
+Status: Pass; PR #156 merged, issues #149 through #155 closed, and milestone #12 closed.
+Known gaps: No GitHub release tag was published; hardware evidence, certification evidence, bounded embedded event runtime, and M13 work remain unapproved.
+Next recommended step: Hold before M13 or new scope until explicit approval.
 
 ## M11 Pointwise And Windowed Transform MVP Validation Update
 
@@ -142,8 +144,8 @@ Goal: Validate M11 pointwise and windowed transform MVP.
 Files changed: `crates/ferrisoxide-core/src/filter.rs`, `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-core/src/model.rs`, `crates/ferrisoxide-cli/src/main.rs`, `examples/m11-transform-config.toml`, README, architecture, filter behavior, transform metadata docs, rule-package docs, roadmap, requirements, traceability, risk register, validation log, project state, orchestration plan, and M11 pipeline report.
 Checks run: `cargo test -p ferrisoxide-core`; `cargo test -p ferrisoxide-cli analyzes_config_with_m11_transforms`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; local Markdown link-target scan; stale M10/M11 wording scan; `git diff --check`; PR #147 protected `rust` CI; milestone #11 closure verification.
 Status: Pass; PR #147 merged, issues #140 through #146 closed, and milestone #11 closed.
-Known gaps: High-pass baseline correction, runtime-profile exposure, portable rule-package semantics for M11 transforms, M12 implementation, and release tag remain pending.
-Next recommended step: Hold before M12 issue creation until explicit approval.
+Known gaps: High-pass baseline correction, runtime-profile exposure, portable rule-package semantics for M11 transforms, and release tag remain pending; M12 is now complete through PR #156.
+Next recommended step: Hold before M13 or new scope until explicit approval.
 
 ## M9-010 Qualification Evidence Report Validation Update
 
