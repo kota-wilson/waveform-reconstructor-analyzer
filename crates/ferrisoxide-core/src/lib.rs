@@ -9,5 +9,6 @@ pub mod event;
 pub mod filter;
 pub mod model;
 pub mod report;
+pub mod runtime_profile;
 
 pub use error::{Result, WaveformError};

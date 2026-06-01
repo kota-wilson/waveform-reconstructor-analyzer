@@ -86,6 +86,12 @@
 | WRA-RQ-084 | Edge and bounce detection shall report timestamps, sample indices, counts, and channel evidence. | M12 / issue #152 | High | Event fixtures produce known rising/falling edges, bounce counts, bounce duration, and linked source event IDs. | Systems Engineer / V&V Engineer | Implemented in PR #156 |
 | WRA-RQ-085 | Missing/extra pulse, dwell-time, and timeout validation shall produce pass/fail evidence linked to event records. | M12 / issue #153 | High | Validation results include requirement ID, measured value, required value, unit, channel, linked event IDs, reason, transform metadata, and report-level outcome integration. | Core Software Engineer / V&V Engineer | Implemented in PR #156 |
 | WRA-RQ-086 | Event transforms shall include known-answer switch/bounce fixtures and embedded-compatible parity where practical. | M12 / issues #154 and #155 | High | `examples/switch-bounce-waveform.csv` and `examples/m12-event-validation-config.toml` document expected events; Schmitt primitive has no_std-compatible tests; desktop event reporting remains documented as allocation/report-only. | Embedded RTOS Engineer / V&V Engineer | Implemented in PR #156 |
+| WRA-RQ-087 | FerrisOxide shall provide a structured transform runtime-profile validator. | M13 / issue #158 | High | A core API validates transform metadata against a requested runtime profile and returns stable error kinds, fields, transform names, requested profile, supported profiles, and reasons. | Software Architect / Core Software Engineer | Implemented locally |
+| WRA-RQ-088 | Current desktop-only waveform transforms shall reject embedded, Pico, and future-gated runtime exposure. | M13 / issue #160 | High | Existing `[[filters]]` transform metadata passes for `desktop` and rejects `pi5_no_std_candidate`, `pico2_candidate`, and `future_gated` requests with clear errors. | Core Software Engineer / V&V Engineer | Implemented locally |
+| WRA-RQ-089 | Sample-rate-required transforms shall require valid timing evidence before runtime-profile exposure. | M13 / issue #159 | High | A sample-rate-required transform rejects missing, non-second, zero/negative, or non-finite timing metadata before profile exposure. | Systems Engineer / V&V Engineer | Implemented locally |
+| WRA-RQ-090 | Event and validation transform metadata shall remain desktop-only until a bounded runtime exists. | M13 / issue #161 | High | M12 event/validation transform metadata passes for `desktop` and rejects embedded/Pico profile requests without claiming event-report runtime support. | Embedded RTOS Engineer / V&V Engineer | Implemented locally |
+| WRA-RQ-091 | Rule-package and deployment docs shall separate legacy export support from transform runtime support. | M13 / issue #162 | Medium | README, runtime-profile docs, and mapping docs state that current rule-package filter export is not a blanket transform runtime claim and future transform/package exposure must call the validator. | Documentation Engineer / GitHub Maintainer Specialist | Implemented locally |
+| WRA-RQ-092 | M13 validation shall preserve dependency, schema, and hardware scope boundaries. | M13 / issue #163 | High | Workspace validation passes with no new third-party crates, no incompatible report/config schema changes, no live DAQ, no HAL/RTOS SDK, no target hardware execution, and no certification claims. | Project Coordinator / V&V Engineer | Implemented locally |
 
 ## Assumptions
 
@@ -182,6 +188,12 @@
 | WRA-RQ-084 | Known-answer event tests | Edge and bounce fixtures produce expected timestamps, sample indices, counts, and channel evidence. |
 | WRA-RQ-085 | Validation evidence tests | Missing/extra pulse, dwell-time, and timeout checks produce pass/fail evidence linked to event records. |
 | WRA-RQ-086 | Known-answer and parity tests | Switch/bounce fixtures document expected events before execution, and embedded-compatible event subsets pass parity tests or document non-parity reasons. |
+| WRA-RQ-087 | Unit and structured-error tests | Runtime-profile validator returns stable error kinds, fields, transform names, requested profile, supported profiles, and reasons. |
+| WRA-RQ-088 | Runtime-profile rejection tests | Current waveform transform metadata passes desktop and rejects embedded, Pico, and future-gated exposure. |
+| WRA-RQ-089 | Timing evidence tests | Sample-rate-required metadata rejects missing, non-second, zero/negative, and non-finite timing evidence. |
+| WRA-RQ-090 | Event metadata compatibility tests | M12 event and validation transform metadata passes desktop and rejects embedded/Pico exposure until bounded runtime work is approved. |
+| WRA-RQ-091 | Documentation review | README, runtime-profile docs, mapping docs, and package docs separate legacy export support from transform runtime support claims. |
+| WRA-RQ-092 | Workspace and scope checks | `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, `git diff --check`, and dependency/scope review pass. |
 
 ## Rules
 

@@ -22,6 +22,41 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, and `ferrisoxide-cli`.
 
+## M13 Runtime Profile Validation Update
+
+Date: 2026-06-01
+
+Stage: Focused local validation for runtime-profile metadata validator
+
+### Commands
+
+```text
+cargo fmt
+cargo test -p ferrisoxide-core runtime_profile -- --nocapture
+cargo fmt --check
+git diff --check
+cargo test --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+local Markdown link-target scan
+```
+
+### Result
+
+- `cargo fmt`: Pass.
+- `cargo test -p ferrisoxide-core runtime_profile -- --nocapture`: Pass; 6 focused runtime-profile tests passed.
+- `cargo fmt --check`: Pass.
+- `git diff --check`: Pass.
+- `cargo test --workspace`: Pass; 203 workspace unit, integration, and doctest checks passed.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- Local Markdown link-target scan over changed Markdown files: Pass.
+
+### Scope Notes
+
+- No new dependencies.
+- No report/config schema migration.
+- No live DAQ, HAL/RTOS SDK, target hardware execution, real-time, hardware qualification, or certification claim.
+- PR, required `rust` CI, issue closure, and milestone closure remain pending.
+
 ## M12 Event Validation Transform MVP Validation Update
 
 Date: 2026-06-01
@@ -84,8 +119,8 @@ Goal: Validate M12 event and validation transform MVP.
 Files changed: `crates/ferrisoxide-core/src/event.rs`, `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-core/src/report.rs`, `crates/ferrisoxide-cli/src/main.rs`, `crates/ferrisoxide-rule-engine/src/lib.rs`, examples, report schema, event docs, roadmap, requirements, traceability, risk register, validation log, project state, orchestration plan, and M12 pipeline report.
 Checks run: Targeted M12 tests plus `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; local Markdown link-target scan; stale current M12 wording scan; `git diff --check`.
 Status: Pass; PR #156 merged, issues #149 through #155 closed, and milestone #12 closed.
-Known gaps: No GitHub release tag was published; hardware evidence, certification evidence, bounded embedded event runtime, and M13 work remain unapproved.
-Next recommended step: Hold before M13 or new scope until explicit approval.
+Known gaps: No GitHub release tag was published; hardware evidence, certification evidence, and bounded embedded event runtime remain separately gated. M13 runtime-profile validation is now locally planned after user approval to continue.
+Next recommended step: Create M13 GitHub milestone/issues and implement runtime-profile validation through the pipeline.
 
 ## M11 Pointwise And Windowed Transform MVP Validation Update
 
@@ -144,8 +179,8 @@ Goal: Validate M11 pointwise and windowed transform MVP.
 Files changed: `crates/ferrisoxide-core/src/filter.rs`, `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-core/src/model.rs`, `crates/ferrisoxide-cli/src/main.rs`, `examples/m11-transform-config.toml`, README, architecture, filter behavior, transform metadata docs, rule-package docs, roadmap, requirements, traceability, risk register, validation log, project state, orchestration plan, and M11 pipeline report.
 Checks run: `cargo test -p ferrisoxide-core`; `cargo test -p ferrisoxide-cli analyzes_config_with_m11_transforms`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; local Markdown link-target scan; stale M10/M11 wording scan; `git diff --check`; PR #147 protected `rust` CI; milestone #11 closure verification.
 Status: Pass; PR #147 merged, issues #140 through #146 closed, and milestone #11 closed.
-Known gaps: High-pass baseline correction, runtime-profile exposure, portable rule-package semantics for M11 transforms, and release tag remain pending; M12 is now complete through PR #156.
-Next recommended step: Hold before M13 or new scope until explicit approval.
+Known gaps: High-pass baseline correction, runtime-profile exposure, portable rule-package semantics for M11 transforms, and release tag remain pending; M12 is complete through PR #156 and M13 milestone #13 is open.
+Next recommended step: Proceed with M13 runtime-profile validation before broader transform/package exposure.
 
 ## M9-010 Qualification Evidence Report Validation Update
 
