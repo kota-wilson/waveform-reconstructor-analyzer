@@ -6,9 +6,9 @@ Project folder: `/Users/kota/Desktop/codexprojects/softwaredev/projects/ferrisox
 
 Execution tier: Tier 2 MVP plus roadmap-controlled follow-on milestones
 
-Current objective: Complete M10 transform architecture issues sequentially; M10-001 through M10-006 are implemented locally and PR/release/community flow is next if approved.
+Current objective: Complete M10 transform architecture issues sequentially; M10-001 through M10-006 are implemented in PR #138.
 
-Current stage: M10 GitHub milestone #10 and issues #132 through #137 are open; M10-001 / issue #132 through M10-006 / issue #137 are implemented locally pending PR/release flow.
+Current stage: M10 GitHub milestone #10, issues #132 through #137, and PR #138 are open; PR #138 references issues #132 through #137 for closure on merge.
 
 Selected workflow: `workflows/project-orchestration-pipeline.md`
 
@@ -31,7 +31,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | Milestone | Goal | Owner Role | Entry Gate | Exit Evidence | Status |
 |---|---|---|---|---|---|
 | M1-M9 | Validated MVP, embedded/no_std foundation, validation, plotting, measurement/evidence, DSL, portable rule package, controller simulation/deployment config | Multiple roles | Historical gates | Implemented requirements WRA-RQ-001 through WRA-RQ-069 and closed M9 | Complete |
-| M10 / v0.8.0 | Transform architecture and capability metadata | Software Architect | Human approval and issue creation | Metadata model, existing-transform mappings, compatibility tests, docs | Complete locally: milestone #10, issues #132-#137 remain open pending PR/release/community flow |
+| M10 / v0.8.0 | Transform architecture and capability metadata | Software Architect | Human approval and issue creation | Metadata model, existing-transform mappings, compatibility tests, docs | PR #138 open under milestone #10 |
 | M11 / v0.9.0 | Pointwise and windowed transform MVP | Core Software Engineer / Systems Engineer | M10 architecture accepted | Pointwise, baseline, moving median, metadata, raw-preservation tests | Proposed locally |
 | M12 / v0.10.0 | Event and validation transform MVP | Core Software Engineer / V&V Engineer | M10 accepted and M11 compatibility path established | Event records, Schmitt trigger, debounce, glitch removal, event validation, fixtures | Proposed locally |
 
@@ -94,7 +94,7 @@ You are the Software Architect / Core Software Engineer.
 
 Purpose
 
-Prepare M10 PR/release/community handoff if approved, using the M10-001 through M10-006 artifacts.
+Monitor PR #138 CI/review and prepare merge/milestone-closure handoff when checks pass and the merge gate is approved.
 
 Responsibilities
 
@@ -106,7 +106,7 @@ Responsibilities
 
 Deliverables
 
-- M10 PR or issue-update handoff if approved.
+- PR #138 CI/review status and merge/milestone-closure handoff when approved.
 - Requirements, traceability, risk, docs, tests, and pipeline reports updated for issues #132 through #137.
 - Handoff note.
 

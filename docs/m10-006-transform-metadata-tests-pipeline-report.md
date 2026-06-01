@@ -45,7 +45,7 @@ Out of scope:
 - Reason: Issue #137 touches report metadata, legacy config compatibility, exact golden artifacts, and regression tests.
 - Gate: Routing Gate.
 - Decision: Pass.
-- Residual risk: External PR/release/community actions remain gated.
+- Residual risk: PR #138 is open; release, merge, and milestone closure remain gated.
 - Next owner: Core Software Engineer.
 
 ## Requirements
@@ -98,8 +98,8 @@ Out of scope:
 
 - Owner role: Project Coordinator
 - Decision: Pass for local implementation.
-- Evidence: User requested starting completion of open issues through the pipeline after approving the next milestones; M10-006 implements an approved GitHub issue without adding dependencies, deleting files, or performing external PR/release actions.
-- Residual risk: External issue updates and PR/release work still require separate approval.
+- Evidence: User requested starting completion of open issues through the pipeline after approving the next milestones; M10-006 implements an approved GitHub issue without adding dependencies or deleting files. User then approved external PR/issue-update handoff, and PR #138 was opened.
+- Residual risk: Merge, release, and milestone closure still require checks and the normal maintainer gate.
 - Next owner: Core Software Engineer.
 
 ## Implementation
@@ -204,25 +204,25 @@ Out of scope:
 - Owner role: Evaluation Engineer
 - Decision: Pass locally.
 - Evidence: Issue #137 acceptance criteria are covered by code tests, golden artifacts, docs, requirements, traceability, and project state.
-- Residual risk: Milestone #10 remains externally open until PR/release/community gates run.
+- Residual risk: Milestone #10 remains externally open until PR #138 is merged and community gates run.
 - Next owner: Release Engineer.
 
 ## Release
 
 - Owner role: Release Engineer
-- Decision: Pending.
-- Reason: No PR, release, issue closure, or milestone closure has been approved in this thread.
-- Evidence reviewed: Local implementation artifacts and test output.
-- Residual risk: GitHub issues #132 through #137 remain open until normal maintainer flow.
+- Decision: PR Open.
+- Reason: PR #138 was opened under milestone #10 after user approval; no merge, release, issue closure, or milestone closure has been performed.
+- Evidence reviewed: PR #138, local implementation artifacts, and test output.
+- Residual risk: GitHub issues #132 through #137 remain open until PR #138 is merged through normal maintainer flow.
 - Next owner: GitHub Maintainer Specialist.
 
 ## Community
 
 - Owner role: GitHub Maintainer Specialist
-- Decision: Pending.
-- Reason: No external PR, issue comment, issue closure, or milestone closure has been approved for this local implementation.
-- Evidence reviewed: GitHub issue #137 remains open.
-- Residual risk: Maintainer-facing evidence still needs a PR body or issue comments.
+- Decision: PR Open.
+- Reason: PR #138 provides maintainer-facing evidence and references issues #132 through #137 for closure on merge.
+- Evidence reviewed: GitHub PR #138 remains open.
+- Residual risk: Maintainer feedback, CI status, merge, issue closure, and milestone closure remain pending.
 - Next owner: Project Coordinator.
 
 ## Retrospective
@@ -241,5 +241,5 @@ Goal: Complete M10-006 / issue #137 locally.
 Files changed: `crates/ferrisoxide-core/src/model.rs`, `crates/ferrisoxide-core/src/filter.rs`, `crates/ferrisoxide-core/src/report.rs`, `crates/ferrisoxide-core/src/config.rs`, rule-package golden artifacts, README, docs, requirements, traceability, risk register, project state, orchestration plan, M10 proposal, and this report.
 Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test -p ferrisoxide-core`; `cargo test -p ferrisoxide-cli`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; Markdown link-target check; `git diff --check`.
 Status: Implemented locally; release/community actions pending.
-Known gaps: Runtime-profile validator code, embedded/no_std transform exposure, PR creation, issue closure, release notes, and milestone closure remain pending.
-Next recommended step: Run final validation, then prepare M10 PR/release/community handoff if approved.
+Known gaps: Runtime-profile validator code, embedded/no_std transform exposure, PR #138 CI/review, issue closure, release notes, and milestone closure remain pending.
+Next recommended step: Monitor PR #138 CI/review, then merge and close milestone #10 only when checks pass and the maintainer gate is approved.
