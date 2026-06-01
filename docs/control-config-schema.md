@@ -40,7 +40,8 @@ FerrisOxide now has two distinct config families:
 | Config family | Purpose | Current crate |
 |---|---|---|
 | Production control config | Defines how controller logic behaves. | `ferrisoxide-control-schema` |
-| Test verification config / rule package | Defines how waveform behavior is judged. | `ferrisoxide-rule-schema` |
+| Test verification config | Defines how observed waveform behavior should be judged during qualification or production-test workflows. | `ferrisoxide-verification-schema` |
+| Portable rule package | Defines executable/shared rule package artifacts exported from verified config and analysis evidence. | `ferrisoxide-rule-schema` |
 
 The two config families may be linked later by a deployment manifest, but they should not be collapsed into one file. This keeps production behavior separate from qualification or production-test evidence.
 
@@ -155,8 +156,7 @@ The schema is intentionally data-only. It does not execute the state machine, co
 
 Future M9 issues should build on this in order:
 
-1. Define the test verification config schema boundary.
-2. Add a virtual controller simulation engine.
-3. Add DAQ and controller I/O abstractions.
-4. Add desktop simulation workflow.
-5. Add deployment package format and parity tests.
+1. Add a virtual controller simulation engine.
+2. Add DAQ and controller I/O abstractions.
+3. Add desktop simulation workflow.
+4. Add deployment package format and parity tests.

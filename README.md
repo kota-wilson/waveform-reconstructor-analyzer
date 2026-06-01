@@ -125,6 +125,7 @@ Implemented today:
 - SVG waveform plotting with optional third-axis 3D line plots.
 - 2D SVG evidence overlays from report evidence.
 - Portable rule package schema, validation, manifest, checksum, and export command.
+- Production control and test verification config schema boundaries for future controller-in-the-loop workflows.
 - `no_std` signal, measurement, rule-engine, and embedded-boundary crates.
 - Desktop-vs-embedded-compatible parity tests for rule evidence.
 - Software-only heated actuator qualification scenario.
@@ -134,8 +135,6 @@ Planned or future:
 - Controller simulation workflow.
 - DAQ abstraction.
 - Controller I/O abstraction.
-- Production control config schema.
-- Test verification config schema expansion.
 - RTOS deployment package format.
 - Runtime loaders.
 - Raspberry Pi 5 bare-metal runtime work.
@@ -916,6 +915,7 @@ FerrisOxide has embedded-oriented crates, but the project is not yet an embedded
 | `ferrisoxide-rule-engine` | `#![no_std]` rule execution semantics over caller-provided time/sample slices. |
 | `ferrisoxide-embedded` | `#![no_std]` adapter traits for sample sources, event sinks, and runtime hooks. |
 | `ferrisoxide-control-schema` | Production control config schema for future controller-in-the-loop workflows; not a runtime executor. |
+| `ferrisoxide-verification-schema` | Test verification config schema for qualification criteria, timing windows, evidence settings, and report settings; not a criteria executor. |
 
 Desktop-only concerns stay out of those crates:
 
@@ -936,7 +936,7 @@ Current target direction:
 - First-class embedded runtime target: Raspberry Pi 5 bare-metal ARM64, `aarch64-unknown-none`.
 - Future optional micro-runtime: Raspberry Pi Pico 2 / RP2350 for constrained rule subsets.
 
-See [embedded roadmap](docs/embedded-roadmap.md), [platform targets](docs/platform-targets.md), [controller-in-the-loop workflow](docs/controller-in-the-loop-workflow.md), and [production control config schema](docs/control-config-schema.md).
+See [embedded roadmap](docs/embedded-roadmap.md), [platform targets](docs/platform-targets.md), [controller-in-the-loop workflow](docs/controller-in-the-loop-workflow.md), [production control config schema](docs/control-config-schema.md), and [test verification config schema](docs/test-verification-config-schema.md).
 
 ## Validation Assets
 

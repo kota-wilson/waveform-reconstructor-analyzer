@@ -41,3 +41,4 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - `ferrisoxide-embedded` `no_std` adapter boundary plus ARM64 QEMU and Zephyr feasibility prototype artifacts.
 - `ferrisoxide-measurements` `no_std` crate with reusable extrema, state-transition, state-run duration, and rise/fall measurement primitives used by criteria evidence.
 - `ferrisoxide-control-schema` crate with production control config schema types, validation helpers, and a parse-tested example config for future controller-in-the-loop workflows.
+- `ferrisoxide-verification-schema` crate with test verification config schema types, validation helpers, and a parse-tested example config for future qualification and controller-in-the-loop workflows.

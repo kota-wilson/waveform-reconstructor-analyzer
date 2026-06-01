@@ -137,6 +137,7 @@ Recommended future crate/module boundaries:
 | `ferrisoxide-rule-schema` | Portable test verification rule package schema. | Exists. |
 | `ferrisoxide-rule-engine` | Shared test verification rule execution semantics. | Exists. |
 | `ferrisoxide-control-schema` | Production control config schema and state-machine model. | Exists as an M9-001 schema boundary; execution remains future work. |
+| `ferrisoxide-verification-schema` | Test verification config schema for expected transitions, limits, timing windows, evidence, and report settings. | Exists as an M9-002 schema boundary; execution remains future work. |
 | `ferrisoxide-simulator` | Desktop virtual controller simulation engine. | Future v0.7.0 work. |
 | `ferrisoxide-deployment` | Deployment package manifest/export model. | Future v0.7.0 work. |
 | `ferrisoxide-daq` | DAQ input abstraction, initially host/test double friendly. | Future v0.7.0 work. |
@@ -356,5 +357,5 @@ Goal: Define the controller-in-the-loop workflow and deployment configuration ar
 Files changed: `docs/controller-in-the-loop-workflow.md`.
 Checks run: Architecture review by inspection.
 Status: Planned architecture direction; not implemented.
-Known gaps: No production control schema, simulator, DAQ abstraction, controller I/O abstraction, deployment package implementation, or RTOS verification runtime exists yet.
-Next recommended step: Create a future milestone and issues after preserving active v0.5.0 and planned v0.6.0 traceability.
+Known gaps: No simulator, DAQ abstraction, controller I/O abstraction, deployment package implementation, or RTOS verification runtime exists yet.
+Next recommended step: Continue M9 issues in dependency order: virtual controller simulation, DAQ/controller I/O abstractions, desktop simulation workflow, deployment format, parity tests, and qualification evidence reports.

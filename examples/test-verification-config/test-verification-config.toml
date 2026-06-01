@@ -1,0 +1,124 @@
+[package]
+name = "heated-actuator-qualification"
+version = "0.1.0"
+schema_version = "0.1.0"
+description = "Software-only qualification checks for a heated actuator controller workflow."
+
+[production_control]
+package_name = "heated-actuator-production-control"
+package_version = "0.1.0"
+schema_version = "0.1.0"
+manifest_artifact = "deployment/manifest.json"
+checksum = "fnv1a64:0123456789abcdef"
+
+[approval]
+status = "draft"
+notes = [
+  "Example schema fixture only.",
+  "This file links to production control config only by manifest metadata.",
+]
+
+[sample_timing]
+sample_rate_hz = 1000.0
+nominal_sample_period_s = 0.001
+max_time_gap_s = 0.002
+time_unit = "s"
+
+[[channels]]
+id = "command"
+column = "command_v"
+unit = "V"
+low_threshold = 0.5
+high_threshold = 4.5
+
+[[channels]]
+id = "feedback"
+column = "actuator_feedback_v"
+unit = "V"
+low_threshold = 0.5
+high_threshold = 4.5
+
+[[channels]]
+id = "supply"
+column = "supply_v"
+unit = "V"
+
+[[timing_windows]]
+id = "commanded-open"
+start_s = 1.0
+end_s = 1.55
+description = "Window where command and feedback response are evaluated."
+
+[[expected_transitions]]
+id = "REQ-001"
+channel = "feedback"
+from_state = "low"
+to_state = "high"
+reference_channel = "command"
+reference_state = "high"
+min_latency_s = 0.0
+max_latency_s = 0.050
+window = "commanded-open"
+required = true
+
+[[stable_state_requirements]]
+id = "REQ-002"
+channel = "feedback"
+state = "high"
+min_duration_s = 0.500
+threshold_v = 2.5
+window = "commanded-open"
+
+[[transient_limits]]
+id = "REQ-003"
+channel = "feedback"
+event_kind = "spurious_transition"
+expected_state = "high"
+max_duration_s = 0.001
+allowed_count = 0
+window = "commanded-open"
+arm_after_first_expected_state = true
+
+[[voltage_limits]]
+id = "REQ-004"
+channel = "supply"
+min_v = 4.75
+max_v = 5.25
+
+[[pulse_widths]]
+id = "REQ-005"
+channel = "feedback"
+state = "high"
+min_width_s = 0.500
+window = "commanded-open"
+
+[[dropout_limits]]
+id = "REQ-006"
+channel = "supply"
+expected_state = "high"
+max_duration_s = 0.001
+allowed_count = 0
+
+[evidence]
+include_passed_criteria = true
+include_failed_criteria = true
+include_measurements = true
+include_sample_index = true
+include_timestamp = true
+include_channel = true
+
+[[evidence.artifacts]]
+id = "qualification-svg"
+kind = "svg_plot"
+path = "qualification-evidence.svg"
+channels = ["command", "feedback", "supply"]
+
+[report]
+formats = ["text", "json"]
+include_overall_status = true
+include_failed_criterion = true
+include_measured_value = true
+include_required_value = true
+include_sample_index = true
+include_timestamp = true
+include_channel = true

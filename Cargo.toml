@@ -9,6 +9,7 @@ members = [
     "crates/ferrisoxide-rule-engine",
     "crates/ferrisoxide-rule-schema",
     "crates/ferrisoxide-signal",
+    "crates/ferrisoxide-verification-schema",
 ]
 resolver = "2"
 

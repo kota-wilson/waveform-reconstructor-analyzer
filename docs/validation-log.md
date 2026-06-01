@@ -1314,9 +1314,9 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 ### Gate Decision
 
 - Gate: Testing Gate for M9-001.
-- Decision: Pass locally.
-- Reason: Focused schema tests, formatting, workspace tests, clippy, and whitespace checks passed.
-- Residual risk: Protected GitHub CI, PR merge, issue #77 closure, simulator/runtime follow-up work, and hardware validation remain pending.
+- Decision: Pass.
+- Reason: Focused schema tests, formatting, workspace tests, clippy, whitespace checks, protected CI, and PR merge passed.
+- Residual risk: Simulator/runtime follow-up work and hardware validation remain pending.
 - Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
 
 ### Hand-Off Note
@@ -1325,9 +1325,62 @@ Role: Test Automation Engineer / Verification and Validation Engineer
 Goal: Validate M9-001 production control config schema.
 Files changed: `Cargo.toml`, `crates/ferrisoxide-control-schema/`, `examples/control-config/production-control-config.toml`, README, architecture/controller workflow docs, control-schema docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
 Checks run: `cargo test -p ferrisoxide-control-schema`; `cargo tree -p ferrisoxide-control-schema`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
-Status: Pass locally.
+Status: Pass; PR #121 merged and issue #77 closed.
 Known gaps: No simulator, DAQ abstraction, controller I/O abstraction, deployment runtime, hardware execution, or certification evidence.
-Next recommended step: Open PR with `Fixes #77`, wait for required CI, then merge only after checks pass.
+Next recommended step: Continue M9 issue work with test verification config schema, simulator, DAQ/controller I/O abstractions, deployment package, parity tests, and evidence reporting.
+
+## M9-002 Test Verification Config Schema Validation Update
+
+Date: 2026-06-01
+
+Stage: Testing test verification config schema
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, DAQ SDKs, HALs, RTOS toolchains, controller SDKs, QEMU images, Zephyr tooling, or new third-party dependencies installed.
+- GitHub issue: #80, `M9-002 Define test verification config schema`
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-verification-schema` | Passed | 5 schema tests passed: build/validate, TOML/JSON round trip, invalid references/values, approval metadata validation, and manifest-only production-link validation. |
+| `cargo tree -p ferrisoxide-verification-schema` | Passed | Uses existing approved workspace Serde, JSON, and TOML dependencies only. |
+| `cargo fmt --check` | Passed | Rust formatting clean after schema/docs edits. |
+| `cargo test --workspace` | Passed | 154 tests passed across CLI, control schema, verification schema, core, embedded, measurements, plot, rule engine, rule schema, signal, integration tests, and doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `builds_and_validates_test_verification_config_schema` | Verifies the schema captures expected transitions, voltage limits, pulse widths, transient limits, dropout limits, stable-state requirements, timing windows, evidence, and report settings. |
+| `parses_example_toml_and_json_round_trip` | Verifies the example test verification config parses from TOML, validates, serializes to JSON, and round-trips. |
+| `rejects_missing_references_and_invalid_values` | Verifies missing channel/window references, duplicate IDs, inverted timing/voltage limits, invalid thresholds, invalid durations, missing pulse-width limits, and missing report formats produce structured errors. |
+| `requires_approval_metadata_for_approved_configs` | Verifies approved configs require approver and approval timestamp metadata. |
+| `links_to_production_control_only_by_manifest_metadata` | Verifies production control linkage is manifest metadata and checksum evidence, not embedded controller behavior. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M9-002.
+- Decision: Pass locally.
+- Reason: Focused schema tests, dependency tree check, formatting, workspace tests, clippy, Markdown local-link scan, and whitespace checks passed.
+- Residual risk: Protected GitHub CI, PR merge, issue #80 closure, simulator/runtime follow-up work, and hardware validation remain pending.
+- Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate M9-002 test verification config schema.
+Files changed: `Cargo.toml`, `crates/ferrisoxide-verification-schema/`, `examples/test-verification-config/test-verification-config.toml`, README, architecture/controller workflow docs, test-verification schema docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
+Checks run: `cargo test -p ferrisoxide-verification-schema`; `cargo tree -p ferrisoxide-verification-schema`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; README/schema/pipeline local Markdown link-target scan; `git diff --check`.
+Status: Pass locally.
+Known gaps: No simulator, DAQ abstraction, controller I/O abstraction, deployment package mapping, runtime loader, hardware execution, or certification evidence.
+Next recommended step: Run full workspace validation, then open PR with `Fixes #80`, wait for required CI, and merge only after checks pass.
 
 ## M8 Completion Release Update
 
