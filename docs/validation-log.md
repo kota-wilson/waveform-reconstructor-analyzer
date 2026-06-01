@@ -47,6 +47,8 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
 | README/evidence/deployment/pipeline local Markdown link-target scan | Passed | Local links in README, qualification evidence docs, controller workflow, deployment README, documentation review, and pipeline report resolved. |
 | `git diff --check` | Passed | No whitespace errors. |
+| PR #130 protected `rust` CI | Passed | Required GitHub status check passed before merge. |
+| Milestone #9 closure | Passed | GitHub milestone #9 closed with 12 closed issues and 0 open issues. |
 
 ### Exact Tests Added
 
@@ -60,9 +62,9 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 ### Gate Decision
 
 - Gate: Testing and V&V Gates for M9-010.
-- Decision: Pass locally.
-- Reason: Exact report fixture tests, dependency tree review, formatting, workspace tests, clippy, Markdown local-link scan, and whitespace checks passed without adding a CLI exporter, embedded controller runtime, target loader, GUI, live DAQ SDK, HAL, RTOS SDK, signing, authentication, target hardware execution, hardware qualification evidence, or certification claims.
-- Residual risk: Protected GitHub CI, PR merge, issue #86 closure, milestone #9 closure, deployment package export command, live DAQ SDK integration, RTOS runtime binding, target hardware validation, and certification evidence remain pending.
+- Decision: Pass.
+- Reason: Exact report fixture tests, dependency tree review, formatting, workspace tests, clippy, Markdown local-link scan, whitespace checks, protected PR #130 CI, and milestone closure passed without adding a CLI exporter, embedded controller runtime, target loader, GUI, live DAQ SDK, HAL, RTOS SDK, signing, authentication, target hardware execution, hardware qualification evidence, or certification claims.
+- Residual risk: Deployment package export command, live DAQ SDK integration, RTOS runtime binding, target hardware validation, and certification evidence remain pending.
 - Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
 
 ### Hand-Off Note
@@ -71,9 +73,9 @@ Role: Test Automation Engineer / Verification and Validation Engineer
 Goal: Validate M9-010 qualification evidence report format.
 Files changed: `crates/ferrisoxide-deployment/`, `examples/deployment-package/heated-actuator/qualification-report.json`, `docs/qualification-evidence-report.md`, README, architecture/controller workflow docs, deployment crate README, requirements, traceability, risk register, documentation review, validation log, pipeline report, changelog, and project state.
 Checks run: `cargo test -p ferrisoxide-deployment`; `cargo tree -p ferrisoxide-deployment`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; README/evidence/deployment/pipeline local Markdown link-target scan; `git diff --check`.
-Status: Pass locally; PR, protected CI, merge, issue #86 closure, and milestone #9 closure pending.
+Status: Pass; PR #130 merged, issue #86 closed, and milestone #9 closed.
 Known gaps: No deployment package export command, live DAQ SDK, RTOS binding, target hardware timing evidence, cryptographic signing, or certification evidence.
-Next recommended step: Open PR with `Fixes #86`, wait for required CI, and merge only after checks pass.
+Next recommended step: Start a fresh milestone proposal for deployment export/runtime follow-up work.
 
 ## M9-009 Config Parity Tests Validation Update
 
