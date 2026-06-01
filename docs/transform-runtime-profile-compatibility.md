@@ -118,6 +118,6 @@ Role: Embedded RTOS Engineer / Software Architect
 Goal: Complete M10-004 / issue #135 by defining transform runtime profile compatibility rules.
 Files changed: `docs/transform-runtime-profile-compatibility.md`
 Checks run: Documentation and compatibility review.
-Status: Implemented locally as validation design; no runtime code added.
-Known gaps: Runtime validation code and tests remain future work; M10-006 owns compatibility/golden tests for metadata.
+Status: Complete through PR #138; issue #135 and milestone #10 are closed.
+Known gaps: Runtime validation code, deployment exposure, and embedded/no_std transform exposure remain future gated work.
 Next recommended step: Use these rules before exposing any transform metadata to rule packages, deployment packages, Pi 5, or Pico 2 runtime paths.

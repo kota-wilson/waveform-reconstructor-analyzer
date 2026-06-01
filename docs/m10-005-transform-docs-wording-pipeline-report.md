@@ -73,7 +73,7 @@ Out of scope:
   - `docs/analog-transform-taxonomy.md` explicitly says it is planning input, not the implementation support matrix.
 - Gate: Architecture Gate.
 - Decision: Pass locally.
-- Residual risk: Runtime/report metadata implementation remains pending.
+- Residual risk: Runtime-profile validator code and M11/M12 implementation remain future gated work.
 - Next owner: Abstraction Review Engineer.
 
 ## Abstraction Review
@@ -90,7 +90,7 @@ Out of scope:
 - Owner role: Project Coordinator
 - Decision: Pass for local documentation work.
 - Evidence: User approved moving forward with the next milestones; this issue makes documentation-only changes and does not delete files, add dependencies, open PRs, close issues, or change runtime behavior.
-- Residual risk: PR/release/community actions still require separate approval.
+- Residual risk: GitHub release tagging remains separately gated.
 - Next owner: Documentation Engineer.
 
 ## Implementation
@@ -211,10 +211,10 @@ Out of scope:
 
 - Owner role: Project Coordinator
 - Decision: Not Applicable for local slice.
-- Reason: No PR was opened or merged.
-- Evidence reviewed: Local pipeline report.
-- Residual risk: Any lesson learned should be added after the M10 PR flow.
-- Next owner: Verification and Validation Engineer.
+- Reason: A formal retrospective was not requested; M10 closure is recorded in `docs/m10-release-community-closure-report.md`.
+- Evidence reviewed: Local pipeline report and M10 closure report.
+- Residual risk: A milestone retrospective can still be created if requested.
+- Next owner: Project Coordinator.
 
 ## Hand-Off Note
 
@@ -222,6 +222,6 @@ Role: Documentation Engineer
 Goal: Complete M10-005 / issue #136 locally.
 Files changed: README, `docs/architecture.md`, `docs/analog-transform-taxonomy.md`, `docs/filter-behavior.md`, `docs/adc-quantization.md`, requirements, traceability, risk register, project state, orchestration plan, M10 proposal, and this report.
 Checks run: Stale wording scan; Markdown link-target check; `git diff --check`.
-Status: Implemented locally as documentation accuracy cleanup; release/community actions pending.
-Known gaps: M10-006 compatibility and golden-report tests remain pending.
-Next recommended step: M10-006 is now complete locally; prepare PR/issue update if approved.
+Status: Complete through PR #138; issue #136 and milestone #10 are closed.
+Known gaps: GitHub release tagging, M11 issue creation, and M12 issue creation remain separately gated.
+Next recommended step: Decide whether to create M11 GitHub issues or hold at the completed M10 architecture boundary.

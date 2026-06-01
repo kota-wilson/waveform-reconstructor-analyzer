@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: Local planning package with M10 approved for GitHub issue planning. M10 milestone #10 and issues #132 through #137 are open; M11 and M12 remain local proposals.
+Status: Local planning package with M10 complete. PR #138 merged; milestone #10 and issues #132 through #137 are closed; M11 and M12 remain local proposals.
 
 ## Purpose
 
@@ -12,7 +12,7 @@ This roadmap sequences the next three milestones:
 
 | Milestone | Working Version | Goal | Status |
 |---|---|---|---|
-| M10 | v0.8.0 | Transform architecture and capability metadata | GitHub milestone #10 open |
+| M10 | v0.8.0 | Transform architecture and capability metadata | Complete; PR #138 merged and milestone #10 closed |
 | M11 | v0.9.0 | Pointwise and windowed transform MVP | Proposed locally |
 | M12 | v0.10.0 | Event and validation transform MVP | Proposed locally |
 
@@ -102,9 +102,9 @@ The following remain outside M10 through M12 unless a fresh proposal and approva
 | Roadmap Gate | Pass locally | This document sequences M10, M11, and M12 from the taxonomy and current project state. | Project Orchestrator |
 | Requirements Gate | Pass for proposal | WRA-RQ-070 through WRA-RQ-086 are proposed in the milestone proposals and project requirements. | Software Architect |
 | Scope Gate | Pass locally | The roadmap keeps implementation, additional GitHub issue creation beyond M10, dependencies, live DAQ, HAL/RTOS, and certification claims behind later approval. | Project Coordinator |
-| Human Approval Gate | Pass for M10 issue creation | User approved M10 issue creation on 2026-06-01; implementation remains pending. | Project Coordinator |
-| Issue Planning Gate | Pass for M10 | GitHub milestone #10 and issues #132 through #137 are open; M11 and M12 remain local placeholders. | GitHub Maintainer Specialist |
-| Implementation Gate | Pending | No code implementation has started for M10 through M12. | Core Software Engineer |
+| Human Approval Gate | Pass for M10 issue creation and implementation | User approved M10 issue creation and later approved external PR/issue/milestone actions on 2026-06-01. | Project Coordinator |
+| Issue Planning Gate | Pass for M10 | GitHub milestone #10 and issues #132 through #137 were created, then closed through PR #138 and milestone closure; M11 and M12 remain local placeholders. | GitHub Maintainer Specialist |
+| Implementation Gate | Pass for M10 | M10 implementation merged in PR #138; no code implementation has started for M11 or M12. | Core Software Engineer |
 
 ## Hand-Off Note
 
@@ -112,6 +112,6 @@ Role: Project Coordinator / Product Architect
 Goal: Convert the transform taxonomy into a staged local milestone roadmap.
 Files changed: This roadmap plus M10, M11, M12, issue-planning, requirements, traceability, risk, orchestration, and state files.
 Checks run: Documentation and traceability inspection.
-Status: M10 issue planning complete; implementation not started.
-Known gaps: M11 and M12 GitHub milestones/issues have not been created, and no code has been changed for the new transform work.
-Next recommended step: Start M10-001 / issue #132 only after implementation direction is confirmed.
+Status: M10 complete; M11 and M12 remain local proposals.
+Known gaps: M11 and M12 GitHub milestones/issues have not been created, and no M11/M12 implementation has started.
+Next recommended step: Decide whether to create M11 GitHub issues or hold at the completed M10 architecture boundary.

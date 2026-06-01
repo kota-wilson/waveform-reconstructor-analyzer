@@ -6,7 +6,7 @@ Milestone: #10, `v0.8.0: Transform Architecture And Capability Metadata`
 
 Issue: #135, `M10-004 Add runtime profile compatibility rules for transform exposure`
 
-Status: Implemented locally as validation design; issue remains open pending review/PR flow.
+Status: Complete through PR #138; issue #135 is closed.
 
 ## Scope
 
@@ -188,10 +188,10 @@ Out of scope:
 
 - Owner role: Project Coordinator
 - Decision: Not Applicable for local slice.
-- Reason: No PR was opened or merged.
-- Evidence reviewed: Local pipeline report.
-- Residual risk: Any lesson learned should be added after the M10 PR flow.
-- Next owner: Software Architect.
+- Reason: A formal retrospective was not requested; M10 closure is recorded in `docs/m10-release-community-closure-report.md`.
+- Evidence reviewed: Local pipeline report and M10 closure report.
+- Residual risk: A milestone retrospective can still be created if requested.
+- Next owner: Project Coordinator.
 
 ## Hand-Off Note
 
@@ -199,6 +199,6 @@ Role: Embedded RTOS Engineer / Documentation Engineer
 Goal: Complete M10-004 / issue #135 locally.
 Files changed: `docs/transform-runtime-profile-compatibility.md`, `docs/transform-capability-model.md`, `docs/architecture.md`, README, requirements, traceability, project state, orchestration plan, and this report.
 Checks run: Markdown link-target check; `git diff --check`.
-Status: Implemented locally as validation design; release/community actions pending.
-Known gaps: Runtime validator code, deployment-package integration, and compatibility tests remain future work.
-Next recommended step: Start M10-005 / issue #136 or prepare PR/issue update if approved.
+Status: Complete through PR #138; issue #135 and milestone #10 are closed.
+Known gaps: Runtime validator code, deployment-package integration, M11 issue creation, and M12 issue creation remain future gated work.
+Next recommended step: Decide whether to create M11 GitHub issues or hold at the completed M10 architecture boundary.

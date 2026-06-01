@@ -4,11 +4,11 @@ Last updated: 2026-06-01
 
 ## Current Objective
 
-Move FerrisOxide through the M10 transform architecture stage after M9 closure. M10-001 / issue #132 is implemented locally with `docs/transform-capability-model.md`, M10-002 / issue #133 is implemented locally as structured metadata design with `docs/structured-transform-metadata.md`, M10-003 / issue #134 is implemented locally as current-transform mapping with `docs/current-transform-metadata-mapping.md`, M10-004 / issue #135 is implemented locally as runtime profile compatibility design with `docs/transform-runtime-profile-compatibility.md`, M10-005 / issue #136 is implemented locally as transform documentation wording cleanup, and M10-006 / issue #137 is implemented locally with additive `transform_steps` metadata and focused compatibility/golden tests. PR #138 is open for M10 under milestone #10 and references issues #132 through #137 for closure on merge. No dependencies, live DAQ, HAL/RTOS, hardware, or certification work has started for M10-M12.
+Hold FerrisOxide at the completed M10 transform architecture boundary and decide the next approved milestone action. M10-001 / issue #132 through M10-006 / issue #137 are implemented through PR #138, which merged by squash commit `69b8b1a4a7c963316a74130655667ea3ff1481d5`; issues #132 through #137 and milestone #10 are closed. No dependencies, live DAQ, HAL/RTOS, hardware, or certification work has started for M10-M12.
 
 ## Current Stage
 
-Local milestone planning is complete for the next transform sequence. `docs/next-milestones-roadmap.md` defines the M10-M12 sequence, `docs/v0.8.0-transform-architecture-milestone-proposal.md` proposes WRA-RQ-070 through WRA-RQ-074, `docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md` proposes WRA-RQ-075 through WRA-RQ-080, `docs/v0.10.0-event-validation-transform-milestone-proposal.md` proposes WRA-RQ-081 through WRA-RQ-086, and `docs/next-milestones-issue-planning-report.md` tracks local placeholders and M10 GitHub issue creation. GitHub milestone #10 is open with M10-001 through M10-006 as issues #132 through #137 and PR #138. M10-001 is implemented locally by `docs/transform-capability-model.md` and `docs/m10-001-transform-capability-matrix-pipeline-report.md`. M10-002 is implemented locally by `docs/structured-transform-metadata.md`, the report-schema update, and `docs/m10-002-structured-transform-metadata-pipeline-report.md`. M10-003 is implemented locally by `docs/current-transform-metadata-mapping.md` and `docs/m10-003-current-transform-metadata-mapping-pipeline-report.md`. M10-004 is implemented locally by `docs/transform-runtime-profile-compatibility.md` and `docs/m10-004-runtime-profile-compatibility-pipeline-report.md`. M10-005 is implemented locally by README, architecture, taxonomy, filter behavior, ADC quantization, requirements, traceability, risk, and `docs/m10-005-transform-docs-wording-pipeline-report.md`. M10-006 is implemented locally by `crates/ferrisoxide-core` metadata/filter/report/config tests, rule-package golden artifacts, docs updates, and `docs/m10-006-transform-metadata-tests-pipeline-report.md`. The next gate is PR #138 CI/review and merge decision.
+Local milestone planning is complete for the next transform sequence. `docs/next-milestones-roadmap.md` defines the M10-M12 sequence, `docs/v0.8.0-transform-architecture-milestone-proposal.md` covers WRA-RQ-070 through WRA-RQ-074, `docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md` proposes WRA-RQ-075 through WRA-RQ-080, `docs/v0.10.0-event-validation-transform-milestone-proposal.md` proposes WRA-RQ-081 through WRA-RQ-086, and `docs/next-milestones-issue-planning-report.md` tracks local placeholders and M10 GitHub issue creation. GitHub milestone #10 is closed with M10-001 through M10-006 as closed issues #132 through #137 and merged PR #138. M10-001 is implemented by `docs/transform-capability-model.md` and `docs/m10-001-transform-capability-matrix-pipeline-report.md`. M10-002 is implemented by `docs/structured-transform-metadata.md`, the report-schema update, and `docs/m10-002-structured-transform-metadata-pipeline-report.md`. M10-003 is implemented by `docs/current-transform-metadata-mapping.md` and `docs/m10-003-current-transform-metadata-mapping-pipeline-report.md`. M10-004 is implemented by `docs/transform-runtime-profile-compatibility.md` and `docs/m10-004-runtime-profile-compatibility-pipeline-report.md`. M10-005 is implemented by README, architecture, taxonomy, filter behavior, ADC quantization, requirements, traceability, risk, and `docs/m10-005-transform-docs-wording-pipeline-report.md`. M10-006 is implemented by `crates/ferrisoxide-core` metadata/filter/report/config tests, rule-package golden artifacts, docs updates, and `docs/m10-006-transform-metadata-tests-pipeline-report.md`. `docs/m10-release-community-closure-report.md` records PR, issue, and milestone closure. The next gate is explicit approval for M11/M12 issue creation or implementation.
 
 Historical closure context:
 
@@ -138,7 +138,7 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is closed after PRs #10
   Status: Implemented through REPO-001 / issue #111 / PR #112 in `decisions/ADR-007-repository-host-ferrisoxide.md`.
 - Decision: Use the analog signal transform taxonomy as planning input for future transform architecture milestones rather than adding algorithms ad hoc.
   Owner: Product Architect / Software Architect
-  Status: Accepted for local milestone planning in `docs/analog-transform-taxonomy.md`, `docs/next-milestones-roadmap.md`, and the M10-M12 proposals; M10 GitHub issues #132 through #137 are open.
+  Status: Accepted for local milestone planning in `docs/analog-transform-taxonomy.md`, `docs/next-milestones-roadmap.md`, and the M10-M12 proposals; M10 GitHub issues #132 through #137 are closed through PR #138.
 - Decision: Sequence transform work as M10 architecture first, M11 pointwise/windowed transforms second, and M12 event/validation transforms third.
   Owner: Project Coordinator / Software Architect
   Status: Accepted for M10 issue planning; M11 and M12 remain local proposals and require later issue-creation approval.
@@ -147,16 +147,16 @@ Milestone #7, `v0.5.0: Measurement-Backed Criteria DSL`, is closed after PRs #10
 
 Role: Software Architect / Core Software Engineer
 
-Expected deliverable: Monitor PR #138 CI/review, then merge and close milestone #10 only when checks pass and the merge gate is approved.
+Expected deliverable: Prepare the next approved M11/M12 issue-creation or implementation handoff, or hold at completed M10.
 
 ## Orchestration Status
 
 - Execution tier: Tier 2 MVP.
 - Selected workflow: Project orchestration plus open-source library and data-analysis workflows.
 - Repository URL: `https://github.com/kota-wilson/ferrisoxide`.
-- Current milestone: #10, `v0.8.0: Transform Architecture And Capability Metadata`, is open with six open issues #132 through #137 and PR #138. M10-001 / issue #132 through M10-006 / issue #137 are implemented in PR #138. M7, M8, and M9 are closed; TEST-001, DOCS-001, BRAND-002, and REPO-001 are complete.
+- Current milestone: #10, `v0.8.0: Transform Architecture And Capability Metadata`, is closed with issues #132 through #137 closed by merged PR #138. M7, M8, and M9 are closed; TEST-001, DOCS-001, BRAND-002, and REPO-001 are complete.
 - Completed recent milestones: Dependency-reviewed MVP slice; `M3: RTOS / embedded no_std foundation`; `M4: Signal Accuracy and Validation`; `M5: Plotting and Visualization`; `v0.4.0: Measurement & Evidence Engine`.
-- Next gate: Monitor PR #138 CI/review, then merge and close milestone #10 only after checks pass and the merge gate is approved. M11/M12 issue creation, deployment exporters, runtime loaders, live DAQ SDKs, HAL/RTOS adapters, cryptographic signing, and hardware/certification evidence remain separately gated.
+- Next gate: Decide whether to create M11 GitHub issues or hold at the completed M10 architecture boundary. M11/M12 issue creation, deployment exporters, runtime loaders, live DAQ SDKs, HAL/RTOS adapters, cryptographic signing, and hardware/certification evidence remain separately gated.
 - Stop condition: Stop before adding target toolchains, SDKs, HALs, unsafe FFI, QEMU boot image work, Pico 2 runtime crate work, new third-party dependencies, GUI/DAQ/embedded plotting/certification work, plugin runtime, batch analysis, binary package serialization, cryptographic signing, live controller simulation, live DAQ integration, unit shorthand parsing, expanded annotated SVG features, or external brand expansion without a fresh issue/gate.
 
 ## Granularity Status
@@ -176,7 +176,7 @@ Expected deliverable: Monitor PR #138 CI/review, then merge and close milestone 
 
 - Requirements: `requirements.md`.
 - Traceability matrix: `traceability-matrix.md`.
-- Verification matrix: `traceability-matrix.md` updated with implemented evidence through WRA-RQ-069, local implementation/design/mapping/documentation/test evidence for WRA-RQ-070 through WRA-RQ-074, and proposed M11/M12 traceability for WRA-RQ-075 through WRA-RQ-086. Milestone #9 is closed; milestone #10 is open.
+- Verification matrix: `traceability-matrix.md` updated with implemented evidence through WRA-RQ-074 and proposed M11/M12 traceability for WRA-RQ-075 through WRA-RQ-086. Milestones #9 and #10 are closed.
 
 ## Gate Decisions
 
@@ -400,14 +400,15 @@ Expected deliverable: Monitor PR #138 CI/review, then merge and close milestone 
 | M10-004 Implementation Gate | Pass locally | `docs/transform-runtime-profile-compatibility.md`, README/doc links, requirements, traceability, project state, and `docs/m10-004-runtime-profile-compatibility-pipeline-report.md` | Test Automation Engineer |
 | M10-005 Implementation Gate | Pass locally | README, architecture, taxonomy, filter behavior, ADC quantization, requirements, traceability, project state, and `docs/m10-005-transform-docs-wording-pipeline-report.md` | Test Automation Engineer |
 | M10-006 Implementation Gate | Pass locally | `crates/ferrisoxide-core` metadata/filter/report/config updates, rule-package golden artifacts, docs/report-schema updates, requirements, traceability, project state, and `docs/m10-006-transform-metadata-tests-pipeline-report.md` | Release Engineer |
-| M10 PR Gate | Open | PR #138 is open under milestone #10 and references issues #132 through #137 for closure on merge | GitHub Maintainer Specialist |
+| M10 PR Gate | Pass | PR #138 merged after required `rust` CI passed; squash commit `69b8b1a4a7c963316a74130655667ea3ff1481d5`; issues #132 through #137 closed | GitHub Maintainer Specialist |
+| M10 Community Gate | Pass | Milestone #10 closed with 7 closed items and 0 open items | Project Coordinator |
 | M11 Pointwise/Windowed Transform Requirements Gate | Pass for proposal | `requirements.md` WRA-RQ-075 through WRA-RQ-080; `docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md` | Software Architect |
-| M11 Pointwise/Windowed Transform Architecture Gate | Pending M10 | M11 depends on M10 metadata and transform capability architecture | Abstraction Review Engineer |
+| M11 Pointwise/Windowed Transform Architecture Gate | Pending approval | M10 dependency is satisfied by merged PR #138; M11 still needs explicit issue creation or implementation approval | Abstraction Review Engineer |
 | M12 Event/Validation Transform Requirements Gate | Pass for proposal | `requirements.md` WRA-RQ-081 through WRA-RQ-086; `docs/v0.10.0-event-validation-transform-milestone-proposal.md` | Software Architect |
-| M12 Event/Validation Transform Architecture Gate | Pending M10/M11 | M12 depends on transform metadata and initial transform compatibility rules | Abstraction Review Engineer |
-| Next Milestones Issue Planning Gate | Pass for M10 | GitHub milestone #10 and issues #132 through #137 are open; M11 and M12 remain local placeholders | GitHub Maintainer Specialist |
-| Next Milestones Human Approval Gate | Pass for M10 issue creation | User approved M10 issue creation on 2026-06-01; implementation remains pending | Project Coordinator |
-| Next Milestones Implementation Gate | Pending | No M10-M12 code implementation has started | Core Software Engineer |
+| M12 Event/Validation Transform Architecture Gate | Pending M11 approval/implementation | M10 dependency is satisfied by merged PR #138; M12 still depends on the initial M11 transform compatibility path | Abstraction Review Engineer |
+| Next Milestones Issue Planning Gate | Pass for M10 | GitHub milestone #10 and issues #132 through #137 were created and are now closed; M11 and M12 remain local placeholders | GitHub Maintainer Specialist |
+| Next Milestones Human Approval Gate | Pass for M10 issue creation and implementation | User approved M10 issue creation and later approved external PR/issue/milestone actions on 2026-06-01 | Project Coordinator |
+| Next Milestones Implementation Gate | Pass for M10 | M10 implementation merged in PR #138; M11/M12 code implementation has not started | Core Software Engineer |
 
 ## Update Rules
 

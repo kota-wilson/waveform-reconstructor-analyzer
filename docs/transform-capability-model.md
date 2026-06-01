@@ -202,6 +202,6 @@ Role: Software Architect
 Goal: Complete M10-001 / issue #132 by defining transform capability vocabulary and matrix boundaries.
 Files changed: `docs/transform-capability-model.md`
 Checks run: Documentation and traceability review.
-Status: Implemented locally; no runtime code added.
-Known gaps: Rust metadata types, existing-transform mappings, runtime profile validation, docs-wide wording updates, and golden-report tests remain in M10-002 through M10-006.
-Next recommended step: Start M10-002 / issue #133 after review of this vocabulary.
+Status: Complete through PR #138; issue #132 and milestone #10 are closed.
+Known gaps: Runtime-profile validator code, M11 pointwise/windowed transform implementation, and M12 event/validation transform implementation remain future gated work.
+Next recommended step: Decide whether to create M11 GitHub issues or hold at the completed M10 architecture boundary.

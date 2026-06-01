@@ -6,7 +6,7 @@ Milestone: #10, `v0.8.0: Transform Architecture And Capability Metadata`
 
 Issue: #134, `M10-003 Map existing filters and ADC quantization to transform metadata`
 
-Status: Implemented locally as mapping; issue remains open pending review/PR flow.
+Status: Complete through PR #138; issue #134 is closed.
 
 ## Scope
 
@@ -188,10 +188,10 @@ Out of scope:
 
 - Owner role: Project Coordinator
 - Decision: Not Applicable for local slice.
-- Reason: No PR was opened or merged.
-- Evidence reviewed: Local pipeline report.
-- Residual risk: Any lesson learned should be added after the M10 PR flow.
-- Next owner: Software Architect.
+- Reason: A formal retrospective was not requested; M10 closure is recorded in `docs/m10-release-community-closure-report.md`.
+- Evidence reviewed: Local pipeline report and M10 closure report.
+- Residual risk: A milestone retrospective can still be created if requested.
+- Next owner: Project Coordinator.
 
 ## Hand-Off Note
 
@@ -199,6 +199,6 @@ Role: Systems Engineer / Documentation Engineer
 Goal: Complete M10-003 / issue #134 locally.
 Files changed: `docs/current-transform-metadata-mapping.md`, `docs/filter-behavior.md`, `docs/architecture.md`, README, requirements, traceability, project state, orchestration plan, and this report.
 Checks run: Markdown link-target check; `git diff --check`.
-Status: Implemented locally as mapping; release/community actions pending.
-Known gaps: Runtime profile validation, emitted report fields, and golden-report tests remain for M10-004 through M10-006.
-Next recommended step: Run final documentation validation, then start M10-004 / issue #135 or prepare PR/issue update if approved.
+Status: Complete through PR #138; issue #134 and milestone #10 are closed.
+Known gaps: M11 and M12 remain local proposals pending explicit approval.
+Next recommended step: Decide whether to create M11 GitHub issues or hold at the completed M10 architecture boundary.

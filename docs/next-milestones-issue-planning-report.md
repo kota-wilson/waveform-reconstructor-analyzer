@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M10 GitHub milestone and issues created. M11 and M12 remain local placeholders.
+Status: M10 GitHub milestone and issues were created and are now closed through PR #138. M11 and M12 remain local placeholders.
 
 ## Scope
 
@@ -14,7 +14,7 @@ It intentionally stops before external GitHub actions, implementation, dependenc
 
 | Milestone | Version | Proposal | Status |
 |---|---|---|---|
-| M10 | v0.8.0 | `docs/v0.8.0-transform-architecture-milestone-proposal.md` | GitHub milestone #10 open |
+| M10 | v0.8.0 | `docs/v0.8.0-transform-architecture-milestone-proposal.md` | Complete; PR #138 merged and milestone #10 closed |
 | M11 | v0.9.0 | `docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md` | Proposed locally |
 | M12 | v0.10.0 | `docs/v0.10.0-event-validation-transform-milestone-proposal.md` | Proposed locally |
 
@@ -58,11 +58,11 @@ It intentionally stops before external GitHub actions, implementation, dependenc
 | Gate | Decision | Evidence | Next Owner |
 |---|---|---|---|
 | Intake Gate | Pass | User supplied transform taxonomy and requested next milestones. | Project Coordinator |
-| Issue Planning Gate | Pass for M10 | GitHub milestone #10 and issues #132 through #137 are open; M11 and M12 remain local placeholders. | GitHub Maintainer Specialist |
+| Issue Planning Gate | Pass for M10 | GitHub milestone #10 and issues #132 through #137 were created for M10 and are now closed; M11 and M12 remain local placeholders. | GitHub Maintainer Specialist |
 | Requirements Gate | Pass for proposal | WRA-RQ-070 through WRA-RQ-086 added as proposed requirements. | Software Architect |
 | Scope Gate | Pass locally | Implementation, dependencies, M11/M12 external GitHub issue creation, live DAQ, HAL/RTOS, signing, hardware validation, and certification remain gated. | Project Orchestrator |
 | Human Approval Gate | Pass for M10 issue creation | User approved M10 issue creation on 2026-06-01. | Project Coordinator |
-| Implementation Gate | Pending | No code work has started for M10 through M12. | Core Software Engineer |
+| Implementation Gate | Pass for M10 | M10 implementation merged in PR #138; no code work has started for M11 or M12. | Core Software Engineer |
 
 ## Stop Conditions
 
@@ -81,6 +81,6 @@ Role: Project Orchestrator / GitHub Maintainer Specialist
 Goal: Convert next milestone proposals into local issue placeholders.
 Files changed: This report, milestone proposals, requirements, traceability, risk, orchestration, README, architecture, and project state.
 Checks run: Documentation and traceability inspection.
-Status: M10 GitHub issue planning complete; M11 and M12 remain local placeholders.
-Known gaps: No implementation started; M11 and M12 GitHub issues have not been created.
-Next recommended step: Start M10-001 / issue #132 only after implementation direction is confirmed.
+Status: M10 complete; M11 and M12 remain local placeholders.
+Known gaps: M11 and M12 GitHub issues have not been created, and no M11/M12 implementation has started.
+Next recommended step: Decide whether to create M11 GitHub issues or hold at the completed M10 architecture boundary.

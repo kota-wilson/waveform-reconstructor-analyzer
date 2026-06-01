@@ -246,6 +246,6 @@ Role: Systems Engineer / Software Architect
 Goal: Complete M10-003 / issue #134 by mapping current implemented transforms to structured metadata values.
 Files changed: `docs/current-transform-metadata-mapping.md`
 Checks run: Documentation and compatibility review.
-Status: Implemented locally as mapping and emitted report metadata for current transforms.
-Known gaps: Runtime profile validation code and embedded/no_std transform exposure remain future work.
-Next recommended step: Use this mapping for future transform additions and runtime-profile validation code.
+Status: Complete through PR #138; issue #134 and milestone #10 are closed.
+Known gaps: Runtime profile validation code and embedded/no_std transform exposure remain future gated work.
+Next recommended step: Use this mapping if future transform additions or runtime-profile validation code are approved.

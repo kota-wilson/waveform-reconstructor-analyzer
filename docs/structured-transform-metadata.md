@@ -180,6 +180,6 @@ Role: Software Architect
 Goal: Complete M10-002 / issue #133 by defining the structured transform metadata design before implementation.
 Files changed: `docs/structured-transform-metadata.md`
 Checks run: Documentation and schema compatibility review.
-Status: Implemented locally as design and implemented in code/tests by M10-006.
-Known gaps: Runtime profile validation code and embedded/no_std transform exposure remain future work.
-Next recommended step: Use this design as the compatibility baseline before adding new transform families.
+Status: Complete through PR #138; issue #133 and milestone #10 are closed.
+Known gaps: Runtime profile validation code and embedded/no_std transform exposure remain future gated work.
+Next recommended step: Use this design as the compatibility baseline if M11 or M12 is approved.
