@@ -2034,6 +2034,77 @@ fn help() -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use ferrisoxide_rule_engine::{
+        evaluate_borrowed_rule, BorrowedRuleCriterion, BorrowedRuleCriterionCheck, RuleChannel,
+        RuleOutcome, RuleSummary, RuleTolerances, RuleWaveform,
+    };
+
+    #[derive(Debug, Serialize, PartialEq)]
+    struct ControllerParityReport {
+        case_id: &'static str,
+        schema_note: &'static str,
+        approved_schema_differences: Vec<&'static str>,
+        inputs: ControllerParityInputs,
+        desktop_state_trace: Vec<PortableStateTrace>,
+        embedded_compatible_state_trace: Vec<PortableStateTrace>,
+        desktop_evidence: Vec<PortableCriterionEvidence>,
+        embedded_compatible_evidence: Vec<PortableCriterionEvidence>,
+    }
+
+    #[derive(Debug, Serialize, PartialEq)]
+    struct ControllerParityInputs {
+        waveform: String,
+        production_control_config: String,
+        test_verification_config: String,
+        channel_map: String,
+        selected_mode: String,
+    }
+
+    #[derive(Debug, Clone, Serialize, PartialEq)]
+    struct PortableStateTrace {
+        sample_index: usize,
+        timestamp_s: f64,
+        mode: String,
+        machine: String,
+        state: String,
+        transitions: Vec<PortableTransition>,
+        outputs: Vec<PortableOutput>,
+    }
+
+    #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+    struct PortableTransition {
+        transition: String,
+        from: String,
+        to: String,
+    }
+
+    #[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+    struct PortableOutput {
+        output: String,
+        value: String,
+    }
+
+    #[derive(Debug, Clone, Serialize, PartialEq)]
+    struct PortableCriterionEvidence {
+        criterion_id: String,
+        outcome: &'static str,
+        failed_criterion: Option<String>,
+        measurement_id: String,
+        method: String,
+        channel: String,
+        measured_value: f64,
+        required_value: f64,
+        tolerance_used: f64,
+        unit: String,
+        sample_index: usize,
+        timestamp: f64,
+    }
+
+    #[derive(Debug, Clone)]
+    struct BorrowedVerificationCriterion<'a> {
+        id: String,
+        check: BorrowedRuleCriterionCheck<'a>,
+    }
 
     #[test]
     fn parses_filters_in_command_order() {
@@ -2250,6 +2321,83 @@ mod tests {
         assert!(output.contains("\"verification_evidence\""));
         assert!(output.contains("\"overall_outcome\": \"pass\""));
         assert!(output.contains("\"criterion_id\": \"REQ-001\""));
+    }
+
+    #[test]
+    fn controller_config_and_behavior_paths_match_portable_parity_evidence() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path =
+            format!("{manifest_dir}/../../tests/e2e/heated_actuator/input/passing_run.csv");
+        let control_config_path =
+            format!("{manifest_dir}/../../examples/control-config/production-control-config.toml");
+        let verification_config_path = format!(
+            "{manifest_dir}/../../examples/test-verification-config/test-verification-config.toml"
+        );
+        let channel_map_path =
+            format!("{manifest_dir}/../../examples/simulation/heated-actuator-channel-map.toml");
+
+        let control_config =
+            load_control_config(&control_config_path).expect("control config should load");
+        let verification_config = load_verification_config(&verification_config_path)
+            .expect("verification config should load");
+        let channel_map =
+            load_simulation_channel_map(&channel_map_path).expect("channel map should load");
+        validate_simulation_channel_map(&channel_map, &control_config, &verification_config)
+            .expect("channel map should validate");
+
+        let selected_mode = channel_map.simulation.mode.clone();
+        let workflow = run_desktop_simulation_workflow(DesktopSimulationInput {
+            input_path: &input_path,
+            control_config_path: &control_config_path,
+            verification_config_path: &verification_config_path,
+            channel_map_path: &channel_map_path,
+            mode: selected_mode.clone(),
+            control_config,
+            verification_config: verification_config.clone(),
+            channel_map: channel_map.clone(),
+        })
+        .expect("desktop workflow should run");
+
+        let waveform =
+            load_fixture_waveform(&input_path, &channel_map).expect("parity waveform should load");
+        let desktop_state_trace = portable_state_trace(&workflow.simulation);
+        let embedded_compatible_state_trace = portable_state_trace(&workflow.simulation);
+        let desktop_evidence = portable_evidence_from_report(&workflow.verification);
+        let embedded_compatible_evidence =
+            embedded_compatible_evidence(&verification_config, &waveform)
+                .expect("embedded-compatible evidence should evaluate");
+
+        assert_eq!(desktop_state_trace, embedded_compatible_state_trace);
+        assert_eq!(desktop_evidence, embedded_compatible_evidence);
+
+        let report = ControllerParityReport {
+            case_id: "m9_009_controller_config_parity_001",
+            schema_note: "Software-only parity: state trace compares the portable simulator trace fields a future runtime must match; criteria evidence compares desktop analysis against embedded-compatible borrowed-rule execution.",
+            approved_schema_differences: vec![
+                "No embedded controller runtime exists yet, so controller state parity is a portable trace projection rather than target firmware execution.",
+                "Desktop reports include human-readable reason strings and metadata not required by the embedded-compatible borrowed-rule summary.",
+            ],
+            inputs: ControllerParityInputs {
+                waveform: "tests/e2e/heated_actuator/input/passing_run.csv".to_string(),
+                production_control_config:
+                    "examples/control-config/production-control-config.toml".to_string(),
+                test_verification_config:
+                    "examples/test-verification-config/test-verification-config.toml".to_string(),
+                channel_map: "examples/simulation/heated-actuator-channel-map.toml".to_string(),
+                selected_mode,
+            },
+            desktop_state_trace,
+            embedded_compatible_state_trace,
+            desktop_evidence,
+            embedded_compatible_evidence,
+        };
+        let rendered =
+            serde_json::to_string_pretty(&report).expect("controller parity report should render");
+
+        assert!(rendered.contains("\"case_id\": \"m9_009_controller_config_parity_001\""));
+        assert!(rendered.contains("\"criterion_id\": \"REQ-001\""));
+        assert!(rendered.contains("\"transition\": \"command_to_heating\""));
+        assert!(rendered.contains("Software-only parity"));
     }
 
     #[test]
@@ -2530,6 +2678,332 @@ mod tests {
         .expect_err("missing z column should fail");
 
         assert!(error.contains("missing required column `temperature_c`"));
+    }
+
+    fn portable_state_trace(report: &SimulationReport) -> Vec<PortableStateTrace> {
+        report
+            .frames
+            .iter()
+            .filter(|frame| !frame.transitions.is_empty())
+            .map(|frame| PortableStateTrace {
+                sample_index: frame.sample_index,
+                timestamp_s: frame.time_s,
+                mode: frame.mode.clone(),
+                machine: frame
+                    .machines
+                    .first()
+                    .map(|machine| machine.machine.clone())
+                    .unwrap_or_default(),
+                state: frame
+                    .machines
+                    .first()
+                    .map(|machine| machine.state.clone())
+                    .unwrap_or_default(),
+                transitions: frame
+                    .transitions
+                    .iter()
+                    .map(|transition| PortableTransition {
+                        transition: transition.transition.clone(),
+                        from: transition.from.clone(),
+                        to: transition.to.clone(),
+                    })
+                    .collect(),
+                outputs: frame
+                    .outputs
+                    .iter()
+                    .map(|output| PortableOutput {
+                        output: output.output.clone(),
+                        value: portable_output_value(&output.value),
+                    })
+                    .collect(),
+            })
+            .collect()
+    }
+
+    fn portable_output_value(value: &ferrisoxide_control_schema::OutputValue) -> String {
+        match value {
+            ferrisoxide_control_schema::OutputValue::Analog { value } => {
+                format!(
+                    "analog:{:.6}:{}",
+                    value.value,
+                    control_unit_name(value.unit)
+                )
+            }
+            ferrisoxide_control_schema::OutputValue::Digital { state } => {
+                format!("digital:{}", control_state_name(*state))
+            }
+            ferrisoxide_control_schema::OutputValue::PwmDuty { duty_cycle } => {
+                format!("pwm_duty:{duty_cycle:.6}")
+            }
+            ferrisoxide_control_schema::OutputValue::Named { state } => {
+                format!("named:{state}")
+            }
+        }
+    }
+
+    fn control_state_name(state: ControlDigitalState) -> &'static str {
+        match state {
+            ControlDigitalState::Low => "low",
+            ControlDigitalState::High => "high",
+        }
+    }
+
+    fn control_unit_name(unit: ferrisoxide_control_schema::ControlUnit) -> &'static str {
+        match unit {
+            ferrisoxide_control_schema::ControlUnit::Volt => "V",
+            ferrisoxide_control_schema::ControlUnit::Second => "s",
+            ferrisoxide_control_schema::ControlUnit::Hertz => "Hz",
+            ferrisoxide_control_schema::ControlUnit::Percent => "percent",
+            ferrisoxide_control_schema::ControlUnit::Boolean => "bool",
+            ferrisoxide_control_schema::ControlUnit::Count => "count",
+            ferrisoxide_control_schema::ControlUnit::Unitless => "unitless",
+        }
+    }
+
+    fn portable_evidence_from_report(report: &AnalysisReport) -> Vec<PortableCriterionEvidence> {
+        report
+            .results
+            .iter()
+            .map(|result| {
+                let measurement = report
+                    .measurements
+                    .iter()
+                    .find(|measurement| measurement.id == result.measurement_id)
+                    .expect("result should link to measurement evidence");
+                PortableCriterionEvidence {
+                    criterion_id: result.criterion_id.clone(),
+                    outcome: match result.outcome {
+                        ferrisoxide_core::analysis::Outcome::Pass => "pass",
+                        ferrisoxide_core::analysis::Outcome::Fail => "fail",
+                    },
+                    failed_criterion: result.failed_criterion.clone(),
+                    measurement_id: result.measurement_id.clone(),
+                    method: measurement.method.clone(),
+                    channel: result.channel.clone(),
+                    measured_value: result.measured_value,
+                    required_value: result.required_value,
+                    tolerance_used: result.tolerance_used,
+                    unit: result.unit.clone(),
+                    sample_index: result.sample_index,
+                    timestamp: result.timestamp,
+                }
+            })
+            .collect()
+    }
+
+    fn embedded_compatible_evidence(
+        config: &TestVerificationConfig,
+        waveform_data: &Waveform,
+    ) -> Result<Vec<PortableCriterionEvidence>, String> {
+        let channels = waveform_data
+            .channels
+            .iter()
+            .map(|channel| RuleChannel {
+                name: channel.name.as_str(),
+                samples: channel.samples.as_slice(),
+            })
+            .collect::<Vec<_>>();
+        let waveform = RuleWaveform {
+            time: waveform_data.time.as_slice(),
+            channels: &channels,
+        };
+
+        borrowed_verification_criteria(config)?
+            .into_iter()
+            .map(|spec| {
+                let criterion = BorrowedRuleCriterion {
+                    id: spec.id.as_str(),
+                    check: spec.check,
+                };
+                let summary =
+                    evaluate_borrowed_rule(waveform, criterion, RuleTolerances::default())
+                        .map_err(|error| format!("borrowed rule evaluation failed: {error}"))?;
+                Ok(portable_evidence_from_summary(summary))
+            })
+            .collect()
+    }
+
+    fn borrowed_verification_criteria(
+        config: &TestVerificationConfig,
+    ) -> Result<Vec<BorrowedVerificationCriterion<'_>>, String> {
+        let mut criteria = Vec::new();
+
+        for transition in &config.expected_transitions {
+            if !transition.required {
+                continue;
+            }
+            if transition.min_latency_s.unwrap_or(0.0) > 0.0 {
+                return Err(format!(
+                    "expected transition `{}` min_latency_s is not supported by parity tests",
+                    transition.id
+                ));
+            }
+            let source_channel = transition.reference_channel.as_ref().ok_or_else(|| {
+                format!(
+                    "expected transition `{}` requires reference_channel",
+                    transition.id
+                )
+            })?;
+            let source_state = transition.reference_state.ok_or_else(|| {
+                format!(
+                    "expected transition `{}` requires reference_state",
+                    transition.id
+                )
+            })?;
+            let max_latency_s = transition.max_latency_s.ok_or_else(|| {
+                format!(
+                    "expected transition `{}` requires max_latency_s",
+                    transition.id
+                )
+            })?;
+            criteria.push(BorrowedVerificationCriterion {
+                id: transition.id.clone(),
+                check: BorrowedRuleCriterionCheck::ResponseLatency {
+                    source_channel,
+                    target_channel: transition.channel.as_str(),
+                    source_threshold_v: decision_threshold(config, source_channel, source_state)?,
+                    target_threshold_v: decision_threshold(
+                        config,
+                        &transition.channel,
+                        transition.to_state,
+                    )?,
+                    source_state: signal_state(source_state),
+                    expected_target_state: signal_state(transition.to_state),
+                    max_latency_s,
+                },
+            });
+        }
+
+        for limit in &config.voltage_limits {
+            if let Some(min_v) = limit.min_v {
+                criteria.push(BorrowedVerificationCriterion {
+                    id: if limit.max_v.is_some() {
+                        format!("{}-min", limit.id)
+                    } else {
+                        limit.id.clone()
+                    },
+                    check: BorrowedRuleCriterionCheck::MinimumVoltage {
+                        channel: limit.channel.as_str(),
+                        threshold_v: min_v,
+                    },
+                });
+            }
+            if let Some(max_v) = limit.max_v {
+                criteria.push(BorrowedVerificationCriterion {
+                    id: if limit.min_v.is_some() {
+                        format!("{}-max", limit.id)
+                    } else {
+                        limit.id.clone()
+                    },
+                    check: BorrowedRuleCriterionCheck::MaximumVoltage {
+                        channel: limit.channel.as_str(),
+                        threshold_v: max_v,
+                    },
+                });
+            }
+        }
+
+        for requirement in &config.pulse_widths {
+            criteria.push(BorrowedVerificationCriterion {
+                id: requirement.id.clone(),
+                check: BorrowedRuleCriterionCheck::PulseWidth {
+                    channel: requirement.channel.as_str(),
+                    state: signal_state(requirement.state),
+                    threshold_v: decision_threshold(
+                        config,
+                        &requirement.channel,
+                        requirement.state,
+                    )?,
+                    min_width_s: requirement.min_width_s,
+                    max_width_s: requirement.max_width_s,
+                },
+            });
+        }
+
+        for limit in &config.transient_limits {
+            let (start_time_s, end_time_s) = timing_window(config, limit.window.as_deref())?;
+            criteria.push(BorrowedVerificationCriterion {
+                id: limit.id.clone(),
+                check: BorrowedRuleCriterionCheck::TransientEvent {
+                    channel: limit.channel.as_str(),
+                    event_kind: verification_event_kind_name(limit.event_kind),
+                    expected_state: signal_state(limit.expected_state),
+                    threshold_v: decision_threshold(config, &limit.channel, limit.expected_state)?,
+                    max_duration_s: limit.max_duration_s,
+                    start_time_s,
+                    end_time_s,
+                    arm_after_first_expected_state: limit.arm_after_first_expected_state,
+                },
+            });
+        }
+
+        for limit in &config.dropout_limits {
+            let (start_time_s, end_time_s) = timing_window(config, limit.window.as_deref())?;
+            criteria.push(BorrowedVerificationCriterion {
+                id: limit.id.clone(),
+                check: BorrowedRuleCriterionCheck::TransientEvent {
+                    channel: limit.channel.as_str(),
+                    event_kind: "dropout",
+                    expected_state: signal_state(limit.expected_state),
+                    threshold_v: decision_threshold(config, &limit.channel, limit.expected_state)?,
+                    max_duration_s: limit.max_duration_s,
+                    start_time_s,
+                    end_time_s,
+                    arm_after_first_expected_state: false,
+                },
+            });
+        }
+
+        for requirement in &config.stable_state_requirements {
+            criteria.push(BorrowedVerificationCriterion {
+                id: requirement.id.clone(),
+                check: BorrowedRuleCriterionCheck::StableStateDuration {
+                    channel: requirement.channel.as_str(),
+                    state: signal_state(requirement.state),
+                    threshold_v: requirement.threshold_v.unwrap_or(decision_threshold(
+                        config,
+                        &requirement.channel,
+                        requirement.state,
+                    )?),
+                    min_duration_s: requirement.min_duration_s,
+                },
+            });
+        }
+
+        Ok(criteria)
+    }
+
+    fn portable_evidence_from_summary(summary: RuleSummary<'_>) -> PortableCriterionEvidence {
+        PortableCriterionEvidence {
+            criterion_id: summary.criterion_id.to_string(),
+            outcome: match summary.outcome {
+                RuleOutcome::Pass => "pass",
+                RuleOutcome::Fail => "fail",
+            },
+            failed_criterion: summary
+                .failed_criterion
+                .map(std::string::ToString::to_string),
+            measurement_id: format!("{}_measurement", summary.criterion_id),
+            method: summary.method.to_string(),
+            channel: summary.channel.to_string(),
+            measured_value: summary.measured_value,
+            required_value: summary.required_value,
+            tolerance_used: summary.tolerance_used,
+            unit: summary.unit.to_string(),
+            sample_index: summary.sample_index,
+            timestamp: summary.timestamp,
+        }
+    }
+
+    fn verification_event_kind_name(kind: VerificationTransientEventKind) -> &'static str {
+        match kind {
+            VerificationTransientEventKind::TransientEvent => "transient_event",
+            VerificationTransientEventKind::SpuriousTransition
+            | VerificationTransientEventKind::FalseTransition => "spurious_transition",
+            VerificationTransientEventKind::ContactBounce => "contact_bounce",
+            VerificationTransientEventKind::NoiseInducedTransition => "noise_induced_transition",
+            VerificationTransientEventKind::ThresholdCrossingEvent => "threshold_crossing_event",
+        }
     }
 
     #[test]

@@ -22,5 +22,8 @@ ferrisoxide-rule-schema = { path = "../ferrisoxide-rule-schema" }
 ferrisoxide-simulator = { path = "../ferrisoxide-simulator" }
 ferrisoxide-verification-schema = { path = "../ferrisoxide-verification-schema" }
 
+[dev-dependencies]
+ferrisoxide-rule-engine = { path = "../ferrisoxide-rule-engine" }
+
 [lints]
 workspace = true

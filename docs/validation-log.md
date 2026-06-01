@@ -22,6 +22,56 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, and `ferrisoxide-cli`.
 
+## M9-009 Config Parity Tests Validation Update
+
+Date: 2026-06-01
+
+Stage: Testing controller config and behavior parity
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, GUI frameworks, live DAQ SDKs, HALs, RTOS SDKs, target toolchains, QEMU images, signing tools, runtime loaders, or new third-party dependencies installed.
+- GitHub issue: #85, `M9-009 Add config parity tests`
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-cli controller_config_and_behavior_paths_match_portable_parity_evidence` | Passed | Focused parity test loads the same production control config, test verification config, channel map, selected mode, and waveform input; state trace and evidence parity assertions passed. |
+| `cargo tree -p ferrisoxide-cli` | Passed | New direct test-only dependency is local `ferrisoxide-rule-engine`; no new third-party dependency, GUI, DAQ SDK, HAL, RTOS SDK, target runtime, signing, or hardware dependency appears. |
+| `cargo fmt --check` | Passed | Formatting clean. |
+| `cargo test --workspace` | Passed | 172 workspace unit, integration, and doctest checks passed. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| README/parity/pipeline local Markdown link-target scan | Passed | Local links in README, parity docs, controller workflow, documentation review, and pipeline report resolved. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Exact Test Added
+
+| Test | Coverage |
+|---|---|
+| `controller_config_and_behavior_paths_match_portable_parity_evidence` | Confirms the heated-actuator desktop simulation workflow and embedded-compatible borrowed-rule evidence path use matching configs, timing assumptions, selected mode, waveform input, pass/fail outcomes, channels, measured values, required values, sample indices, timestamps, and portable state trace fields. |
+
+### Gate Decision
+
+- Gate: Testing and V&V Gates for M9-009.
+- Decision: Pass locally.
+- Reason: Focused parity test, dependency tree review, formatting, workspace tests, clippy, Markdown local-link scan, and whitespace checks passed without adding an embedded controller runtime, target loader, GUI, live DAQ SDK, HAL, RTOS SDK, signing, authentication, target hardware execution, hardware qualification evidence, or certification claims.
+- Residual risk: Protected GitHub CI, PR merge, issue #85 closure, qualification evidence report schema, live DAQ SDK integration, RTOS runtime binding, target hardware validation, and certification evidence remain pending.
+- Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate M9-009 config and behavior parity tests.
+Files changed: `crates/ferrisoxide-cli/`, `tests/controller_parity/README.md`, README, architecture/controller workflow docs, controller config parity docs, requirements, traceability, risk register, documentation review, validation log, pipeline report, changelog, and project state.
+Checks run: `cargo test -p ferrisoxide-cli controller_config_and_behavior_paths_match_portable_parity_evidence`; `cargo tree -p ferrisoxide-cli`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; README/parity/pipeline local Markdown link-target scan; `git diff --check`.
+Status: Pass locally; PR, protected CI, merge, and issue #85 closure pending.
+Known gaps: No embedded controller runtime output, target loader, live DAQ SDK, RTOS binding, target hardware timing evidence, or certification evidence.
+Next recommended step: Open PR with `Fixes #85`, wait for required CI, and merge only after checks pass.
+
 ## M9-008 Production/Test Mode Separation Validation Update
 
 Date: 2026-06-01
@@ -47,6 +97,7 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings after replacing the manual artifact-role search with `contains`. |
 | README/mode/deployment/pipeline local Markdown link-target scan | Passed | Local links in README, controller operating modes, RTOS deployment package docs, pipeline reports, architecture docs, controller workflow, and documentation review resolved. |
 | `git diff --check` | Passed | No whitespace errors. |
+| PR #128 protected `rust` CI | Passed | Required GitHub status check passed before merge. |
 
 ### Exact Tests Added
 
@@ -58,9 +109,9 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 ### Gate Decision
 
 - Gate: Testing Gate for M9-008.
-- Decision: Pass locally.
-- Reason: Focused mode-profile validation tests, dependency tree review, formatting, workspace tests, clippy, Markdown local-link scan, and whitespace checks passed without adding a runtime mode switcher, target loader, GUI, live DAQ SDK, HAL, RTOS SDK, signing, authentication, target hardware execution, hardware qualification evidence, or certification claims.
-- Residual risk: Protected GitHub CI, PR merge, issue #84 closure, config parity tests, qualification evidence schema, live DAQ SDK integration, RTOS runtime binding, target hardware validation, and certification evidence remain pending.
+- Decision: Pass.
+- Reason: Focused mode-profile validation tests, dependency tree review, formatting, workspace tests, clippy, Markdown local-link scan, whitespace checks, and protected PR #128 CI passed without adding a runtime mode switcher, target loader, GUI, live DAQ SDK, HAL, RTOS SDK, signing, authentication, target hardware execution, hardware qualification evidence, or certification claims.
+- Residual risk: Config parity tests, qualification evidence schema, live DAQ SDK integration, RTOS runtime binding, target hardware validation, and certification evidence remain pending.
 - Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
 
 ### Hand-Off Note
@@ -69,9 +120,9 @@ Role: Test Automation Engineer / Verification and Validation Engineer
 Goal: Validate M9-008 production/test/signal-validation mode separation.
 Files changed: `crates/ferrisoxide-deployment/`, `examples/deployment-package/heated-actuator/manifest.json`, README, architecture/controller workflow docs, RTOS deployment package docs, controller operating modes docs, requirements, traceability, risk register, documentation review, validation log, pipeline report, changelog, and project state.
 Checks run: `cargo test -p ferrisoxide-deployment`; `cargo tree -p ferrisoxide-deployment`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; README/mode/deployment/pipeline local Markdown link-target scan; `git diff --check`.
-Status: Pass locally; PR, protected CI, merge, and issue #84 closure pending.
+Status: Pass; PR #128 merged and issue #84 closed.
 Known gaps: No runtime mode switcher, target loader, config parity tests, qualification evidence report schema, live DAQ SDK, RTOS binding, hardware timing evidence, or certification evidence.
-Next recommended step: Open PR with `Fixes #84`, wait for required CI, and merge only after checks pass.
+Next recommended step: Continue M9-009 config parity tests.
 
 ## M9-007 RTOS Deployment Package Format Validation Update
 

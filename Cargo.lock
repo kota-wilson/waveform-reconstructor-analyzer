@@ -55,6 +55,7 @@ dependencies = [
  "ferrisoxide-core",
  "ferrisoxide-daq",
  "ferrisoxide-plot",
+ "ferrisoxide-rule-engine",
  "ferrisoxide-rule-schema",
  "ferrisoxide-simulator",
  "ferrisoxide-verification-schema",

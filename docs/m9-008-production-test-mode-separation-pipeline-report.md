@@ -27,8 +27,8 @@ Separate production control, test verification, and signal-validation modes in c
 | Documentation | Documentation Engineer | `docs/controller-operating-modes.md` and traceability updates | Documentation Gate | Pass locally |
 | Code Review | Code Review Engineer | Local review of mode policy validation behavior | Code Review Gate | Pass locally |
 | Evaluation | Evaluation Engineer | Definition of Done review in this report | Evaluation Gate | Pass locally |
-| Release | Release Engineer | Branch, issue link, intended PR body, validation evidence | Release Gate | Pending PR |
-| Community | GitHub Maintainer Specialist | PR, CI, merge, issue close | Community Gate | Pending PR/CI |
+| Release | Release Engineer | PR #128, issue link, validation evidence, protected CI | Release Gate | Pass |
+| Community | GitHub Maintainer Specialist | PR #128 merged; issue #84 closed | Community Gate | Pass |
 | Retrospective | Project Coordinator | This report captures lessons and residual risk | Retrospective Gate | Pass locally |
 
 ## Requirements And Acceptance Mapping
@@ -52,6 +52,7 @@ Separate production control, test verification, and signal-validation modes in c
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
 | README/mode/deployment/pipeline local Markdown link-target scan | Passed | Local links in README and relevant mode/deployment docs resolved. |
 | `git diff --check` | Passed | No whitespace errors. |
+| PR #128 protected `rust` CI | Passed | Required GitHub status check passed before merge. |
 
 ## Hand-Off Note
 
@@ -59,6 +60,6 @@ Role: Software Architect / Verification and Validation Engineer
 Goal: Implement issue #84 production/test/signal-validation mode separation.
 Files changed: `crates/ferrisoxide-deployment/`, `examples/deployment-package/heated-actuator/manifest.json`, README, architecture/controller workflow docs, deployment format docs, operating-mode docs, requirements, traceability, risk register, documentation review, validation log, pipeline report, changelog, and project state.
 Checks run: See validation log.
-Status: Pass locally after validation; PR, protected CI, merge, and issue #84 closure pending.
+Status: Pass; PR #128 merged and issue #84 closed.
 Known gaps: No runtime mode switcher, target loader, live DAQ workflow, HAL/SDK adapter, hardware timing evidence, or certification evidence.
-Next recommended step: Open PR with `Fixes #84`, wait for required CI, and merge only after checks pass.
+Next recommended step: Continue M9-009 config parity tests.

@@ -2,7 +2,7 @@
 
 Date: 2026-05-31
 
-Status: Partially implemented through fixture-driven desktop simulation, a reviewable deployment package format, and manifest-level operating mode separation; runtime work remains planned.
+Status: Partially implemented through fixture-driven desktop simulation, a reviewable deployment package format, manifest-level operating mode separation, and software-only config parity tests; runtime work remains planned.
 
 ## Summary
 
@@ -319,6 +319,8 @@ Both desktop and embedded-compatible paths must produce matching results for:
 
 Any difference must be documented as an approved schema difference before merge.
 
+The first software-only controller parity test is implemented as `controller_config_and_behavior_paths_match_portable_parity_evidence` in `crates/ferrisoxide-cli/src/main.rs` and documented in `docs/controller-config-parity.md`. It uses the heated-actuator fixture, production control config, test verification config, and channel map. Until an embedded controller runtime exists, the approved schema difference is that state parity compares the portable simulator trace projection while criteria parity compares desktop report evidence against the embedded-compatible borrowed-rule engine.
+
 ## Scope Boundaries
 
 In scope for the future milestone:
@@ -331,7 +333,7 @@ In scope for the future milestone:
 - desktop simulation workflow
 - RTOS deployment package format, now implemented as a schema and example fixture boundary
 - production-vs-test mode separation, now implemented at the deployment manifest validation boundary
-- config parity tests
+- config parity tests, now implemented as software-only desktop-vs-embedded-compatible evidence parity
 - qualification evidence report format
 
 Out of scope until separate approval:
@@ -359,6 +361,6 @@ Role: Software Architect / Embedded RTOS Engineer
 Goal: Define the controller-in-the-loop workflow and deployment configuration architecture.
 Files changed: `docs/controller-in-the-loop-workflow.md`.
 Checks run: Architecture review by inspection.
-Status: Partially implemented; fixture-driven desktop simulation, deployment package format, and manifest-level mode separation boundaries exist, while runtime work remains planned.
-Known gaps: No controller deployment export command, live DAQ SDK integration, HAL/RTOS controller I/O adapter, RTOS verification runtime, runtime mode switcher, config parity suite, or formal qualification evidence report schema exists yet.
-Next recommended step: Continue M9 issues in dependency order: parity tests and qualification evidence reports.
+Status: Partially implemented; fixture-driven desktop simulation, deployment package format, manifest-level mode separation, and software-only config parity boundaries exist, while runtime work remains planned.
+Known gaps: No controller deployment export command, live DAQ SDK integration, HAL/RTOS controller I/O adapter, RTOS verification runtime, runtime mode switcher, target-runtime parity output, or formal qualification evidence report schema exists yet.
+Next recommended step: Continue M9 issue work with qualification evidence reports.

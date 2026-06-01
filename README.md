@@ -134,6 +134,7 @@ Implemented today:
 - Desktop simulation workflow that loads production control config, test verification config, a channel map, and fixture CSV input.
 - RTOS/controller deployment package format schema, validator, manifest, required artifact roles, checksum wording, and example package fixture.
 - Manifest-level production, test-verification, and signal-validation mode profiles that reject mixed production/test behavior.
+- Controller config and behavior parity test comparing desktop simulation evidence with embedded-compatible borrowed-rule evidence over the same configs, channel map, and waveform input.
 - `no_std` signal, measurement, rule-engine, and embedded-boundary crates.
 - Desktop-vs-embedded-compatible parity tests for rule evidence.
 - Software-only heated actuator qualification scenario.
@@ -1108,6 +1109,7 @@ The repository has several layers of validation evidence.
 | `validation/reports/` | Expected validation reports. |
 | `tests/e2e/heated_actuator/` | Software-only controller-style qualification scenario. |
 | `tests/parity/` | Desktop-vs-embedded-compatible rule evidence parity. |
+| `tests/controller_parity/` | Controller-in-the-loop config and behavior parity notes. |
 
 Useful targeted checks:
 
@@ -1115,6 +1117,7 @@ Useful targeted checks:
 cargo test -p ferrisoxide-core --test criteria_engine
 cargo test -p ferrisoxide-core --test heated_actuator
 cargo test -p ferrisoxide-core --test rule_parity
+cargo test -p ferrisoxide-cli controller_config_and_behavior_paths_match_portable_parity_evidence
 cargo test -p ferrisoxide-rule-engine
 cargo test -p ferrisoxide-rule-schema
 ```
@@ -1177,6 +1180,7 @@ Start here:
 - [Desktop simulation workflow](docs/desktop-simulation-workflow.md)
 - [RTOS deployment package format](docs/rtos-deployment-package-format.md)
 - [Controller operating modes](docs/controller-operating-modes.md)
+- [Controller config parity](docs/controller-config-parity.md)
 - [Validation log](docs/validation-log.md)
 - [Traceability matrix](traceability-matrix.md)
 - [Requirements](requirements.md)

@@ -48,3 +48,4 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - `simulate` CLI workflow that loads production control config, test verification config, a channel map, and fixture CSV input to produce simulation trace plus verification evidence.
 - `ferrisoxide-deployment` crate with RTOS/controller deployment package manifest schema, required artifact roles, validation helpers, checksum drift-detection wording, and a heated-actuator package fixture.
 - Deployment manifest mode profiles that separate `production_control`, `test_verification`, and `signal_validation` purposes and reject mixed production/test artifact combinations.
+- Controller config parity test comparing desktop simulation state/evidence with embedded-compatible borrowed-rule evidence over the same configs, channel map, and waveform input.
