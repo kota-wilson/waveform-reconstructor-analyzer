@@ -156,7 +156,6 @@ The schema is intentionally data-only. It does not execute the state machine, co
 
 Future M9 issues should build on this in order:
 
-1. Add a virtual controller simulation engine.
-2. Add DAQ and controller I/O abstractions.
-3. Add desktop simulation workflow.
-4. Add deployment package format and parity tests.
+1. Add DAQ and controller I/O abstractions.
+2. Add desktop simulation workflow.
+3. Add deployment package format and parity tests.

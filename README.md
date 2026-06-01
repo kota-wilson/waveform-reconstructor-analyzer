@@ -126,6 +126,7 @@ Implemented today:
 - 2D SVG evidence overlays from report evidence.
 - Portable rule package schema, validation, manifest, checksum, and export command.
 - Production control and test verification config schema boundaries for future controller-in-the-loop workflows.
+- Virtual controller simulation engine over deterministic abstract sample frames.
 - `no_std` signal, measurement, rule-engine, and embedded-boundary crates.
 - Desktop-vs-embedded-compatible parity tests for rule evidence.
 - Software-only heated actuator qualification scenario.

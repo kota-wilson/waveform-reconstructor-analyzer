@@ -1367,9 +1367,9 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 ### Gate Decision
 
 - Gate: Testing Gate for M9-002.
-- Decision: Pass locally.
-- Reason: Focused schema tests, dependency tree check, formatting, workspace tests, clippy, Markdown local-link scan, and whitespace checks passed.
-- Residual risk: Protected GitHub CI, PR merge, issue #80 closure, simulator/runtime follow-up work, and hardware validation remain pending.
+- Decision: Pass.
+- Reason: Focused schema tests, dependency tree check, formatting, workspace tests, clippy, Markdown local-link scan, whitespace checks, protected CI, and PR merge passed.
+- Residual risk: Simulator/runtime follow-up work and hardware validation remain pending.
 - Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
 
 ### Hand-Off Note
@@ -1378,9 +1378,60 @@ Role: Test Automation Engineer / Verification and Validation Engineer
 Goal: Validate M9-002 test verification config schema.
 Files changed: `Cargo.toml`, `crates/ferrisoxide-verification-schema/`, `examples/test-verification-config/test-verification-config.toml`, README, architecture/controller workflow docs, test-verification schema docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
 Checks run: `cargo test -p ferrisoxide-verification-schema`; `cargo tree -p ferrisoxide-verification-schema`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; README/schema/pipeline local Markdown link-target scan; `git diff --check`.
-Status: Pass locally.
+Status: Pass; PR #122 merged and issue #80 closed.
 Known gaps: No simulator, DAQ abstraction, controller I/O abstraction, deployment package mapping, runtime loader, hardware execution, or certification evidence.
-Next recommended step: Run full workspace validation, then open PR with `Fixes #80`, wait for required CI, and merge only after checks pass.
+Next recommended step: Continue M9 issue work with virtual controller simulation, DAQ/controller I/O abstractions, deployment package, parity tests, and evidence reporting.
+
+## M9-003 Virtual Controller Simulation Engine Validation Update
+
+Date: 2026-06-01
+
+Stage: Testing virtual controller simulation engine
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, DAQ SDKs, HALs, RTOS toolchains, controller SDKs, QEMU images, Zephyr tooling, or new third-party dependencies installed.
+- GitHub issue: #78, `M9-003 Add virtual controller simulation engine`
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-simulator` | Passed | 3 simulator tests passed: command/feedback transition trace, timeout fault trace, and invalid input/time-axis errors. |
+| `cargo tree -p ferrisoxide-simulator` | Passed | Uses local `ferrisoxide-control-schema` plus existing approved workspace Serde dependency. |
+| `cargo fmt --check` | Passed | Rust formatting clean after simulator/docs edits. |
+| `cargo test --workspace` | Passed | 157 tests passed across CLI, control schema, verification schema, simulator, core, embedded, measurements, plot, rule engine, rule schema, signal, integration tests, and doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `simulates_heated_actuator_state_trace_from_abstract_samples` | Verifies abstract samples drive production-control state-machine transitions from idle to heating and back to idle with transition/action evidence. |
+| `records_timeout_fault_without_controller_hardware` | Verifies timer-based response timeout records fault evidence, enters safe mode, and drives safe output values without hardware. |
+| `rejects_missing_inputs_and_non_monotonic_time` | Verifies missing required inputs and duplicate/decreasing timestamps produce structured errors. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M9-003.
+- Decision: Pass locally.
+- Reason: Focused simulator tests, dependency tree check, formatting, workspace tests, clippy, Markdown local-link scan, and whitespace checks passed.
+- Residual risk: Protected GitHub CI, PR merge, issue #78 closure, DAQ/controller I/O follow-up work, parity tests, runtime follow-up work, and hardware validation remain pending.
+- Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate M9-003 virtual controller simulation engine.
+Files changed: `Cargo.toml`, `crates/ferrisoxide-simulator/`, README, architecture/controller workflow docs, simulator docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
+Checks run: `cargo test -p ferrisoxide-simulator`; `cargo tree -p ferrisoxide-simulator`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; README/simulator/pipeline local Markdown link-target scan; `git diff --check`.
+Status: Pass locally.
+Known gaps: No CLI/desktop workflow integration, DAQ abstraction, controller I/O abstraction, deployment package mapping, runtime loader, hardware execution, or certification evidence.
+Next recommended step: Run full workspace validation, then open PR with `Fixes #78`, wait for required CI, and merge only after checks pass.
 
 ## M8 Completion Release Update
 
