@@ -111,4 +111,4 @@ Before simulation, the engine calls `ProductionControlConfig::validate()`. Durin
 
 ## Current Limits
 
-The simulator is an engine boundary, not a finished desktop workflow. It does not yet load CSV files, run test verification criteria, emit JSON reports, render SVG evidence, export deployment packages, or compare desktop-vs-embedded runtime traces. Those are later M9 issues.
+The simulator is an engine boundary, not a finished desktop workflow. It does not yet load CSV files, connect the DAQ abstraction to controller input mapping, run test verification criteria, emit JSON reports, render SVG evidence, export deployment packages, or compare desktop-vs-embedded runtime traces. Those are later M9 issues.

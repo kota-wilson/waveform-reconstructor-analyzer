@@ -1418,9 +1418,9 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 ### Gate Decision
 
 - Gate: Testing Gate for M9-003.
-- Decision: Pass locally.
-- Reason: Focused simulator tests, dependency tree check, formatting, workspace tests, clippy, Markdown local-link scan, and whitespace checks passed.
-- Residual risk: Protected GitHub CI, PR merge, issue #78 closure, DAQ/controller I/O follow-up work, parity tests, runtime follow-up work, and hardware validation remain pending.
+- Decision: Pass.
+- Reason: Focused simulator tests, dependency tree check, formatting, workspace tests, clippy, Markdown local-link scan, whitespace checks, protected CI, and PR merge passed.
+- Residual risk: DAQ/controller I/O follow-up work, parity tests, runtime follow-up work, and hardware validation remain pending.
 - Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
 
 ### Hand-Off Note
@@ -1429,9 +1429,60 @@ Role: Test Automation Engineer / Verification and Validation Engineer
 Goal: Validate M9-003 virtual controller simulation engine.
 Files changed: `Cargo.toml`, `crates/ferrisoxide-simulator/`, README, architecture/controller workflow docs, simulator docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
 Checks run: `cargo test -p ferrisoxide-simulator`; `cargo tree -p ferrisoxide-simulator`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; README/simulator/pipeline local Markdown link-target scan; `git diff --check`.
+Status: Pass; PR #123 merged and issue #78 closed.
+Known gaps: No CLI/desktop workflow integration, controller I/O abstraction, deployment package mapping, runtime loader, hardware execution, or certification evidence.
+Next recommended step: Continue M9 issue work with DAQ/controller I/O abstractions, desktop simulation workflow, deployment package, parity tests, and evidence reporting.
+
+## M9-004 DAQ Input Abstraction Validation Update
+
+Date: 2026-06-01
+
+Stage: Testing DAQ input abstraction
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, DAQ SDKs, HALs, RTOS toolchains, controller SDKs, QEMU images, Zephyr tooling, or new third-party dependencies installed.
+- GitHub issue: #79, `M9-004 Add DAQ input abstraction`
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-daq` | Passed | 3 DAQ abstraction tests passed: deterministic fixture frame order/reset/collection, malformed time/channel fixture rejection, duplicate channel rejection, and non-finite value rejection. |
+| `cargo tree -p ferrisoxide-daq` | Passed | Uses existing approved workspace Serde dependency only. |
+| `cargo fmt --check` | Passed | Rust formatting clean after DAQ/docs edits. |
+| `cargo test --workspace` | Passed | 160 tests passed across CLI, control schema, verification schema, simulator, DAQ, core, embedded, measurements, plot, rule engine, rule schema, signal, integration tests, and doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `fixture_source_yields_deterministic_sample_frames` | Verifies descriptor access, deterministic frame order, end-of-source behavior, reset, and bounded collection. |
+| `rejects_non_monotonic_or_incomplete_fixture_input` | Verifies duplicate timestamps and missing declared channels fail before consumers use the source. |
+| `rejects_duplicate_channels_and_non_finite_values` | Verifies duplicate channel descriptors and non-finite analog values produce structured errors. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M9-004.
+- Decision: Pass locally.
+- Reason: Focused DAQ abstraction tests, dependency tree check, formatting, workspace tests, clippy, Markdown local-link scan, and whitespace checks passed.
+- Residual risk: Protected GitHub CI, PR merge, issue #79 closure, channel-to-simulator mapping, controller I/O follow-up work, live DAQ SDK gating, and hardware validation remain pending.
+- Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate M9-004 DAQ input abstraction.
+Files changed: `Cargo.toml`, `crates/ferrisoxide-daq/`, README, architecture/controller workflow docs, DAQ docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
+Checks run: `cargo test -p ferrisoxide-daq`; `cargo tree -p ferrisoxide-daq`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; README/DAQ/pipeline local Markdown link-target scan; `git diff --check`.
 Status: Pass locally.
-Known gaps: No CLI/desktop workflow integration, DAQ abstraction, controller I/O abstraction, deployment package mapping, runtime loader, hardware execution, or certification evidence.
-Next recommended step: Run full workspace validation, then open PR with `Fixes #78`, wait for required CI, and merge only after checks pass.
+Known gaps: No live DAQ SDK, channel-to-simulator mapping, controller I/O abstraction, desktop workflow integration, hardware execution, or certification evidence.
+Next recommended step: Run full workspace validation, then open PR with `Fixes #79`, wait for required CI, and merge only after checks pass.
 
 ## M8 Completion Release Update
 

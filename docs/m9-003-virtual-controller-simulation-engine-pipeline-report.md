@@ -78,6 +78,6 @@ Role: Software Architect / Core Software Engineer / V&V Engineer
 Goal: Implement issue #78 virtual controller simulation engine.
 Files changed: `Cargo.toml`, `crates/ferrisoxide-simulator/`, README, architecture/controller workflow docs, simulator docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
 Checks run: See validation log.
-Status: Pass locally; PR, protected CI, merge, and issue #78 closure pending.
-Known gaps: No CLI/desktop workflow integration, DAQ abstraction, controller I/O abstraction, deployment package mapping, runtime loader, hardware execution, or certification evidence.
-Next recommended step: Run full workspace validation, then open PR with `Fixes #78`, wait for required CI, and merge only after checks pass.
+Status: Pass; PR #123 merged and issue #78 closed.
+Known gaps: No CLI/desktop workflow integration, controller I/O abstraction, deployment package mapping, runtime loader, hardware execution, or certification evidence.
+Next recommended step: Continue M9 with DAQ/controller I/O abstractions, desktop workflow integration, deployment package mapping, runtime loader, and parity tests.
