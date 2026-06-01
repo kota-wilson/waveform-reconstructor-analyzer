@@ -10,6 +10,7 @@ use std::fmt;
 use serde::{Deserialize, Serialize};
 
 pub const CURRENT_DEPLOYMENT_FORMAT_VERSION: &str = "0.1.0";
+pub const CURRENT_QUALIFICATION_EVIDENCE_REPORT_VERSION: &str = "0.1.0";
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DeploymentPackageManifest {
@@ -199,6 +200,296 @@ impl DeploymentIntegrity {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct QualificationEvidenceReport {
+    pub report_version: String,
+    pub generated_at: String,
+    pub overall_outcome: QualificationOutcome,
+    pub qualification: QualificationRunMetadata,
+    pub production_control_config: QualificationVersionedArtifactLink,
+    pub test_verification_config: QualificationVersionedArtifactLink,
+    pub channel_map: QualificationArtifactLink,
+    pub simulation_trace: QualificationSimulationTrace,
+    pub criteria_evidence: Vec<QualificationCriterionEvidence>,
+    pub deployment_package: QualificationDeploymentPackageEvidence,
+    pub checksum_evidence: QualificationChecksumEvidence,
+    pub report_artifact: QualificationArtifactLink,
+    pub visual_evidence: QualificationArtifactLink,
+    pub generated_at_artifact: QualificationArtifactLink,
+    pub scope_notes: Vec<String>,
+}
+
+impl QualificationEvidenceReport {
+    pub fn validate(&self) -> Result<(), QualificationEvidenceValidationReport> {
+        let mut report = QualificationEvidenceValidationReport::new();
+
+        validate_qualification_non_empty("report_version", &self.report_version, &mut report);
+        if self.report_version != CURRENT_QUALIFICATION_EVIDENCE_REPORT_VERSION {
+            report.push(QualificationEvidenceValidationError::new(
+                "report_version",
+                QualificationEvidenceValidationErrorKind::FormatVersionMismatch,
+                format!(
+                    "expected qualification evidence report version `{CURRENT_QUALIFICATION_EVIDENCE_REPORT_VERSION}`, got `{}`",
+                    self.report_version
+                ),
+            ));
+        }
+        validate_qualification_non_empty("generated_at", &self.generated_at, &mut report);
+        validate_run_metadata(&self.qualification, &mut report);
+        validate_versioned_artifact_link(
+            "production_control_config",
+            &self.production_control_config,
+            &mut report,
+        );
+        validate_versioned_artifact_link(
+            "test_verification_config",
+            &self.test_verification_config,
+            &mut report,
+        );
+        validate_artifact_link("channel_map", &self.channel_map, &mut report);
+        validate_simulation_trace(&self.simulation_trace, &mut report);
+        validate_criteria_evidence(&self.criteria_evidence, &mut report);
+        validate_deployment_package_evidence(&self.deployment_package, &mut report);
+        validate_checksum_evidence(self, &mut report);
+        validate_artifact_link("report_artifact", &self.report_artifact, &mut report);
+        validate_artifact_link("visual_evidence", &self.visual_evidence, &mut report);
+        validate_artifact_link(
+            "generated_at_artifact",
+            &self.generated_at_artifact,
+            &mut report,
+        );
+        validate_scope_notes(&self.scope_notes, &mut report);
+
+        report.into_result()
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct QualificationRunMetadata {
+    pub case_id: String,
+    pub workflow: String,
+    pub input_waveform: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct QualificationVersionedArtifactLink {
+    pub name: String,
+    pub version: String,
+    pub path: String,
+    pub checksum: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct QualificationArtifactLink {
+    pub path: String,
+    pub checksum: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct QualificationSimulationTrace {
+    pub engine: String,
+    pub package_name: String,
+    pub package_version: String,
+    pub initial_mode: String,
+    pub frames: Vec<QualificationStateTraceFrame>,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct QualificationStateTraceFrame {
+    pub sample_index: usize,
+    pub timestamp_s: f64,
+    pub mode: String,
+    pub state_machines: Vec<QualificationStateMachineState>,
+    pub transitions: Vec<QualificationTransitionEvidence>,
+    pub outputs: Vec<QualificationOutputEvidence>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct QualificationStateMachineState {
+    pub machine: String,
+    pub state: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct QualificationTransitionEvidence {
+    pub transition: String,
+    pub from: String,
+    pub to: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct QualificationOutputEvidence {
+    pub output: String,
+    pub value: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct QualificationCriterionEvidence {
+    pub criterion_id: String,
+    pub outcome: QualificationOutcome,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub failed_criterion: Option<String>,
+    pub measurement_id: String,
+    pub method: String,
+    pub channel: String,
+    pub measured_value: f64,
+    pub required_value: f64,
+    pub tolerance_used: f64,
+    pub sample_index: usize,
+    pub timestamp_s: f64,
+    pub unit: String,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum QualificationOutcome {
+    Pass,
+    Fail,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct QualificationDeploymentPackageEvidence {
+    pub name: String,
+    pub version: String,
+    pub format_version: String,
+    pub manifest_path: String,
+    pub target_kind: DeploymentTargetKind,
+    pub target_identifier: String,
+    pub generated_at: String,
+    pub modes: Vec<QualificationModeEvidence>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct QualificationModeEvidence {
+    pub id: String,
+    pub purpose: DeploymentModePurpose,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct QualificationChecksumEvidence {
+    pub checksum_file: String,
+    pub algorithm: String,
+    pub scope: String,
+    pub security_note: String,
+    pub entries: Vec<QualificationChecksumEntry>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct QualificationChecksumEntry {
+    pub role: DeploymentArtifactRole,
+    pub path: String,
+    pub checksum: String,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct QualificationEvidenceValidationReport {
+    pub errors: Vec<QualificationEvidenceValidationError>,
+}
+
+impl QualificationEvidenceValidationReport {
+    pub fn new() -> Self {
+        Self { errors: Vec::new() }
+    }
+
+    fn push(&mut self, error: QualificationEvidenceValidationError) {
+        self.errors.push(error);
+    }
+
+    fn into_result(self) -> Result<(), Self> {
+        if self.errors.is_empty() {
+            Ok(())
+        } else {
+            Err(self)
+        }
+    }
+}
+
+impl Default for QualificationEvidenceValidationReport {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl fmt::Display for QualificationEvidenceValidationReport {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if self.errors.is_empty() {
+            return write!(formatter, "qualification evidence report validation passed");
+        }
+
+        writeln!(
+            formatter,
+            "qualification evidence report validation failed with {} error(s):",
+            self.errors.len()
+        )?;
+        for error in &self.errors {
+            writeln!(formatter, "- {error}")?;
+        }
+        Ok(())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct QualificationEvidenceValidationError {
+    pub field: String,
+    pub kind: QualificationEvidenceValidationErrorKind,
+    pub message: String,
+}
+
+impl QualificationEvidenceValidationError {
+    pub fn new(
+        field: impl Into<String>,
+        kind: QualificationEvidenceValidationErrorKind,
+        message: impl Into<String>,
+    ) -> Self {
+        Self {
+            field: field.into(),
+            kind,
+            message: message.into(),
+        }
+    }
+}
+
+impl fmt::Display for QualificationEvidenceValidationError {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(
+            formatter,
+            "{}: {} ({})",
+            self.field,
+            self.message,
+            self.kind.as_str()
+        )
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum QualificationEvidenceValidationErrorKind {
+    EmptyField,
+    FormatVersionMismatch,
+    EmptySimulationTrace,
+    EmptyCriteriaEvidence,
+    EmptyModeEvidence,
+    EmptyChecksumEvidence,
+    MissingChecksumEntry,
+    MissingNonCertificationScopeNote,
+    InvalidEvidenceValue,
+}
+
+impl QualificationEvidenceValidationErrorKind {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::EmptyField => "empty_field",
+            Self::FormatVersionMismatch => "format_version_mismatch",
+            Self::EmptySimulationTrace => "empty_simulation_trace",
+            Self::EmptyCriteriaEvidence => "empty_criteria_evidence",
+            Self::EmptyModeEvidence => "empty_mode_evidence",
+            Self::EmptyChecksumEvidence => "empty_checksum_evidence",
+            Self::MissingChecksumEntry => "missing_checksum_entry",
+            Self::MissingNonCertificationScopeNote => "missing_non_certification_scope_note",
+            Self::InvalidEvidenceValue => "invalid_evidence_value",
+        }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DeploymentValidationReport {
     pub errors: Vec<DeploymentValidationError>,
@@ -355,6 +646,324 @@ pub fn checksum_index_contents(
         output.push('\n');
     }
     output
+}
+
+fn validate_run_metadata(
+    metadata: &QualificationRunMetadata,
+    report: &mut QualificationEvidenceValidationReport,
+) {
+    validate_qualification_non_empty("qualification.case_id", &metadata.case_id, report);
+    validate_qualification_non_empty("qualification.workflow", &metadata.workflow, report);
+    validate_qualification_non_empty(
+        "qualification.input_waveform",
+        &metadata.input_waveform,
+        report,
+    );
+}
+
+fn validate_versioned_artifact_link(
+    field: &str,
+    link: &QualificationVersionedArtifactLink,
+    report: &mut QualificationEvidenceValidationReport,
+) {
+    validate_qualification_non_empty(&format!("{field}.name"), &link.name, report);
+    validate_qualification_non_empty(&format!("{field}.version"), &link.version, report);
+    validate_qualification_non_empty(&format!("{field}.path"), &link.path, report);
+    validate_qualification_non_empty(&format!("{field}.checksum"), &link.checksum, report);
+}
+
+fn validate_artifact_link(
+    field: &str,
+    link: &QualificationArtifactLink,
+    report: &mut QualificationEvidenceValidationReport,
+) {
+    validate_qualification_non_empty(&format!("{field}.path"), &link.path, report);
+    validate_qualification_non_empty(&format!("{field}.checksum"), &link.checksum, report);
+}
+
+fn validate_simulation_trace(
+    trace: &QualificationSimulationTrace,
+    report: &mut QualificationEvidenceValidationReport,
+) {
+    validate_qualification_non_empty("simulation_trace.engine", &trace.engine, report);
+    validate_qualification_non_empty("simulation_trace.package_name", &trace.package_name, report);
+    validate_qualification_non_empty(
+        "simulation_trace.package_version",
+        &trace.package_version,
+        report,
+    );
+    validate_qualification_non_empty("simulation_trace.initial_mode", &trace.initial_mode, report);
+    if trace.frames.is_empty() {
+        report.push(QualificationEvidenceValidationError::new(
+            "simulation_trace.frames",
+            QualificationEvidenceValidationErrorKind::EmptySimulationTrace,
+            "qualification evidence must include at least one simulation trace frame",
+        ));
+    }
+
+    for (frame_index, frame) in trace.frames.iter().enumerate() {
+        let field = format!("simulation_trace.frames[{frame_index}]");
+        validate_qualification_finite(&format!("{field}.timestamp_s"), frame.timestamp_s, report);
+        validate_qualification_non_empty(&format!("{field}.mode"), &frame.mode, report);
+        for (machine_index, machine) in frame.state_machines.iter().enumerate() {
+            let machine_field = format!("{field}.state_machines[{machine_index}]");
+            validate_qualification_non_empty(
+                &format!("{machine_field}.machine"),
+                &machine.machine,
+                report,
+            );
+            validate_qualification_non_empty(
+                &format!("{machine_field}.state"),
+                &machine.state,
+                report,
+            );
+        }
+        for (transition_index, transition) in frame.transitions.iter().enumerate() {
+            let transition_field = format!("{field}.transitions[{transition_index}]");
+            validate_qualification_non_empty(
+                &format!("{transition_field}.transition"),
+                &transition.transition,
+                report,
+            );
+            validate_qualification_non_empty(
+                &format!("{transition_field}.from"),
+                &transition.from,
+                report,
+            );
+            validate_qualification_non_empty(
+                &format!("{transition_field}.to"),
+                &transition.to,
+                report,
+            );
+        }
+        for (output_index, output) in frame.outputs.iter().enumerate() {
+            let output_field = format!("{field}.outputs[{output_index}]");
+            validate_qualification_non_empty(
+                &format!("{output_field}.output"),
+                &output.output,
+                report,
+            );
+            validate_qualification_non_empty(
+                &format!("{output_field}.value"),
+                &output.value,
+                report,
+            );
+        }
+    }
+}
+
+fn validate_criteria_evidence(
+    criteria: &[QualificationCriterionEvidence],
+    report: &mut QualificationEvidenceValidationReport,
+) {
+    if criteria.is_empty() {
+        report.push(QualificationEvidenceValidationError::new(
+            "criteria_evidence",
+            QualificationEvidenceValidationErrorKind::EmptyCriteriaEvidence,
+            "qualification evidence must include at least one criterion evidence record",
+        ));
+    }
+
+    for (index, criterion) in criteria.iter().enumerate() {
+        let field = format!("criteria_evidence[{index}]");
+        validate_qualification_non_empty(
+            &format!("{field}.criterion_id"),
+            &criterion.criterion_id,
+            report,
+        );
+        validate_qualification_non_empty(
+            &format!("{field}.measurement_id"),
+            &criterion.measurement_id,
+            report,
+        );
+        validate_qualification_non_empty(&format!("{field}.method"), &criterion.method, report);
+        validate_qualification_non_empty(&format!("{field}.channel"), &criterion.channel, report);
+        validate_qualification_non_empty(&format!("{field}.unit"), &criterion.unit, report);
+        validate_qualification_finite(
+            &format!("{field}.measured_value"),
+            criterion.measured_value,
+            report,
+        );
+        validate_qualification_finite(
+            &format!("{field}.required_value"),
+            criterion.required_value,
+            report,
+        );
+        validate_qualification_finite(
+            &format!("{field}.tolerance_used"),
+            criterion.tolerance_used,
+            report,
+        );
+        validate_qualification_finite(
+            &format!("{field}.timestamp_s"),
+            criterion.timestamp_s,
+            report,
+        );
+    }
+}
+
+fn validate_deployment_package_evidence(
+    package: &QualificationDeploymentPackageEvidence,
+    report: &mut QualificationEvidenceValidationReport,
+) {
+    validate_qualification_non_empty("deployment_package.name", &package.name, report);
+    validate_qualification_non_empty("deployment_package.version", &package.version, report);
+    validate_qualification_non_empty(
+        "deployment_package.format_version",
+        &package.format_version,
+        report,
+    );
+    if package.format_version != CURRENT_DEPLOYMENT_FORMAT_VERSION {
+        report.push(QualificationEvidenceValidationError::new(
+            "deployment_package.format_version",
+            QualificationEvidenceValidationErrorKind::FormatVersionMismatch,
+            format!(
+                "expected deployment package format version `{CURRENT_DEPLOYMENT_FORMAT_VERSION}`, got `{}`",
+                package.format_version
+            ),
+        ));
+    }
+    validate_qualification_non_empty(
+        "deployment_package.manifest_path",
+        &package.manifest_path,
+        report,
+    );
+    validate_qualification_non_empty(
+        "deployment_package.target_identifier",
+        &package.target_identifier,
+        report,
+    );
+    validate_qualification_non_empty(
+        "deployment_package.generated_at",
+        &package.generated_at,
+        report,
+    );
+    if package.modes.is_empty() {
+        report.push(QualificationEvidenceValidationError::new(
+            "deployment_package.modes",
+            QualificationEvidenceValidationErrorKind::EmptyModeEvidence,
+            "qualification evidence must link deployment mode profiles",
+        ));
+    }
+    for (index, mode) in package.modes.iter().enumerate() {
+        validate_qualification_non_empty(
+            &format!("deployment_package.modes[{index}].id"),
+            &mode.id,
+            report,
+        );
+    }
+}
+
+fn validate_checksum_evidence(
+    evidence_report: &QualificationEvidenceReport,
+    report: &mut QualificationEvidenceValidationReport,
+) {
+    let checksum = &evidence_report.checksum_evidence;
+    validate_qualification_non_empty(
+        "checksum_evidence.checksum_file",
+        &checksum.checksum_file,
+        report,
+    );
+    validate_qualification_non_empty("checksum_evidence.algorithm", &checksum.algorithm, report);
+    validate_qualification_non_empty("checksum_evidence.scope", &checksum.scope, report);
+    validate_qualification_non_empty(
+        "checksum_evidence.security_note",
+        &checksum.security_note,
+        report,
+    );
+    if checksum.entries.is_empty() {
+        report.push(QualificationEvidenceValidationError::new(
+            "checksum_evidence.entries",
+            QualificationEvidenceValidationErrorKind::EmptyChecksumEvidence,
+            "qualification evidence must include checksum entries for deployment artifacts",
+        ));
+    }
+    for (index, entry) in checksum.entries.iter().enumerate() {
+        let field = format!("checksum_evidence.entries[{index}]");
+        validate_qualification_non_empty(&format!("{field}.path"), &entry.path, report);
+        validate_qualification_non_empty(&format!("{field}.checksum"), &entry.checksum, report);
+    }
+
+    let required_links = [
+        (
+            DeploymentArtifactRole::ProductionControlConfig,
+            evidence_report.production_control_config.path.as_str(),
+        ),
+        (
+            DeploymentArtifactRole::TestVerificationConfig,
+            evidence_report.test_verification_config.path.as_str(),
+        ),
+        (
+            DeploymentArtifactRole::ChannelMap,
+            evidence_report.channel_map.path.as_str(),
+        ),
+        (
+            DeploymentArtifactRole::PackageManifest,
+            evidence_report.deployment_package.manifest_path.as_str(),
+        ),
+        (
+            DeploymentArtifactRole::ChecksumIndex,
+            evidence_report.checksum_evidence.checksum_file.as_str(),
+        ),
+        (
+            DeploymentArtifactRole::QualificationReport,
+            evidence_report.report_artifact.path.as_str(),
+        ),
+        (
+            DeploymentArtifactRole::QualificationEvidenceSvg,
+            evidence_report.visual_evidence.path.as_str(),
+        ),
+        (
+            DeploymentArtifactRole::GeneratedAt,
+            evidence_report.generated_at_artifact.path.as_str(),
+        ),
+    ];
+
+    for (role, path) in required_links {
+        if !checksum
+            .entries
+            .iter()
+            .any(|entry| entry.role == role && entry.path == path)
+        {
+            report.push(QualificationEvidenceValidationError::new(
+                "checksum_evidence.entries",
+                QualificationEvidenceValidationErrorKind::MissingChecksumEntry,
+                format!(
+                    "missing checksum entry for artifact role `{}` at `{path}`",
+                    role_name(role)
+                ),
+            ));
+        }
+    }
+}
+
+fn validate_scope_notes(
+    scope_notes: &[String],
+    report: &mut QualificationEvidenceValidationReport,
+) {
+    if scope_notes.is_empty() {
+        report.push(QualificationEvidenceValidationError::new(
+            "scope_notes",
+            QualificationEvidenceValidationErrorKind::MissingNonCertificationScopeNote,
+            "qualification evidence must include explicit non-certification scope notes",
+        ));
+        return;
+    }
+
+    for (index, note) in scope_notes.iter().enumerate() {
+        validate_qualification_non_empty(&format!("scope_notes[{index}]"), note, report);
+    }
+
+    if !scope_notes.iter().any(|note| {
+        note.to_ascii_lowercase()
+            .contains("not flight certification")
+    }) {
+        report.push(QualificationEvidenceValidationError::new(
+            "scope_notes",
+            QualificationEvidenceValidationErrorKind::MissingNonCertificationScopeNote,
+            "scope notes must explicitly say the report is not flight certification evidence",
+        ));
+    }
 }
 
 fn validate_mode_profiles(
@@ -710,6 +1319,34 @@ fn role_name(role: DeploymentArtifactRole) -> &'static str {
     }
 }
 
+fn validate_qualification_non_empty(
+    field: &str,
+    value: &str,
+    report: &mut QualificationEvidenceValidationReport,
+) {
+    if value.trim().is_empty() {
+        report.push(QualificationEvidenceValidationError::new(
+            field,
+            QualificationEvidenceValidationErrorKind::EmptyField,
+            "field must not be empty",
+        ));
+    }
+}
+
+fn validate_qualification_finite(
+    field: &str,
+    value: f64,
+    report: &mut QualificationEvidenceValidationReport,
+) {
+    if !value.is_finite() {
+        report.push(QualificationEvidenceValidationError::new(
+            field,
+            QualificationEvidenceValidationErrorKind::InvalidEvidenceValue,
+            "numeric evidence values must be finite",
+        ));
+    }
+}
+
 fn validate_non_empty(field: &str, value: &str, report: &mut DeploymentValidationReport) {
     if value.trim().is_empty() {
         report.push(DeploymentValidationError::new(
@@ -833,6 +1470,75 @@ mod tests {
         assert!(contents.contains("manifest.json"));
     }
 
+    #[test]
+    fn example_qualification_evidence_report_validates_and_matches_exact_json() {
+        let expected = include_str!(
+            "../../../examples/deployment-package/heated-actuator/qualification-report.json"
+        );
+        let report: QualificationEvidenceReport =
+            serde_json::from_str(expected).expect("example qualification report should parse");
+
+        assert_eq!(report.validate(), Ok(()));
+
+        let rendered = format!(
+            "{}\n",
+            serde_json::to_string_pretty(&report)
+                .expect("qualification report should render deterministically")
+        );
+        assert_eq!(rendered, expected);
+    }
+
+    #[test]
+    fn qualification_evidence_requires_non_certification_scope_note() {
+        let mut report = valid_qualification_evidence_report();
+        report.scope_notes = vec!["software evidence only".to_string()];
+
+        let validation = report
+            .validate()
+            .expect_err("missing certification disclaimer should fail");
+
+        assert!(validation.errors.iter().any(|error| {
+            error.kind == QualificationEvidenceValidationErrorKind::MissingNonCertificationScopeNote
+                && error.message.contains("not flight certification")
+        }));
+    }
+
+    #[test]
+    fn qualification_evidence_requires_checksum_links() {
+        let mut report = valid_qualification_evidence_report();
+        report
+            .checksum_evidence
+            .entries
+            .retain(|entry| entry.role != DeploymentArtifactRole::TestVerificationConfig);
+
+        let validation = report
+            .validate()
+            .expect_err("missing checksum link should fail");
+
+        assert!(validation.errors.iter().any(|error| {
+            error.kind == QualificationEvidenceValidationErrorKind::MissingChecksumEntry
+                && error.message.contains("test_verification_config")
+        }));
+    }
+
+    #[test]
+    fn qualification_evidence_requires_trace_and_criteria_records() {
+        let mut report = valid_qualification_evidence_report();
+        report.simulation_trace.frames.clear();
+        report.criteria_evidence.clear();
+
+        let validation = report
+            .validate()
+            .expect_err("empty trace and criteria evidence should fail");
+
+        assert!(validation.errors.iter().any(|error| {
+            error.kind == QualificationEvidenceValidationErrorKind::EmptySimulationTrace
+        }));
+        assert!(validation.errors.iter().any(|error| {
+            error.kind == QualificationEvidenceValidationErrorKind::EmptyCriteriaEvidence
+        }));
+    }
+
     fn valid_manifest() -> DeploymentPackageManifest {
         DeploymentPackageManifest {
             manifest_version: CURRENT_DEPLOYMENT_FORMAT_VERSION.to_string(),
@@ -910,5 +1616,12 @@ mod tests {
                 notes: Vec::new(),
             },
         ]
+    }
+
+    fn valid_qualification_evidence_report() -> QualificationEvidenceReport {
+        serde_json::from_str(include_str!(
+            "../../../examples/deployment-package/heated-actuator/qualification-report.json"
+        ))
+        .expect("example qualification report should parse")
     }
 }

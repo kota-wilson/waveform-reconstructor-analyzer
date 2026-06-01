@@ -27,8 +27,8 @@ Add config and behavior parity tests for controller-in-the-loop workflows. The s
 | Documentation | Documentation Engineer | `docs/controller-config-parity.md` and `tests/controller_parity/README.md` | Documentation Gate | Pass locally |
 | Code Review | Code Review Engineer | Local review of parity assertions and schema-difference wording | Code Review Gate | Pass locally |
 | Evaluation | Evaluation Engineer | Definition of Done review in this report | Evaluation Gate | Pass locally |
-| Release | Release Engineer | Branch, issue link, intended PR body, validation evidence | Release Gate | Pending PR |
-| Community | GitHub Maintainer Specialist | PR, CI, merge, issue close | Community Gate | Pending PR/CI |
+| Release | Release Engineer | PR #129, issue link, validation evidence, protected CI | Release Gate | Pass |
+| Community | GitHub Maintainer Specialist | PR #129 merged; issue #85 closed | Community Gate | Pass |
 | Retrospective | Project Coordinator | This report captures lessons and residual risk | Retrospective Gate | Pass locally |
 
 ## Requirements And Acceptance Mapping
@@ -56,6 +56,7 @@ Add config and behavior parity tests for controller-in-the-loop workflows. The s
 | `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
 | README/parity/pipeline local Markdown link-target scan | Passed | Local links in README, parity docs, controller workflow, documentation review, and pipeline report resolved. |
 | `git diff --check` | Passed | No whitespace errors. |
+| PR #129 protected `rust` CI | Passed | Required GitHub status check passed before merge. |
 
 ## Hand-Off Note
 
@@ -63,6 +64,6 @@ Role: Verification and Validation Engineer / Test Automation Engineer
 Goal: Implement issue #85 config and behavior parity tests.
 Files changed: `crates/ferrisoxide-cli/`, `docs/controller-config-parity.md`, `tests/controller_parity/README.md`, README, architecture/controller workflow docs, requirements, traceability, documentation review, validation log, pipeline report, changelog, and project state.
 Checks run: See validation log.
-Status: Pass locally after validation; PR, protected CI, merge, and issue #85 closure pending.
+Status: Pass; PR #129 merged and issue #85 closed.
 Known gaps: No embedded controller runtime output, runtime loader, target hardware execution, live DAQ, hardware timing evidence, or certification evidence.
-Next recommended step: Open PR with `Fixes #85`, wait for required CI, and merge only after checks pass.
+Next recommended step: Continue M9-010 qualification evidence report work.

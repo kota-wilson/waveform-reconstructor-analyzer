@@ -1,99 +1,294 @@
 {
-  "report_format_version": "0.1.0",
-  "report_kind": "controller_in_the_loop_qualification_evidence",
+  "report_version": "0.1.0",
+  "generated_at": "2026-06-01T00:00:00Z",
   "overall_outcome": "pass",
-  "scope_notes": [
-    "software validation evidence only",
-    "not hardware qualification evidence",
-    "not flight certification evidence"
-  ],
-  "package": {
-    "name": "heated-actuator-controller-deployment",
+  "qualification": {
+    "case_id": "heated-actuator-controller-in-loop-001",
+    "workflow": "software-only desktop simulation plus criteria evaluation",
+    "input_waveform": "tests/e2e/heated_actuator/input/passing_run.csv"
+  },
+  "production_control_config": {
+    "name": "heated-actuator-production-control",
     "version": "0.1.0",
-    "manifest": "manifest.json",
-    "generated_at": "2026-06-01T00:00:00Z"
+    "path": "production-control-config.toml",
+    "checksum": "fnv1a64:5af3f018c4d8bb01"
   },
-  "configs": {
-    "production_control": {
-      "path": "production-control-config.toml",
-      "package_name": "heated-actuator-production-control",
-      "package_version": "0.1.0"
-    },
-    "test_verification": {
-      "path": "test-verification-config.toml",
-      "package_name": "heated-actuator-qualification",
-      "package_version": "0.1.0"
-    },
-    "channel_map": "channel-map.toml"
+  "test_verification_config": {
+    "name": "heated-actuator-qualification",
+    "version": "0.1.0",
+    "path": "test-verification-config.toml",
+    "checksum": "fnv1a64:71c79b8c5f09a842"
   },
-  "simulation_trace_summary": {
-    "workflow": "fixture-driven desktop simulation",
-    "input_fixture": "tests/e2e/heated_actuator/input/passing_run.csv",
-    "mode": "normal",
-    "frames": 9,
-    "transitions": [
+  "channel_map": {
+    "path": "channel-map.toml",
+    "checksum": "fnv1a64:232bcd27a24f9130"
+  },
+  "simulation_trace": {
+    "engine": "ferrisoxide-simulator",
+    "package_name": "heated-actuator-production-control",
+    "package_version": "0.1.0",
+    "initial_mode": "normal",
+    "frames": [
+      {
+        "sample_index": 0,
+        "timestamp_s": 0.0,
+        "mode": "normal",
+        "state_machines": [
+          {
+            "machine": "actuator_control",
+            "state": "idle"
+          }
+        ],
+        "transitions": [],
+        "outputs": [
+          {
+            "output": "actuator_pwm",
+            "value": "pwm_duty:0.000000"
+          },
+          {
+            "output": "heater_enable",
+            "value": "digital:low"
+          }
+        ]
+      },
       {
         "sample_index": 3,
         "timestamp_s": 1.0,
-        "state_machine": "actuator_control",
-        "transition": "command_to_heating",
-        "from": "idle",
-        "to": "heating"
+        "mode": "normal",
+        "state_machines": [
+          {
+            "machine": "actuator_control",
+            "state": "heating"
+          }
+        ],
+        "transitions": [
+          {
+            "transition": "command_to_heating",
+            "from": "idle",
+            "to": "heating"
+          }
+        ],
+        "outputs": [
+          {
+            "output": "actuator_pwm",
+            "value": "pwm_duty:0.750000"
+          },
+          {
+            "output": "heater_enable",
+            "value": "digital:high"
+          }
+        ]
       },
       {
         "sample_index": 4,
         "timestamp_s": 1.02,
-        "state_machine": "actuator_control",
-        "transition": "feedback_reached",
-        "from": "heating",
-        "to": "idle"
+        "mode": "normal",
+        "state_machines": [
+          {
+            "machine": "actuator_control",
+            "state": "idle"
+          }
+        ],
+        "transitions": [
+          {
+            "transition": "feedback_reached",
+            "from": "heating",
+            "to": "idle"
+          }
+        ],
+        "outputs": [
+          {
+            "output": "actuator_pwm",
+            "value": "pwm_duty:0.000000"
+          },
+          {
+            "output": "heater_enable",
+            "value": "digital:low"
+          }
+        ]
       }
     ]
   },
-  "criteria": [
+  "criteria_evidence": [
     {
-      "id": "REQ-001",
+      "criterion_id": "REQ-001",
       "outcome": "pass",
+      "measurement_id": "REQ-001_measurement",
+      "method": "response_latency",
       "channel": "feedback",
-      "measured_value_s": 0.02,
-      "required_value_s": 0.05,
+      "measured_value": 0.02,
+      "required_value": 0.05,
+      "tolerance_used": 0.0,
       "sample_index": 4,
-      "timestamp_s": 1.02
+      "timestamp_s": 1.02,
+      "unit": "s"
     },
     {
-      "id": "REQ-002",
+      "criterion_id": "REQ-004-min",
       "outcome": "pass",
-      "channel": "feedback",
-      "measured_value_s": 0.68,
-      "required_value_s": 0.5,
-      "sample_index": 8,
-      "timestamp_s": 1.7
-    },
-    {
-      "id": "REQ-003",
-      "outcome": "pass",
-      "channel": "feedback",
-      "measured_value_s": 0.0,
-      "required_value_s": 0.001,
-      "sample_index": 4,
-      "timestamp_s": 1.02
-    },
-    {
-      "id": "REQ-004",
-      "outcome": "pass",
+      "measurement_id": "REQ-004-min_measurement",
+      "method": "minimum_sample",
       "channel": "supply",
-      "measured_min_v": 5.0,
-      "measured_max_v": 5.0,
-      "required_min_v": 4.75,
-      "required_max_v": 5.25,
+      "measured_value": 4.99,
+      "required_value": 4.75,
+      "tolerance_used": 0.0,
+      "sample_index": 7,
+      "timestamp_s": 1.52,
+      "unit": "V"
+    },
+    {
+      "criterion_id": "REQ-004-max",
+      "outcome": "pass",
+      "measurement_id": "REQ-004-max_measurement",
+      "method": "maximum_sample",
+      "channel": "supply",
+      "measured_value": 5.01,
+      "required_value": 5.25,
+      "tolerance_used": 0.0,
+      "sample_index": 5,
+      "timestamp_s": 1.1,
+      "unit": "V"
+    },
+    {
+      "criterion_id": "REQ-005",
+      "outcome": "pass",
+      "measurement_id": "REQ-005_measurement",
+      "method": "state_run_duration",
+      "channel": "feedback",
+      "measured_value": 0.78,
+      "required_value": 0.5,
+      "tolerance_used": 0.0,
+      "sample_index": 4,
+      "timestamp_s": 1.02,
+      "unit": "s"
+    },
+    {
+      "criterion_id": "REQ-003",
+      "outcome": "pass",
+      "measurement_id": "REQ-003_measurement",
+      "method": "state_run_duration",
+      "channel": "feedback",
+      "measured_value": 0.0,
+      "required_value": 0.001,
+      "tolerance_used": 0.0,
+      "sample_index": 4,
+      "timestamp_s": 1.02,
+      "unit": "s"
+    },
+    {
+      "criterion_id": "REQ-006",
+      "outcome": "pass",
+      "measurement_id": "REQ-006_measurement",
+      "method": "state_run_duration",
+      "channel": "supply",
+      "measured_value": 0.0,
+      "required_value": 0.001,
+      "tolerance_used": 0.0,
       "sample_index": 0,
-      "timestamp_s": 0.0
+      "timestamp_s": 0.0,
+      "unit": "s"
+    },
+    {
+      "criterion_id": "REQ-002",
+      "outcome": "pass",
+      "measurement_id": "REQ-002_measurement",
+      "method": "state_run_duration",
+      "channel": "feedback",
+      "measured_value": 0.78,
+      "required_value": 0.5,
+      "tolerance_used": 0.0,
+      "sample_index": 4,
+      "timestamp_s": 1.02,
+      "unit": "s"
     }
   ],
-  "integrity": {
-    "manifest": "manifest.json",
-    "checksum_index": "checksum.txt",
+  "deployment_package": {
+    "name": "heated-actuator-controller-deployment",
+    "version": "0.1.0",
+    "format_version": "0.1.0",
+    "manifest_path": "manifest.json",
+    "target_kind": "controller_runtime",
+    "target_identifier": "raspberry-pi-5-bare-metal",
+    "generated_at": "2026-06-01T00:00:00Z",
+    "modes": [
+      {
+        "id": "production-normal",
+        "purpose": "production_control"
+      },
+      {
+        "id": "test-verification",
+        "purpose": "test_verification"
+      },
+      {
+        "id": "signal-validation",
+        "purpose": "signal_validation"
+      }
+    ]
+  },
+  "checksum_evidence": {
+    "checksum_file": "checksum.txt",
     "algorithm": "fnv1a64",
-    "security_note": "non-cryptographic integrity index; not signing, authentication, certification, or tamper-proofing"
-  }
+    "scope": "artifact drift detection only",
+    "security_note": "non-cryptographic integrity index; not signing, authentication, certification, or tamper-proofing",
+    "entries": [
+      {
+        "role": "production_control_config",
+        "path": "production-control-config.toml",
+        "checksum": "fnv1a64:5af3f018c4d8bb01"
+      },
+      {
+        "role": "test_verification_config",
+        "path": "test-verification-config.toml",
+        "checksum": "fnv1a64:71c79b8c5f09a842"
+      },
+      {
+        "role": "channel_map",
+        "path": "channel-map.toml",
+        "checksum": "fnv1a64:232bcd27a24f9130"
+      },
+      {
+        "role": "package_manifest",
+        "path": "manifest.json",
+        "checksum": "fnv1a64:4a65d6ec11e9c531"
+      },
+      {
+        "role": "checksum_index",
+        "path": "checksum.txt",
+        "checksum": "fnv1a64:289c17dba834d11b"
+      },
+      {
+        "role": "qualification_report",
+        "path": "qualification-report.json",
+        "checksum": "fnv1a64:9f431b237e5024dd"
+      },
+      {
+        "role": "qualification_evidence_svg",
+        "path": "qualification-evidence.svg",
+        "checksum": "fnv1a64:169ae1cddfd23bb2"
+      },
+      {
+        "role": "generated_at",
+        "path": "generated-at.txt",
+        "checksum": "fnv1a64:c20e3c0abcdb5527"
+      }
+    ]
+  },
+  "report_artifact": {
+    "path": "qualification-report.json",
+    "checksum": "fnv1a64:9f431b237e5024dd"
+  },
+  "visual_evidence": {
+    "path": "qualification-evidence.svg",
+    "checksum": "fnv1a64:169ae1cddfd23bb2"
+  },
+  "generated_at_artifact": {
+    "path": "generated-at.txt",
+    "checksum": "fnv1a64:c20e3c0abcdb5527"
+  },
+  "scope_notes": [
+    "software validation evidence only",
+    "not hardware qualification evidence",
+    "not flight certification evidence",
+    "not a production RTOS runtime loader"
+  ]
 }
