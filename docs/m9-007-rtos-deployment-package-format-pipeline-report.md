@@ -27,8 +27,8 @@ Define the RTOS/controller deployment package format for controller-in-the-loop 
 | Documentation | Documentation Engineer | RTOS deployment package format docs and package fixture README | Documentation Gate | Pass locally |
 | Code Review | Code Review Engineer | Local review of validation behavior and scope wording | Code Review Gate | Pass locally |
 | Evaluation | Evaluation Engineer | Definition of Done review in this report | Evaluation Gate | Pass locally |
-| Release | Release Engineer | Branch, issue link, intended PR body, validation evidence | Release Gate | Pending PR |
-| Community | GitHub Maintainer Specialist | PR, CI, merge, issue close | Community Gate | Pending PR/CI |
+| Release | Release Engineer | PR #127, issue link, validation evidence | Release Gate | Pass |
+| Community | GitHub Maintainer Specialist | PR #127 merged after required CI; issue #83 closed | Community Gate | Pass |
 | Retrospective | Project Coordinator | This report captures lessons and residual risk | Retrospective Gate | Pass locally |
 
 ## Requirements And Acceptance Mapping
@@ -65,6 +65,6 @@ Role: Embedded RTOS Engineer / Security Engineer / Documentation Engineer
 Goal: Implement issue #83 RTOS deployment package format.
 Files changed: `Cargo.toml`, `crates/ferrisoxide-deployment/`, `examples/deployment-package/heated-actuator/`, README, architecture/controller workflow docs, RTOS deployment package docs, requirements, traceability, documentation review, validation log, pipeline report, changelog, and project state.
 Checks run: See validation log.
-Status: Pass locally after validation; PR, protected CI, merge, and issue #83 closure pending.
+Status: Pass; PR #127 merged and issue #83 closed.
 Known gaps: No controller deployment export command, binary package serialization, runtime loader, HAL/SDK integration, cryptographic signing, hardware target execution, or certification evidence.
-Next recommended step: Open PR with `Fixes #83`, wait for required CI, and merge only after checks pass.
+Next recommended step: Continue M9-008 production/test/signal-validation mode separation work.

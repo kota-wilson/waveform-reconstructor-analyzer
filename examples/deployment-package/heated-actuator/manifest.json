@@ -14,6 +14,41 @@
       "No HAL, RTOS SDK, hardware access, real-time guarantee, or certification status is implied."
     ]
   },
+  "mode_profiles": [
+    {
+      "id": "production-normal",
+      "purpose": "production_control",
+      "control_mode": "normal",
+      "uses_artifacts": [
+        "production_control_config"
+      ],
+      "notes": [
+        "Production control mode consumes only production behavior config and does not execute test verification criteria."
+      ]
+    },
+    {
+      "id": "test-verification",
+      "purpose": "test_verification",
+      "uses_artifacts": [
+        "test_verification_config",
+        "channel_map"
+      ],
+      "notes": [
+        "Test verification mode evaluates criteria against observed or fixture signals and does not command production control behavior."
+      ]
+    },
+    {
+      "id": "signal-validation",
+      "purpose": "signal_validation",
+      "uses_artifacts": [
+        "test_verification_config",
+        "channel_map"
+      ],
+      "notes": [
+        "Signal-validation mode evaluates live or recorded signal criteria without selecting a production control mode."
+      ]
+    }
+  ],
   "generated_at": "2026-06-01T00:00:00Z",
   "artifacts": [
     {

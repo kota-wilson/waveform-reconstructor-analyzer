@@ -133,6 +133,7 @@ Implemented today:
 - Host-checkable controller I/O abstraction for portable input/output boundaries.
 - Desktop simulation workflow that loads production control config, test verification config, a channel map, and fixture CSV input.
 - RTOS/controller deployment package format schema, validator, manifest, required artifact roles, checksum wording, and example package fixture.
+- Manifest-level production, test-verification, and signal-validation mode profiles that reject mixed production/test behavior.
 - `no_std` signal, measurement, rule-engine, and embedded-boundary crates.
 - Desktop-vs-embedded-compatible parity tests for rule evidence.
 - Software-only heated actuator qualification scenario.
@@ -1043,9 +1044,19 @@ examples/deployment-package/heated-actuator/
 
 The manifest validator checks that every required artifact role is present, artifact paths are unique, production and test configs stay separate, and the checksum index appears in the artifact list.
 
+The manifest also defines explicit operating mode profiles:
+
+| Mode purpose | Behavior |
+|---|---|
+| `production_control` | Selects a production control config mode and does not consume test-verification artifacts. |
+| `test_verification` | Evaluates test criteria and does not select production control behavior. |
+| `signal_validation` | Evaluates signal criteria without commanding production outputs. |
+
+Invalid mixed mode profiles return structured validation errors before a runtime can consume the package.
+
 The checksum index is only for artifact drift detection. It is not signing, authentication, hardware qualification, flight certification, or production readiness evidence.
 
-See [RTOS deployment package format](docs/rtos-deployment-package-format.md).
+See [RTOS deployment package format](docs/rtos-deployment-package-format.md) and [controller operating modes](docs/controller-operating-modes.md).
 
 ## Embedded And no_std Boundary
 
@@ -1165,6 +1176,7 @@ Start here:
 - [Test verification config schema](docs/test-verification-config-schema.md)
 - [Desktop simulation workflow](docs/desktop-simulation-workflow.md)
 - [RTOS deployment package format](docs/rtos-deployment-package-format.md)
+- [Controller operating modes](docs/controller-operating-modes.md)
 - [Validation log](docs/validation-log.md)
 - [Traceability matrix](traceability-matrix.md)
 - [Requirements](requirements.md)

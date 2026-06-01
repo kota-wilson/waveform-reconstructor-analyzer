@@ -86,6 +86,33 @@ Representative shape:
 
 The crate validates required metadata and required artifact roles. Future runtime loaders can choose a constrained subset, but they should reject unsupported features before deployment instead of silently approximating desktop behavior.
 
+## Operating Mode Profiles
+
+The manifest also defines `mode_profiles` so production behavior, test verification, and signal validation are not conflated.
+
+Required purposes:
+
+- `production_control`
+- `test_verification`
+- `signal_validation`
+
+Representative shape:
+
+```json
+{
+  "id": "test-verification",
+  "purpose": "test_verification",
+  "uses_artifacts": [
+    "test_verification_config",
+    "channel_map"
+  ]
+}
+```
+
+Production control modes must select a production `control_mode` and consume `production_control_config`. Test verification and signal validation modes must not select production control behavior and must not consume `production_control_config`.
+
+See `docs/controller-operating-modes.md` for the full mode policy.
+
 ## Validation Rules
 
 `DeploymentPackageManifest::validate()` checks:
@@ -94,6 +121,8 @@ The crate validates required metadata and required artifact roles. Future runtim
 - package name, package version, package format version, target identifier, and generation timestamp are present.
 - integrity fields are present.
 - every required artifact role is listed.
+- `production_control`, `test_verification`, and `signal_validation` mode profiles are listed.
+- mode profiles use only allowed artifact combinations for their purpose.
 - artifact paths and media types are non-empty.
 - artifact paths are unique.
 - production control and test verification configs are separate artifacts.

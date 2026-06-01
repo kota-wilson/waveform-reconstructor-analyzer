@@ -16,6 +16,7 @@ pub struct DeploymentPackageManifest {
     pub manifest_version: String,
     pub package: DeploymentPackageMetadata,
     pub target: DeploymentTarget,
+    pub mode_profiles: Vec<DeploymentModeProfile>,
     pub generated_at: String,
     pub artifacts: Vec<DeploymentArtifact>,
     pub integrity: DeploymentIntegrity,
@@ -75,6 +76,7 @@ impl DeploymentPackageManifest {
         );
 
         validate_artifacts(&self.artifacts, &self.integrity, &mut report);
+        validate_mode_profiles(&self.mode_profiles, &self.artifacts, &mut report);
 
         report.into_result()
     }
@@ -115,6 +117,25 @@ pub enum DeploymentTargetKind {
     ControllerRuntime,
     EmbeddedRuntime,
     TestStand,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct DeploymentModeProfile {
+    pub id: String,
+    pub purpose: DeploymentModePurpose,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub control_mode: Option<String>,
+    pub uses_artifacts: Vec<DeploymentArtifactRole>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub notes: Vec<String>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum DeploymentModePurpose {
+    ProductionControl,
+    TestVerification,
+    SignalValidation,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -263,10 +284,16 @@ pub enum DeploymentValidationErrorKind {
     EmptyField,
     FormatVersionMismatch,
     EmptyArtifacts,
+    EmptyModeProfiles,
     DuplicateArtifactPath,
+    DuplicateModeProfile,
     MissingRequiredArtifact,
+    MissingRequiredModePurpose,
+    MissingModeArtifact,
     ConfigsNotSeparate,
     ChecksumFileMissing,
+    InvalidModeProfile,
+    InvalidModeArtifactCombination,
 }
 
 impl DeploymentValidationErrorKind {
@@ -275,10 +302,16 @@ impl DeploymentValidationErrorKind {
             Self::EmptyField => "empty_field",
             Self::FormatVersionMismatch => "format_version_mismatch",
             Self::EmptyArtifacts => "empty_artifacts",
+            Self::EmptyModeProfiles => "empty_mode_profiles",
             Self::DuplicateArtifactPath => "duplicate_artifact_path",
+            Self::DuplicateModeProfile => "duplicate_mode_profile",
             Self::MissingRequiredArtifact => "missing_required_artifact",
+            Self::MissingRequiredModePurpose => "missing_required_mode_purpose",
+            Self::MissingModeArtifact => "missing_mode_artifact",
             Self::ConfigsNotSeparate => "configs_not_separate",
             Self::ChecksumFileMissing => "checksum_file_missing",
+            Self::InvalidModeProfile => "invalid_mode_profile",
+            Self::InvalidModeArtifactCombination => "invalid_mode_artifact_combination",
         }
     }
 }
@@ -293,6 +326,14 @@ pub fn required_artifact_roles() -> &'static [DeploymentArtifactRole] {
         DeploymentArtifactRole::QualificationReport,
         DeploymentArtifactRole::QualificationEvidenceSvg,
         DeploymentArtifactRole::GeneratedAt,
+    ]
+}
+
+pub fn required_mode_purposes() -> &'static [DeploymentModePurpose] {
+    &[
+        DeploymentModePurpose::ProductionControl,
+        DeploymentModePurpose::TestVerification,
+        DeploymentModePurpose::SignalValidation,
     ]
 }
 
@@ -314,6 +355,248 @@ pub fn checksum_index_contents(
         output.push('\n');
     }
     output
+}
+
+fn validate_mode_profiles(
+    mode_profiles: &[DeploymentModeProfile],
+    artifacts: &[DeploymentArtifact],
+    report: &mut DeploymentValidationReport,
+) {
+    if mode_profiles.is_empty() {
+        report.push(DeploymentValidationError::new(
+            "mode_profiles",
+            DeploymentValidationErrorKind::EmptyModeProfiles,
+            "deployment package must define production_control, test_verification, and signal_validation mode profiles",
+        ));
+        return;
+    }
+
+    let available_roles = artifacts
+        .iter()
+        .map(|artifact| artifact.role)
+        .collect::<BTreeSet<_>>();
+    let mut ids = BTreeSet::new();
+    let mut purposes = BTreeSet::new();
+
+    for (index, mode) in mode_profiles.iter().enumerate() {
+        let field = format!("mode_profiles[{index}]");
+        validate_non_empty(&format!("{field}.id"), &mode.id, report);
+        if !ids.insert(mode.id.clone()) {
+            report.push(DeploymentValidationError::new(
+                format!("{field}.id"),
+                DeploymentValidationErrorKind::DuplicateModeProfile,
+                format!("duplicate mode profile id `{}`", mode.id),
+            ));
+        }
+
+        purposes.insert(mode.purpose);
+        validate_mode_artifact_list(&field, mode, &available_roles, report);
+        validate_mode_purpose_policy(&field, mode, report);
+    }
+
+    for required_purpose in required_mode_purposes() {
+        if !purposes.contains(required_purpose) {
+            report.push(DeploymentValidationError::new(
+                "mode_profiles",
+                DeploymentValidationErrorKind::MissingRequiredModePurpose,
+                format!(
+                    "missing required mode purpose `{}`",
+                    purpose_name(*required_purpose)
+                ),
+            ));
+        }
+    }
+}
+
+fn validate_mode_artifact_list(
+    field: &str,
+    mode: &DeploymentModeProfile,
+    available_roles: &BTreeSet<DeploymentArtifactRole>,
+    report: &mut DeploymentValidationReport,
+) {
+    if mode.uses_artifacts.is_empty() {
+        report.push(DeploymentValidationError::new(
+            format!("{field}.uses_artifacts"),
+            DeploymentValidationErrorKind::InvalidModeProfile,
+            "mode profile must declare at least one used artifact role",
+        ));
+    }
+
+    let mut used_roles = BTreeSet::new();
+    for (role_index, role) in mode.uses_artifacts.iter().enumerate() {
+        let role_field = format!("{field}.uses_artifacts[{role_index}]");
+        if *role == DeploymentArtifactRole::Other {
+            report.push(DeploymentValidationError::new(
+                role_field.clone(),
+                DeploymentValidationErrorKind::InvalidModeProfile,
+                "`other` artifact role is not allowed in mode profiles",
+            ));
+        }
+        if !used_roles.insert(*role) {
+            report.push(DeploymentValidationError::new(
+                role_field.clone(),
+                DeploymentValidationErrorKind::InvalidModeProfile,
+                format!("duplicate mode artifact role `{}`", role_name(*role)),
+            ));
+        }
+        if !available_roles.contains(role) {
+            report.push(DeploymentValidationError::new(
+                role_field,
+                DeploymentValidationErrorKind::MissingModeArtifact,
+                format!(
+                    "mode profile references artifact role `{}` that is not listed in artifacts",
+                    role_name(*role)
+                ),
+            ));
+        }
+    }
+}
+
+fn validate_mode_purpose_policy(
+    field: &str,
+    mode: &DeploymentModeProfile,
+    report: &mut DeploymentValidationReport,
+) {
+    match mode.purpose {
+        DeploymentModePurpose::ProductionControl => {
+            validate_production_control_mode(field, mode, report);
+        }
+        DeploymentModePurpose::TestVerification => {
+            validate_verification_mode(field, mode, "test_verification", report);
+        }
+        DeploymentModePurpose::SignalValidation => {
+            validate_verification_mode(field, mode, "signal_validation", report);
+        }
+    }
+}
+
+fn validate_production_control_mode(
+    field: &str,
+    mode: &DeploymentModeProfile,
+    report: &mut DeploymentValidationReport,
+) {
+    match mode.control_mode.as_deref() {
+        Some(value) if !value.trim().is_empty() => {}
+        _ => report.push(DeploymentValidationError::new(
+            format!("{field}.control_mode"),
+            DeploymentValidationErrorKind::InvalidModeProfile,
+            "production_control mode must name a production control mode in control_mode",
+        )),
+    }
+    require_mode_artifact(
+        field,
+        mode,
+        DeploymentArtifactRole::ProductionControlConfig,
+        report,
+    );
+    forbid_mode_artifact(
+        field,
+        mode,
+        DeploymentArtifactRole::TestVerificationConfig,
+        "production_control mode must not consume test verification config artifacts",
+        report,
+    );
+    forbid_mode_artifact(
+        field,
+        mode,
+        DeploymentArtifactRole::QualificationReport,
+        "production_control mode must not consume qualification report artifacts",
+        report,
+    );
+    forbid_mode_artifact(
+        field,
+        mode,
+        DeploymentArtifactRole::QualificationEvidenceSvg,
+        "production_control mode must not consume qualification evidence SVG artifacts",
+        report,
+    );
+}
+
+fn validate_verification_mode(
+    field: &str,
+    mode: &DeploymentModeProfile,
+    purpose: &str,
+    report: &mut DeploymentValidationReport,
+) {
+    if let Some(control_mode) = mode.control_mode.as_deref() {
+        if !control_mode.trim().is_empty() {
+            report.push(DeploymentValidationError::new(
+                format!("{field}.control_mode"),
+                DeploymentValidationErrorKind::InvalidModeArtifactCombination,
+                format!("{purpose} mode must not select production control mode `{control_mode}`"),
+            ));
+        }
+    }
+
+    require_mode_artifact(
+        field,
+        mode,
+        DeploymentArtifactRole::TestVerificationConfig,
+        report,
+    );
+    require_mode_artifact(field, mode, DeploymentArtifactRole::ChannelMap, report);
+    forbid_mode_artifact(
+        field,
+        mode,
+        DeploymentArtifactRole::ProductionControlConfig,
+        &format!("{purpose} mode must not consume production control config artifacts"),
+        report,
+    );
+    forbid_mode_artifact(
+        field,
+        mode,
+        DeploymentArtifactRole::QualificationReport,
+        &format!("{purpose} mode must not consume pre-generated qualification report artifacts"),
+        report,
+    );
+    forbid_mode_artifact(
+        field,
+        mode,
+        DeploymentArtifactRole::QualificationEvidenceSvg,
+        &format!(
+            "{purpose} mode must not consume pre-generated qualification evidence SVG artifacts"
+        ),
+        report,
+    );
+}
+
+fn require_mode_artifact(
+    field: &str,
+    mode: &DeploymentModeProfile,
+    role: DeploymentArtifactRole,
+    report: &mut DeploymentValidationReport,
+) {
+    if !mode_uses_artifact(mode, role) {
+        report.push(DeploymentValidationError::new(
+            format!("{field}.uses_artifacts"),
+            DeploymentValidationErrorKind::MissingModeArtifact,
+            format!(
+                "{} mode must use artifact role `{}`",
+                purpose_name(mode.purpose),
+                role_name(role)
+            ),
+        ));
+    }
+}
+
+fn forbid_mode_artifact(
+    field: &str,
+    mode: &DeploymentModeProfile,
+    role: DeploymentArtifactRole,
+    message: &str,
+    report: &mut DeploymentValidationReport,
+) {
+    if mode_uses_artifact(mode, role) {
+        report.push(DeploymentValidationError::new(
+            format!("{field}.uses_artifacts"),
+            DeploymentValidationErrorKind::InvalidModeArtifactCombination,
+            message,
+        ));
+    }
+}
+
+fn mode_uses_artifact(mode: &DeploymentModeProfile, role: DeploymentArtifactRole) -> bool {
+    mode.uses_artifacts.contains(&role)
 }
 
 fn validate_artifacts(
@@ -405,6 +688,14 @@ fn artifact_path(artifacts: &[DeploymentArtifact], role: DeploymentArtifactRole)
         .map(|artifact| artifact.path.as_str())
 }
 
+fn purpose_name(purpose: DeploymentModePurpose) -> &'static str {
+    match purpose {
+        DeploymentModePurpose::ProductionControl => "production_control",
+        DeploymentModePurpose::TestVerification => "test_verification",
+        DeploymentModePurpose::SignalValidation => "signal_validation",
+    }
+}
+
 fn role_name(role: DeploymentArtifactRole) -> &'static str {
     match role {
         DeploymentArtifactRole::ProductionControlConfig => "production_control_config",
@@ -488,6 +779,45 @@ mod tests {
     }
 
     #[test]
+    fn validation_requires_all_mode_purposes() {
+        let mut manifest = valid_manifest();
+        manifest
+            .mode_profiles
+            .retain(|mode| mode.purpose != DeploymentModePurpose::SignalValidation);
+
+        let report = manifest
+            .validate()
+            .expect_err("missing signal validation mode should fail");
+
+        assert!(report.errors.iter().any(|error| {
+            error.kind == DeploymentValidationErrorKind::MissingRequiredModePurpose
+                && error.message.contains("signal_validation")
+        }));
+    }
+
+    #[test]
+    fn validation_rejects_mixed_production_and_verification_mode_artifacts() {
+        let mut manifest = valid_manifest();
+        let mode = manifest
+            .mode_profiles
+            .iter_mut()
+            .find(|mode| mode.purpose == DeploymentModePurpose::TestVerification)
+            .expect("valid manifest should include test verification mode");
+        mode.control_mode = Some("normal".to_string());
+        mode.uses_artifacts
+            .push(DeploymentArtifactRole::ProductionControlConfig);
+
+        let report = manifest
+            .validate()
+            .expect_err("mixed production/test mode should fail");
+
+        assert!(report.errors.iter().any(|error| {
+            error.kind == DeploymentValidationErrorKind::InvalidModeArtifactCombination
+                && error.message.contains("test_verification mode must not")
+        }));
+    }
+
+    #[test]
     fn checksum_index_wording_disclaims_signing_and_certification() {
         let integrity = DeploymentIntegrity::drift_detection_only("checksum.txt");
         let contents = checksum_index_contents(
@@ -515,6 +845,7 @@ mod tests {
                 identifier: "raspberry-pi-5-bare-metal".to_string(),
                 notes: Vec::new(),
             },
+            mode_profiles: valid_mode_profiles(),
             generated_at: "2026-06-01T00:00:00Z".to_string(),
             artifacts: required_artifact_roles()
                 .iter()
@@ -547,5 +878,37 @@ mod tests {
             integrity: DeploymentIntegrity::drift_detection_only("checksum.txt"),
             scope_notes: vec!["software evidence only".to_string()],
         }
+    }
+
+    fn valid_mode_profiles() -> Vec<DeploymentModeProfile> {
+        vec![
+            DeploymentModeProfile {
+                id: "production-normal".to_string(),
+                purpose: DeploymentModePurpose::ProductionControl,
+                control_mode: Some("normal".to_string()),
+                uses_artifacts: vec![DeploymentArtifactRole::ProductionControlConfig],
+                notes: Vec::new(),
+            },
+            DeploymentModeProfile {
+                id: "test-verification".to_string(),
+                purpose: DeploymentModePurpose::TestVerification,
+                control_mode: None,
+                uses_artifacts: vec![
+                    DeploymentArtifactRole::TestVerificationConfig,
+                    DeploymentArtifactRole::ChannelMap,
+                ],
+                notes: Vec::new(),
+            },
+            DeploymentModeProfile {
+                id: "signal-validation".to_string(),
+                purpose: DeploymentModePurpose::SignalValidation,
+                control_mode: None,
+                uses_artifacts: vec![
+                    DeploymentArtifactRole::TestVerificationConfig,
+                    DeploymentArtifactRole::ChannelMap,
+                ],
+                notes: Vec::new(),
+            },
+        ]
     }
 }
