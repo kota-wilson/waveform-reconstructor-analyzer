@@ -34,6 +34,7 @@ The main repository is `kota-wilson/ferrisoxide`. The current CLI binary is stil
 - [Heated Actuator Example](#heated-actuator-example)
 - [Desktop Simulation Workflow](#desktop-simulation-workflow)
 - [Portable Rule Packages](#portable-rule-packages)
+- [Controller Deployment Package Format](#controller-deployment-package-format)
 - [Embedded And no_std Boundary](#embedded-and-nostd-boundary)
 - [Validation Assets](#validation-assets)
 - [Testing The Repository](#testing-the-repository)
@@ -131,13 +132,13 @@ Implemented today:
 - Fixture/test-double DAQ input abstraction for deterministic sample sources.
 - Host-checkable controller I/O abstraction for portable input/output boundaries.
 - Desktop simulation workflow that loads production control config, test verification config, a channel map, and fixture CSV input.
+- RTOS/controller deployment package format schema, validator, manifest, required artifact roles, checksum wording, and example package fixture.
 - `no_std` signal, measurement, rule-engine, and embedded-boundary crates.
 - Desktop-vs-embedded-compatible parity tests for rule evidence.
 - Software-only heated actuator qualification scenario.
 
 Planned or future:
 
-- RTOS deployment package format.
 - Runtime loaders.
 - Raspberry Pi 5 bare-metal runtime work.
 - Optional Pico 2 micro-runtime profile.
@@ -204,6 +205,9 @@ crates/ferrisoxide-daq/          Fixture/test-double DAQ sample-source
 crates/ferrisoxide-controller-io/
                                   Host-checkable controller input/output
                                   abstraction.
+
+crates/ferrisoxide-deployment/   Deployment package manifest schema and
+                                  validator for controller/runtime packages.
 
 crates/ferrisoxide-plot/         Desktop SVG plotting support.
                                   Isolated so core and embedded crates do not
@@ -303,6 +307,20 @@ production control config
   -> virtual controller simulation trace
   -> waveform verification evidence
   -> JSON or text workflow report
+```
+
+### Controller Deployment Package Flow
+
+```text
+production control config
+  + test verification config
+  + channel map
+  + qualification report
+  + qualification evidence SVG
+  -> deployment package manifest
+  -> checksum index for drift detection
+  -> generated-at timestamp
+  -> reviewable controller/runtime package artifact set
 ```
 
 ### Embedded Direction
@@ -1005,6 +1023,30 @@ The package is meant to be inspected by humans and consumed by future tooling. I
 
 See [rule package format](docs/rule-package-format.md) and [ADR-004 portable rule package architecture](decisions/ADR-004-portable-rule-package-architecture.md).
 
+## Controller Deployment Package Format
+
+FerrisOxide also defines the controller/RTOS deployment package artifact set used by the controller-in-the-loop workflow. This is separate from the current `export-rule-package` CLI command: the CLI exports portable verification rules, while the controller deployment package format links production control config, test verification config, channel map, package manifest, checksum index, qualification report, evidence SVG, and generated timestamp.
+
+Example package:
+
+```text
+examples/deployment-package/heated-actuator/
+  production-control-config.toml
+  test-verification-config.toml
+  channel-map.toml
+  manifest.json
+  checksum.txt
+  qualification-report.json
+  qualification-evidence.svg
+  generated-at.txt
+```
+
+The manifest validator checks that every required artifact role is present, artifact paths are unique, production and test configs stay separate, and the checksum index appears in the artifact list.
+
+The checksum index is only for artifact drift detection. It is not signing, authentication, hardware qualification, flight certification, or production readiness evidence.
+
+See [RTOS deployment package format](docs/rtos-deployment-package-format.md).
+
 ## Embedded And no_std Boundary
 
 FerrisOxide has embedded-oriented crates, but the project is not yet an embedded runtime product.
@@ -1017,6 +1059,7 @@ FerrisOxide has embedded-oriented crates, but the project is not yet an embedded
 | `ferrisoxide-embedded` | `#![no_std]` adapter traits for sample sources, event sinks, and runtime hooks. |
 | `ferrisoxide-control-schema` | Production control config schema for future controller-in-the-loop workflows; not a runtime executor. |
 | `ferrisoxide-verification-schema` | Test verification config schema for qualification criteria, timing windows, evidence settings, and report settings; not a criteria executor. |
+| `ferrisoxide-deployment` | Deployment package manifest schema and validator for future controller/runtime package workflows; not an RTOS loader. |
 
 Desktop-only concerns stay out of those crates:
 
@@ -1121,6 +1164,7 @@ Start here:
 - [Production control config schema](docs/control-config-schema.md)
 - [Test verification config schema](docs/test-verification-config-schema.md)
 - [Desktop simulation workflow](docs/desktop-simulation-workflow.md)
+- [RTOS deployment package format](docs/rtos-deployment-package-format.md)
 - [Validation log](docs/validation-log.md)
 - [Traceability matrix](traceability-matrix.md)
 - [Requirements](requirements.md)

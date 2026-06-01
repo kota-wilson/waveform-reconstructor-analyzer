@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">FerrisOxide heated actuator qualification evidence</title>
+  <desc id="desc">Software-only example SVG evidence for the heated actuator deployment package.</desc>
+  <rect width="960" height="540" fill="#ffffff"/>
+  <text x="48" y="52" font-family="Arial, sans-serif" font-size="28" fill="#111111">Heated Actuator Controller Package</text>
+  <text x="48" y="86" font-family="Arial, sans-serif" font-size="16" fill="#333333">Overall: PASS - software validation evidence only</text>
+  <line x1="80" y1="410" x2="880" y2="410" stroke="#444444" stroke-width="1"/>
+  <line x1="80" y1="120" x2="80" y2="410" stroke="#444444" stroke-width="1"/>
+  <text x="80" y="438" font-family="Arial, sans-serif" font-size="12" fill="#333333">0.0 s</text>
+  <text x="385" y="438" font-family="Arial, sans-serif" font-size="12" fill="#333333">1.0 s command high</text>
+  <text x="805" y="438" font-family="Arial, sans-serif" font-size="12" fill="#333333">1.7 s</text>
+  <polyline points="80,360 385,360 385,170 880,170" fill="none" stroke="#1f77b4" stroke-width="3"/>
+  <polyline points="80,360 410,360 410,185 880,185" fill="none" stroke="#2ca02c" stroke-width="3"/>
+  <line x1="385" y1="170" x2="410" y2="185" stroke="#111111" stroke-width="2"/>
+  <text x="414" y="146" font-family="Arial, sans-serif" font-size="14" fill="#111111">REQ-001 response latency: 20 ms required &lt;= 50 ms</text>
+  <rect x="410" y="195" width="470" height="38" fill="#e8f5e9" stroke="#2ca02c"/>
+  <text x="420" y="220" font-family="Arial, sans-serif" font-size="14" fill="#111111">REQ-002 stable high duration: required &gt;= 500 ms</text>
+  <line x1="410" y1="260" x2="880" y2="260" stroke="#d62728" stroke-width="2" stroke-dasharray="6 6"/>
+  <text x="420" y="285" font-family="Arial, sans-serif" font-size="14" fill="#111111">REQ-003 no false-low transient longer than 1 ms</text>
+  <text x="48" y="498" font-family="Arial, sans-serif" font-size="13" fill="#555555">Not signing, authentication, hardware qualification, flight certification, or production RTOS runtime evidence.</text>
+</svg>

@@ -5,6 +5,7 @@ members = [
     "crates/ferrisoxide-control-schema",
     "crates/ferrisoxide-controller-io",
     "crates/ferrisoxide-daq",
+    "crates/ferrisoxide-deployment",
     "crates/ferrisoxide-embedded",
     "crates/ferrisoxide-measurements",
     "crates/ferrisoxide-plot",

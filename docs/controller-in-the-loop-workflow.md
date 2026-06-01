@@ -2,7 +2,7 @@
 
 Date: 2026-05-31
 
-Status: Partially implemented through fixture-driven desktop simulation; deployment and runtime work remain planned.
+Status: Partially implemented through fixture-driven desktop simulation and a reviewable deployment package format; runtime work remains planned.
 
 ## Summary
 
@@ -139,7 +139,7 @@ Recommended future crate/module boundaries:
 | `ferrisoxide-control-schema` | Production control config schema and state-machine model. | Exists as an M9-001 schema boundary; execution remains future work. |
 | `ferrisoxide-verification-schema` | Test verification config schema for expected transitions, limits, timing windows, evidence, and report settings. | Exists as an M9-002 schema boundary; execution remains future work. |
 | `ferrisoxide-simulator` | Desktop virtual controller simulation engine over production control config and abstract sample frames. | Exists as an M9-003 engine boundary and is wired into the M9-006 fixture-driven CLI simulation workflow. |
-| `ferrisoxide-deployment` | Deployment package manifest/export model. | Future v0.7.0 work. |
+| `ferrisoxide-deployment` | Deployment package manifest schema, required artifact roles, validation helpers, and checksum drift-detection wording. | Exists as an M9-007 format boundary; export command and runtime loader remain future work. |
 | `ferrisoxide-daq` | DAQ input abstraction, initially host/test double friendly. | Exists as an M9-004 fixture/test-double boundary; vendor SDKs and live hardware remain future gated work. |
 | `ferrisoxide-controller-io` | Host-checkable controller input/output abstraction. | Exists as an M9-005 fake I/O boundary; HAL and RTOS SDK adapters remain future gated work. |
 | `ferrisoxide-embedded` | no_std adapter boundaries for runtime integration. | Exists as foundation. |
@@ -228,6 +228,7 @@ Rules:
 - Production config and test verification config remain separate.
 - The manifest links versions and checksums.
 - Checksums are integrity evidence, not signing, security certification, or release approval.
+- The current implemented package format is documented in `docs/rtos-deployment-package-format.md` and represented by `crates/ferrisoxide-deployment`.
 
 ### RTOS Verification Mode
 
@@ -327,7 +328,7 @@ In scope for the future milestone:
 - DAQ input abstraction with test doubles
 - controller I/O abstraction
 - desktop simulation workflow
-- RTOS deployment package format
+- RTOS deployment package format, now implemented as a schema and example fixture boundary
 - production-vs-test mode separation
 - config parity tests
 - qualification evidence report format
@@ -357,6 +358,6 @@ Role: Software Architect / Embedded RTOS Engineer
 Goal: Define the controller-in-the-loop workflow and deployment configuration architecture.
 Files changed: `docs/controller-in-the-loop-workflow.md`.
 Checks run: Architecture review by inspection.
-Status: Partially implemented; fixture-driven desktop simulation exists, while deployment and runtime work remain planned.
-Known gaps: No deployment package implementation, live DAQ SDK integration, HAL/RTOS controller I/O adapter, or RTOS verification runtime exists yet.
-Next recommended step: Continue M9 issues in dependency order: deployment format, mode separation, parity tests, and qualification evidence reports.
+Status: Partially implemented; fixture-driven desktop simulation and deployment package format boundaries exist, while runtime work remains planned.
+Known gaps: No controller deployment export command, live DAQ SDK integration, HAL/RTOS controller I/O adapter, RTOS verification runtime, production-vs-test mode execution boundary, config parity suite, or formal qualification evidence report schema exists yet.
+Next recommended step: Continue M9 issues in dependency order: mode separation, parity tests, and qualification evidence reports.

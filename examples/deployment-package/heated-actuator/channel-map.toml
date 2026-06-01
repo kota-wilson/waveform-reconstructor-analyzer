@@ -1,0 +1,27 @@
+[simulation]
+mode = "normal"
+time_column = "time_s"
+time_unit = "s"
+
+[[channels]]
+id = "command"
+column = "command_v"
+unit = "V"
+
+[[channels]]
+id = "feedback"
+column = "actuator_feedback_v"
+unit = "V"
+
+[[channels]]
+id = "supply"
+column = "supply_v"
+unit = "V"
+
+[[control_inputs]]
+input = "command"
+channel = "command"
+
+[[control_inputs]]
+input = "feedback"
+channel = "feedback"

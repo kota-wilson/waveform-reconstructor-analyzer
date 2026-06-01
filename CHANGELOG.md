@@ -46,3 +46,4 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - `ferrisoxide-daq` crate with fixture/test-double DAQ sample-source abstractions for deterministic controller-in-the-loop input.
 - `ferrisoxide-controller-io` crate with host-checkable controller input/output traits and fake I/O for portable controller boundaries.
 - `simulate` CLI workflow that loads production control config, test verification config, a channel map, and fixture CSV input to produce simulation trace plus verification evidence.
+- `ferrisoxide-deployment` crate with RTOS/controller deployment package manifest schema, required artifact roles, validation helpers, checksum drift-detection wording, and a heated-actuator package fixture.

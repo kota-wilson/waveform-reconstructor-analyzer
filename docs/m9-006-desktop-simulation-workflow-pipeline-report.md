@@ -27,8 +27,8 @@ Add a desktop simulation workflow for controller-in-the-loop analysis. The workf
 | Documentation | Documentation Engineer | README, architecture docs, desktop simulation docs, validation log | Documentation Gate | Pass locally |
 | Code Review | Code Review Engineer | Local review of workflow boundaries and validation behavior | Code Review Gate | Pass locally |
 | Evaluation | Evaluation Engineer | Definition of Done review in this report | Evaluation Gate | Pass locally |
-| Release | Release Engineer | Branch, issue link, intended PR body, validation evidence | Release Gate | Pending PR |
-| Community | GitHub Maintainer Specialist | PR, CI, merge, issue close | Community Gate | Pending PR/CI |
+| Release | Release Engineer | PR #126, issue link, validation evidence | Release Gate | Pass |
+| Community | GitHub Maintainer Specialist | PR #126 merged after required CI; issue #82 closed | Community Gate | Pass |
 | Retrospective | Project Coordinator | This report captures lessons and residual risk | Retrospective Gate | Pass locally |
 
 ## Requirements And Acceptance Mapping
@@ -64,6 +64,6 @@ Role: Software Architect / Core Software Engineer / V&V Engineer
 Goal: Implement issue #82 desktop simulation workflow.
 Files changed: `crates/ferrisoxide-cli/`, `examples/simulation/heated-actuator-channel-map.toml`, README, architecture/controller workflow docs, desktop simulation docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
 Checks run: See validation log.
-Status: Pass locally; full workspace validation passed, with PR, protected CI, merge, and issue #82 closure pending.
+Status: Pass; PR #126 merged and issue #82 closed.
 Known gaps: No GUI, live DAQ SDK, deployment package, production RTOS binding, hardware timing evidence, or certification evidence.
-Next recommended step: Open PR with `Fixes #82`, wait for required CI, and merge only after checks pass.
+Next recommended step: Continue M9-007 deployment package format work.

@@ -1,0 +1,13 @@
+# FerrisOxide deployment package checksums
+algorithm=fnv1a64
+scope=artifact drift detection only
+security_note=non-cryptographic integrity index; not signing, authentication, certification, or tamper-proofing
+# This is not signing, authentication, certification, or tamper-proofing.
+
+fnv1a64:example-production-control  production-control-config.toml
+fnv1a64:example-test-verification  test-verification-config.toml
+fnv1a64:example-channel-map  channel-map.toml
+fnv1a64:example-manifest  manifest.json
+fnv1a64:example-qualification-report  qualification-report.json
+fnv1a64:example-qualification-evidence  qualification-evidence.svg
+fnv1a64:example-generated-at  generated-at.txt

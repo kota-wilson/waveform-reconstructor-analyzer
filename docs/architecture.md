@@ -26,6 +26,7 @@ Current status: This proposal has been implemented through the validated MVP fea
 | `ferrisoxide-controller-io` | `crates/ferrisoxide-controller-io` | Host-checkable controller input/output abstraction for portable controller logic. | Input/output port descriptors, value model, input provider trait, output sink trait, fake host implementation, safe-output reset, and structured I/O errors. |
 | `ferrisoxide-control-schema` | `crates/ferrisoxide-control-schema` | Versioned production control config schema for controller-in-the-loop workflows. | Config metadata, target profile, approval metadata, timing, inputs, outputs, thresholds, modes, state machines, timing rules, actions, fault responses, parse helpers, and structured validation errors. |
 | `ferrisoxide-daq` | `crates/ferrisoxide-daq` | Fixture/test-double DAQ input abstraction for controller-in-the-loop workflows. | DAQ channel descriptors, sample frames, fixture source, sample-source trait, deterministic frame collection, and structured DAQ errors. |
+| `ferrisoxide-deployment` | `crates/ferrisoxide-deployment` | Reviewable controller/RTOS deployment package manifest schema and validator. | Deployment package metadata, target profile metadata, required artifact roles, artifact validation, separated production/test config validation, and checksum index wording helper. |
 | `ferrisoxide-embedded` | `crates/ferrisoxide-embedded` | `no_std` adapter traits and streaming helpers for ARM64/RTOS wrappers. | Embedded adapters around `ferrisoxide-signal`. |
 | `ferrisoxide-measurements` | `crates/ferrisoxide-measurements` | `no_std` measurement primitives over time/sample slices. | Extrema, transition count, state-run duration, and rise/fall measurements used by criteria evidence. |
 | `ferrisoxide-plot` | `crates/ferrisoxide-plot` | Desktop SVG plotting for waveform data and 2D evidence overlays. | SVG plot renderer used by the CLI. |
@@ -37,7 +38,7 @@ Current status: This proposal has been implemented through the validated MVP fea
 
 Portable rule package validator, export, checksum, shared-engine, no_std-boundary, and exact desktop-vs-embedded parity fixture work is implemented through M8-008. Runtime loaders and binary package work remain future scope in `decisions/ADR-004-portable-rule-package-architecture.md` and `docs/v0.6.0-portable-rule-package-milestone-proposal.md`.
 
-The production control config schema is implemented in `ferrisoxide-control-schema`, the test verification config schema is implemented in `ferrisoxide-verification-schema`, deterministic virtual controller simulation is implemented in `ferrisoxide-simulator`, fixture/test-double DAQ input abstraction is implemented in `ferrisoxide-daq`, host-checkable controller I/O abstraction is implemented in `ferrisoxide-controller-io`, and the first fixture-driven desktop simulation workflow is implemented in `ferrisoxide-cli`. Deployment package and runtime modules remain planned in `docs/controller-in-the-loop-workflow.md` and `docs/v0.7.0-controller-simulation-deployment-config-milestone-proposal.md`.
+The production control config schema is implemented in `ferrisoxide-control-schema`, the test verification config schema is implemented in `ferrisoxide-verification-schema`, deterministic virtual controller simulation is implemented in `ferrisoxide-simulator`, fixture/test-double DAQ input abstraction is implemented in `ferrisoxide-daq`, host-checkable controller I/O abstraction is implemented in `ferrisoxide-controller-io`, the first fixture-driven desktop simulation workflow is implemented in `ferrisoxide-cli`, and the RTOS/controller deployment package format is implemented in `ferrisoxide-deployment`. Runtime loaders, production-vs-test mode execution, config parity tests, and qualification evidence report schema work remain planned in `docs/controller-in-the-loop-workflow.md` and `docs/v0.7.0-controller-simulation-deployment-config-milestone-proposal.md`.
 
 Platform targets are documented in `docs/platform-targets.md`. The desktop authoring platform is Apple Silicon macOS using `aarch64-apple-darwin`; the first-class embedded runtime target is Raspberry Pi 5 bare-metal ARM64 using `aarch64-unknown-none`; Raspberry Pi Pico 2 is a future optional microcontroller profile for constrained rule execution.
 
@@ -55,6 +56,7 @@ Platform targets are documented in `docs/platform-targets.md`. The desktop autho
 | `error` | `crates/ferrisoxide-core/src/error.rs` | Project error types. |
 | `ferrisoxide-embedded` | `crates/ferrisoxide-embedded/src/lib.rs` | `SampleSource`, `EventSink`, `RuntimeHooks`, and no_std streaming helper loops. |
 | `ferrisoxide-control-schema` | `crates/ferrisoxide-control-schema/src/lib.rs` | Production control config schema types and validation helpers; no CSV, CLI, DAQ, plotting, report rendering, controller execution, HAL, SDK, or RTOS binding behavior. |
+| `ferrisoxide-deployment` | `crates/ferrisoxide-deployment/src/lib.rs` | Deployment package manifest schema and validation helpers; no export command, runtime loader, signing, authentication, HAL, SDK, target hardware, or certification behavior. |
 | `ferrisoxide-measurements` | `crates/ferrisoxide-measurements/src/lib.rs` | Slice-based measurement functions with no allocation, file I/O, parsing, plotting, or reporting. |
 | `ferrisoxide-plot` | `crates/ferrisoxide-plot/src/lib.rs` | SVG plotting with 2D evidence overlays and optional third-axis 3D line rendering. |
 | `ferrisoxide-rule-engine` | `crates/ferrisoxide-rule-engine/src/lib.rs` | `no_std` criteria execution over slices; owned evidence API uses `alloc`, borrowed summary API avoids owned criterion/result strings and borrowed-path heap allocation for basic checks; avoids CSV parsing, TOML parsing, plotting, report rendering, file I/O, DAQ/controller I/O, HALs, and SDKs. |
@@ -96,6 +98,13 @@ Future controller-in-the-loop flow
   -> Virtual controller runs shared state-machine logic
   -> Qualification evidence and deployment package are generated
   -> RTOS/controller runtime consumes approved configs in production or verification mode
+
+Controller deployment package flow
+  -> Production control config remains separate from test verification config
+  -> Channel map links fixture/DAQ/runtime signals to logical channels and control inputs
+  -> Manifest lists required package artifacts and target profile metadata
+  -> Checksum index provides artifact drift detection only
+  -> Qualification report and SVG remain software evidence unless separately qualified
 
 Platform split
   -> Apple Silicon macOS desktop uses std, files, reports, plotting, and export workflows
@@ -181,6 +190,7 @@ Platform split
 | no_std rule boundary | `crates/ferrisoxide-rule-engine` target checks and dependency trees | Rule-engine and embedded crates compile for `aarch64-unknown-none`, and dependency trees show no desktop CSV, TOML, plotting, report, HAL, SDK, or file-I/O crates in the embedded-compatible path. |
 | Desktop-vs-embedded parity | `tests/parity/` and `crates/ferrisoxide-core/tests/rule_parity.rs` | The same waveform and rule package produce exact matching portable evidence fields from the desktop core path and embedded-compatible borrowed-rule path. |
 | SVG plotting | `crates/ferrisoxide-plot` tests and `ferrisoxide-cli` plot tests | CLI writes 2D and 3D SVG files from CSV fixtures. |
+| Deployment package format | `crates/ferrisoxide-deployment` tests and `examples/deployment-package/heated-actuator/` | Required package artifact roles are present, production/test configs remain separate, checksum index is listed, and integrity wording avoids signing/certification overclaims. |
 
 ## Dependency Strategy
 

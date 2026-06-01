@@ -20,7 +20,60 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - Cargo: `cargo 1.95.0 (f2d3ce0bd 2026-03-21)`
 - Rust: `rustc 1.95.0 (59807616e 2026-04-14)`
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
-- Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-core`, and `ferrisoxide-cli`.
+- Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, and `ferrisoxide-cli`.
+
+## M9-007 RTOS Deployment Package Format Validation Update
+
+Date: 2026-06-01
+
+Stage: Testing RTOS/controller deployment package format
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, GUI frameworks, live DAQ SDKs, HALs, RTOS SDKs, target toolchains, QEMU images, signing tools, or new third-party dependencies installed.
+- GitHub issue: #83, `M9-007 Add RTOS deployment package format`
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-deployment` | Passed | 4 deployment manifest tests passed, including heated-actuator example manifest parsing/validation, missing artifact rejection, production/test config separation, and checksum wording coverage. |
+| `cargo tree -p ferrisoxide-deployment` | Passed | Runtime dependency is existing approved `serde`; dev-dependency is existing approved `serde_json`; no CSV, TOML parsing, plotting, GUI, DAQ SDK, HAL, RTOS SDK, signing, or target hardware dependency appears. |
+| `cargo fmt --check` | Passed | Formatting clean after `cargo fmt`. |
+| `cargo test --workspace` | Passed | 169 tests passed across CLI, control schema, controller I/O, core, DAQ, deployment, embedded, measurements, plot, rule engine, rule schema, signal, simulator, verification schema, integration tests, and doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| README/deployment package/pipeline local Markdown link-target scan | Passed | Local links in README, RTOS deployment package docs, pipeline report, architecture docs, controller workflow, documentation review, deployment crate README, and deployment package README resolved. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `example_manifest_includes_required_artifacts_and_validates` | Parses `examples/deployment-package/heated-actuator/manifest.json`, validates it, and verifies all required deployment artifact roles are present. |
+| `validation_rejects_missing_required_artifact` | Confirms the validator rejects packages missing a required role such as `qualification_report`. |
+| `validation_keeps_production_and_test_configs_separate` | Confirms production control config and test verification config cannot point to the same artifact path. |
+| `checksum_index_wording_disclaims_signing_and_certification` | Confirms checksum index wording includes non-signing and certification-scope limitations. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M9-007.
+- Decision: Pass locally.
+- Reason: Focused deployment manifest tests, dependency tree review, formatting, workspace tests, clippy, Markdown local-link scan, and whitespace checks passed without adding a runtime loader, package exporter, GUI, live DAQ SDK, HAL, RTOS SDK, signing, authentication, target hardware execution, hardware qualification evidence, or certification claims.
+- Residual risk: Protected GitHub CI, PR merge, issue #83 closure, production-vs-test mode separation, config parity tests, qualification evidence schema, live DAQ SDK integration, RTOS runtime binding, target hardware validation, and certification evidence remain pending.
+- Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate M9-007 RTOS/controller deployment package format.
+Files changed: `Cargo.toml`, `crates/ferrisoxide-deployment/`, `examples/deployment-package/heated-actuator/`, README, architecture/controller workflow docs, RTOS deployment package docs, requirements, traceability, risk register, documentation review, validation log, pipeline report, changelog, and project state.
+Checks run: `cargo test -p ferrisoxide-deployment`; `cargo tree -p ferrisoxide-deployment`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; README/deployment package/pipeline local Markdown link-target scan; `git diff --check`.
+Status: Pass locally; PR, protected CI, merge, and issue #83 closure pending.
+Known gaps: No controller deployment package export command, binary package serialization, runtime loader, production-vs-test mode execution boundary, config parity suite, qualification evidence report schema, HAL/SDK integration, signing, hardware timing evidence, or certification evidence.
+Next recommended step: Open PR with `Fixes #83`, wait for required CI, and merge only after checks pass.
 
 ## TEST-001 Heated Actuator Qualification Suite Branch
 
@@ -1469,9 +1522,9 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 ### Gate Decision
 
 - Gate: Testing Gate for M9-006.
-- Decision: Pass locally.
-- Reason: Focused simulation workflow test, text smoke command, dependency tree review, formatting, workspace tests, clippy, Markdown local-link scan, and whitespace checks passed without adding GUI, live DAQ SDK, HAL, production RTOS binding, target hardware execution, hardware timing guarantees, or certification claims.
-- Residual risk: Protected GitHub CI, PR merge, issue #82 closure, deployment package format, mode separation, parity tests, qualification evidence schema, live DAQ SDK integration, RTOS runtime binding, target hardware validation, and certification evidence remain pending.
+- Decision: Pass.
+- Reason: Focused simulation workflow test, text smoke command, dependency tree review, formatting, workspace tests, clippy, Markdown local-link scan, whitespace checks, and protected PR #126 CI passed without adding GUI, live DAQ SDK, HAL, production RTOS binding, target hardware execution, hardware timing guarantees, or certification claims.
+- Residual risk: Deployment package format, mode separation, parity tests, qualification evidence schema, live DAQ SDK integration, RTOS runtime binding, target hardware validation, and certification evidence remain pending.
 - Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
 
 ### Hand-Off Note
@@ -1480,9 +1533,9 @@ Role: Test Automation Engineer / Verification and Validation Engineer
 Goal: Validate M9-006 desktop simulation workflow.
 Files changed: `crates/ferrisoxide-cli/`, `examples/simulation/heated-actuator-channel-map.toml`, README, architecture/controller workflow docs, desktop simulation docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
 Checks run: `cargo tree -p ferrisoxide-cli`; `cargo test -p ferrisoxide-cli runs_desktop_simulation_workflow_with_fixture_input`; `cargo run --quiet --bin ferrisoxide-signal -- simulate --input tests/e2e/heated_actuator/input/passing_run.csv --control-config examples/control-config/production-control-config.toml --verification-config examples/test-verification-config/test-verification-config.toml --channel-map examples/simulation/heated-actuator-channel-map.toml --format text`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; README/desktop simulation/pipeline local Markdown link-target scan; `git diff --check`.
-Status: Pass locally; PR, protected CI, merge, and issue #82 closure pending.
+Status: Pass; PR #126 merged and issue #82 closed.
 Known gaps: No deployment package, mode separation, parity tests, qualification evidence schema, live DAQ SDK, RTOS binding, hardware timing evidence, or certification evidence.
-Next recommended step: Open PR with `Fixes #82`, wait for required CI, and merge only after checks pass.
+Next recommended step: Continue M9-007 deployment package format work.
 
 ## M9-005 Controller I/O Abstraction Validation Update
 

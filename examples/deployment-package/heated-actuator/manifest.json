@@ -1,0 +1,88 @@
+{
+  "manifest_version": "0.1.0",
+  "package": {
+    "name": "heated-actuator-controller-deployment",
+    "version": "0.1.0",
+    "format_version": "0.1.0",
+    "description": "Reviewable controller-in-the-loop deployment package format example."
+  },
+  "target": {
+    "kind": "controller_runtime",
+    "identifier": "raspberry-pi-5-bare-metal",
+    "notes": [
+      "Format example for a future constrained runtime loader.",
+      "No HAL, RTOS SDK, hardware access, real-time guarantee, or certification status is implied."
+    ]
+  },
+  "generated_at": "2026-06-01T00:00:00Z",
+  "artifacts": [
+    {
+      "path": "production-control-config.toml",
+      "role": "production_control_config",
+      "media_type": "text/toml",
+      "required": true,
+      "description": "Production behavior config kept separate from test verification criteria."
+    },
+    {
+      "path": "test-verification-config.toml",
+      "role": "test_verification_config",
+      "media_type": "text/toml",
+      "required": true,
+      "description": "Qualification and production-test criteria config kept separate from production behavior."
+    },
+    {
+      "path": "channel-map.toml",
+      "role": "channel_map",
+      "media_type": "text/toml",
+      "required": true,
+      "description": "Logical channel and control-input mapping for the package."
+    },
+    {
+      "path": "manifest.json",
+      "role": "package_manifest",
+      "media_type": "application/json",
+      "required": true,
+      "description": "Deployment package manifest."
+    },
+    {
+      "path": "checksum.txt",
+      "role": "checksum_index",
+      "media_type": "text/plain",
+      "required": true,
+      "description": "Non-cryptographic artifact drift index."
+    },
+    {
+      "path": "qualification-report.json",
+      "role": "qualification_report",
+      "media_type": "application/json",
+      "required": true,
+      "description": "Software-only qualification evidence report."
+    },
+    {
+      "path": "qualification-evidence.svg",
+      "role": "qualification_evidence_svg",
+      "media_type": "image/svg+xml",
+      "required": true,
+      "description": "Human-reviewable visual evidence artifact."
+    },
+    {
+      "path": "generated-at.txt",
+      "role": "generated_at",
+      "media_type": "text/plain",
+      "required": true,
+      "description": "Generation timestamp for deterministic review."
+    }
+  ],
+  "integrity": {
+    "checksum_file": "checksum.txt",
+    "algorithm": "fnv1a64",
+    "scope": "artifact drift detection only",
+    "security_note": "non-cryptographic integrity index; not signing, authentication, certification, or tamper-proofing"
+  },
+  "scope_notes": [
+    "software validation evidence only",
+    "not hardware qualification evidence",
+    "not flight certification evidence",
+    "not a production RTOS runtime loader"
+  ]
+}

@@ -1,0 +1,170 @@
+[package]
+name = "heated-actuator-production-control"
+version = "0.1.0"
+schema_version = "0.1.0"
+description = "Software-reviewable production control config schema example."
+
+[target]
+kind = "controller_runtime"
+identifier = "raspberry-pi-5-bare-metal"
+notes = [
+  "Schema example only; not a deployed runtime package.",
+  "No HAL, DAQ, RTOS SDK, or hardware binding is implied."
+]
+
+[approval]
+status = "draft"
+evidence_refs = [
+  "tests/e2e/heated_actuator/expected/passing_report.json"
+]
+notes = [
+  "Draft example for M9-001 schema validation."
+]
+
+[timing]
+clock = "simulated"
+control_loop_period_s = 0.001
+max_loop_jitter_s = 0.0001
+startup_timeout_s = 0.500
+
+[[inputs]]
+id = "command"
+source = "virtual.command_v"
+signal = "analog_voltage"
+unit = "V"
+sample_period_s = 0.001
+
+[[inputs]]
+id = "feedback"
+source = "virtual.actuator_feedback_v"
+signal = "analog_voltage"
+unit = "V"
+sample_period_s = 0.001
+
+[[outputs]]
+id = "heater_enable"
+sink = "virtual.heater_enable"
+signal = "digital"
+unit = "bool"
+safe_state = { type = "digital", state = "low" }
+
+[[outputs]]
+id = "actuator_pwm"
+sink = "virtual.actuator_pwm"
+signal = "pwm"
+unit = "percent"
+safe_state = { type = "pwm_duty", duty_cycle = 0.0 }
+
+[[thresholds]]
+id = "command_high"
+input = "command"
+role = "high"
+value = { value = 2.5, unit = "V" }
+hysteresis = { value = 0.1, unit = "V" }
+
+[[thresholds]]
+id = "feedback_high"
+input = "feedback"
+role = "high"
+value = { value = 2.5, unit = "V" }
+hysteresis = { value = 0.1, unit = "V" }
+
+[[modes]]
+id = "normal"
+initial_state_machine = "actuator_control"
+enabled_state_machines = ["actuator_control"]
+entry_actions = ["heater_off"]
+exit_actions = ["heater_off"]
+
+[[modes]]
+id = "safe"
+initial_state_machine = "actuator_control"
+enabled_state_machines = ["actuator_control"]
+entry_actions = ["heater_off", "pwm_zero"]
+
+[[state_machines]]
+id = "actuator_control"
+initial_state = "idle"
+
+[[state_machines.states]]
+id = "idle"
+entry_actions = ["heater_off", "pwm_zero"]
+
+[[state_machines.states]]
+id = "heating"
+entry_actions = ["heater_on", "pwm_drive"]
+timeout_s = 0.100
+
+[[state_machines.states]]
+id = "faulted"
+entry_actions = ["raise_response_fault", "heater_off", "pwm_zero"]
+
+[[state_machines.transitions]]
+id = "command_to_heating"
+from = "idle"
+to = "heating"
+actions = ["heater_on", "pwm_drive"]
+condition = { type = "input_above", input = "command", threshold = "command_high" }
+
+[[state_machines.transitions]]
+id = "feedback_reached"
+from = "heating"
+to = "idle"
+actions = ["heater_off", "pwm_zero"]
+condition = { type = "input_above", input = "feedback", threshold = "feedback_high" }
+
+[[state_machines.transitions]]
+id = "response_timeout"
+from = "heating"
+to = "faulted"
+actions = ["raise_response_fault"]
+fault_response = "actuator_response_fault"
+condition = { type = "timer_elapsed", duration_s = 0.050 }
+
+[[timing_rules]]
+id = "control_loop_period"
+scope = "control_loop"
+target = "main_loop"
+max_latency_s = 0.001
+
+[[timing_rules]]
+id = "actuator_response_timeout"
+scope = "state_machine"
+target = "actuator_control"
+timeout_s = 0.050
+
+[[actions]]
+type = "set_output"
+id = "heater_on"
+output = "heater_enable"
+value = { type = "digital", state = "high" }
+
+[[actions]]
+type = "set_output"
+id = "heater_off"
+output = "heater_enable"
+value = { type = "digital", state = "low" }
+
+[[actions]]
+type = "set_output"
+id = "pwm_drive"
+output = "actuator_pwm"
+value = { type = "pwm_duty", duty_cycle = 0.75 }
+
+[[actions]]
+type = "set_output"
+id = "pwm_zero"
+output = "actuator_pwm"
+value = { type = "pwm_duty", duty_cycle = 0.0 }
+
+[[actions]]
+type = "raise_fault"
+id = "raise_response_fault"
+fault_response = "actuator_response_fault"
+
+[[fault_responses]]
+id = "actuator_response_fault"
+severity = "critical"
+latch = true
+safe_mode = "safe"
+actions = ["heater_off", "pwm_zero"]

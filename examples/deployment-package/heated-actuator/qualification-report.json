@@ -1,0 +1,99 @@
+{
+  "report_format_version": "0.1.0",
+  "report_kind": "controller_in_the_loop_qualification_evidence",
+  "overall_outcome": "pass",
+  "scope_notes": [
+    "software validation evidence only",
+    "not hardware qualification evidence",
+    "not flight certification evidence"
+  ],
+  "package": {
+    "name": "heated-actuator-controller-deployment",
+    "version": "0.1.0",
+    "manifest": "manifest.json",
+    "generated_at": "2026-06-01T00:00:00Z"
+  },
+  "configs": {
+    "production_control": {
+      "path": "production-control-config.toml",
+      "package_name": "heated-actuator-production-control",
+      "package_version": "0.1.0"
+    },
+    "test_verification": {
+      "path": "test-verification-config.toml",
+      "package_name": "heated-actuator-qualification",
+      "package_version": "0.1.0"
+    },
+    "channel_map": "channel-map.toml"
+  },
+  "simulation_trace_summary": {
+    "workflow": "fixture-driven desktop simulation",
+    "input_fixture": "tests/e2e/heated_actuator/input/passing_run.csv",
+    "mode": "normal",
+    "frames": 9,
+    "transitions": [
+      {
+        "sample_index": 3,
+        "timestamp_s": 1.0,
+        "state_machine": "actuator_control",
+        "transition": "command_to_heating",
+        "from": "idle",
+        "to": "heating"
+      },
+      {
+        "sample_index": 4,
+        "timestamp_s": 1.02,
+        "state_machine": "actuator_control",
+        "transition": "feedback_reached",
+        "from": "heating",
+        "to": "idle"
+      }
+    ]
+  },
+  "criteria": [
+    {
+      "id": "REQ-001",
+      "outcome": "pass",
+      "channel": "feedback",
+      "measured_value_s": 0.02,
+      "required_value_s": 0.05,
+      "sample_index": 4,
+      "timestamp_s": 1.02
+    },
+    {
+      "id": "REQ-002",
+      "outcome": "pass",
+      "channel": "feedback",
+      "measured_value_s": 0.68,
+      "required_value_s": 0.5,
+      "sample_index": 8,
+      "timestamp_s": 1.7
+    },
+    {
+      "id": "REQ-003",
+      "outcome": "pass",
+      "channel": "feedback",
+      "measured_value_s": 0.0,
+      "required_value_s": 0.001,
+      "sample_index": 4,
+      "timestamp_s": 1.02
+    },
+    {
+      "id": "REQ-004",
+      "outcome": "pass",
+      "channel": "supply",
+      "measured_min_v": 5.0,
+      "measured_max_v": 5.0,
+      "required_min_v": 4.75,
+      "required_max_v": 5.25,
+      "sample_index": 0,
+      "timestamp_s": 0.0
+    }
+  ],
+  "integrity": {
+    "manifest": "manifest.json",
+    "checksum_index": "checksum.txt",
+    "algorithm": "fnv1a64",
+    "security_note": "non-cryptographic integrity index; not signing, authentication, certification, or tamper-proofing"
+  }
+}
