@@ -3,6 +3,7 @@ members = [
     "crates/ferrisoxide-core",
     "crates/ferrisoxide-cli",
     "crates/ferrisoxide-control-schema",
+    "crates/ferrisoxide-daq",
     "crates/ferrisoxide-embedded",
     "crates/ferrisoxide-measurements",
     "crates/ferrisoxide-plot",

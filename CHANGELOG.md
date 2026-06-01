@@ -43,3 +43,4 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - `ferrisoxide-control-schema` crate with production control config schema types, validation helpers, and a parse-tested example config for future controller-in-the-loop workflows.
 - `ferrisoxide-verification-schema` crate with test verification config schema types, validation helpers, and a parse-tested example config for future qualification and controller-in-the-loop workflows.
 - `ferrisoxide-simulator` crate with a deterministic virtual controller simulation engine over production control configs and abstract sample frames.
+- `ferrisoxide-daq` crate with fixture/test-double DAQ sample-source abstractions for deterministic controller-in-the-loop input.

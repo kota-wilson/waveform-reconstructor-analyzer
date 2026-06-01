@@ -81,6 +81,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "ferrisoxide-daq"
+version = "0.1.0"
+dependencies = [
+ "serde",
+]
+
+[[package]]
 name = "ferrisoxide-embedded"
 version = "0.1.0"
 dependencies = [

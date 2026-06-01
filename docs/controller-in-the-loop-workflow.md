@@ -140,7 +140,7 @@ Recommended future crate/module boundaries:
 | `ferrisoxide-verification-schema` | Test verification config schema for expected transitions, limits, timing windows, evidence, and report settings. | Exists as an M9-002 schema boundary; execution remains future work. |
 | `ferrisoxide-simulator` | Desktop virtual controller simulation engine over production control config and abstract sample frames. | Exists as an M9-003 engine boundary; CLI/desktop workflow integration remains future work. |
 | `ferrisoxide-deployment` | Deployment package manifest/export model. | Future v0.7.0 work. |
-| `ferrisoxide-daq` | DAQ input abstraction, initially host/test double friendly. | Future v0.7.0 work. |
+| `ferrisoxide-daq` | DAQ input abstraction, initially host/test double friendly. | Exists as an M9-004 fixture/test-double boundary; vendor SDKs and live hardware remain future gated work. |
 | `ferrisoxide-embedded` | no_std adapter boundaries for runtime integration. | Exists as foundation. |
 | `ferrisoxide-pico-runtime` | Optional Pico 2 microcontroller adapter for compact configs, fixed buffers, threshold/timing criteria, simple filters, and GPIO/PWM actions. | Future issue #92 work; not implemented. |
 | `ferrisoxide-cli` | CLI workflows for analysis, plotting, export, and future simulation commands. | Exists. |
@@ -357,5 +357,5 @@ Goal: Define the controller-in-the-loop workflow and deployment configuration ar
 Files changed: `docs/controller-in-the-loop-workflow.md`.
 Checks run: Architecture review by inspection.
 Status: Planned architecture direction; not implemented.
-Known gaps: No DAQ abstraction, controller I/O abstraction, deployment package implementation, desktop simulation workflow, or RTOS verification runtime exists yet.
-Next recommended step: Continue M9 issues in dependency order: DAQ/controller I/O abstractions, desktop simulation workflow, deployment format, parity tests, and qualification evidence reports.
+Known gaps: No controller I/O abstraction, deployment package implementation, desktop simulation workflow, live DAQ SDK integration, or RTOS verification runtime exists yet.
+Next recommended step: Continue M9 issues in dependency order: controller I/O abstraction, desktop simulation workflow, deployment format, parity tests, and qualification evidence reports.
