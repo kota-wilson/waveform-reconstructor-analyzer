@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M10 GitHub milestone and issues were created and are now closed through PR #138. M11 GitHub milestone #11 and issues #140 through #146 are open. M12 remains local placeholders.
+Status: M10 GitHub milestone and issues are closed through PR #138. M11 GitHub milestone #11 and issues #140 through #146 are closed through PR #147. M12 remains local placeholders.
 
 ## Scope
 
@@ -15,7 +15,7 @@ It intentionally stops before external GitHub actions, implementation, dependenc
 | Milestone | Version | Proposal | Status |
 |---|---|---|---|
 | M10 | v0.8.0 | `docs/v0.8.0-transform-architecture-milestone-proposal.md` | Complete; PR #138 merged and milestone #10 closed |
-| M11 | v0.9.0 | `docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md` | GitHub milestone #11 open |
+| M11 | v0.9.0 | `docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md` | GitHub milestone #11 closed |
 | M12 | v0.10.0 | `docs/v0.10.0-event-validation-transform-milestone-proposal.md` | Proposed locally |
 
 ## M10 GitHub Issues
@@ -59,12 +59,14 @@ It intentionally stops before external GitHub actions, implementation, dependenc
 |---|---|---|---|
 | Intake Gate | Pass | User supplied transform taxonomy and requested next milestones. | Project Coordinator |
 | Issue Planning Gate | Pass for M10 | GitHub milestone #10 and issues #132 through #137 were created for M10 and are now closed. | GitHub Maintainer Specialist |
-| Issue Planning Gate | Pass for M11 | GitHub milestone #11 and issues #140 through #146 are open; M12 remains local placeholders. | GitHub Maintainer Specialist |
+| Issue Planning Gate | Pass for M11 | GitHub milestone #11 and issues #140 through #146 were created and later closed by PR #147; M12 remains local placeholders. | GitHub Maintainer Specialist |
 | Requirements Gate | Pass for proposal | WRA-RQ-070 through WRA-RQ-086 added as proposed requirements. | Software Architect |
-| Scope Gate | Pass locally | Implementation, dependencies, M11/M12 external GitHub issue creation, live DAQ, HAL/RTOS, signing, hardware validation, and certification remain gated. | Project Orchestrator |
+| Scope Gate | Pass locally | M12 external GitHub issue creation, dependencies, live DAQ, HAL/RTOS, signing, hardware validation, and certification remain gated. | Project Orchestrator |
 | Human Approval Gate | Pass for M10 issue creation | User approved M10 issue creation on 2026-06-01. | Project Coordinator |
 | Human Approval Gate | Pass for M11 issue creation and implementation | User requested continuing the pipeline with the next milestone on 2026-06-01. | Project Coordinator |
-| Implementation Gate | Pass locally for M11 | M11 implementation is local and pending PR flow; no code work has started for M12. | Core Software Engineer |
+| Implementation Gate | Pass for M11 | M11 implementation merged in PR #147; no code work has started for M12. | Core Software Engineer |
+| Release Gate | Pass for M11 | PR #147 merged after required `rust` CI passed; squash commit `793a2ab1323526b2695fa7b59a1246f2e29d9c43`. | GitHub Maintainer Specialist |
+| Community Gate | Pass for M11 | Issues #140 through #146 are closed and milestone #11 is closed with 8 closed items and 0 open items. | Project Coordinator |
 
 ## Stop Conditions
 
@@ -83,6 +85,6 @@ Role: Project Orchestrator / GitHub Maintainer Specialist
 Goal: Convert next milestone proposals into local issue placeholders.
 Files changed: This report, milestone proposals, requirements, traceability, risk, orchestration, README, architecture, and project state.
 Checks run: Documentation and traceability inspection.
-Status: M10 complete; M11 issues created and local implementation pending PR flow; M12 remains local placeholders.
-Known gaps: M11 PR/CI/issue closure/milestone closure remain pending, and M12 GitHub issue creation remains pending.
-Next recommended step: Run full validation for M11, open a PR, and close milestone #11 only after checks pass.
+Status: M10 and M11 complete; M12 remains local placeholders.
+Known gaps: M12 GitHub issue creation remains pending.
+Next recommended step: Hold before M12 issue creation until explicit approval.

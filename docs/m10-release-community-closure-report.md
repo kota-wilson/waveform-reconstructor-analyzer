@@ -34,5 +34,5 @@ Goal: Close the M10 external PR, issue, and milestone loop.
 Files changed: This report, project state, orchestration plan, M10 proposal, roadmap, issue planning report, traceability matrix, and M10-006 pipeline report.
 Checks run: `gh api` PR/milestone/issue verification; docs-only `git diff --check`.
 Status: M10 is complete; PR #138, issues #132 through #137, and milestone #10 are closed.
-Known gaps: No GitHub release tag was published; M11 is now tracked by GitHub milestone #11 and issues #140 through #146; M12 remains a local proposal.
-Next recommended step: Complete the approved M11 implementation and PR flow, then decide whether to create M12 GitHub issues.
+Known gaps: No GitHub release tag was published; M11 is complete through PR #147; M12 remains a local proposal.
+Next recommended step: Hold before M12 issue creation until explicit approval.

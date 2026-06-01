@@ -203,5 +203,5 @@ Goal: Complete M10-001 / issue #132 locally.
 Files changed: `docs/transform-capability-model.md`, `docs/analog-transform-taxonomy.md`, `docs/architecture.md`, README, requirements, traceability, project state, orchestration plan, and this report.
 Checks run: Markdown link-target check; `git diff --check`.
 Status: Complete through PR #138; issue #132 and milestone #10 are closed.
-Known gaps: M11 is now tracked by GitHub milestone #11 and issues #140 through #146; M12 remains a local proposal pending explicit approval.
-Next recommended step: Complete the approved M11 implementation and PR flow, then decide whether to create M12 GitHub issues.
+Known gaps: M11 is complete through PR #147; M12 remains a local proposal pending explicit approval.
+Next recommended step: Hold before M12 issue creation until explicit approval.

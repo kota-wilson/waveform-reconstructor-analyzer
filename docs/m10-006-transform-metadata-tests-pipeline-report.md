@@ -133,7 +133,7 @@ Out of scope:
   - `git diff --check`: Pass.
 - Gate: Testing Gate.
 - Decision: Pass locally.
-- Residual risk: None for local validation; external CI still needs to run in PR flow.
+- Residual risk: None for local validation; external CI passed later in PR #138.
 - Next owner: Verification and Validation Engineer.
 
 ## Verification And Validation
@@ -204,7 +204,7 @@ Out of scope:
 - Owner role: Evaluation Engineer
 - Decision: Pass locally.
 - Evidence: Issue #137 acceptance criteria are covered by code tests, golden artifacts, docs, requirements, traceability, and project state.
-- Residual risk: Runtime-profile validator code, embedded/no_std transform exposure, and M11/M12 implementation remain future gated work.
+- Residual risk: Runtime-profile validator code, embedded/no_std transform exposure, and M12 implementation remain future gated work; M11 is complete through PR #147.
 - Next owner: Release Engineer.
 
 ## Release
@@ -222,7 +222,7 @@ Out of scope:
 - Decision: Pass.
 - Reason: PR #138 closed issues #132 through #137 on merge, and milestone #10 was closed after verification showed 0 open items.
 - Evidence reviewed: GitHub PR #138 merged, issues #132 through #137 closed, and milestone #10 closed with 7 closed items and 0 open items.
-- Residual risk: M11/M12 issue creation remains separately gated.
+- Residual risk: M12 issue creation remains separately gated; M11 is complete through PR #147.
 - Next owner: Project Coordinator.
 
 ## Retrospective
@@ -241,5 +241,5 @@ Goal: Complete M10-006 / issue #137 locally.
 Files changed: `crates/ferrisoxide-core/src/model.rs`, `crates/ferrisoxide-core/src/filter.rs`, `crates/ferrisoxide-core/src/report.rs`, `crates/ferrisoxide-core/src/config.rs`, rule-package golden artifacts, README, docs, requirements, traceability, risk register, project state, orchestration plan, M10 proposal, and this report.
 Checks run: `cargo fmt`; `cargo fmt --check`; `cargo test -p ferrisoxide-core`; `cargo test -p ferrisoxide-cli`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; Markdown link-target check; `git diff --check`.
 Status: Complete through merged PR #138; issues #132 through #137 and milestone #10 are closed.
-Known gaps: Runtime-profile validator code, embedded/no_std transform exposure, GitHub release tagging, and M11/M12 implementation remain pending separate approval.
-Next recommended step: Decide whether to create M11 GitHub issues or hold at the completed M10 architecture boundary.
+Known gaps: Runtime-profile validator code, embedded/no_std transform exposure, GitHub release tagging, and M12 implementation remain pending separate approval; M11 is complete through PR #147.
+Next recommended step: Hold before M12 issue creation until explicit approval.

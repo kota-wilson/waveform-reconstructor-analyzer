@@ -73,7 +73,7 @@ Out of scope:
   - `docs/analog-transform-taxonomy.md` explicitly says it is planning input, not the implementation support matrix.
 - Gate: Architecture Gate.
 - Decision: Pass locally.
-- Residual risk: Runtime-profile validator code and M11/M12 implementation remain future gated work.
+- Residual risk: Runtime-profile validator code and M12 implementation remain future gated work; M11 is complete through PR #147.
 - Next owner: Abstraction Review Engineer.
 
 ## Abstraction Review

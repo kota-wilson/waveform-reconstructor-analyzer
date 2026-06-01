@@ -49,6 +49,8 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 | Local Markdown link-target scan | Passed | Local links in 25 changed Markdown files resolved. |
 | Stale M10/M11 wording scan | Passed | No stale wording found for completed M10 or approved M11 state. |
 | `git diff --check` | Passed | No whitespace errors. |
+| PR #147 protected `rust` CI | Passed | Required GitHub status check passed before merge. |
+| Milestone #11 closure | Passed | GitHub milestone #11 closed with 8 closed items and 0 open items. |
 
 ### Exact Tests Added
 
@@ -67,7 +69,7 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 - Gate: Testing and V&V Gates for M11.
 - Decision: Pass locally.
 - Reason: Known-answer transform tests, raw-preservation tests, config conversion tests, CLI JSON metadata coverage, formatting, workspace tests, clippy, local Markdown link scan, stale wording scan, and whitespace checks passed without adding dependencies, runtime exposure, live DAQ, HAL/RTOS bindings, target hardware claims, package signing, or certification claims.
-- Residual risk: Protected PR CI, PR review, issue closure, and milestone closure remain pending. High-pass baseline correction, runtime profile exposure, and portable rule-package semantics for M11 transforms remain future work.
+- Residual risk: High-pass baseline correction, runtime profile exposure, and portable rule-package semantics for M11 transforms remain future work.
 - Owner for residual risk: GitHub Maintainer Specialist / Project Coordinator.
 
 ### Hand-Off Note
@@ -75,10 +77,10 @@ Owner Role: Test Automation Engineer / Verification and Validation Engineer
 Role: Test Automation Engineer / Verification and Validation Engineer
 Goal: Validate M11 pointwise and windowed transform MVP.
 Files changed: `crates/ferrisoxide-core/src/filter.rs`, `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-core/src/model.rs`, `crates/ferrisoxide-cli/src/main.rs`, `examples/m11-transform-config.toml`, README, architecture, filter behavior, transform metadata docs, rule-package docs, roadmap, requirements, traceability, risk register, validation log, project state, orchestration plan, and M11 pipeline report.
-Checks run: `cargo test -p ferrisoxide-core`; `cargo test -p ferrisoxide-cli analyzes_config_with_m11_transforms`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; local Markdown link-target scan; stale M10/M11 wording scan; `git diff --check`.
-Status: Pass locally; PR, protected CI, issue closure, and milestone closure pending.
-Known gaps: High-pass baseline correction, runtime-profile exposure, portable rule-package semantics for M11 transforms, M12 implementation, release tag, and milestone closure remain pending.
-Next recommended step: Open the M11 PR, wait for protected CI, then merge and close milestone #11 only after issues #140 through #146 are closed.
+Checks run: `cargo test -p ferrisoxide-core`; `cargo test -p ferrisoxide-cli analyzes_config_with_m11_transforms`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; local Markdown link-target scan; stale M10/M11 wording scan; `git diff --check`; PR #147 protected `rust` CI; milestone #11 closure verification.
+Status: Pass; PR #147 merged, issues #140 through #146 closed, and milestone #11 closed.
+Known gaps: High-pass baseline correction, runtime-profile exposure, portable rule-package semantics for M11 transforms, M12 implementation, and release tag remain pending.
+Next recommended step: Hold before M12 issue creation until explicit approval.
 
 ## M9-010 Qualification Evidence Report Validation Update
 

@@ -6,9 +6,9 @@ Project folder: `/Users/kota/Desktop/codexprojects/softwaredev/projects/ferrisox
 
 Execution tier: Tier 2 MVP plus roadmap-controlled follow-on milestones
 
-Current objective: Complete M11 pointwise and windowed transform MVP through the pipeline.
+Current objective: Hold after completing M11 pointwise and windowed transform MVP through the pipeline.
 
-Current stage: M11 GitHub milestone #11 and issues #140 through #146 are open; local implementation is in progress on `m11-pointwise-windowed-transforms`.
+Current stage: M11 is complete through PR #147; issues #140 through #146 and milestone #11 are closed. M12 remains a local proposal pending explicit approval.
 
 Selected workflow: `workflows/project-orchestration-pipeline.md`
 
@@ -32,7 +32,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 |---|---|---|---|---|---|
 | M1-M9 | Validated MVP, embedded/no_std foundation, validation, plotting, measurement/evidence, DSL, portable rule package, controller simulation/deployment config | Multiple roles | Historical gates | Implemented requirements WRA-RQ-001 through WRA-RQ-069 and closed M9 | Complete |
 | M10 / v0.8.0 | Transform architecture and capability metadata | Software Architect | Human approval and issue creation | Metadata model, existing-transform mappings, compatibility tests, docs, merged PR #138, closed issues #132 through #137, closed milestone #10 | Complete |
-| M11 / v0.9.0 | Pointwise and windowed transform MVP | Core Software Engineer / Systems Engineer | M10 architecture accepted and user requested next milestone | Pointwise, baseline, moving median, metadata, raw-preservation tests, docs, PR/CI, closed issues #140 through #146, closed milestone #11 | Local implementation in progress |
+| M11 / v0.9.0 | Pointwise and windowed transform MVP | Core Software Engineer / Systems Engineer | M10 architecture accepted and user requested next milestone | Pointwise, baseline, moving median, metadata, raw-preservation tests, docs, PR #147, closed issues #140 through #146, closed milestone #11 | Complete |
 | M12 / v0.10.0 | Event and validation transform MVP | Core Software Engineer / V&V Engineer | M10 accepted and M11 compatibility path established | Event records, Schmitt trigger, debounce, glitch removal, event validation, fixtures | Local proposal |
 
 ## Zoom-Level Plan
@@ -61,7 +61,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | WRA-TASK-019 | Implement M10-005 transform docs wording update | Documentation Engineer | Issue #136 and M10 docs | README/architecture/taxonomy/filter wording cleanup, traceability updates, pipeline report | Implementation Gate | Complete locally |
 | WRA-TASK-020 | Implement M10-006 transform metadata compatibility and golden-report tests | Verification and Validation Engineer / Core Software Engineer | Issue #137, M10 metadata design, current mappings, runtime compatibility rules | Additive `transform_steps` metadata, compatibility/golden-report tests, traceability updates, pipeline report | Implementation Gate | Complete locally |
 | WRA-TASK-021 | Approve M11 and create GitHub issues | Project Coordinator / GitHub Maintainer Specialist | M11 proposal and placeholders M11-001 through M11-007 | GitHub milestone #11 and issues #140 through #146 | Human Approval Gate | Complete |
-| WRA-TASK-022 | Implement M11 pointwise/windowed transform MVP | Core Software Engineer / Systems Engineer / V&V Engineer / Documentation Engineer | Issues #140 through #146, M10 metadata model | `crates/ferrisoxide-core`, CLI config test, `examples/m11-transform-config.toml`, docs, traceability, and pipeline report | Implementation Gate | In progress locally |
+| WRA-TASK-022 | Implement M11 pointwise/windowed transform MVP | Core Software Engineer / Systems Engineer / V&V Engineer / Documentation Engineer | Issues #140 through #146, M10 metadata model | `crates/ferrisoxide-core`, CLI config test, `examples/m11-transform-config.toml`, docs, traceability, and pipeline report | Implementation/Release Gate | Complete |
 
 ## Approval Gates
 
@@ -93,11 +93,11 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 
 ## Next Role Ticket
 
-You are the Software Architect / Core Software Engineer.
+You are the Project Coordinator / Software Architect.
 
 Purpose
 
-Complete M11 implementation, validation, PR, and milestone closure without expanding scope.
+Hold after M11 completion and prepare for M12 only after explicit approval.
 
 Responsibilities
 
@@ -109,9 +109,9 @@ Responsibilities
 
 Deliverables
 
-- M11 transforms implemented for desktop analysis through the existing `[[filters]]` config path.
-- Requirements, traceability, risk, docs, tests, and pipeline reports updated for issues #140 through #146.
-- PR/CI/milestone closure handoff after validation.
+- M11 transforms are implemented for desktop analysis through the existing `[[filters]]` config path.
+- Requirements, traceability, risk, docs, tests, and pipeline reports are updated for issues #140 through #146.
+- PR #147, required `rust` CI, issue closure, and milestone #11 closure are recorded.
 - Handoff note.
 
 Expected format to receive deliverables

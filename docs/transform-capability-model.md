@@ -204,6 +204,6 @@ Role: Software Architect
 Goal: Complete M10-001 / issue #132 by defining transform capability vocabulary and matrix boundaries.
 Files changed: `docs/transform-capability-model.md`
 Checks run: Documentation and traceability review.
-Status: Updated by M11 local implementation; milestone #11 remains pending PR flow.
+Status: Updated by M11 implementation in PR #147; milestone #11 is closed.
 Known gaps: Runtime-profile validator code, M12 event/validation transform implementation, and high-pass baseline correction remain future gated work.
-Next recommended step: Run full M11 validation, open a PR, and close milestone #11 only after checks pass.
+Next recommended step: Hold before M12 issue creation until explicit approval.

@@ -49,8 +49,8 @@ Out of scope:
 - Owner role: GitHub Maintainer Specialist.
 - Gate: Issue Planning Gate.
 - Decision: Pass.
-- Evidence: GitHub milestone #11 and issues #140 through #146 are open.
-- Residual risk: Issues remain open pending PR merge.
+- Evidence: GitHub milestone #11 and issues #140 through #146 were created, then closed after PR #147 merged.
+- Residual risk: M11 issues are now closed; M12 issue creation remains separately gated.
 - Next owner: Requirements Engineer.
 
 ## Requirements
@@ -122,7 +122,7 @@ Out of scope:
   - Local Markdown link-target scan: Pass.
   - Stale M10/M11 wording scan: Pass.
   - `git diff --check`: Pass.
-- Residual risk: Protected PR CI still needs to run after the branch is pushed.
+- Residual risk: None for M11 local test coverage.
 - Next owner: Verification and Validation Engineer.
 
 ## Verification And Validation
@@ -135,7 +135,7 @@ Out of scope:
   - Tests assert raw source samples remain unchanged.
   - CLI JSON test proves config-driven M11 transforms run before criteria evaluation and emit structured metadata.
   - High-pass baseline correction is not exposed.
-- Residual risk: PR CI and maintainer feedback remain pending.
+- Residual risk: Runtime-profile exposure and portable rule-package semantics remain future work.
 - Next owner: QA Engineer.
 
 ## QA
@@ -181,7 +181,7 @@ Out of scope:
 - Gate: Code Review Gate.
 - Decision: Pass locally.
 - Evidence: Changes are scoped to desktop transform implementation, config conversion, metadata, docs, and tests.
-- Residual risk: PR review and protected branch checks remain pending.
+- Residual risk: Future reviews should keep M12 event/validation work out of M11 closure artifacts.
 - Next owner: Evaluation Engineer.
 
 ## Evaluation
@@ -190,45 +190,43 @@ Out of scope:
 - Gate: Evaluation Gate.
 - Decision: Pass locally.
 - Evidence: Acceptance criteria are mapped in requirements and traceability; validation covers transform behavior, raw preservation, metadata emission, formatting, clippy, local links, and stale wording.
-- Residual risk: PR/CI and issue closure remain pending.
+- Residual risk: Release tag and M12 issue creation remain pending.
 - Next owner: Release Engineer.
 
 ## Release
 
 - Owner role: Release Engineer.
 - Gate: Release Gate.
-- Decision: Pending.
-- Reason: No M11 PR has been opened or merged yet.
-- Evidence reviewed: Local implementation and partial test output.
-- Residual risk: GitHub issues #140 through #146 remain open until a PR merges.
+- Decision: Pass.
+- Evidence reviewed: PR #147 merged after required `rust` CI passed; squash commit `793a2ab1323526b2695fa7b59a1246f2e29d9c43`.
+- Residual risk: No GitHub release tag was published for M11.
 - Next owner: GitHub Maintainer Specialist.
 
 ## Community
 
 - Owner role: GitHub Maintainer Specialist.
 - Gate: Community Gate.
-- Decision: Pending.
-- Reason: Milestone #11 remains open.
-- Evidence reviewed: GitHub milestone #11 and issues #140 through #146.
-- Residual risk: Maintainer feedback, CI status, merge, issue closure, and milestone closure remain pending.
+- Decision: Pass.
+- Evidence reviewed: Issues #140 through #146 are closed; PR #147 is closed and merged; milestone #11 is closed with 8 closed items and 0 open items.
+- Residual risk: M12 issue creation remains separately gated.
 - Next owner: Project Coordinator.
 
 ## Retrospective
 
 - Owner role: Project Coordinator.
 - Gate: Retrospective Gate.
-- Decision: Not Applicable for local slice.
-- Reason: A milestone retrospective should be created only after M11 PR/release flow if requested.
-- Evidence reviewed: Local pipeline report.
-- Residual risk: Lessons learned may be added after PR merge.
+- Decision: Not Applicable.
+- Reason: No separate retrospective artifact was requested for M11; this pipeline report and validation log preserve the handoff and closure evidence.
+- Evidence reviewed: PR #147, closed issues #140 through #146, closed milestone #11, validation log, and this pipeline report.
+- Residual risk: Lessons learned can be added later if the project starts a retrospective cycle.
 - Next owner: Release Engineer.
 
 ## Hand-Off Note
 
 Role: Core Software Engineer / Systems Engineer / Verification and Validation Engineer
-Goal: Complete M11 pointwise and windowed transform MVP locally.
+Goal: Complete M11 pointwise and windowed transform MVP through release and community closure.
 Files changed: `crates/ferrisoxide-core/src/filter.rs`, `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-core/src/model.rs`, `crates/ferrisoxide-cli/src/main.rs`, `examples/m11-transform-config.toml`, README, docs, requirements, traceability, project state, orchestration plan, and this report.
-Checks run: `cargo test -p ferrisoxide-core`; `cargo test -p ferrisoxide-cli analyzes_config_with_m11_transforms`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; local Markdown link-target scan; stale M10/M11 wording scan; `git diff --check`.
-Status: Implemented and validated locally; PR, CI, issue closure, and milestone closure pending.
-Known gaps: High-pass baseline correction, runtime-profile exposure, rule-package transform semantics, M12 implementation, release tag, and milestone closure remain pending.
-Next recommended step: Open a PR, wait for protected CI, then close milestone #11 only after the PR merges and issues #140 through #146 are closed.
+Checks run: `cargo test -p ferrisoxide-core`; `cargo test -p ferrisoxide-cli analyzes_config_with_m11_transforms`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; local Markdown link-target scan; stale M10/M11 wording scan; `git diff --check`; PR #147 protected `rust` CI; milestone #11 closure verification.
+Status: Complete; PR #147 merged, issues #140 through #146 closed, and milestone #11 closed.
+Known gaps: High-pass baseline correction, runtime-profile exposure, rule-package transform semantics, M12 implementation, and release tag remain pending.
+Next recommended step: Hold before M12 issue creation until explicit approval.

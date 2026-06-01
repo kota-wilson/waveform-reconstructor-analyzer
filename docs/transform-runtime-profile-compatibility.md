@@ -98,9 +98,9 @@ Current transform mappings come from `docs/current-transform-metadata-mapping.md
 
 This matrix does not remove existing desktop analysis support. It only prevents runtime/deployment overclaims.
 
-## Future M11/M12 Compatibility Direction
+## Runtime Compatibility Direction
 
-| Planned Area | Expected First Profile | Embedded Exposure Direction |
+| Transform Area | Expected First Profile | Embedded Exposure Direction |
 |---|---|---|
 | Pointwise transforms | `desktop` | Pi 5/Pico exposure only after no_std or fixed-buffer implementation and parity evidence. |
 | Baseline transforms | `desktop` | `dc_remove` remains offline-only; other baseline transforms need resource and timing review before runtime exposure. |
