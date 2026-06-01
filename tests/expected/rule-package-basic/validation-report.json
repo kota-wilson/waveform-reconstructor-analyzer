@@ -31,6 +31,39 @@
     "transform_history": [
       "moving_average(window_samples=2)"
     ],
+    "transform_steps": [
+      {
+        "sequence_index": 0,
+        "history_label": "moving_average(window_samples=2)",
+        "name": "moving_average",
+        "category": "WindowedTransform",
+        "input_channels": {
+          "kind": "all_channels"
+        },
+        "output_channels": {
+          "kind": "derived_channels",
+          "preserves_names": true
+        },
+        "parameters": [
+          {
+            "name": "window_samples",
+            "value": 2,
+            "unit": "samples"
+          }
+        ],
+        "sample_rate_required": false,
+        "stateful": true,
+        "causal": true,
+        "phase_effect": "delay",
+        "streaming_supported": true,
+        "offline_only": false,
+        "runtime_profiles": [
+          "desktop"
+        ],
+        "capability_status": "implemented",
+        "evidence_level": "golden_report_tested"
+      }
+    ],
     "tolerance_policy": {
       "voltage_v": 0.0,
       "time_s": 0.0

@@ -27,7 +27,7 @@ The main repository is `kota-wilson/ferrisoxide`. The current CLI binary is stil
 - [Quick Start](#quick-start)
 - [CSV Inputs](#csv-inputs)
 - [Configuration Files](#configuration-files)
-- [Filters And ADC Quantization](#filters-and-adc-quantization)
+- [Transforms, Filters, And ADC Quantization](#transforms-filters-and-adc-quantization)
 - [Criteria And Measurements](#criteria-and-measurements)
 - [Reports](#reports)
 - [SVG Plotting](#svg-plotting)
@@ -105,7 +105,7 @@ FerrisOxide is useful when signal review needs to be repeatable, inspectable, an
 | Evidence-rich failures | Reports include measured value, required value, sample index, timestamp, channel, and reason. |
 | Human and machine output | Text is readable in a terminal; JSON is suitable for golden tests and automation. |
 | Visual evidence | SVG plots can show waveform traces, threshold overlays, and failed-criterion markers. |
-| Raw-data preservation | Filters and ADC quantization produce derived waveforms instead of mutating source data. |
+| Raw-data preservation | Implemented transforms produce derived waveforms instead of mutating source data. |
 | Desktop-to-embedded direction | Rule schema and rule engine work is structured so future runtimes can share semantics. |
 | Scope discipline | The repo explicitly separates software validation evidence from hardware qualification or certification claims. |
 
@@ -118,8 +118,9 @@ Implemented today:
 - Rust Cargo workspace.
 - CSV waveform loading.
 - Named time and channel mapping.
-- Waveform metadata for units, source, sample count, sample interval, nominal sample rate, lineage, transform history, validation context, and tolerance policy.
+- Waveform metadata for units, source, sample count, sample interval, nominal sample rate, lineage, legacy transform history, structured transform steps, validation context, and tolerance policy.
 - Moving-average, first-order low-pass, and ideal ADC quantization transforms.
+- Transform architecture docs that classify current support, planned transform families, and runtime compatibility boundaries.
 - Measurement primitives for extrema, state transitions, pulse width, stable-state duration, transient duration, and rise/fall time.
 - Criteria for min/max voltage, state transitions, response latency, pulse width, transient events, stable-state duration, and rise/fall time.
 - TOML config parsing with clear errors for invalid config.
@@ -168,7 +169,9 @@ The repo intentionally does not claim or implement:
 - Live DAQ integration.
 - Vendor DAQ SDK support.
 - Hardware control.
+- HAL or RTOS SDK adapters.
 - Hardware-in-the-loop execution.
+- Hardware validation.
 - Production RTOS runtime.
 - Certified aerospace validation.
 - Safety certification.
@@ -579,15 +582,23 @@ cargo run --quiet --bin ferrisoxide-signal -- analyze \
 
 Use config files for repeatable engineering evidence. Use CLI flags for quick local exploration.
 
-## Filters And ADC Quantization
+## Transforms, Filters, And ADC Quantization
 
-Filters are ordered pre-criteria transforms. They produce derived waveform data and preserve the raw input.
+FerrisOxide currently implements three ordered pre-criteria transforms. They are exposed through the existing `[[filters]]` config table for compatibility, but the architecture treats them as transform capabilities that produce derived waveform data and preserve the raw input.
+
+The broader transform taxonomy is planning input, not implemented support. See [analog transform taxonomy](docs/analog-transform-taxonomy.md), [transform capability model](docs/transform-capability-model.md), [structured transform metadata](docs/structured-transform-metadata.md), [current transform metadata mapping](docs/current-transform-metadata-mapping.md), and [transform runtime profile compatibility](docs/transform-runtime-profile-compatibility.md) for the M10 vocabulary, support-status, metadata, and runtime-boundary direction.
 
 | Transform | Config type | Purpose |
 |---|---|---|
 | Moving average | `moving_average` | Smooth samples with a trailing window that includes the current sample. |
 | First-order low-pass | `low_pass` | Apply a simple low-pass smoothing model over a strictly increasing time axis. |
 | Ideal ADC quantization | `adc_quantize` | Clip and snap analog values to ideal ADC code levels before criteria evaluation. |
+
+Timing and unit assumptions remain transform-specific:
+
+- Moving average uses a sample-count window and does not require a nominal sample rate.
+- Low-pass uses a cutoff in hertz and requires a strictly increasing time axis.
+- ADC quantization uses a configured voltage range and outputs volts; it is not a calibrated physical ADC model.
 
 Example ADC quantization config:
 
@@ -1194,6 +1205,16 @@ Start here:
 - [Report schema](docs/report-schema.md)
 - [Criteria DSL](docs/criteria-dsl.md)
 - [Criteria DSL migration](docs/criteria-dsl-migration.md)
+- [Analog transform taxonomy](docs/analog-transform-taxonomy.md)
+- [Transform capability model](docs/transform-capability-model.md)
+- [Structured transform metadata](docs/structured-transform-metadata.md)
+- [Current transform metadata mapping](docs/current-transform-metadata-mapping.md)
+- [Transform runtime profile compatibility](docs/transform-runtime-profile-compatibility.md)
+- [Next milestones roadmap](docs/next-milestones-roadmap.md)
+- [v0.8.0 transform architecture proposal](docs/v0.8.0-transform-architecture-milestone-proposal.md)
+- [v0.9.0 pointwise/windowed transform proposal](docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md)
+- [v0.10.0 event/validation transform proposal](docs/v0.10.0-event-validation-transform-milestone-proposal.md)
+- [Next milestones issue planning report](docs/next-milestones-issue-planning-report.md)
 - [Measurements](docs/measurements.md)
 - [Filter behavior](docs/filter-behavior.md)
 - [ADC quantization](docs/adc-quantization.md)

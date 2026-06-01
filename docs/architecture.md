@@ -151,13 +151,22 @@ Platform split
 ## Transform Assumptions
 
 - Raw waveform data is preserved.
-- Filters and ADC quantization return derived waveform outputs.
-- Derived waveform metadata records transform history so reports can show which data was evaluated.
+- Current implemented transforms are moving average, first-order low-pass, and ideal ADC quantization.
+- Current user-facing config keeps the legacy `[[filters]]` table name, but architecture documents these as transform capabilities.
+- Implemented filters and ADC quantization return derived waveform outputs.
+- Derived waveform metadata records legacy `transform_history` and structured `transform_steps` so reports can show which data was evaluated.
 - Moving average uses a trailing window that includes the current sample.
 - Low-pass uses a simple first-order smoothing implementation over a strictly increasing time axis.
 - ADC quantization uses an ideal endpoint-inclusive code model, clips outside the configured voltage range, and keeps output values in volts for downstream criteria.
 - M1 filter chains use config-driven enum pipeline steps; trait-based extension is deferred behind the implementation boundary.
 - Edge behavior, latency, and sample-rate assumptions must be documented before filter algorithms are considered production-stable.
+- Future transform work is organized by the planning taxonomy in `docs/analog-transform-taxonomy.md`; not every named transform is implemented.
+- The transform taxonomy is not a support matrix; implemented/planned/research/gated status lives in `docs/transform-capability-model.md`.
+- Next transform work is proposed as M10 transform capability metadata, M11 pointwise/windowed transforms, and M12 event/validation transforms in `docs/next-milestones-roadmap.md`; implementation requires fresh GitHub issues and gates.
+- Transform category, metadata, runtime profile, support-status, and evidence-level vocabulary is defined in `docs/transform-capability-model.md`.
+- Structured transform report metadata is defined in `docs/structured-transform-metadata.md`; existing `transform_history` remains the compatibility field, and `transform_steps` is emitted only when non-empty.
+- Current moving average, low-pass, and ADC quantization mappings to structured metadata values are defined in `docs/current-transform-metadata-mapping.md`.
+- Runtime profile compatibility rules for transform exposure are defined in `docs/transform-runtime-profile-compatibility.md`; current implemented transforms remain desktop-only for runtime exposure until no_std/fixed-buffer/parity evidence exists.
 - Implemented transform equations are documented in `docs/filter-behavior.md`.
 - Time-axis validation and tolerance semantics are documented in `docs/time-axis-and-tolerances.md`.
 - Embedded adapters are bounded by `ferrisoxide-embedded`; `ferrisoxide-signal` remains runtime-independent.

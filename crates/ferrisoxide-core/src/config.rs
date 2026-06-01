@@ -981,6 +981,53 @@ mod tests {
     }
 
     #[test]
+    fn legacy_filter_config_covers_current_transform_types() {
+        let config: AnalysisConfig = toml::from_str(
+            r#"
+[input]
+time_column = "time"
+channels = ["input_v"]
+
+[[filters]]
+type = "moving_average"
+window_samples = 2
+
+[[filters]]
+type = "low_pass"
+cutoff_hz = 25.0
+
+[[filters]]
+type = "adc_quantize"
+bits = 12
+min_v = 0.0
+max_v = 5.0
+
+[[criteria]]
+id = "input_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 5.5
+"#,
+        )
+        .expect("legacy filter config should deserialize");
+
+        let filters = config.filters().expect("filters should convert");
+
+        assert_eq!(
+            filters,
+            vec![
+                FilterStep::MovingAverage(MovingAverageFilter { window_samples: 2 }),
+                FilterStep::LowPass(LowPassFilter { cutoff_hz: 25.0 }),
+                FilterStep::AdcQuantize(AdcQuantizer {
+                    bits: 12,
+                    min_v: 0.0,
+                    max_v: 5.0,
+                }),
+            ]
+        );
+    }
+
+    #[test]
     fn rejects_invalid_tolerance_config() {
         let config = AnalysisConfig {
             input: InputConfig {

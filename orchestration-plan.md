@@ -2,13 +2,13 @@
 
 Project: FerrisOxide
 
-Project folder: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
+Project folder: `/Users/kota/Desktop/codexprojects/softwaredev/projects/ferrisoxide`
 
-Execution tier: Tier 2 MVP implementation
+Execution tier: Tier 2 MVP plus roadmap-controlled follow-on milestones
 
-Current objective: Route the validated dependency-free MVP slice toward dependency review, reporting/config planning, or release gating.
+Current objective: Complete M10 transform architecture issues sequentially; M10-001 through M10-006 are implemented in PR #138.
 
-Current stage: Dependency-free MVP slice validated
+Current stage: M10 GitHub milestone #10, issues #132 through #137, and PR #138 are open; PR #138 references issues #132 through #137 for closure on merge.
 
 Selected workflow: `workflows/project-orchestration-pipeline.md`
 
@@ -22,90 +22,100 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 - Risk register: `risk-register.md`
 - Traceability matrix: `traceability-matrix.md`
 - Project state: `project-state.md`
+- Transform taxonomy: `docs/analog-transform-taxonomy.md`
+- Next milestone roadmap: `docs/next-milestones-roadmap.md`
 - Selected standards: Rust, signal-processing, open-source library, data-analysis, environment, granularity.
 
 ## Milestones
 
 | Milestone | Goal | Owner Role | Entry Gate | Exit Evidence | Status |
 |---|---|---|---|---|---|
-| M1 | MVP foundation: data model, CSV parser interface, waveform model, CLI analysis path | Core Software Engineer | Architecture Gate | Passing Cargo tests and docs | Complete |
-| M2 | Filtering MVP: low-pass and moving average | Systems Engineer | M1 tests pass | Filter tests and CLI smoke run | Complete |
-| M3 | Criteria and reporting MVP | Core Software Engineer | M2 tests pass | Pass/fail analysis tests and text report example | Complete |
-| M4 | QA, docs, and release readiness | QA / Docs / Release | Validation passes | Release readiness report | Blocked pending license/publication decision |
+| M1-M9 | Validated MVP, embedded/no_std foundation, validation, plotting, measurement/evidence, DSL, portable rule package, controller simulation/deployment config | Multiple roles | Historical gates | Implemented requirements WRA-RQ-001 through WRA-RQ-069 and closed M9 | Complete |
+| M10 / v0.8.0 | Transform architecture and capability metadata | Software Architect | Human approval and issue creation | Metadata model, existing-transform mappings, compatibility tests, docs | PR #138 open under milestone #10 |
+| M11 / v0.9.0 | Pointwise and windowed transform MVP | Core Software Engineer / Systems Engineer | M10 architecture accepted | Pointwise, baseline, moving median, metadata, raw-preservation tests | Proposed locally |
+| M12 / v0.10.0 | Event and validation transform MVP | Core Software Engineer / V&V Engineer | M10 accepted and M11 compatibility path established | Event records, Schmitt trigger, debounce, glitch removal, event validation, fixtures | Proposed locally |
 
 ## Zoom-Level Plan
 
 | Stage | Expected Level | Required Artifacts | Abstraction Review Needed |
 |---|---:|---|---|
-| Architecture | 1-3 | Modules, crates, APIs, tests, risks | Yes |
-| Implementation | 3-5 | Files, structs, traits, functions, tests | Yes |
-| Testing | 3-5 | Test files, fixtures, commands, expected results | No |
+| M10 architecture | 1-3 | Capability model, metadata fields, runtime profiles, compatibility path, tests | Yes |
+| M10 implementation | 3-5 | Files, structs/enums, config adapters, report fields, tests | Yes |
+| M11 implementation | 3-5 | Transform modules, config validation, CLI/report integration, fixtures | Yes |
+| M12 implementation | 3-5 | Event records, validation records, known-answer fixtures, parity tests | Yes |
 
 ## Task Queue
 
 | Task ID | Task | Owner Role | Inputs | Deliverables | Gate | Status |
 |---|---|---|---|---|---|---|
-| WRA-TASK-001 | Create project creation package | Project Coordinator | User request | Charter, requirements, risk, traceability, state | Project Creation Gate | Complete |
-| WRA-TASK-002 | Create architecture and MVP plan | Software Architect | Requirements and domain standards | `docs/architecture.md`, `docs/mvp-plan.md` | Architecture Gate | Complete |
-| WRA-TASK-003 | Review abstraction level | Abstraction Review Engineer | Architecture and MVP plan | `docs/abstraction-review.md` | Granularity Gate | Complete |
-| WRA-TASK-004 | Implement M1 foundation | Core Software Engineer | Architecture, skeleton | Data model, parser interface, CLI tests | Implementation Gate | Complete |
-| WRA-TASK-005 | Validate M1 | Test Automation Engineer | M1 implementation | Cargo test/fmt/clippy evidence | Testing Gate | Complete |
-| WRA-TASK-006 | Implement dependency-free M2/M3 continuation | Core Software Engineer / Systems Engineer | User approval to continue without dependencies | Filters, criteria evaluator, text report, CLI smoke path | Implementation Gate | Complete |
-| WRA-TASK-007 | Validate dependency-free M2/M3 continuation | Test Automation Engineer | M2/M3 implementation | 12 passing tests, fmt, clippy, CLI smoke evidence | Testing Gate | Complete |
-| WRA-TASK-008 | Decide dependency and publication path | Project Orchestrator / Security Engineer / Release Engineer | Current validation package | Dependency proposal or release readiness report | Dependency / Release Gate | Pending |
+| WRA-TASK-009 | Create next milestone roadmap | Project Coordinator / Product Architect | Taxonomy and project state | `docs/next-milestones-roadmap.md` | Roadmap Gate | Complete locally |
+| WRA-TASK-010 | Create M10 transform architecture proposal | Software Architect | Taxonomy, current filter/config/report model | `docs/v0.8.0-transform-architecture-milestone-proposal.md`; WRA-RQ-070 through WRA-RQ-074 | Requirements Gate | Complete locally |
+| WRA-TASK-011 | Create M11 pointwise/windowed transform proposal | Software Architect / Systems Engineer | M10 scope and taxonomy | `docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md`; WRA-RQ-075 through WRA-RQ-080 | Requirements Gate | Complete locally |
+| WRA-TASK-012 | Create M12 event/validation transform proposal | Software Architect / V&V Engineer | M10 scope and switch/test-validation taxonomy | `docs/v0.10.0-event-validation-transform-milestone-proposal.md`; WRA-RQ-081 through WRA-RQ-086 | Requirements Gate | Complete locally |
+| WRA-TASK-013 | Convert proposals into local issue placeholders | GitHub Maintainer Specialist | M10-M12 proposals | `docs/next-milestones-issue-planning-report.md` | Issue Planning Gate | Complete locally |
+| WRA-TASK-014 | Approve M10 and create GitHub issues | Project Coordinator / GitHub Maintainer Specialist | M10 proposal and placeholders M10-001 through M10-006 | GitHub milestone #10 and issues #132 through #137 | Human Approval Gate | Complete |
+| WRA-TASK-015 | Implement M10-001 transform capability vocabulary | Software Architect / Documentation Engineer | Issue #132 | `docs/transform-capability-model.md`, docs links, traceability updates, pipeline report | Implementation Gate | Complete locally |
+| WRA-TASK-016 | Implement M10-002 structured transform metadata design | Software Architect / Documentation Engineer | Issue #133 and M10-001 vocabulary | `docs/structured-transform-metadata.md`, report-schema note, docs links, traceability updates, pipeline report | Implementation Gate | Complete locally |
+| WRA-TASK-017 | Implement M10-003 current transform metadata mappings | Systems Engineer / Documentation Engineer | Issue #134, M10-001 vocabulary, M10-002 design | `docs/current-transform-metadata-mapping.md`, docs links, traceability updates, pipeline report | Implementation Gate | Complete locally |
+| WRA-TASK-018 | Implement M10-004 runtime profile compatibility rules | Embedded RTOS Engineer / Documentation Engineer | Issue #135 and current mappings | `docs/transform-runtime-profile-compatibility.md`, docs links, traceability updates, pipeline report | Implementation Gate | Complete locally |
+| WRA-TASK-019 | Implement M10-005 transform docs wording update | Documentation Engineer | Issue #136 and M10 docs | README/architecture/taxonomy/filter wording cleanup, traceability updates, pipeline report | Implementation Gate | Complete locally |
+| WRA-TASK-020 | Implement M10-006 transform metadata compatibility and golden-report tests | Verification and Validation Engineer / Core Software Engineer | Issue #137, M10 metadata design, current mappings, runtime compatibility rules | Additive `transform_steps` metadata, compatibility/golden-report tests, traceability updates, pipeline report | Implementation Gate | Complete locally |
 
 ## Approval Gates
 
 | Gate | Trigger | Required Approver | Evidence Needed | Status |
 |---|---|---|---|---|
-| Architecture approval | Before expanding implementation beyond skeleton | User / Technical Director | Architecture, MVP plan, risks, acceptance criteria | Passed for std-only MVP continuation |
-| Dependency approval | Before adding third-party crates | User / Security Engineer | Dependency reason, license, alternatives | Pending |
-| Release approval | Before public repository publication | User / Release Engineer | Validation, docs, license confirmation | Pending |
+| M10 issue creation approval | Before creating GitHub issues for transform metadata | User / Project Coordinator | M10 proposal, requirements, risk, traceability, issue placeholders | Passed |
+| M10 implementation approval | Before editing code for transform metadata | User / Project Coordinator | GitHub milestone #10, issues #132-#137, user request to start completing open issues through the pipeline | Passed for local implementation |
+| Dependency approval | Before adding third-party crates | User / Security Engineer | Dependency reason, license, alternatives, no_std impact | Pending |
+| Schema compatibility approval | Before incompatible report/config schema changes | Project Coordinator / V&V Engineer | Migration plan, golden tests, compatibility statement | Pending |
+| Hardware/runtime approval | Before live DAQ, HAL, RTOS SDK, target hardware, unsafe FFI, or global setup | User / Technical Director | Environment plan, risk review, rollback plan, validation scope | Pending |
 
 ## Risks To Monitor
 
 | Risk | Owner | Mitigation | Review Trigger |
 |---|---|---|---|
-| CSV dialect variability | Software Architect | Explicit dialect MVP and fixtures | Parser work |
-| Filter misinterpretation | Systems Engineer | Document units and filter assumptions | Filter work |
-| Scope creep | Project Coordinator | Enforce non-goals | Milestone planning |
-| Dependency risk | Security Engineer | Dependency gate | Dependency proposal |
+| Taxonomy overclaiming | Product Architect / Documentation Engineer | Evidence-level metadata and docs that separate implemented, planned, research, and gated support | Transform docs or roadmap changes |
+| Report/config compatibility drift | Core Software Engineer / Documentation Engineer | Additive metadata first; golden-report and config compatibility tests | M10 implementation |
+| Baseline transforms hiding real failures | Systems Engineer / V&V Engineer | Preserve raw data, require transform metadata and known-answer fixtures | M11 implementation |
+| Desktop/embedded event drift | Embedded RTOS Engineer / V&V Engineer | Shared deterministic logic where practical and parity tests | M12 implementation |
 
 ## State Updates Required
 
-- Project state after every milestone.
-- Risk register when data, dependencies, or scope changes.
-- Traceability matrix after implementation and tests.
-- Decision records for license, CSV dependency, and config format.
+- Update project state after every milestone stage.
+- Update risk register when transform scope, report schema, runtime profiles, or validation claims change.
+- Update traceability matrix after requirements, implementation, and tests.
+- Update documentation before any public support claim.
+- Record durable architecture decisions if M10 changes public config or report strategy.
 
 ## Next Role Ticket
 
-You are the Project Orchestrator.
+You are the Software Architect / Core Software Engineer.
 
 Purpose
 
-Route the validated dependency-free MVP slice to the next explicit gate.
+Monitor PR #138 CI/review and prepare merge/milestone-closure handoff when checks pass and the merge gate is approved.
 
 Responsibilities
 
 - Keep changes inside this project.
 - Do not add third-party crates without dependency approval.
-- Do not publish externally without license and release approval.
-- Choose whether next work is config parsing, production CSV support, report export, or release readiness.
-- Preserve validation evidence and update traceability after the next milestone.
+- Do not create additional GitHub milestones/issues without approval.
+- Do not start M11 or M12 implementation before M10 metadata architecture is accepted through PR/release flow or explicit user approval.
+- Preserve raw waveform data and avoid unsupported algorithm, hardware, runtime, or certification claims.
 
 Deliverables
 
-- Dependency proposal, release readiness report, or next implementation ticket.
-- Updated gate decision.
+- PR #138 CI/review status and merge/milestone-closure handoff when approved.
+- Requirements, traceability, risk, docs, tests, and pipeline reports updated for issues #132 through #137.
 - Handoff note.
 
-Expected format to recieve deliverables
+Expected format to receive deliverables
 
 Use the shared handoff note format from root `AGENTS.md`.
 
 ## Stop Conditions
 
+- Stop before incompatible report/config schema changes without schema compatibility approval.
 - Stop before adding dependencies.
-- Stop before GUI, DAQ, certification, or cloud work.
-- Stop before public repository publication.
+- Stop before live DAQ, HAL, RTOS SDK, unsafe FFI, target hardware, GUI, plugin runtime, binary package signing, hardware validation, certification, or public production-readiness claims.

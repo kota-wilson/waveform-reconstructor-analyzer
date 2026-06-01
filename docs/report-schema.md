@@ -1,6 +1,6 @@
 # Analysis Report Schema
 
-Date: 2026-05-31
+Date: 2026-06-01
 
 ## Scope
 
@@ -34,7 +34,20 @@ This document describes the MVP JSON report shape used by golden tests and valid
 | `nominal_sample_rate_hz` | number or null | Derived sample rate when the time unit is seconds and the nominal interval is positive. |
 | `lineage` | `raw` or `derived` | Whether criteria evaluated raw parsed samples or a derived waveform. |
 | `transform_history` | array | Ordered transform descriptions applied before criteria evaluation. |
+| `transform_steps` | array, omitted when empty | Structured transform metadata emitted for transformed waveforms. |
 | `tolerance_policy` | object or null | Voltage/time tolerance policy attached to the analyzed waveform. |
+
+## Structured Transform Metadata Field
+
+M10-006 implements the additive `waveform_metadata.transform_steps` field described in `docs/structured-transform-metadata.md`. The compatibility rule is:
+
+- Keep `transform_history` unchanged.
+- Emit `transform_steps` only when at least one structured transform record exists.
+- Do not remove or rename existing waveform metadata fields.
+- Skip `transform_steps` for raw or untransformed waveform reports unless a later schema migration explicitly changes that rule.
+- Update exact golden reports whenever structured transform metadata intentionally changes.
+
+Current transform records cover `moving_average`, `low_pass`, and `adc_quantize`. Each record includes `sequence_index`, `history_label`, `name`, `category`, channel behavior, parameters with units, sample-rate requirement, statefulness, causality, phase effect, streaming/offline flags, runtime profile, capability status, and evidence level.
 
 ## Evidence Context Fields
 

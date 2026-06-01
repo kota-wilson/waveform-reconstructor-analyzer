@@ -43,8 +43,8 @@
       "path": "validation-report.json",
       "role": "validation_report",
       "media_type": "application/json",
-      "checksum": "fnv1a64:e4db162a9bf1f569",
-      "byte_length": 3115
+      "checksum": "fnv1a64:8a05b3088bb49ca5",
+      "byte_length": 4007
     }
   ]
 }

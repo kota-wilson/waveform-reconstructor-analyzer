@@ -1,5 +1,8 @@
 use crate::error::{Result, WaveformError};
-use crate::model::{Channel, Waveform};
+use crate::model::{
+    Channel, TransformCategory, TransformParameterMetadata, TransformPhaseEffect,
+    TransformStepMetadata, Waveform,
+};
 
 const TAU: f64 = std::f64::consts::PI * 2.0;
 const MAX_ADC_BITS: u8 = 24;
@@ -69,15 +72,27 @@ impl Filter for MovingAverageFilter {
             })
             .collect();
 
+        let history_label = format!("moving_average(window_samples={})", self.window_samples);
+        let transform_step = TransformStepMetadata::implemented_desktop(
+            history_label,
+            "moving_average",
+            TransformCategory::Windowed,
+            vec![TransformParameterMetadata::integer(
+                "window_samples",
+                self.window_samples as u64,
+                "samples",
+            )],
+            false,
+            true,
+            TransformPhaseEffect::Delay,
+        );
+
         Ok(Waveform::new_with_time_unit(
             waveform.time.clone(),
             waveform.time_unit.clone(),
             channels,
         )?
-        .as_derived_from(
-            waveform,
-            format!("moving_average(window_samples={})", self.window_samples),
-        ))
+        .as_derived_from_with_transform_step(waveform, transform_step))
     }
 }
 
@@ -110,12 +125,27 @@ impl Filter for LowPassFilter {
             })
             .collect();
 
+        let history_label = format!("low_pass(cutoff_hz={})", self.cutoff_hz);
+        let transform_step = TransformStepMetadata::implemented_desktop(
+            history_label,
+            "low_pass",
+            TransformCategory::FrequencyFilter,
+            vec![TransformParameterMetadata::float(
+                "cutoff_hz",
+                self.cutoff_hz,
+                "Hz",
+            )],
+            true,
+            true,
+            TransformPhaseEffect::Delay,
+        );
+
         Ok(Waveform::new_with_time_unit(
             waveform.time.clone(),
             waveform.time_unit.clone(),
             channels,
         )?
-        .as_derived_from(waveform, format!("low_pass(cutoff_hz={})", self.cutoff_hz)))
+        .as_derived_from_with_transform_step(waveform, transform_step))
     }
 }
 
@@ -152,18 +182,30 @@ impl Filter for AdcQuantizer {
             })
             .collect::<Result<Vec<_>>>()?;
 
+        let history_label = format!(
+            "adc_quantize(bits={},min_v={},max_v={})",
+            self.bits, self.min_v, self.max_v
+        );
+        let transform_step = TransformStepMetadata::implemented_desktop(
+            history_label,
+            "adc_quantize",
+            TransformCategory::Quantization,
+            vec![
+                TransformParameterMetadata::integer("bits", self.bits as u64, "bits"),
+                TransformParameterMetadata::float("min_v", self.min_v, "V"),
+                TransformParameterMetadata::float("max_v", self.max_v, "V"),
+            ],
+            false,
+            false,
+            TransformPhaseEffect::None,
+        );
+
         Ok(Waveform::new_with_time_unit(
             waveform.time.clone(),
             waveform.time_unit.clone(),
             channels,
         )?
-        .as_derived_from(
-            waveform,
-            format!(
-                "adc_quantize(bits={},min_v={},max_v={})",
-                self.bits, self.min_v, self.max_v
-            ),
-        ))
+        .as_derived_from_with_transform_step(waveform, transform_step))
     }
 }
 
@@ -255,7 +297,10 @@ fn first_order_low_pass(time: &[f64], samples: &[f64], cutoff_hz: f64) -> Vec<f6
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::model::Unit;
+    use crate::model::{
+        TransformCapabilityStatus, TransformEvidenceLevel, TransformInputChannelKind,
+        TransformOutputChannelKind, TransformParameterValue, TransformRuntimeProfile, Unit,
+    };
 
     fn waveform(samples: Vec<f64>) -> Waveform {
         Waveform::new(
@@ -263,6 +308,33 @@ mod tests {
             vec![Channel::new("input_v", Unit::volts(), samples)],
         )
         .expect("test waveform should be valid")
+    }
+
+    fn assert_common_transform_metadata(step: &TransformStepMetadata) {
+        assert_eq!(
+            step.input_channels.kind,
+            TransformInputChannelKind::AllChannels
+        );
+        assert_eq!(
+            step.output_channels.kind,
+            TransformOutputChannelKind::DerivedChannels
+        );
+        assert!(step.output_channels.preserves_names);
+        assert!(step.causal);
+        assert!(step.streaming_supported);
+        assert!(!step.offline_only);
+        assert_eq!(
+            step.runtime_profiles,
+            vec![TransformRuntimeProfile::Desktop]
+        );
+        assert_eq!(
+            step.capability_status,
+            TransformCapabilityStatus::Implemented
+        );
+        assert_eq!(
+            step.evidence_level,
+            TransformEvidenceLevel::GoldenReportTested
+        );
     }
 
     #[test]
@@ -282,6 +354,20 @@ mod tests {
             filtered.metadata.transform_history,
             vec!["moving_average(window_samples=2)"]
         );
+        let step = &filtered.metadata.transform_steps[0];
+        assert_common_transform_metadata(step);
+        assert_eq!(step.sequence_index, 0);
+        assert_eq!(step.history_label, "moving_average(window_samples=2)");
+        assert_eq!(step.name, "moving_average");
+        assert_eq!(step.category, TransformCategory::Windowed);
+        assert_eq!(
+            step.parameters[0].value,
+            TransformParameterValue::Integer(2)
+        );
+        assert_eq!(step.parameters[0].unit.as_deref(), Some("samples"));
+        assert!(!step.sample_rate_required);
+        assert!(step.stateful);
+        assert_eq!(step.phase_effect, TransformPhaseEffect::Delay);
     }
 
     #[test]
@@ -306,6 +392,18 @@ mod tests {
         assert!(filtered.channels[0].samples[1] > 0.0);
         assert!(filtered.channels[0].samples[1] < 10.0);
         assert!(filtered.channels[0].samples[3] < 10.0);
+        let step = &filtered.metadata.transform_steps[0];
+        assert_common_transform_metadata(step);
+        assert_eq!(step.name, "low_pass");
+        assert_eq!(step.category, TransformCategory::FrequencyFilter);
+        assert_eq!(
+            step.parameters[0].value,
+            TransformParameterValue::Float(0.1)
+        );
+        assert_eq!(step.parameters[0].unit.as_deref(), Some("Hz"));
+        assert!(step.sample_rate_required);
+        assert!(step.stateful);
+        assert_eq!(step.phase_effect, TransformPhaseEffect::Delay);
     }
 
     #[test]
@@ -325,6 +423,28 @@ mod tests {
             quantized.metadata.transform_history,
             vec!["adc_quantize(bits=2,min_v=0,max_v=3)"]
         );
+        let step = &quantized.metadata.transform_steps[0];
+        assert_common_transform_metadata(step);
+        assert_eq!(step.name, "adc_quantize");
+        assert_eq!(step.category, TransformCategory::Quantization);
+        assert_eq!(
+            step.parameters[0].value,
+            TransformParameterValue::Integer(2)
+        );
+        assert_eq!(step.parameters[0].unit.as_deref(), Some("bits"));
+        assert_eq!(
+            step.parameters[1].value,
+            TransformParameterValue::Float(0.0)
+        );
+        assert_eq!(step.parameters[1].unit.as_deref(), Some("V"));
+        assert_eq!(
+            step.parameters[2].value,
+            TransformParameterValue::Float(3.0)
+        );
+        assert_eq!(step.parameters[2].unit.as_deref(), Some("V"));
+        assert!(!step.sample_rate_required);
+        assert!(!step.stateful);
+        assert_eq!(step.phase_effect, TransformPhaseEffect::None);
     }
 
     #[test]
@@ -377,5 +497,9 @@ mod tests {
                 "adc_quantize(bits=2,min_v=0,max_v=3)"
             ]
         );
+        assert_eq!(derived.metadata.transform_steps[0].sequence_index, 0);
+        assert_eq!(derived.metadata.transform_steps[0].name, "moving_average");
+        assert_eq!(derived.metadata.transform_steps[1].sequence_index, 1);
+        assert_eq!(derived.metadata.transform_steps[1].name, "adc_quantize");
     }
 }

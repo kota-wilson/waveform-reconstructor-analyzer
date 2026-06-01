@@ -4,7 +4,7 @@ Date: 2026-05-31
 
 ## Scope
 
-The ADC quantization transform simulates an ideal analog-to-digital conversion step before pass/fail criteria are evaluated. It is part of the ordered filter pipeline because it derives a new waveform from parsed samples without mutating the raw CSV input.
+The ADC quantization transform simulates an ideal analog-to-digital conversion step before pass/fail criteria are evaluated. It is part of the current ordered `[[filters]]` config pipeline for compatibility, and part of the broader transform capability model because it derives a new waveform from parsed samples without mutating the raw CSV input.
 
 ## Configuration
 

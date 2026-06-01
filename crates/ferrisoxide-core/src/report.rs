@@ -166,6 +166,7 @@ struct JsonReport<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::filter::{Filter, MovingAverageFilter};
     use crate::model::{Channel, Unit, Waveform};
 
     fn metadata() -> WaveformMetadata {
@@ -255,9 +256,38 @@ mod tests {
         assert!(rendered.contains("\"evidence_context\""));
         assert!(rendered.contains("\"tolerance_policy\""));
         assert!(rendered.contains("\"sample_count\": 2"));
+        assert!(!rendered.contains("\"transform_steps\""));
         assert!(rendered.contains("\"overall_outcome\": \"pass\""));
         assert!(rendered.contains("\"measurements\""));
         assert!(rendered.contains("\"measurement_id\": \"max_measurement\""));
         assert!(rendered.contains("\"criterion_id\": \"max\""));
+    }
+
+    #[test]
+    fn renders_structured_transform_metadata_when_present() {
+        let waveform = Waveform::new(
+            vec![0.0, 0.001],
+            vec![Channel::new("input_v", Unit::volts(), vec![0.0, 5.0])],
+        )
+        .expect("waveform should be valid");
+        let derived = MovingAverageFilter { window_samples: 2 }
+            .apply(&waveform)
+            .expect("filter should apply");
+        let report = AnalysisReport {
+            input_name: "fixture.csv".to_string(),
+            waveform_metadata: derived.metadata,
+            evidence_context: ReportEvidenceContext::default(),
+            measurements: Vec::new(),
+            results: Vec::new(),
+        };
+
+        let rendered = report.render_json_pretty().expect("json should render");
+
+        assert!(rendered.contains("\"transform_history\""));
+        assert!(rendered.contains("\"transform_steps\""));
+        assert!(rendered.contains("\"history_label\": \"moving_average(window_samples=2)\""));
+        assert!(rendered.contains("\"category\": \"WindowedTransform\""));
+        assert!(rendered.contains("\"desktop\""));
+        assert!(rendered.contains("\"evidence_level\": \"golden_report_tested\""));
     }
 }

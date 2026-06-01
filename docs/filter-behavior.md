@@ -1,10 +1,12 @@
 # Filter Behavior
 
+Current transform metadata mappings for these implemented filters and ADC quantization are defined in `docs/current-transform-metadata-mapping.md`.
+
 Date: 2026-05-31
 
 ## Scope
 
-This document describes the implemented transform equations used by `crates/ferrisoxide-core/src/filter.rs`. These are software model definitions for review and testing. They are not validated hardware models, frequency-response guarantees, ADC calibration models, or DAQ behavior claims.
+This document describes the implemented transform equations used by `crates/ferrisoxide-core/src/filter.rs`. The file keeps the current `filter` naming because the compatible config surface is still `[[filters]]`, but the documented behavior maps into the broader transform vocabulary. These are software model definitions for review and testing. They are not validated hardware models, frequency-response guarantees, ADC calibration models, or DAQ behavior claims.
 
 ## Moving Average
 

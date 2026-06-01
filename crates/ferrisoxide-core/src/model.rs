@@ -45,6 +45,166 @@ pub struct ChannelMetadata {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+pub enum TransformCategory {
+    #[serde(rename = "WindowedTransform")]
+    Windowed,
+    #[serde(rename = "FrequencyFilterTransform")]
+    FrequencyFilter,
+    #[serde(rename = "QuantizationTransform")]
+    Quantization,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TransformInputChannelKind {
+    AllChannels,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct TransformInputChannels {
+    pub kind: TransformInputChannelKind,
+}
+
+impl TransformInputChannels {
+    pub fn all_channels() -> Self {
+        Self {
+            kind: TransformInputChannelKind::AllChannels,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TransformOutputChannelKind {
+    DerivedChannels,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct TransformOutputChannels {
+    pub kind: TransformOutputChannelKind,
+    pub preserves_names: bool,
+}
+
+impl TransformOutputChannels {
+    pub fn derived_channels_preserving_names() -> Self {
+        Self {
+            kind: TransformOutputChannelKind::DerivedChannels,
+            preserves_names: true,
+        }
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(untagged)]
+pub enum TransformParameterValue {
+    Integer(u64),
+    Float(f64),
+    Bool(bool),
+    Text(String),
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct TransformParameterMetadata {
+    pub name: String,
+    pub value: TransformParameterValue,
+    pub unit: Option<String>,
+}
+
+impl TransformParameterMetadata {
+    pub fn integer(name: impl Into<String>, value: u64, unit: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            value: TransformParameterValue::Integer(value),
+            unit: Some(unit.into()),
+        }
+    }
+
+    pub fn float(name: impl Into<String>, value: f64, unit: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            value: TransformParameterValue::Float(value),
+            unit: Some(unit.into()),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TransformPhaseEffect {
+    None,
+    Delay,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TransformRuntimeProfile {
+    Desktop,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TransformCapabilityStatus {
+    Implemented,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum TransformEvidenceLevel {
+    GoldenReportTested,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize)]
+pub struct TransformStepMetadata {
+    pub sequence_index: usize,
+    pub history_label: String,
+    pub name: String,
+    pub category: TransformCategory,
+    pub input_channels: TransformInputChannels,
+    pub output_channels: TransformOutputChannels,
+    pub parameters: Vec<TransformParameterMetadata>,
+    pub sample_rate_required: bool,
+    pub stateful: bool,
+    pub causal: bool,
+    pub phase_effect: TransformPhaseEffect,
+    pub streaming_supported: bool,
+    pub offline_only: bool,
+    pub runtime_profiles: Vec<TransformRuntimeProfile>,
+    pub capability_status: TransformCapabilityStatus,
+    pub evidence_level: TransformEvidenceLevel,
+}
+
+impl TransformStepMetadata {
+    pub fn implemented_desktop(
+        history_label: impl Into<String>,
+        name: impl Into<String>,
+        category: TransformCategory,
+        parameters: Vec<TransformParameterMetadata>,
+        sample_rate_required: bool,
+        stateful: bool,
+        phase_effect: TransformPhaseEffect,
+    ) -> Self {
+        Self {
+            sequence_index: 0,
+            history_label: history_label.into(),
+            name: name.into(),
+            category,
+            input_channels: TransformInputChannels::all_channels(),
+            output_channels: TransformOutputChannels::derived_channels_preserving_names(),
+            parameters,
+            sample_rate_required,
+            stateful,
+            causal: true,
+            phase_effect,
+            streaming_supported: true,
+            offline_only: false,
+            runtime_profiles: vec![TransformRuntimeProfile::Desktop],
+            capability_status: TransformCapabilityStatus::Implemented,
+            evidence_level: TransformEvidenceLevel::GoldenReportTested,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum WaveformLineage {
     Raw,
@@ -105,6 +265,8 @@ pub struct WaveformMetadata {
     pub nominal_sample_rate_hz: Option<f64>,
     pub lineage: WaveformLineage,
     pub transform_history: Vec<String>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub transform_steps: Vec<TransformStepMetadata>,
     pub tolerance_policy: Option<TolerancePolicy>,
 }
 
@@ -172,9 +334,31 @@ impl Waveform {
         self
     }
 
-    pub fn as_derived_from(mut self, source: &Waveform, transform: impl Into<String>) -> Self {
+    pub fn as_derived_from(self, source: &Waveform, transform: impl Into<String>) -> Self {
         let mut history = source.metadata.transform_history.clone();
         history.push(transform.into());
+        self.inherit_derived_metadata(source, history, source.metadata.transform_steps.clone())
+    }
+
+    pub fn as_derived_from_with_transform_step(
+        self,
+        source: &Waveform,
+        mut transform_step: TransformStepMetadata,
+    ) -> Self {
+        let mut history = source.metadata.transform_history.clone();
+        history.push(transform_step.history_label.clone());
+        let mut transform_steps = source.metadata.transform_steps.clone();
+        transform_step.sequence_index = transform_steps.len();
+        transform_steps.push(transform_step);
+        self.inherit_derived_metadata(source, history, transform_steps)
+    }
+
+    fn inherit_derived_metadata(
+        mut self,
+        source: &Waveform,
+        history: Vec<String>,
+        transform_steps: Vec<TransformStepMetadata>,
+    ) -> Self {
         self.metadata.source_name = source.metadata.source_name.clone();
         self.metadata.test_run_id = source.metadata.test_run_id.clone();
         self.metadata.acquisition_notes = source.metadata.acquisition_notes.clone();
@@ -182,6 +366,7 @@ impl Waveform {
         self.metadata.operator = source.metadata.operator.clone();
         self.metadata.lineage = WaveformLineage::Derived;
         self.metadata.transform_history = history;
+        self.metadata.transform_steps = transform_steps;
         self.metadata.tolerance_policy = source.metadata.tolerance_policy;
         self
     }
@@ -218,6 +403,7 @@ impl WaveformMetadata {
             nominal_sample_rate_hz,
             lineage: WaveformLineage::Raw,
             transform_history: Vec::new(),
+            transform_steps: Vec::new(),
             tolerance_policy: None,
         }
     }
@@ -301,6 +487,7 @@ mod tests {
         assert_eq!(waveform.metadata.channels[0].unit, Unit::volts());
         assert_eq!(waveform.metadata.lineage, WaveformLineage::Raw);
         assert_eq!(waveform.metadata.transform_history, Vec::<String>::new());
+        assert_eq!(waveform.metadata.transform_steps, Vec::new());
         assert_eq!(waveform.metadata.tolerance_policy, None);
     }
 
@@ -348,6 +535,44 @@ mod tests {
             derived.metadata.transform_history,
             vec!["moving_average(window_samples=2)"]
         );
+        assert_eq!(derived.metadata.transform_steps, Vec::new());
+    }
+
+    #[test]
+    fn tracks_structured_transform_steps_for_derived_waveforms() {
+        let raw = Waveform::new(
+            vec![0.0, 0.1],
+            vec![Channel::new("input_v", Unit::volts(), vec![0.0, 5.0])],
+        )
+        .expect("waveform should be valid");
+        let transform_step = TransformStepMetadata::implemented_desktop(
+            "moving_average(window_samples=2)",
+            "moving_average",
+            TransformCategory::Windowed,
+            vec![TransformParameterMetadata::integer(
+                "window_samples",
+                2,
+                "samples",
+            )],
+            false,
+            true,
+            TransformPhaseEffect::Delay,
+        );
+
+        let derived = Waveform::new(
+            raw.time.clone(),
+            vec![Channel::new("input_v", Unit::volts(), vec![1.0, 4.0])],
+        )
+        .expect("derived waveform should be valid")
+        .as_derived_from_with_transform_step(&raw, transform_step);
+
+        assert_eq!(
+            derived.metadata.transform_history,
+            vec!["moving_average(window_samples=2)"]
+        );
+        assert_eq!(derived.metadata.transform_steps.len(), 1);
+        assert_eq!(derived.metadata.transform_steps[0].sequence_index, 0);
+        assert_eq!(derived.metadata.transform_steps[0].name, "moving_average");
     }
 
     #[test]

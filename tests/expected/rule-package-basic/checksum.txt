@@ -6,5 +6,5 @@ security_note=deterministic artifact drift detection only; not cryptographic sig
 
 fnv1a64:ac40974619dc28b1  rules.toml
 fnv1a64:5909a93b81f9d172  rules.json
-fnv1a64:e4db162a9bf1f569  validation-report.json
-fnv1a64:837985f13223e37c  manifest.json
+fnv1a64:8a05b3088bb49ca5  validation-report.json
+fnv1a64:552367a1113a50f3  manifest.json
