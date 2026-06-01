@@ -2,13 +2,13 @@
 
 Date: 2026-06-01
 
-Status: M10-004 / issue #135 compatibility artifact. This document defines validation rules before implementation; it does not expose transforms to deployment packages or embedded runtimes.
+Status: M10-004 / issue #135 compatibility artifact updated by M13. M13 implements validator code for metadata/profile checks; it does not expose transforms to deployment packages or embedded runtimes.
 
 ## Purpose
 
 FerrisOxide needs explicit runtime profile compatibility so a transform implemented for desktop analysis is not automatically treated as supported by Raspberry Pi 5 bare-metal ARM64, Pico 2, deployment packages, or certification workflows.
 
-This document defines the rules future validation code should apply before a transform is exposed to a runtime profile.
+This document defines the rules validation code applies before a transform is exposed to a runtime profile. M13 implements the first code-level validator in `crates/ferrisoxide-core/src/runtime_profile.rs`.
 
 ## Runtime Profiles
 
@@ -49,11 +49,11 @@ Desktop analysis may continue using current implemented transforms through exist
 | TRP-009 | Hardware-gated transforms require hardware/environment approval before live runtime claims. | Reject until hardware and environment gates pass. |
 | TRP-010 | Certification-gated transforms require separate certification evidence planning. | Reject certification or regulatory claims until approved evidence exists. |
 
-## Planned Error Shape
+## Implemented Error Shape
 
-Future validation code should return structured errors instead of free-form strings.
+M13 validation code returns structured errors instead of free-form strings.
 
-Suggested fields:
+Implemented fields:
 
 | Field | Meaning |
 |---|---|
@@ -64,7 +64,7 @@ Suggested fields:
 | `supported_profiles` | Runtime profiles declared by the transform. |
 | `reason` | Human-readable explanation. |
 
-Suggested error kinds:
+Implemented error kinds:
 
 - `unsupported_transform_runtime_profile`
 - `future_gated_transform`
@@ -77,6 +77,16 @@ Suggested error kinds:
 - `dependency_gate_required`
 - `hardware_gate_required`
 - `certification_gate_required`
+
+## Current Validator API
+
+The core validator is metadata-only. It validates existing `TransformStepMetadata` records and waveform timing metadata:
+
+- `validate_transform_runtime_profile(transforms, requested_profile, timing)`
+- `validate_waveform_metadata_runtime_profile(metadata, requested_profile)`
+- `TransformRuntimeTimingEvidence::from_waveform_metadata(metadata)`
+
+The validator currently accepts current transform metadata for `desktop` and rejects current waveform, event, and validation transform metadata for `pi5_no_std_candidate`, `pico2_candidate`, and `future_gated` exposure. That rejection is intentional: current transform implementations remain desktop analysis support unless a later issue supplies no_std, fixed-buffer, bounded-resource, and parity evidence.
 
 ## Current Transform Compatibility Matrix
 
@@ -97,6 +107,8 @@ Current transform mappings come from `docs/current-transform-metadata-mapping.md
 | `moving_median` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented for desktop analysis; nonlinear window behavior lacks embedded-compatible parity evidence. |
 
 This matrix does not remove existing desktop analysis support. It only prevents runtime/deployment overclaims.
+
+The legacy `export-rule-package` command still supports the earlier portable filter subset described in `docs/rule-package-format.md`. That legacy export support is not a blanket transform runtime-support claim. Any future transform-package or deployment-package exposure should call the runtime-profile validator before accepting or exporting transform metadata.
 
 ## Runtime Compatibility Direction
 
@@ -123,9 +135,9 @@ Runtime profile compatibility does not claim:
 ## Hand-Off Note
 
 Role: Embedded RTOS Engineer / Software Architect
-Goal: Complete M10-004 / issue #135 by defining transform runtime profile compatibility rules.
-Files changed: `docs/transform-runtime-profile-compatibility.md`
-Checks run: Documentation and compatibility review.
-Status: Complete through PR #138; issue #135 and milestone #10 are closed.
-Known gaps: Runtime validation code, deployment exposure, and embedded/no_std transform exposure remain future gated work.
-Next recommended step: Use these rules before exposing any transform metadata to rule packages, deployment packages, Pi 5, or Pico 2 runtime paths.
+Goal: Complete M10-004 / issue #135 and support M13 runtime-profile validation.
+Files changed: `docs/transform-runtime-profile-compatibility.md`, `crates/ferrisoxide-core/src/runtime_profile.rs`
+Checks run: Documentation review; focused M13 runtime-profile tests.
+Status: M10 rules are complete through PR #138; M13 validator implementation is local pending PR.
+Known gaps: Deployment exposure and embedded/no_std transform exposure remain future gated work.
+Next recommended step: Finish M13 validation, then use the validator before any future transform metadata is exposed to rule packages, deployment packages, Pi 5, or Pico 2 runtime paths.

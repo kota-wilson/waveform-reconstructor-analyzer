@@ -136,6 +136,8 @@ Initial filter definitions are schema entries only. They describe intended trans
 
 M11 desktop transforms such as `offset`, `gain`, `clamp`, `deadband`, `dc_remove`, `baseline_subtract`, and `moving_median` are not yet part of the portable rule-package filter subset. Exporting those transforms requires a later package-semantics design and compatibility gate.
 
+M13 adds transform runtime-profile validation in `ferrisoxide-core`. The current portable filter subset remains legacy package-schema support; it is not a blanket claim that every transform is safe for embedded, Pico, deployment, hardware, or certification workflows. Future transform-package exposure should validate transform metadata against the requested runtime profile before accepting or exporting it.
+
 | Type | Required fields | Notes |
 |---|---|---|
 | `moving_average` | `id`, `channel`, `window_samples` | Mirrors the existing desktop filter concept. |

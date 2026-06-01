@@ -615,7 +615,7 @@ Timing and unit assumptions remain transform-specific:
 - DC removal is offline-only because it subtracts the mean of the full waveform.
 - First-order high-pass baseline correction remains planned, not implemented.
 - Event validations contribute to report-level pass/fail outcome and remain software-only evidence.
-- Portable rule-package export still supports the earlier portable filter subset (`moving_average`, `low_pass`, and `adc_quantize`) until transform package semantics are separately designed.
+- Portable rule-package export still supports the earlier portable filter subset (`moving_average`, `low_pass`, and `adc_quantize`) until transform package semantics are separately designed. That legacy export support is not a blanket runtime-profile claim; future transform-package or deployment-package exposure must pass runtime-profile validation first.
 
 Example ADC quantization config:
 

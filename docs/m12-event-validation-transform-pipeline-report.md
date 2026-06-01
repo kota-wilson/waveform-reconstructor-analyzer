@@ -8,7 +8,7 @@ Status: Complete. PR #156 merged after required `rust` CI passed; issues #149 th
 
 M12 implements event records, Schmitt state conversion, debounce/glitch handling, edge extraction, bounce detection, event validation results, known-answer switch/bounce fixtures, and practical embedded-compatible Schmitt parity evidence.
 
-Out of scope: new dependencies, live DAQ, vendor SDKs, HAL/RTOS SDKs, unsafe FFI, target hardware execution, signing/authentication, hardware validation, certification evidence, and M13+ work.
+Out of scope for M12: new dependencies, live DAQ, vendor SDKs, HAL/RTOS SDKs, unsafe FFI, target hardware execution, signing/authentication, hardware validation, certification evidence, and later-milestone work.
 
 ## Stage Ledger
 
@@ -32,7 +32,7 @@ Out of scope: new dependencies, live DAQ, vendor SDKs, HAL/RTOS SDKs, unsafe FFI
 | Code Review | Pass | Local review plus protected PR #156 `rust` CI passed before merge. | Future reviewers may request follow-up refinements. | Code Reviewer |
 | Evaluation | Pass | Requirements, traceability, validation log, and pipeline report map issues #149 through #155 to tests, docs, CI, and PR #156. | Future runtime-profile work remains separately gated. | Evaluation Engineer |
 | Release | Pass | PR #156 merged after required `rust` CI passed; squash commit `a4885578de9d136cd8df213e1da489a7232cf702`. | No GitHub release tag was published. | GitHub Maintainer Specialist |
-| Community | Pass | Issues #149 through #155 closed and milestone #12 closed with 8 closed items and 0 open items. | M13 and hardware/runtime work remain unapproved. | Project Coordinator |
+| Community | Pass | Issues #149 through #155 closed and milestone #12 closed with 8 closed items and 0 open items. | M13 is now locally planned; hardware/runtime work remains separately gated. | Project Coordinator |
 | Retrospective | Pass | This report records M12 residual risks and non-goals after milestone closure. | Future event runtime work needs a fresh plan. | Project Coordinator |
 
 ## Issue Mapping
@@ -74,5 +74,5 @@ Goal: Complete M12 event and validation transform MVP through the contribution p
 Files changed: M12 implementation, examples, docs, requirements, traceability, risk, orchestration, and state artifacts.
 Checks run: Full local validation listed above.
 Status: Complete through PR #156, closed issues #149 through #155, and closed milestone #12.
-Known gaps: No GitHub release tag was published; live DAQ, hardware runtime, bounded embedded event runtime, hardware validation, certification evidence, and M13 work remain separately gated.
-Next recommended step: Hold before M13 or new scope until explicit approval.
+Known gaps: No GitHub release tag was published; live DAQ, hardware runtime, bounded embedded event runtime, hardware validation, and certification evidence remain separately gated. M13 runtime-profile validation is now locally planned.
+Next recommended step: Implement M13 runtime-profile validation through the pipeline.

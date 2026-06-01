@@ -93,4 +93,4 @@ Files changed: `crates/ferrisoxide-core/src/event.rs`, `crates/ferrisoxide-core/
 Checks run: Targeted event, config, report, CLI, and rule-engine tests; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; local Markdown link-target scan; stale current M12 wording scan; `git diff --check`.
 Status: Implemented in PR #156; issues #149 through #155 and milestone #12 are closed.
 Known gaps: No live hardware, DAQ SDK, target runtime, or certification evidence.
-Next recommended step: Hold before M13 or new scope until explicit approval.
+Next recommended step: Use M13 runtime-profile validation to keep event and validation metadata desktop-only until bounded runtime work is separately approved.

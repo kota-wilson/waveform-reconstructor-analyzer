@@ -166,18 +166,42 @@ pub enum TransformPhaseEffect {
 #[serde(rename_all = "snake_case")]
 pub enum TransformRuntimeProfile {
     Desktop,
+    Pi5NoStdCandidate,
+    Pico2Candidate,
+    FutureGated,
+}
+
+impl TransformRuntimeProfile {
+    pub const fn as_str(self) -> &'static str {
+        match self {
+            Self::Desktop => "desktop",
+            Self::Pi5NoStdCandidate => "pi5_no_std_candidate",
+            Self::Pico2Candidate => "pico2_candidate",
+            Self::FutureGated => "future_gated",
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum TransformCapabilityStatus {
     Implemented,
+    Planned,
+    Research,
+    DependencyGated,
+    HardwareGated,
+    CertificationGated,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "snake_case")]
 pub enum TransformEvidenceLevel {
+    DocumentedOnly,
+    UnitTested,
+    FixtureTested,
     GoldenReportTested,
+    ParityTested,
+    Validated,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
