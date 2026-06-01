@@ -59,6 +59,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ferrisoxide-control-schema"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "toml",
+]
+
+[[package]]
 name = "ferrisoxide-core"
 version = "0.1.0"
 dependencies = [

@@ -184,6 +184,10 @@ crates/ferrisoxide-core/         Desktop core library:
 crates/ferrisoxide-cli/          CLI entry point.
                                   Builds the `ferrisoxide-signal` binary.
 
+crates/ferrisoxide-control-schema/
+                                  Production control config schema for future
+                                  controller-in-the-loop workflows.
+
 crates/ferrisoxide-plot/         Desktop SVG plotting support.
                                   Isolated so core and embedded crates do not
                                   depend on plotting.
@@ -911,6 +915,7 @@ FerrisOxide has embedded-oriented crates, but the project is not yet an embedded
 | `ferrisoxide-measurements` | `#![no_std]` measurement primitives over slices. |
 | `ferrisoxide-rule-engine` | `#![no_std]` rule execution semantics over caller-provided time/sample slices. |
 | `ferrisoxide-embedded` | `#![no_std]` adapter traits for sample sources, event sinks, and runtime hooks. |
+| `ferrisoxide-control-schema` | Production control config schema for future controller-in-the-loop workflows; not a runtime executor. |
 
 Desktop-only concerns stay out of those crates:
 
@@ -931,7 +936,7 @@ Current target direction:
 - First-class embedded runtime target: Raspberry Pi 5 bare-metal ARM64, `aarch64-unknown-none`.
 - Future optional micro-runtime: Raspberry Pi Pico 2 / RP2350 for constrained rule subsets.
 
-See [embedded roadmap](docs/embedded-roadmap.md), [platform targets](docs/platform-targets.md), and [controller-in-the-loop workflow](docs/controller-in-the-loop-workflow.md).
+See [embedded roadmap](docs/embedded-roadmap.md), [platform targets](docs/platform-targets.md), [controller-in-the-loop workflow](docs/controller-in-the-loop-workflow.md), and [production control config schema](docs/control-config-schema.md).
 
 ## Validation Assets
 
@@ -1012,6 +1017,7 @@ Start here:
 - [Embedded roadmap](docs/embedded-roadmap.md)
 - [Platform targets](docs/platform-targets.md)
 - [Controller-in-the-loop workflow](docs/controller-in-the-loop-workflow.md)
+- [Production control config schema](docs/control-config-schema.md)
 - [Validation log](docs/validation-log.md)
 - [Traceability matrix](traceability-matrix.md)
 - [Requirements](requirements.md)

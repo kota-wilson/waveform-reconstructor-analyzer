@@ -27,8 +27,8 @@ Rewrite the main README so a new engineer can understand the repository and prod
 | Documentation | Documentation Engineer | Expanded README and documentation review update | Documentation Gate | Pass locally |
 | Code Review | Code Review Engineer | Self-review of Markdown scope, links, stale status, and overclaim risk | Code Review Gate | Pass locally |
 | Evaluation | Evaluation Engineer | Definition of Done review in this report | Evaluation Gate | Pass locally |
-| Release | Release Engineer | Branch, issue link, intended PR body, validation evidence | Release Gate | Pending PR |
-| Community | GitHub Maintainer Specialist | PR, CI, merge, issue close | Community Gate | Pending PR/CI |
+| Release | Release Engineer | PR #120 and validation evidence | Release Gate | Pass |
+| Community | GitHub Maintainer Specialist | PR #120 required `rust` CI, merge, issue #119 close | Community Gate | Pass |
 | Retrospective | Project Coordinator | This report captures lessons and residual risk | Retrospective Gate | Pass locally |
 
 ## Requirements And Acceptance Mapping
@@ -95,17 +95,17 @@ rg -n "\[[^]]+\]\([^)]+\)" README.md
 | Requirements Traceability Gate | Pass | WRA-RQ-069 captures the README product-guide requirement. | Future README drift. | Documentation Engineer |
 | Architecture Gate | Pass | README outline covers product workflow, repo structure, examples, outputs, and boundaries. | Long README may need periodic pruning. | Documentation Engineer |
 | Granularity Gate | Pass | Sections name concrete artifacts, files, commands, crates, and validation commands. | None. | Abstraction Review Engineer |
-| Implementation Gate | Pass | README and supporting docs were updated without code behavior changes. | CI still pending until PR. | Release Engineer |
-| Testing Gate | Pass locally | CLI examples and standard Cargo checks are expected to pass. | Protected GitHub CI pending. | GitHub Maintainer Specialist |
-| V&V Gate | Pass locally | Acceptance criteria map directly to README sections. | External reader feedback not yet available. | Documentation Engineer |
+| Implementation Gate | Pass | README and supporting docs were updated without code behavior changes. | Future README drift remains possible as commands evolve. | Release Engineer |
+| Testing Gate | Pass | CLI examples, standard Cargo checks, and protected GitHub CI passed for PR #120. | Automated Markdown link checking remains future work. | GitHub Maintainer Specialist |
+| V&V Gate | Pass locally | Acceptance criteria map directly to README sections. | Future reader feedback may reveal unclear areas. | Documentation Engineer |
 | QA Gate | Pass locally | README is verbose, navigable, and written for humans. | README length may be high for casual readers. | Documentation Engineer |
 | Security Gate | Not Applicable | No dependencies, credentials, permissions, or runtime trust boundaries changed. | Link drift and overclaim risk remain documentation risks, not security changes. | Documentation Engineer |
 | Performance Gate | Not Applicable | Documentation-only change; no runtime path changed. | None. | Performance Engineer |
 | Documentation Gate | Pass locally | Main README is now the primary product guide and links to deeper docs. | Automated Markdown link checking is still not installed. | Documentation Engineer |
-| Code Review Gate | Pass locally | No blocking Markdown or stale-status findings after local review. | PR review/CI pending. | Code Review Engineer |
-| Evaluation Gate | Pass locally | Definition of Done is satisfied locally except external PR/CI/merge. | Community gate pending. | Evaluation Engineer |
-| Release Gate | Pending PR | Branch must be pushed and PR opened. | Protected CI pending. | Release Engineer |
-| Community Gate | Pending PR/CI | PR must pass required `rust` check and merge to close issue #119. | Maintainer feedback possible. | GitHub Maintainer Specialist |
+| Code Review Gate | Pass | No blocking Markdown or stale-status findings after local review, PR review, and CI. | Future docs drift remains possible. | Code Review Engineer |
+| Evaluation Gate | Pass | Definition of Done was satisfied and PR #120 merged. | No tagged release was cut. | Evaluation Engineer |
+| Release Gate | Pass | PR #120 was opened with `Fixes #119` and validation evidence. | Mainline evidence only; no tagged release. | Release Engineer |
+| Community Gate | Pass | PR #120 passed required `rust` CI, merged, and closed issue #119. | Future reader feedback possible. | GitHub Maintainer Specialist |
 | Retrospective Gate | Pass locally | Lesson recorded: README examples should be generated from real commands when possible. | Keep examples refreshed when CLI output changes. | Project Coordinator |
 
 ## Files Changed
@@ -128,6 +128,6 @@ Role: Documentation Engineer
 Goal: Make the main README a complete human-readable product and repository guide.
 Files changed: `README.md`, `docs/docs-001-readme-product-guide-pipeline-report.md`, `docs/documentation-review.md`, `docs/validation-log.md`, `requirements.md`, `traceability-matrix.md`, `risk-register.md`, `project-state.md`, and `CHANGELOG.md`.
 Checks run: CLI example commands; full validation commands recorded in `docs/validation-log.md`.
-Status: Pass locally; PR, protected CI, merge, and issue #119 closure pending.
+Status: Pass; PR #120 merged and issue #119 closed.
 Known gaps: Automated Markdown link checking remains future work; future CLI/report changes must refresh README examples.
-Next recommended step: Open PR with `Fixes #119`, wait for required `rust` CI, and merge only after checks pass.
+Next recommended step: Keep README examples current when CLI output, report schemas, or package formats change.

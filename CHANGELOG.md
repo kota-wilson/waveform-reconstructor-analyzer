@@ -40,3 +40,4 @@ The format follows Keep a Changelog principles, and the project intends to use s
 - Optional desktop SVG plotting with 2D waveform plots and 3D line plots using a configured third-axis column.
 - `ferrisoxide-embedded` `no_std` adapter boundary plus ARM64 QEMU and Zephyr feasibility prototype artifacts.
 - `ferrisoxide-measurements` `no_std` crate with reusable extrema, state-transition, state-run duration, and rise/fall measurement primitives used by criteria evidence.
+- `ferrisoxide-control-schema` crate with production control config schema types, validation helpers, and a parse-tested example config for future controller-in-the-loop workflows.

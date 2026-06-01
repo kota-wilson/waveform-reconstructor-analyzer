@@ -1264,7 +1264,7 @@ Owner Role: Documentation Engineer / Test Automation Engineer
 - Gate: Testing Gate for DOCS-001.
 - Decision: Pass locally.
 - Reason: CLI examples used in README were generated from the current binary; formatting, workspace tests, clippy, whitespace check, README local-link scan, and conflict-marker scan passed.
-- Residual risk: Protected GitHub CI, PR merge, issue #119 closure, and automated Markdown link checking beyond README remain pending.
+- Residual risk: Future CLI/report/schema changes may make README examples drift; automated Markdown link checking beyond README remains future work.
 - Owner for residual risk: Documentation Engineer / GitHub Maintainer Specialist.
 
 ### Hand-Off Note
@@ -1273,9 +1273,61 @@ Role: Documentation Engineer / Test Automation Engineer
 Goal: Validate the expanded README product guide and supporting documentation review artifacts.
 Files changed: README, docs pipeline report, documentation review, validation log, requirements, traceability, risk register, project state, and changelog.
 Checks run: CLI example commands, `cargo fmt --check`, `cargo test --workspace`, `cargo clippy --workspace --all-targets -- -D warnings`, `git diff --check`, README local-link scan, and conflict-marker scan.
-Status: Pass locally.
+Status: Pass; PR #120 merged and issue #119 closed.
 Known gaps: Automated Markdown link checking beyond the README remains future work.
-Next recommended step: Open the protected-branch PR with `Fixes #119`, wait for required CI, then merge only after checks pass.
+Next recommended step: Keep README examples current when CLI output, report schemas, or package formats change.
+
+## M9-001 Production Control Config Schema Validation Update
+
+Date: 2026-05-31
+
+Stage: Testing production control config schema
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, DAQ SDKs, HALs, RTOS toolchains, controller SDKs, QEMU images, Zephyr tooling, or new third-party dependencies installed.
+- GitHub issue: #77, `M9-001 Define production control config schema`
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-control-schema` | Passed | 4 schema tests passed: build/validate, TOML/JSON round trip, invalid references/values, and approval metadata validation. |
+| `cargo tree -p ferrisoxide-control-schema` | Passed | Uses existing approved workspace Serde, JSON, and TOML dependencies only. |
+| `cargo fmt --check` | Passed | Rust formatting clean after schema/docs edits. |
+| `cargo test --workspace` | Passed | 149 tests passed across CLI, control schema, core, embedded, measurements, plot, rule engine, rule schema, signal, integration tests, and doctests. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `builds_and_validates_production_control_config_schema` | Verifies the schema captures target, inputs, outputs, thresholds, modes, state machine, and valid config evidence. |
+| `parses_example_toml_and_json_round_trip` | Verifies the example production control config parses from TOML, validates, serializes to JSON, and round-trips. |
+| `rejects_missing_references_and_invalid_values` | Verifies missing input/output/action/state references, invalid PWM duty cycle, and invalid timing produce structured errors. |
+| `requires_approval_metadata_for_approved_configs` | Verifies approved configs require approver and approval timestamp metadata. |
+
+### Gate Decision
+
+- Gate: Testing Gate for M9-001.
+- Decision: Pass locally.
+- Reason: Focused schema tests, formatting, workspace tests, clippy, and whitespace checks passed.
+- Residual risk: Protected GitHub CI, PR merge, issue #77 closure, simulator/runtime follow-up work, and hardware validation remain pending.
+- Owner for residual risk: Test Automation Engineer / GitHub Maintainer Specialist.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate M9-001 production control config schema.
+Files changed: `Cargo.toml`, `crates/ferrisoxide-control-schema/`, `examples/control-config/production-control-config.toml`, README, architecture/controller workflow docs, control-schema docs, requirements, traceability, risk register, validation log, pipeline report, and project state.
+Checks run: `cargo test -p ferrisoxide-control-schema`; `cargo tree -p ferrisoxide-control-schema`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`.
+Status: Pass locally.
+Known gaps: No simulator, DAQ abstraction, controller I/O abstraction, deployment runtime, hardware execution, or certification evidence.
+Next recommended step: Open PR with `Fixes #77`, wait for required CI, then merge only after checks pass.
 
 ## M8 Completion Release Update
 

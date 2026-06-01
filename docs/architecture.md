@@ -23,6 +23,7 @@ Current status: This proposal has been implemented through the validated MVP fea
 |---|---|---|---|
 | `ferrisoxide-core` | `crates/ferrisoxide-core` | Data model, CSV parser interface, filters, criteria, analysis results, report model. | Library API for CLI, future GUI, and bindings. |
 | `ferrisoxide-cli` | `crates/ferrisoxide-cli` | Command-line argument handling and orchestration. | `ferrisoxide-signal` binary. |
+| `ferrisoxide-control-schema` | `crates/ferrisoxide-control-schema` | Versioned production control config schema for controller-in-the-loop workflows. | Config metadata, target profile, approval metadata, timing, inputs, outputs, thresholds, modes, state machines, timing rules, actions, fault responses, parse helpers, and structured validation errors. |
 | `ferrisoxide-embedded` | `crates/ferrisoxide-embedded` | `no_std` adapter traits and streaming helpers for ARM64/RTOS wrappers. | Embedded adapters around `ferrisoxide-signal`. |
 | `ferrisoxide-measurements` | `crates/ferrisoxide-measurements` | `no_std` measurement primitives over time/sample slices. | Extrema, transition count, state-run duration, and rise/fall measurements used by criteria evidence. |
 | `ferrisoxide-plot` | `crates/ferrisoxide-plot` | Desktop SVG plotting for waveform data and 2D evidence overlays. | SVG plot renderer used by the CLI. |
@@ -32,7 +33,7 @@ Current status: This proposal has been implemented through the validated MVP fea
 
 Portable rule package validator, export, checksum, shared-engine, no_std-boundary, and exact desktop-vs-embedded parity fixture work is implemented through M8-008. Runtime loaders and binary package work remain future scope in `decisions/ADR-004-portable-rule-package-architecture.md` and `docs/v0.6.0-portable-rule-package-milestone-proposal.md`.
 
-Future controller-in-the-loop simulation and deployment config modules are planned in `docs/controller-in-the-loop-workflow.md` and `docs/v0.7.0-controller-simulation-deployment-config-milestone-proposal.md`. They are not implemented yet.
+The production control config schema is implemented in `ferrisoxide-control-schema`; controller-in-the-loop simulation, DAQ/controller I/O, deployment package, and runtime modules remain planned in `docs/controller-in-the-loop-workflow.md` and `docs/v0.7.0-controller-simulation-deployment-config-milestone-proposal.md`.
 
 Platform targets are documented in `docs/platform-targets.md`. The desktop authoring platform is Apple Silicon macOS using `aarch64-apple-darwin`; the first-class embedded runtime target is Raspberry Pi 5 bare-metal ARM64 using `aarch64-unknown-none`; Raspberry Pi Pico 2 is a future optional microcontroller profile for constrained rule execution.
 
@@ -49,6 +50,7 @@ Platform targets are documented in `docs/platform-targets.md`. The desktop autho
 | `report` | `crates/ferrisoxide-core/src/report.rs` | Report model with text and JSON rendering, including reusable measurement evidence. |
 | `error` | `crates/ferrisoxide-core/src/error.rs` | Project error types. |
 | `ferrisoxide-embedded` | `crates/ferrisoxide-embedded/src/lib.rs` | `SampleSource`, `EventSink`, `RuntimeHooks`, and no_std streaming helper loops. |
+| `ferrisoxide-control-schema` | `crates/ferrisoxide-control-schema/src/lib.rs` | Production control config schema types and validation helpers; no CSV, CLI, DAQ, plotting, report rendering, controller execution, HAL, SDK, or RTOS binding behavior. |
 | `ferrisoxide-measurements` | `crates/ferrisoxide-measurements/src/lib.rs` | Slice-based measurement functions with no allocation, file I/O, parsing, plotting, or reporting. |
 | `ferrisoxide-plot` | `crates/ferrisoxide-plot/src/lib.rs` | SVG plotting with 2D evidence overlays and optional third-axis 3D line rendering. |
 | `ferrisoxide-rule-engine` | `crates/ferrisoxide-rule-engine/src/lib.rs` | `no_std` criteria execution over slices; owned evidence API uses `alloc`, borrowed summary API avoids owned criterion/result strings and borrowed-path heap allocation for basic checks; avoids CSV parsing, TOML parsing, plotting, report rendering, file I/O, DAQ/controller I/O, HALs, and SDKs. |
