@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M10-001 / issue #132 architecture artifact updated by M14 local implementation. This document defines vocabulary and capability boundaries; current implementation status is limited to rows marked `implemented`.
+Status: M10-001 / issue #132 architecture artifact updated by M14 PR #173. This document defines vocabulary and capability boundaries; current implementation status is limited to rows marked `implemented`.
 
 ## Purpose
 
