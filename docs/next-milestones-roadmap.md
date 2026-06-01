@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M10, M11, M12, and M13 complete. M14 local implementation and validation are complete after explicit user approval to continue, with PR/CI/closure pending. PR #138 merged M10 and closed milestone #10; PR #147 merged M11 and closed milestone #11; PR #156 merged M12 and closed milestone #12; PR #164 merged M13 and closed milestone #13 with issues #158 through #163; PR #165 records M13 release/community closure.
+Status: M10, M11, M12, M13, and M14 complete. PR #138 merged M10 and closed milestone #10; PR #147 merged M11 and closed milestone #11; PR #156 merged M12 and closed milestone #12; PR #164 merged M13 and closed milestone #13 with issues #158 through #163; PR #165 records M13 release/community closure; PR #173 merged M14 and closed milestone #14 with issues #167 through #172.
 
 ## Purpose
 
@@ -16,7 +16,7 @@ This roadmap sequences the transform milestones:
 | M11 | v0.9.0 | Pointwise and windowed transform MVP | Complete in PR #147; milestone #11 closed |
 | M12 | v0.10.0 | Event and validation transform MVP | Complete in PR #156; milestone #12 closed |
 | M13 | v0.11.0 | Transform runtime-profile validation | Complete in PR #164; milestone #13 closed |
-| M14 | v0.12.0 | High-pass baseline correction | Local implementation and validation complete; GitHub milestone #14 open with issues #167 through #172 |
+| M14 | v0.12.0 | High-pass baseline correction | Complete in PR #173; milestone #14 closed |
 
 ## Sequencing Rationale
 
@@ -154,9 +154,11 @@ The following remain outside M10 through M14 unless a fresh proposal and approva
 | Issue Planning Gate | Pass for M10 | GitHub milestone #10 and issues #132 through #137 were created, then closed through PR #138 and milestone closure. | GitHub Maintainer Specialist |
 | Issue Planning Gate | Pass for M12 | GitHub milestone #12 and issues #149 through #155 were created after approval. | GitHub Maintainer Specialist |
 | M13 Planning Gate | Pass | M13 proposal and issue-planning report define WRA-RQ-087 through WRA-RQ-092; GitHub milestone #13 and issues #158 through #163 created after user approval, then closed by PR #164. | Project Coordinator |
-| M14 Planning Gate | Pass | M14 proposal and issue-planning report define WRA-RQ-093 through WRA-RQ-098; GitHub milestone #14 and issues #167 through #172 created after user approval. | Project Coordinator |
-| Implementation Gate | Pass locally for M14 | `high_pass_baseline` filter/config support, first-order recurrence, timing validation, metadata, CLI/config coverage, export guardrail coverage, docs, traceability, and risk updates are complete locally. | Core Software Engineer |
-| Testing Gate | Pass locally for M14 | Focused M14 tests, full workspace tests, clippy, formatting, diff check, and local Markdown link scan pass locally. | Test Automation Engineer |
+| M14 Planning Gate | Pass | M14 proposal and issue-planning report define WRA-RQ-093 through WRA-RQ-098; GitHub milestone #14 and issues #167 through #172 created after user approval, then closed by PR #173. | Project Coordinator |
+| Implementation Gate | Pass for M14 | `high_pass_baseline` filter/config support, first-order recurrence, timing validation, metadata, CLI/config coverage, export guardrail coverage, docs, traceability, and risk updates merged in PR #173. | Core Software Engineer |
+| Testing Gate | Pass for M14 | Focused M14 tests, full workspace tests, clippy, formatting, diff check, local Markdown link scan, and PR #173 protected `rust` CI pass. | Test Automation Engineer |
+| Release Gate | Pass for M14 | PR #173 merged after required `rust` CI passed; squash commit `a17cd4c0ae7af5ab768688c9301484e5eb4799cf`. | GitHub Maintainer Specialist |
+| Community Gate | Pass for M14 | Issues #167 through #172 closed and milestone #14 closed with 6 closed issues and 0 open issues. | Project Coordinator |
 | Implementation Gate | Pass for M13 | M13 implementation merged in PR #164 with runtime-profile validator, timing evidence, tests, docs, and traceability. | Core Software Engineer |
 | Release Gate | Pass for M13 | PR #164 merged after required `rust` CI passed; squash commit `ae0366dcd20a81a71262f38d2409dc2b85774051`. | GitHub Maintainer Specialist |
 | Community Gate | Pass for M13 | Issues #158 through #163 closed and milestone #13 closed with 6 closed items and 0 open items. | Project Coordinator |
@@ -172,6 +174,6 @@ Role: Project Coordinator / Product Architect
 Goal: Convert the transform taxonomy into a staged local milestone roadmap.
 Files changed: This roadmap plus M10, M11, M12, issue-planning, requirements, traceability, risk, orchestration, and state files.
 Checks run: Documentation and traceability inspection.
-Status: M10, M11, M12, and M13 complete; M14 local implementation and validation are complete, and milestone #14 is open with issues #167 through #172 until PR merge.
-Known gaps: No GitHub release tag was published for M13; M14 PR/CI/closure, live DAQ, runtime loaders, hardware validation, certification evidence, and M15+ work remain separately gated.
-Next recommended step: Open the M14 implementation PR and merge after required CI passes.
+Status: M10, M11, M12, M13, and M14 complete; milestone #14 is closed with issues #167 through #172 closed by PR #173.
+Known gaps: No GitHub release tag was published for M14; live DAQ, runtime loaders, hardware validation, certification evidence, and M15+ work remain separately gated.
+Next recommended step: Hold before M15 or new scope until explicit approval.

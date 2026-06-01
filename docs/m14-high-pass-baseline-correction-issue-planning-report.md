@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: GitHub milestone #14 and issues #167 through #172 created after M13 closure and explicit user approval to continue; local implementation and validation are complete, with PR/CI/closure pending.
+Status: Complete through PR #173. GitHub milestone #14 and issues #167 through #172 are closed.
 
 ## Scope
 
@@ -14,7 +14,7 @@ It intentionally stops before dependency changes, broad filter-family work, live
 
 | Milestone | Version | Proposal | Status |
 |---|---|---|---|
-| M14 | v0.12.0 | `docs/v0.12.0-high-pass-baseline-correction-milestone-proposal.md` | GitHub milestone #14 open with issues #167 through #172 |
+| M14 | v0.12.0 | `docs/v0.12.0-high-pass-baseline-correction-milestone-proposal.md` | Complete through PR #173; milestone #14 closed |
 
 ## Planned GitHub Issues
 
@@ -36,10 +36,10 @@ It intentionally stops before dependency changes, broad filter-family work, live
 | Scope Gate | Pass locally | Excludes dependencies, broad filter families, live DAQ, HAL/RTOS, target hardware, rule-package export expansion, GUI, signing, and certification claims. | Project Orchestrator |
 | Human Approval Gate | Pass for M14 issue creation and implementation | User approved continuing after M13 closure on 2026-06-01. | Project Coordinator |
 | Issue Planning Gate | Pass | GitHub milestone #14 and issues #167 through #172 created. | GitHub Maintainer Specialist |
-| Implementation Gate | Pass locally | Code, docs, tests, traceability, risk, and pipeline evidence are complete in the M14 implementation branch. | Core Software Engineer |
-| Testing Gate | Pass locally | Focused M14 tests, full workspace tests, clippy, formatting, diff check, and local Markdown link scan pass locally. | Test Automation Engineer |
-| Release Gate | Pending | PR and required `rust` CI pending. | GitHub Maintainer Specialist |
-| Community Gate | Pending | Issue and milestone closure pending. | Project Coordinator |
+| Implementation Gate | Pass | Code, docs, tests, traceability, risk, and pipeline evidence are merged in PR #173. | Core Software Engineer |
+| Testing Gate | Pass | Focused M14 tests, full workspace tests, clippy, formatting, diff check, local Markdown link scan, and PR #173 protected `rust` CI pass. | Test Automation Engineer |
+| Release Gate | Pass | PR #173 merged after required `rust` CI passed. | GitHub Maintainer Specialist |
+| Community Gate | Pass | Issues #167 through #172 and milestone #14 closed. | Project Coordinator |
 
 ## Stop Conditions
 
@@ -59,6 +59,6 @@ Role: Project Orchestrator / GitHub Maintainer Specialist
 Goal: Convert M14 proposal into issue-ready work.
 Files changed: This report plus proposal, requirements, traceability, risk, roadmap, orchestration, and project state.
 Checks run: Documentation and code-path inspection.
-Status: Local implementation and validation complete; GitHub milestone #14 and issues #167 through #172 remain open until PR merge.
-Known gaps: PR, required `rust` CI, issue closure, and milestone closure remain pending.
-Next recommended step: Open the M14 implementation PR and merge after required CI passes.
+Status: Complete through PR #173; GitHub milestone #14 and issues #167 through #172 are closed.
+Known gaps: Rule-package transform export, embedded runtime support, hardware evidence, certification evidence, and M15+ work remain separately gated.
+Next recommended step: Hold before M15 or new scope until explicit approval.

@@ -300,6 +300,6 @@ Role: Systems Engineer / Software Architect
 Goal: Complete M10-003 / issue #134 by mapping current implemented transforms to structured metadata values, updated by M14 high-pass baseline correction.
 Files changed: `docs/current-transform-metadata-mapping.md`
 Checks run: Documentation and compatibility review.
-Status: Complete through PR #138, updated by M12 PR #156 for event/validation metadata, and updated locally by M14 high-pass baseline correction work.
+Status: Complete through PR #138, updated by M12 PR #156 for event/validation metadata, and updated by M14 PR #173 for high-pass baseline correction.
 Known gaps: Bounded embedded event exposure and future runtime/package transform exposure remain gated work. M13 adds runtime-profile validator code for this mapping through PR #164; M14 keeps high-pass baseline correction desktop-only.
 Next recommended step: Use this mapping with the M13 validator before future transform package or runtime exposure.

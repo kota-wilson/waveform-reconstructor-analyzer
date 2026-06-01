@@ -139,6 +139,6 @@ Role: Embedded RTOS Engineer / Software Architect
 Goal: Complete M10-004 / issue #135 and support M13 runtime-profile validation.
 Files changed: `docs/transform-runtime-profile-compatibility.md`, `crates/ferrisoxide-core/src/runtime_profile.rs`
 Checks run: Documentation review; focused M13 runtime-profile tests; M14 high-pass baseline tests.
-Status: M10 rules are complete through PR #138; M13 validator implementation is complete through PR #164; M14 keeps high-pass baseline correction desktop-only.
+Status: M10 rules are complete through PR #138; M13 validator implementation is complete through PR #164; M14 high-pass baseline correction is complete through PR #173 and remains desktop-only.
 Known gaps: Deployment exposure and embedded/no_std transform exposure remain future gated work.
 Next recommended step: Use the validator before any future transform metadata is exposed to rule packages, deployment packages, Pi 5, or Pico 2 runtime paths.
