@@ -8,7 +8,11 @@ use crate::criteria::{
 };
 use crate::csv::CsvParseOptions;
 use crate::error::{Result, WaveformError};
-use crate::filter::{AdcQuantizer, FilterStep, LowPassFilter, MovingAverageFilter};
+use crate::filter::{
+    AdcQuantizer, BaselineSubtractTransform, ClampTransform, DcRemoveTransform, DeadbandTransform,
+    FilterStep, GainTransform, InvertTransform, LowPassFilter, MovingAverageFilter,
+    MovingMedianFilter, OffsetTransform,
+};
 use crate::model::{MetadataContext, TolerancePolicy, Unit};
 
 #[derive(Debug, Clone, PartialEq, Deserialize)]
@@ -72,6 +76,10 @@ pub struct FilterConfig {
     pub kind: String,
     pub window_samples: Option<usize>,
     pub cutoff_hz: Option<f64>,
+    pub offset_v: Option<f64>,
+    pub gain: Option<f64>,
+    pub threshold_v: Option<f64>,
+    pub baseline_v: Option<f64>,
     pub bits: Option<u8>,
     pub min_v: Option<f64>,
     pub max_v: Option<f64>,
@@ -80,7 +88,36 @@ pub struct FilterConfig {
 impl FilterConfig {
     fn to_filter_step(&self) -> Result<FilterStep> {
         match self.kind.as_str() {
+            "offset" => Ok(FilterStep::Offset(OffsetTransform {
+                offset_v: self
+                    .offset_v
+                    .ok_or_else(|| missing_filter_field("offset_v"))?,
+            })),
+            "gain" => Ok(FilterStep::Gain(GainTransform {
+                gain: self.gain.ok_or_else(|| missing_filter_field("gain"))?,
+            })),
+            "invert" => Ok(FilterStep::Invert(InvertTransform)),
+            "clamp" => Ok(FilterStep::Clamp(ClampTransform {
+                min_v: self.min_v.ok_or_else(|| missing_filter_field("min_v"))?,
+                max_v: self.max_v.ok_or_else(|| missing_filter_field("max_v"))?,
+            })),
+            "deadband" => Ok(FilterStep::Deadband(DeadbandTransform {
+                threshold_v: self
+                    .threshold_v
+                    .ok_or_else(|| missing_filter_field("threshold_v"))?,
+            })),
+            "dc_remove" => Ok(FilterStep::DcRemove(DcRemoveTransform)),
+            "baseline_subtract" => Ok(FilterStep::BaselineSubtract(BaselineSubtractTransform {
+                baseline_v: self
+                    .baseline_v
+                    .ok_or_else(|| missing_filter_field("baseline_v"))?,
+            })),
             "moving_average" => Ok(FilterStep::MovingAverage(MovingAverageFilter {
+                window_samples: self
+                    .window_samples
+                    .ok_or_else(|| missing_filter_field("window_samples"))?,
+            })),
+            "moving_median" => Ok(FilterStep::MovingMedian(MovingMedianFilter {
                 window_samples: self
                     .window_samples
                     .ok_or_else(|| missing_filter_field("window_samples"))?,
@@ -907,6 +944,10 @@ mod tests {
                 kind: "moving_average".to_string(),
                 window_samples: Some(2),
                 cutoff_hz: None,
+                offset_v: None,
+                gain: None,
+                threshold_v: None,
+                baseline_v: None,
                 bits: None,
                 min_v: None,
                 max_v: None,
@@ -963,6 +1004,10 @@ mod tests {
             kind: "adc_quantize".to_string(),
             window_samples: None,
             cutoff_hz: None,
+            offset_v: None,
+            gain: None,
+            threshold_v: None,
+            baseline_v: None,
             bits: Some(12),
             min_v: Some(0.0),
             max_v: Some(5.0),
@@ -1023,6 +1068,74 @@ threshold_v = 5.5
                     min_v: 0.0,
                     max_v: 5.0,
                 }),
+            ]
+        );
+    }
+
+    #[test]
+    fn filter_config_covers_m11_transform_types() {
+        let config: AnalysisConfig = toml::from_str(
+            r#"
+[input]
+time_column = "time"
+channels = ["input_v"]
+
+[[filters]]
+type = "offset"
+offset_v = 0.5
+
+[[filters]]
+type = "gain"
+gain = 2.0
+
+[[filters]]
+type = "invert"
+
+[[filters]]
+type = "clamp"
+min_v = 0.0
+max_v = 5.0
+
+[[filters]]
+type = "deadband"
+threshold_v = 0.1
+
+[[filters]]
+type = "dc_remove"
+
+[[filters]]
+type = "baseline_subtract"
+baseline_v = 1.25
+
+[[filters]]
+type = "moving_median"
+window_samples = 3
+
+[[criteria]]
+id = "input_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 5.5
+"#,
+        )
+        .expect("M11 filter config should deserialize");
+
+        let filters = config.filters().expect("filters should convert");
+
+        assert_eq!(
+            filters,
+            vec![
+                FilterStep::Offset(OffsetTransform { offset_v: 0.5 }),
+                FilterStep::Gain(GainTransform { gain: 2.0 }),
+                FilterStep::Invert(InvertTransform),
+                FilterStep::Clamp(ClampTransform {
+                    min_v: 0.0,
+                    max_v: 5.0,
+                }),
+                FilterStep::Deadband(DeadbandTransform { threshold_v: 0.1 }),
+                FilterStep::DcRemove(DcRemoveTransform),
+                FilterStep::BaselineSubtract(BaselineSubtractTransform { baseline_v: 1.25 }),
+                FilterStep::MovingMedian(MovingMedianFilter { window_samples: 3 }),
             ]
         );
     }
@@ -1701,6 +1814,10 @@ end_time_s = 1.000
             kind: "adc_quantize".to_string(),
             window_samples: None,
             cutoff_hz: None,
+            offset_v: None,
+            gain: None,
+            threshold_v: None,
+            baseline_v: None,
             bits: Some(12),
             min_v: Some(0.0),
             max_v: None,
@@ -1715,6 +1832,53 @@ end_time_s = 1.000
                 reason: "field is required for this filter type".to_string(),
             })
         );
+    }
+
+    #[test]
+    fn rejects_incomplete_m11_filter_config() {
+        for (toml, expected_name) in [
+            (
+                r#"
+[input]
+time_column = "time"
+channels = ["input_v"]
+
+[[filters]]
+type = "offset"
+
+[[criteria]]
+id = "input_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 5.5
+"#,
+                "filters.offset_v",
+            ),
+            (
+                r#"
+[input]
+time_column = "time"
+channels = ["input_v"]
+
+[[filters]]
+type = "moving_median"
+
+[[criteria]]
+id = "input_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 5.5
+"#,
+                "filters.window_samples",
+            ),
+        ] {
+            let config: AnalysisConfig = toml::from_str(toml).expect("config should deserialize");
+            let result = config.filters();
+            assert!(matches!(
+                result,
+                Err(WaveformError::InvalidParameter { name, .. }) if name == expected_name
+            ));
+        }
     }
 
     fn dsl_config_with_requirement(

@@ -2,7 +2,7 @@
 
 Date: 2026-06-01
 
-Status: M10-002 / issue #133 design artifact, implemented by M10-006 / issue #137 for current moving average, low-pass, and ADC quantization transforms.
+Status: M10-002 / issue #133 design artifact, extended by M11 issues #140 through #146 for pointwise, baseline, and moving-median transforms.
 
 ## Purpose
 
@@ -120,6 +120,14 @@ M10-003 owns final mappings for current transforms. This document records the di
 | Moving average | `moving_average` | `WindowedTransform` | false | true | true | `delay` |
 | Low-pass | `low_pass` | `FrequencyFilterTransform` | true | true | true | `delay` |
 | ADC quantization | `adc_quantize` | `QuantizationTransform` | false | false | true | `none` |
+| Offset | `offset` | `PointwiseTransform` | false | false | true | `none` |
+| Gain | `gain` | `PointwiseTransform` | false | false | true | `none` |
+| Invert | `invert` | `PointwiseTransform` | false | false | true | `none` |
+| Clamp | `clamp` | `PointwiseTransform` | false | false | true | `nonlinear` |
+| Deadband | `deadband` | `PointwiseTransform` | false | false | true | `nonlinear` |
+| DC removal | `dc_remove` | `BaselineTransform` | false | true | false | `none` |
+| Baseline subtraction | `baseline_subtract` | `BaselineTransform` | false | false | true | `none` |
+| Moving median | `moving_median` | `WindowedTransform` | false | true | true | `nonlinear` |
 
 ## Report Schema Direction
 
@@ -138,7 +146,7 @@ M10-006 adds exact tests for these expectations:
 - Raw waveform reports with no transforms should stay byte-for-byte stable if `transform_steps` is skipped when empty.
 - Transformed waveform reports should add structured metadata in transform order.
 - Each `transform_steps[].history_label` should match the corresponding `transform_history[]` entry.
-- Tests should assert field values for moving average, low-pass, and ADC quantization metadata.
+- Tests should assert field values for implemented transform metadata, including moving average, low-pass, ADC quantization, pointwise transforms, baseline transforms, and moving median.
 - Existing result and measurement evidence fields should remain unchanged unless a separate schema migration is approved.
 
 ## Rust Model

@@ -31,11 +31,13 @@ Criteria:
 - input_max_voltage: Pass measurement_id=input_max_voltage_measurement channel=input_v measured=5.000000 V required=5.500000 V tolerance=0.000000 sample_index=4 timestamp=0.004000 reason=maximum observed voltage was 5.000000 V
 ```
 
-Supported MVP filters:
+Supported MVP CLI filter flags:
 
 - `--moving-average <samples>` applies a trailing moving average to each channel.
 - `--low-pass <hz>` applies a simple first-order low-pass filter to each channel.
 - `--adc-quantize <bits:min_v:max_v>` simulates ideal ADC quantization before criteria.
+
+Additional M11 desktop transforms are available through config files; see `examples/m11-transform-config.toml`.
 
 JSON output:
 

@@ -46,6 +46,10 @@ pub struct ChannelMetadata {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub enum TransformCategory {
+    #[serde(rename = "PointwiseTransform")]
+    Pointwise,
+    #[serde(rename = "BaselineTransform")]
+    Baseline,
     #[serde(rename = "WindowedTransform")]
     Windowed,
     #[serde(rename = "FrequencyFilterTransform")]
@@ -133,6 +137,7 @@ impl TransformParameterMetadata {
 pub enum TransformPhaseEffect {
     None,
     Delay,
+    Nonlinear,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -151,6 +156,16 @@ pub enum TransformCapabilityStatus {
 #[serde(rename_all = "snake_case")]
 pub enum TransformEvidenceLevel {
     GoldenReportTested,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct TransformExecutionMetadata {
+    pub sample_rate_required: bool,
+    pub stateful: bool,
+    pub causal: bool,
+    pub phase_effect: TransformPhaseEffect,
+    pub streaming_supported: bool,
+    pub offline_only: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -183,6 +198,29 @@ impl TransformStepMetadata {
         stateful: bool,
         phase_effect: TransformPhaseEffect,
     ) -> Self {
+        Self::implemented_desktop_with_execution(
+            history_label,
+            name,
+            category,
+            parameters,
+            TransformExecutionMetadata {
+                sample_rate_required,
+                stateful,
+                causal: true,
+                phase_effect,
+                streaming_supported: true,
+                offline_only: false,
+            },
+        )
+    }
+
+    pub fn implemented_desktop_with_execution(
+        history_label: impl Into<String>,
+        name: impl Into<String>,
+        category: TransformCategory,
+        parameters: Vec<TransformParameterMetadata>,
+        execution: TransformExecutionMetadata,
+    ) -> Self {
         Self {
             sequence_index: 0,
             history_label: history_label.into(),
@@ -191,12 +229,12 @@ impl TransformStepMetadata {
             input_channels: TransformInputChannels::all_channels(),
             output_channels: TransformOutputChannels::derived_channels_preserving_names(),
             parameters,
-            sample_rate_required,
-            stateful,
-            causal: true,
-            phase_effect,
-            streaming_supported: true,
-            offline_only: false,
+            sample_rate_required: execution.sample_rate_required,
+            stateful: execution.stateful,
+            causal: execution.causal,
+            phase_effect: execution.phase_effect,
+            streaming_supported: execution.streaming_supported,
+            offline_only: execution.offline_only,
             runtime_profiles: vec![TransformRuntimeProfile::Desktop],
             capability_status: TransformCapabilityStatus::Implemented,
             evidence_level: TransformEvidenceLevel::GoldenReportTested,

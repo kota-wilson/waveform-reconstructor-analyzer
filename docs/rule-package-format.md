@@ -134,6 +134,8 @@ The `rules.json` example represents the same schema model for automation and fut
 
 Initial filter definitions are schema entries only. They describe intended transform order but are not executed by `ferrisoxide-rule-schema`.
 
+M11 desktop transforms such as `offset`, `gain`, `clamp`, `deadband`, `dc_remove`, `baseline_subtract`, and `moving_median` are not yet part of the portable rule-package filter subset. Exporting those transforms requires a later package-semantics design and compatibility gate.
+
 | Type | Required fields | Notes |
 |---|---|---|
 | `moving_average` | `id`, `channel`, `window_samples` | Mirrors the existing desktop filter concept. |

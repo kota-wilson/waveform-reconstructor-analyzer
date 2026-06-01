@@ -87,6 +87,14 @@ Current transform mappings come from `docs/current-transform-metadata-mapping.md
 | `moving_average` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented in desktop `ferrisoxide-core`; no no_std transform metadata or parity evidence yet. |
 | `low_pass` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented in desktop `ferrisoxide-core`; timing assumptions and no_std parity evidence are not established. |
 | `adc_quantize` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented in desktop `ferrisoxide-core`; no compact runtime exposure evidence yet. |
+| `offset` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented for desktop analysis; no no_std/fixed-buffer parity evidence yet. |
+| `gain` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented for desktop analysis; no no_std/fixed-buffer parity evidence yet. |
+| `invert` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented for desktop analysis; no no_std/fixed-buffer parity evidence yet. |
+| `clamp` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented for desktop analysis; nonlinear limiting is not exposed to runtime profiles yet. |
+| `deadband` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented for desktop analysis; nonlinear threshold behavior is not exposed to runtime profiles yet. |
+| `dc_remove` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented for desktop analysis; offline-only full-waveform mean removal is not a runtime transform. |
+| `baseline_subtract` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented for desktop analysis; no no_std/fixed-buffer parity evidence yet. |
+| `moving_median` | Allow | Reject for runtime exposure today | Reject for runtime exposure today | Implemented for desktop analysis; nonlinear window behavior lacks embedded-compatible parity evidence. |
 
 This matrix does not remove existing desktop analysis support. It only prevents runtime/deployment overclaims.
 
@@ -95,7 +103,7 @@ This matrix does not remove existing desktop analysis support. It only prevents 
 | Planned Area | Expected First Profile | Embedded Exposure Direction |
 |---|---|---|
 | Pointwise transforms | `desktop` | Pi 5/Pico exposure only after no_std or fixed-buffer implementation and parity evidence. |
-| Baseline transforms | `desktop` | Many baseline transforms are likely desktop-only until resource and timing behavior are proven. |
+| Baseline transforms | `desktop` | `dc_remove` remains offline-only; other baseline transforms need resource and timing review before runtime exposure. |
 | Event transforms | `desktop` | Deterministic state/event transforms may become Pi 5 candidates after shared logic and parity tests. |
 | Validation transforms | `desktop` | Embedded exposure requires shared rule/event semantics and exact parity where practical. |
 

@@ -18,7 +18,7 @@ In scope for this document:
 - Transform capability metadata fields.
 - Runtime profile names and meanings.
 - Capability status and evidence-level vocabulary.
-- A first capability matrix separating implemented behavior, proposed M11/M12 work, and future-gated work.
+- A capability matrix separating implemented behavior, proposed M12 work, and future-gated work.
 - Code-design vocabulary for later implementation.
 
 Out of scope for this document:
@@ -131,8 +131,10 @@ This matrix records M10-001 vocabulary boundaries. Later issues own implementati
 | Ideal ADC quantization | `adc_quantize` | `QuantizationTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop` |
 | Existing measurement evidence | extrema, transitions, pulse width, rise/fall time | `FeatureTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested`, `parity_tested` where rule-engine paths apply | `desktop`, `pi5_no_std_candidate` where no_std primitives already exist |
 | Existing criteria evidence | voltage ranges, response latency, stable state, transient event | `ValidationTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested`, `parity_tested` where rule-engine paths apply | `desktop`, `pi5_no_std_candidate` where no_std rule-engine paths apply |
-| Pointwise MVP | offset, gain, inversion, clamp, deadband | `PointwiseTransform` | `planned` | `documented_only` | `desktop`; embedded candidacy requires later evidence |
-| Baseline MVP | DC removal, baseline subtraction, high-pass baseline correction | `PointwiseTransform`, `WindowedTransform`, `StatefulTransform` | `planned` | `documented_only` | `desktop`; embedded candidacy requires later evidence |
+| Pointwise MVP | `offset`, `gain`, `invert`, `clamp`, `deadband` | `PointwiseTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; embedded candidacy requires later evidence |
+| Baseline MVP | `dc_remove`, `baseline_subtract` | `BaselineTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; embedded candidacy requires later evidence |
+| Moving median MVP | `moving_median` | `WindowedTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; embedded candidacy requires later evidence |
+| High-pass baseline correction | first-order high-pass baseline correction | `StatefulTransform` | `planned` | `documented_only` | `desktop`; deferred from M11 pending separate timing behavior issue |
 | Event MVP | Schmitt trigger, debounce, glitch removal, edges, bounce | `EventTransform`, `PulseEventTransform`, `StatefulTransform` | `planned` | `documented_only` | `desktop`; `pi5_no_std_candidate` only after parity evidence |
 | Event validation MVP | missing pulse, extra pulse, dwell-time, timeout | `ValidationTransform` | `planned` | `documented_only` | `desktop`; `pi5_no_std_candidate` only after parity evidence |
 | Spectral analysis | FFT, PSD, coherence, THD, ENOB | `FrequencyTransform` | `research` | `documented_only` | `future_gated` |
@@ -202,6 +204,6 @@ Role: Software Architect
 Goal: Complete M10-001 / issue #132 by defining transform capability vocabulary and matrix boundaries.
 Files changed: `docs/transform-capability-model.md`
 Checks run: Documentation and traceability review.
-Status: Complete through PR #138; issue #132 and milestone #10 are closed.
-Known gaps: Runtime-profile validator code, M11 pointwise/windowed transform implementation, and M12 event/validation transform implementation remain future gated work.
-Next recommended step: Decide whether to create M11 GitHub issues or hold at the completed M10 architecture boundary.
+Status: Updated by M11 local implementation; milestone #11 remains pending PR flow.
+Known gaps: Runtime-profile validator code, M12 event/validation transform implementation, and high-pass baseline correction remain future gated work.
+Next recommended step: Run full M11 validation, open a PR, and close milestone #11 only after checks pass.

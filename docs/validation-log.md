@@ -2,7 +2,7 @@
 
 Date: 2026-05-30
 
-Updated: 2026-05-31
+Updated: 2026-06-01
 
 Project: FerrisOxide Signal
 
@@ -16,11 +16,69 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 
 ## Environment
 
-- Working directory: `/Users/kota/Desktop/softwareai/projects/ferrisoxide`
+- Working directory: `/Users/kota/Desktop/codexprojects/softwaredev/projects/ferrisoxide`
 - Cargo: `cargo 1.95.0 (f2d3ce0bd 2026-03-21)`
 - Rust: `rustc 1.95.0 (59807616e 2026-04-14)`
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, and `ferrisoxide-cli`.
+
+## M11 Pointwise And Windowed Transform MVP Validation Update
+
+Date: 2026-06-01
+
+Stage: Testing pointwise, baseline, and moving-median transforms
+
+Owner Role: Test Automation Engineer / Verification and Validation Engineer
+
+### Environment
+
+- Working directory: `/Users/kota/Desktop/codexprojects/softwaredev/projects/ferrisoxide`
+- Isolation: Project-local Cargo workspace; no Python packages, global tools, GUI frameworks, live DAQ SDKs, HALs, RTOS SDKs, target toolchains, QEMU images, signing tools, runtime loaders, or new third-party dependencies installed.
+- GitHub milestone: #11, `v0.9.0: Pointwise And Windowed Transform MVP`
+- GitHub issues: #140 through #146
+
+### Commands And Results
+
+| Command | Result | Notes |
+|---|---|---|
+| `cargo test -p ferrisoxide-core` | Passed | 66 core unit tests passed, including M11 pointwise, baseline, moving-median, invalid-parameter, raw-preservation, config, metadata, and report tests. |
+| `cargo test -p ferrisoxide-cli analyzes_config_with_m11_transforms` | Passed | CLI config-driven analysis test passed for `examples/m11-transform-config.toml` and structured transform metadata. |
+| `cargo fmt --check` | Passed | Formatting clean. |
+| `cargo test --workspace` | Passed | 186 workspace unit, integration, and doctest checks passed. |
+| `cargo clippy --workspace --all-targets -- -D warnings` | Passed | No clippy warnings. |
+| Local Markdown link-target scan | Passed | Local links in 25 changed Markdown files resolved. |
+| Stale M10/M11 wording scan | Passed | No stale wording found for completed M10 or approved M11 state. |
+| `git diff --check` | Passed | No whitespace errors. |
+
+### Exact Tests Added
+
+| Test | Coverage |
+|---|---|
+| `pointwise_transforms_apply_without_mutating_input` | Confirms `offset`, `gain`, `invert`, and `clamp` known-answer behavior, raw-sample preservation, and metadata history. |
+| `deadband_and_baseline_transforms_preserve_raw_samples` | Confirms `deadband`, `dc_remove`, and `baseline_subtract` behavior while preserving raw input samples. |
+| `moving_median_uses_trailing_window_edges` | Confirms moving median uses a trailing window, handles edge windows, and emits nonlinear windowed metadata. |
+| `m11_transforms_reject_invalid_parameters` | Confirms invalid M11 parameters and non-finite computed pointwise outputs are rejected before downstream criteria evaluation. |
+| `filter_config_covers_m11_transform_types` | Confirms TOML config conversion supports every M11 transform type. |
+| `rejects_incomplete_m11_filter_config` | Confirms incomplete M11 transform config is rejected with clear config errors. |
+| `analyzes_config_with_m11_transforms` | Confirms the CLI runs a config chain containing M11 transforms and emits expected JSON metadata. |
+
+### Gate Decision
+
+- Gate: Testing and V&V Gates for M11.
+- Decision: Pass locally.
+- Reason: Known-answer transform tests, raw-preservation tests, config conversion tests, CLI JSON metadata coverage, formatting, workspace tests, clippy, local Markdown link scan, stale wording scan, and whitespace checks passed without adding dependencies, runtime exposure, live DAQ, HAL/RTOS bindings, target hardware claims, package signing, or certification claims.
+- Residual risk: Protected PR CI, PR review, issue closure, and milestone closure remain pending. High-pass baseline correction, runtime profile exposure, and portable rule-package semantics for M11 transforms remain future work.
+- Owner for residual risk: GitHub Maintainer Specialist / Project Coordinator.
+
+### Hand-Off Note
+
+Role: Test Automation Engineer / Verification and Validation Engineer
+Goal: Validate M11 pointwise and windowed transform MVP.
+Files changed: `crates/ferrisoxide-core/src/filter.rs`, `crates/ferrisoxide-core/src/config.rs`, `crates/ferrisoxide-core/src/model.rs`, `crates/ferrisoxide-cli/src/main.rs`, `examples/m11-transform-config.toml`, README, architecture, filter behavior, transform metadata docs, rule-package docs, roadmap, requirements, traceability, risk register, validation log, project state, orchestration plan, and M11 pipeline report.
+Checks run: `cargo test -p ferrisoxide-core`; `cargo test -p ferrisoxide-cli analyzes_config_with_m11_transforms`; `cargo fmt --check`; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; local Markdown link-target scan; stale M10/M11 wording scan; `git diff --check`.
+Status: Pass locally; PR, protected CI, issue closure, and milestone closure pending.
+Known gaps: High-pass baseline correction, runtime-profile exposure, portable rule-package semantics for M11 transforms, M12 implementation, release tag, and milestone closure remain pending.
+Next recommended step: Open the M11 PR, wait for protected CI, then merge and close milestone #11 only after issues #140 through #146 are closed.
 
 ## M9-010 Qualification Evidence Report Validation Update
 

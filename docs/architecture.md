@@ -49,7 +49,7 @@ Platform targets are documented in `docs/platform-targets.md`. The desktop autho
 | `model` | `crates/ferrisoxide-core/src/model.rs` | Units, samples, channels, waveform structures, and metadata. |
 | `csv` | `crates/ferrisoxide-core/src/csv.rs` | CSV parser and parser options backed by the `csv` crate. |
 | `config` | `crates/ferrisoxide-core/src/config.rs` | TOML-deserializable analysis configuration model. |
-| `filter` | `crates/ferrisoxide-core/src/filter.rs` | Filter trait, ordered filter-step enum, low-pass filter, moving-average filter, and ADC quantization transform. |
+| `filter` | `crates/ferrisoxide-core/src/filter.rs` | Filter trait, ordered filter-step enum, pointwise transforms, baseline transforms, moving-average and moving-median filters, low-pass filter, and ADC quantization transform. |
 | `criteria` | `crates/ferrisoxide-core/src/criteria.rs` | Pass/fail criteria definitions. |
 | `analysis` | `crates/ferrisoxide-core/src/analysis.rs` | Analysis results, measurement records, and adapter from desktop waveform/config types into `ferrisoxide-rule-engine`. |
 | `report` | `crates/ferrisoxide-core/src/report.rs` | Report model with text and JSON rendering, including reusable measurement evidence. |
@@ -151,7 +151,7 @@ Platform split
 ## Transform Assumptions
 
 - Raw waveform data is preserved.
-- Current implemented transforms are moving average, first-order low-pass, and ideal ADC quantization.
+- Current implemented transforms are moving average, moving median, first-order low-pass, ideal ADC quantization, offset, gain, invert, clamp, deadband, DC removal, and baseline subtraction.
 - Current user-facing config keeps the legacy `[[filters]]` table name, but architecture documents these as transform capabilities.
 - Implemented filters and ADC quantization return derived waveform outputs.
 - Derived waveform metadata records legacy `transform_history` and structured `transform_steps` so reports can show which data was evaluated.
@@ -162,10 +162,10 @@ Platform split
 - Edge behavior, latency, and sample-rate assumptions must be documented before filter algorithms are considered production-stable.
 - Future transform work is organized by the planning taxonomy in `docs/analog-transform-taxonomy.md`; not every named transform is implemented.
 - The transform taxonomy is not a support matrix; implemented/planned/research/gated status lives in `docs/transform-capability-model.md`.
-- Next transform work is proposed as M10 transform capability metadata, M11 pointwise/windowed transforms, and M12 event/validation transforms in `docs/next-milestones-roadmap.md`; implementation requires fresh GitHub issues and gates.
+- Next transform work is proposed as M12 event/validation transforms in `docs/next-milestones-roadmap.md`; M12 implementation requires its own GitHub issue-creation and approval gates.
 - Transform category, metadata, runtime profile, support-status, and evidence-level vocabulary is defined in `docs/transform-capability-model.md`.
 - Structured transform report metadata is defined in `docs/structured-transform-metadata.md`; existing `transform_history` remains the compatibility field, and `transform_steps` is emitted only when non-empty.
-- Current moving average, low-pass, and ADC quantization mappings to structured metadata values are defined in `docs/current-transform-metadata-mapping.md`.
+- Current transform mappings to structured metadata values are defined in `docs/current-transform-metadata-mapping.md`.
 - Runtime profile compatibility rules for transform exposure are defined in `docs/transform-runtime-profile-compatibility.md`; current implemented transforms remain desktop-only for runtime exposure until no_std/fixed-buffer/parity evidence exists.
 - Implemented transform equations are documented in `docs/filter-behavior.md`.
 - Time-axis validation and tolerance semantics are documented in `docs/time-axis-and-tolerances.md`.

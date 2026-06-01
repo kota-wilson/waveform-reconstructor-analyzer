@@ -1,0 +1,63 @@
+# Example M11 transform config for `ferrisoxide-signal analyze --config`.
+# Values are software transform parameters in the input signal units.
+
+[input]
+time_column = "time"
+channels = ["input_v", "output_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[filters]]
+type = "offset"
+offset_v = -2.0
+
+[[filters]]
+type = "gain"
+gain = 2.0
+
+[[filters]]
+type = "invert"
+
+[[filters]]
+type = "clamp"
+min_v = -5.0
+max_v = 5.0
+
+[[filters]]
+type = "deadband"
+threshold_v = 0.25
+
+[[filters]]
+type = "dc_remove"
+
+[[filters]]
+type = "baseline_subtract"
+baseline_v = 0.0
+
+[[filters]]
+type = "moving_median"
+window_samples = 3
+
+[[criteria]]
+id = "input_min_after_transforms"
+channel = "input_v"
+
+[criteria.measurement]
+type = "minimum_sample"
+
+[criteria.requirement]
+operator = "greater_than_or_equal"
+value = -5.0
+unit = "V"
+
+[[criteria]]
+id = "input_max_after_transforms"
+channel = "input_v"
+
+[criteria.measurement]
+type = "maximum_sample"
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 6.0
+unit = "V"

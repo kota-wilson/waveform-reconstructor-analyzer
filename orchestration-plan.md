@@ -6,9 +6,9 @@ Project folder: `/Users/kota/Desktop/codexprojects/softwaredev/projects/ferrisox
 
 Execution tier: Tier 2 MVP plus roadmap-controlled follow-on milestones
 
-Current objective: Record M10 transform architecture closure after PR #138 merged.
+Current objective: Complete M11 pointwise and windowed transform MVP through the pipeline.
 
-Current stage: M10 GitHub milestone #10 is closed; PR #138 merged by squash commit `69b8b1a4a7c963316a74130655667ea3ff1481d5`; issues #132 through #137 are closed.
+Current stage: M11 GitHub milestone #11 and issues #140 through #146 are open; local implementation is in progress on `m11-pointwise-windowed-transforms`.
 
 Selected workflow: `workflows/project-orchestration-pipeline.md`
 
@@ -32,8 +32,8 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 |---|---|---|---|---|---|
 | M1-M9 | Validated MVP, embedded/no_std foundation, validation, plotting, measurement/evidence, DSL, portable rule package, controller simulation/deployment config | Multiple roles | Historical gates | Implemented requirements WRA-RQ-001 through WRA-RQ-069 and closed M9 | Complete |
 | M10 / v0.8.0 | Transform architecture and capability metadata | Software Architect | Human approval and issue creation | Metadata model, existing-transform mappings, compatibility tests, docs, merged PR #138, closed issues #132 through #137, closed milestone #10 | Complete |
-| M11 / v0.9.0 | Pointwise and windowed transform MVP | Core Software Engineer / Systems Engineer | M10 architecture accepted | Pointwise, baseline, moving median, metadata, raw-preservation tests | Proposed locally |
-| M12 / v0.10.0 | Event and validation transform MVP | Core Software Engineer / V&V Engineer | M10 accepted and M11 compatibility path established | Event records, Schmitt trigger, debounce, glitch removal, event validation, fixtures | Proposed locally |
+| M11 / v0.9.0 | Pointwise and windowed transform MVP | Core Software Engineer / Systems Engineer | M10 architecture accepted and user requested next milestone | Pointwise, baseline, moving median, metadata, raw-preservation tests, docs, PR/CI, closed issues #140 through #146, closed milestone #11 | Local implementation in progress |
+| M12 / v0.10.0 | Event and validation transform MVP | Core Software Engineer / V&V Engineer | M10 accepted and M11 compatibility path established | Event records, Schmitt trigger, debounce, glitch removal, event validation, fixtures | Local proposal |
 
 ## Zoom-Level Plan
 
@@ -60,6 +60,8 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | WRA-TASK-018 | Implement M10-004 runtime profile compatibility rules | Embedded RTOS Engineer / Documentation Engineer | Issue #135 and current mappings | `docs/transform-runtime-profile-compatibility.md`, docs links, traceability updates, pipeline report | Implementation Gate | Complete locally |
 | WRA-TASK-019 | Implement M10-005 transform docs wording update | Documentation Engineer | Issue #136 and M10 docs | README/architecture/taxonomy/filter wording cleanup, traceability updates, pipeline report | Implementation Gate | Complete locally |
 | WRA-TASK-020 | Implement M10-006 transform metadata compatibility and golden-report tests | Verification and Validation Engineer / Core Software Engineer | Issue #137, M10 metadata design, current mappings, runtime compatibility rules | Additive `transform_steps` metadata, compatibility/golden-report tests, traceability updates, pipeline report | Implementation Gate | Complete locally |
+| WRA-TASK-021 | Approve M11 and create GitHub issues | Project Coordinator / GitHub Maintainer Specialist | M11 proposal and placeholders M11-001 through M11-007 | GitHub milestone #11 and issues #140 through #146 | Human Approval Gate | Complete |
+| WRA-TASK-022 | Implement M11 pointwise/windowed transform MVP | Core Software Engineer / Systems Engineer / V&V Engineer / Documentation Engineer | Issues #140 through #146, M10 metadata model | `crates/ferrisoxide-core`, CLI config test, `examples/m11-transform-config.toml`, docs, traceability, and pipeline report | Implementation Gate | In progress locally |
 
 ## Approval Gates
 
@@ -67,6 +69,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 |---|---|---|---|---|
 | M10 issue creation approval | Before creating GitHub issues for transform metadata | User / Project Coordinator | M10 proposal, requirements, risk, traceability, issue placeholders | Passed |
 | M10 implementation approval | Before editing code for transform metadata | User / Project Coordinator | GitHub milestone #10, issues #132-#137, user request to start completing open issues through the pipeline | Passed for local implementation |
+| M11 issue creation and implementation approval | Before creating GitHub issues and editing code for pointwise/windowed transforms | User / Project Coordinator | User request to continue the pipeline with the next milestone; M11 proposal and M10 closure evidence | Passed |
 | Dependency approval | Before adding third-party crates | User / Security Engineer | Dependency reason, license, alternatives, no_std impact | Pending |
 | Schema compatibility approval | Before incompatible report/config schema changes | Project Coordinator / V&V Engineer | Migration plan, golden tests, compatibility statement | Pending |
 | Hardware/runtime approval | Before live DAQ, HAL, RTOS SDK, target hardware, unsafe FFI, or global setup | User / Technical Director | Environment plan, risk review, rollback plan, validation scope | Pending |
@@ -94,20 +97,21 @@ You are the Software Architect / Core Software Engineer.
 
 Purpose
 
-Prepare M11/M12 issue-creation or implementation handoff only after explicit approval.
+Complete M11 implementation, validation, PR, and milestone closure without expanding scope.
 
 Responsibilities
 
 - Keep changes inside this project.
 - Do not add third-party crates without dependency approval.
-- Do not create additional GitHub milestones/issues without approval.
-- Do not start M11 or M12 issue creation or implementation without explicit user approval.
+- Do not create additional GitHub milestones/issues beyond M11 without approval.
+- Do not start M12 issue creation or implementation without explicit user approval.
 - Preserve raw waveform data and avoid unsupported algorithm, hardware, runtime, or certification claims.
 
 Deliverables
 
-- Requirements, traceability, risk, docs, tests, and pipeline reports updated for closed issues #132 through #137.
-- Next milestone handoff for M11 or M12 only after approval.
+- M11 transforms implemented for desktop analysis through the existing `[[filters]]` config path.
+- Requirements, traceability, risk, docs, tests, and pipeline reports updated for issues #140 through #146.
+- PR/CI/milestone closure handoff after validation.
 - Handoff note.
 
 Expected format to receive deliverables

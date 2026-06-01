@@ -17,7 +17,7 @@ use ferrisoxide_core::criteria::{
 };
 use ferrisoxide_core::csv::{CsvParseOptions, SimpleCsvParser, WaveformParser};
 use ferrisoxide_core::filter::{
-    apply_filter_chain, AdcQuantizer, FilterStep, LowPassFilter, MovingAverageFilter,
+    apply_filter_chain, AdcQuantizer, Filter, FilterStep, LowPassFilter, MovingAverageFilter,
 };
 use ferrisoxide_core::model::{Channel, MetadataContext, TolerancePolicy, Unit, Waveform};
 use ferrisoxide_core::report::{AnalysisReport, ReportEvidenceContext};
@@ -1254,6 +1254,12 @@ fn schema_filters(
                 FilterStep::MovingAverage(_) => format!("moving_average_{index}_{channel}"),
                 FilterStep::LowPass(_) => format!("low_pass_{index}_{channel}"),
                 FilterStep::AdcQuantize(_) => format!("adc_quantize_{index}_{channel}"),
+                _ => {
+                    return Err(format!(
+                        "rule package export does not yet support transform `{}`",
+                        filter.name()
+                    ));
+                }
             };
             schema_filters.push(match filter {
                 FilterStep::MovingAverage(filter) => FilterDefinition::MovingAverage {
@@ -1273,6 +1279,7 @@ fn schema_filters(
                     min: UnitValue::new(filter.min_v, EngineeringUnit::Volt),
                     max: UnitValue::new(filter.max_v, EngineeringUnit::Volt),
                 },
+                _ => unreachable!("unsupported filters return before schema conversion"),
             });
         }
     }
@@ -2132,6 +2139,38 @@ mod tests {
                 FilterStep::MovingAverage(MovingAverageFilter { window_samples: 3 }),
             ]
         );
+    }
+
+    #[test]
+    fn analyzes_config_with_m11_transforms() {
+        let output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            "../../examples/basic-waveform.csv".to_string(),
+            "--config".to_string(),
+            "../../examples/m11-transform-config.toml".to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("M11 transform config should analyze");
+
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        for transform_name in [
+            "offset",
+            "gain",
+            "invert",
+            "clamp",
+            "deadband",
+            "dc_remove",
+            "baseline_subtract",
+            "moving_median",
+        ] {
+            assert!(output.contains(&format!("\"name\": \"{transform_name}\"")));
+        }
+        assert!(output.contains("\"category\": \"PointwiseTransform\""));
+        assert!(output.contains("\"category\": \"BaselineTransform\""));
+        assert!(output.contains("\"category\": \"WindowedTransform\""));
+        assert!(output.contains("\"phase_effect\": \"nonlinear\""));
     }
 
     fn unique_plot_path(name: &str) -> String {

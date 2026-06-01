@@ -119,7 +119,7 @@ Implemented today:
 - CSV waveform loading.
 - Named time and channel mapping.
 - Waveform metadata for units, source, sample count, sample interval, nominal sample rate, lineage, legacy transform history, structured transform steps, validation context, and tolerance policy.
-- Moving-average, first-order low-pass, and ideal ADC quantization transforms.
+- Moving-average, moving-median, first-order low-pass, ideal ADC quantization, pointwise, and baseline transforms.
 - Transform architecture docs that classify current support, planned transform families, and runtime compatibility boundaries.
 - Measurement primitives for extrema, state transitions, pulse width, stable-state duration, transient duration, and rise/fall time.
 - Criteria for min/max voltage, state transitions, response latency, pulse width, transient events, stable-state duration, and rise/fall time.
@@ -584,21 +584,33 @@ Use config files for repeatable engineering evidence. Use CLI flags for quick lo
 
 ## Transforms, Filters, And ADC Quantization
 
-FerrisOxide currently implements three ordered pre-criteria transforms. They are exposed through the existing `[[filters]]` config table for compatibility, but the architecture treats them as transform capabilities that produce derived waveform data and preserve the raw input.
+FerrisOxide currently implements ordered pre-criteria transforms for smoothing, filtering, quantization, pointwise correction, and baseline handling. They are exposed through the existing `[[filters]]` config table for compatibility, but the architecture treats them as transform capabilities that produce derived waveform data and preserve the raw input.
 
-The broader transform taxonomy is planning input, not implemented support. See [analog transform taxonomy](docs/analog-transform-taxonomy.md), [transform capability model](docs/transform-capability-model.md), [structured transform metadata](docs/structured-transform-metadata.md), [current transform metadata mapping](docs/current-transform-metadata-mapping.md), and [transform runtime profile compatibility](docs/transform-runtime-profile-compatibility.md) for the M10 vocabulary, support-status, metadata, and runtime-boundary direction.
+The broader transform taxonomy is planning input, not implemented support. See [analog transform taxonomy](docs/analog-transform-taxonomy.md), [transform capability model](docs/transform-capability-model.md), [structured transform metadata](docs/structured-transform-metadata.md), [current transform metadata mapping](docs/current-transform-metadata-mapping.md), and [transform runtime profile compatibility](docs/transform-runtime-profile-compatibility.md) for vocabulary, support-status, metadata, and runtime-boundary direction.
 
 | Transform | Config type | Purpose |
 |---|---|---|
+| Offset | `offset` | Add a configured value in signal units. |
+| Gain | `gain` | Multiply samples by a configured scalar. |
+| Invert | `invert` | Flip signal polarity. |
+| Clamp | `clamp` | Bound samples between configured minimum and maximum values. |
+| Deadband | `deadband` | Set small values around zero to zero. |
+| DC removal | `dc_remove` | Subtract the channel mean over the full waveform. |
+| Baseline subtraction | `baseline_subtract` | Subtract a configured baseline value in signal units. |
 | Moving average | `moving_average` | Smooth samples with a trailing window that includes the current sample. |
+| Moving median | `moving_median` | Smooth spikes with a trailing median window. |
 | First-order low-pass | `low_pass` | Apply a simple low-pass smoothing model over a strictly increasing time axis. |
 | Ideal ADC quantization | `adc_quantize` | Clip and snap analog values to ideal ADC code levels before criteria evaluation. |
 
 Timing and unit assumptions remain transform-specific:
 
 - Moving average uses a sample-count window and does not require a nominal sample rate.
+- Moving median uses a trailing sample-count window, records nonlinear phase behavior, and does not require a nominal sample rate.
 - Low-pass uses a cutoff in hertz and requires a strictly increasing time axis.
 - ADC quantization uses a configured voltage range and outputs volts; it is not a calibrated physical ADC model.
+- DC removal is offline-only because it subtracts the mean of the full waveform.
+- First-order high-pass baseline correction remains planned, not implemented.
+- Portable rule-package export still supports the earlier portable filter subset (`moving_average`, `low_pass`, and `adc_quantize`) until transform package semantics are separately designed.
 
 Example ADC quantization config:
 
@@ -608,6 +620,22 @@ type = "adc_quantize"
 bits = 8
 min_v = 0.0
 max_v = 5.0
+```
+
+Example M11 transform config:
+
+```toml
+[[filters]]
+type = "offset"
+offset_v = -2.0
+
+[[filters]]
+type = "gain"
+gain = 2.0
+
+[[filters]]
+type = "moving_median"
+window_samples = 3
 ```
 
 Run it:

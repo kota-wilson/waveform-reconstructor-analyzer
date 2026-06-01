@@ -2,15 +2,23 @@
 
 Date: 2026-06-01
 
-Status: M10-003 / issue #134 mapping artifact, implemented in report metadata and tests by M10-006 / issue #137.
+Status: Current mapping artifact updated by M11 issues #140 through #146.
 
 ## Purpose
 
-FerrisOxide currently implements three transform steps in `crates/ferrisoxide-core/src/filter.rs`:
+FerrisOxide currently implements these transform steps in `crates/ferrisoxide-core/src/filter.rs`:
 
 - `moving_average`
 - `low_pass`
 - `adc_quantize`
+- `offset`
+- `gain`
+- `invert`
+- `clamp`
+- `deadband`
+- `dc_remove`
+- `baseline_subtract`
+- `moving_median`
 
 This document defines the structured metadata values these transforms emit in `waveform_metadata.transform_steps`.
 
@@ -21,6 +29,14 @@ The existing `transform_history` strings remain the compatibility field:
 - `moving_average(window_samples={window_samples})`
 - `low_pass(cutoff_hz={cutoff_hz})`
 - `adc_quantize(bits={bits},min_v={min_v},max_v={max_v})`
+- `offset(offset_v={offset_v})`
+- `gain(gain={gain})`
+- `invert()`
+- `clamp(min_v={min_v},max_v={max_v})`
+- `deadband(threshold_v={threshold_v})`
+- `dc_remove()`
+- `baseline_subtract(baseline_v={baseline_v})`
+- `moving_median(window_samples={window_samples})`
 
 Structured metadata must keep `history_label` equal to the matching `transform_history` entry for the same sequence index.
 
@@ -37,6 +53,21 @@ Structured metadata must keep `history_label` equal to the matching `transform_h
 | `evidence_level` | `golden_report_tested` for all current transforms because current behavior is covered by unit/fixture/golden report paths. |
 
 No current transform is exposed as Raspberry Pi 5 no_std or Pico 2 runtime support by this mapping. Those profiles require later explicit code, target, and parity evidence.
+
+## M11 Pointwise, Baseline, And Windowed Transforms
+
+| Transform | `name` | `category` | `parameters` | `sample_rate_required` | `stateful` | `causal` | `phase_effect` | `streaming_supported` | `offline_only` |
+|---|---|---|---|---|---|---|---|---|---|
+| Offset | `offset` | `PointwiseTransform` | `offset_v` in `V` | false | false | true | `none` | true | false |
+| Gain | `gain` | `PointwiseTransform` | `gain` as `ratio` | false | false | true | `none` | true | false |
+| Invert | `invert` | `PointwiseTransform` | none | false | false | true | `none` | true | false |
+| Clamp | `clamp` | `PointwiseTransform` | `min_v`, `max_v` in `V` | false | false | true | `nonlinear` | true | false |
+| Deadband | `deadband` | `PointwiseTransform` | `threshold_v` in `V` | false | false | true | `nonlinear` | true | false |
+| DC removal | `dc_remove` | `BaselineTransform` | none | false | true | false | `none` | false | true |
+| Baseline subtraction | `baseline_subtract` | `BaselineTransform` | `baseline_v` in `V` | false | false | true | `none` | true | false |
+| Moving median | `moving_median` | `WindowedTransform` | `window_samples` in `samples` | false | true | true | `nonlinear` | true | false |
+
+M11 defers first-order high-pass baseline correction. That transform needs explicit time-axis behavior and should not be inferred from the M11 baseline subtraction support.
 
 ## Moving Average
 
