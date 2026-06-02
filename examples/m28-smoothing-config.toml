@@ -1,0 +1,71 @@
+[input]
+time_column = "time"
+channels = ["input_v"]
+
+[metadata]
+test_id = "M28-SMOOTHING-BASELINE"
+operator = "FerrisOxide"
+notes = "M28 smoothing, detrending, baseline, and spike-cleanup fixture."
+
+[[filters]]
+type = "weighted_moving_average"
+weights = [1.0, 2.0, 3.0]
+
+[[filters]]
+type = "exponential_moving_average"
+alpha = 0.35
+
+[[filters]]
+type = "boxcar_smoothing"
+window_samples = 3
+
+[[filters]]
+type = "gaussian_smoothing"
+window_samples = 5
+sigma_samples = 1.0
+
+[[filters]]
+type = "savitzky_golay"
+window_samples = 5
+polynomial_order = 2
+
+[[filters]]
+type = "centered_moving_median"
+window_samples = 3
+
+[[filters]]
+type = "rolling_mean_baseline"
+window_samples = 3
+
+[[filters]]
+type = "rolling_median_baseline"
+window_samples = 3
+
+[[filters]]
+type = "linear_detrend"
+
+[[filters]]
+type = "polynomial_detrend"
+polynomial_order = 2
+
+[[filters]]
+type = "hampel_filter"
+window_samples = 3
+outlier_sigma = 3.0
+
+[[filters]]
+type = "spike_remove"
+window_samples = 3
+threshold_v = 0.5
+
+[[criteria]]
+id = "m28_min"
+type = "minimum_voltage"
+channel = "input_v"
+threshold_v = -10.0
+
+[[criteria]]
+id = "m28_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 10.0

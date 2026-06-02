@@ -1,0 +1,92 @@
+{
+  "package": {
+    "name": "linear-pointwise-rule",
+    "version": "1.0.0",
+    "schema_version": "0.1.0",
+    "description": "Example portable rule package using linear pointwise software transforms."
+  },
+  "target": {
+    "kind": "controller_runtime",
+    "identifier": "raspberry-pi-5-bare-metal",
+    "notes": [
+      "Documentation example only; offset and gain are software transforms, not calibration evidence."
+    ]
+  },
+  "sample_timing": {
+    "timestamp_unit": "s",
+    "nominal_sample_rate_hz": 1000.0,
+    "sample_rate_tolerance_hz": 0.5,
+    "nominal_sample_interval_s": 0.001,
+    "timestamp_tolerance_s": 0.000001
+  },
+  "channels": [
+    {
+      "name": "input_v",
+      "source_name": "daq_ai0",
+      "unit": "V",
+      "sample_rate_hz": 1000.0,
+      "thresholds": [
+        {
+          "name": "input_decision",
+          "role": "decision",
+          "value": {
+            "value": 2.5,
+            "unit": "V"
+          }
+        }
+      ]
+    }
+  ],
+  "filters": [
+    {
+      "type": "offset",
+      "id": "input_offset",
+      "channel": "input_v",
+      "offset": {
+        "value": 0.25,
+        "unit": "V"
+      }
+    },
+    {
+      "type": "gain",
+      "id": "input_gain",
+      "channel": "input_v",
+      "gain": 2.0
+    },
+    {
+      "type": "invert",
+      "id": "input_invert",
+      "channel": "input_v"
+    }
+  ],
+  "criteria": [
+    {
+      "id": "CRIT-LINEAR-001",
+      "channel": "input_v",
+      "measurement": {
+        "type": "minimum_sample"
+      },
+      "requirement": {
+        "operator": "greater_than_or_equal",
+        "value": {
+          "value": 0.0,
+          "unit": "V"
+        }
+      }
+    },
+    {
+      "id": "CRIT-LINEAR-002",
+      "channel": "input_v",
+      "measurement": {
+        "type": "maximum_sample"
+      },
+      "requirement": {
+        "operator": "less_than_or_equal",
+        "value": {
+          "value": 10.0,
+          "unit": "V"
+        }
+      }
+    }
+  ]
+}

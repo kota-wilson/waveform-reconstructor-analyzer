@@ -2,7 +2,7 @@ use std::collections::BTreeMap;
 use std::env;
 use std::fs;
 use std::io::Write;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use ferrisoxide_control_schema::{
@@ -17,11 +17,16 @@ use ferrisoxide_core::criteria::{
 };
 use ferrisoxide_core::csv::{CsvParseOptions, SimpleCsvParser, WaveformParser};
 use ferrisoxide_core::event::evaluate_event_pipeline;
+use ferrisoxide_core::feature::evaluate_feature_transforms;
 use ferrisoxide_core::filter::{
     apply_filter_chain, AdcQuantizer, Filter, FilterStep, LowPassFilter, MovingAverageFilter,
 };
-use ferrisoxide_core::model::{Channel, MetadataContext, TolerancePolicy, Unit, Waveform};
+use ferrisoxide_core::model::{
+    Channel, MetadataContext, TolerancePolicy, TransformCapabilityStatus, TransformEvidenceLevel,
+    TransformRuntimeProfile, Unit, Waveform,
+};
 use ferrisoxide_core::report::{AnalysisReport, ReportEvidenceContext};
+use ferrisoxide_core::transform_catalog::{transform_catalog, TransformCatalogEntry};
 use ferrisoxide_daq::{
     collect_frames, DaqChannel, DaqSampleFrame, DaqSampleValue, DaqSourceDescriptor, DaqSourceKind,
     FixtureDaqSource,
@@ -67,8 +72,10 @@ fn run(args: Vec<String>) -> Result<String, String> {
         Some("plot") => run_plot(&args),
         Some("export-rule-package") => run_export_rule_package(&args),
         Some("simulate") => run_simulate(&args),
+        Some("batch") => run_batch(&args),
+        Some("transforms") => run_transforms(&args),
         Some(other) => Err(format!(
-            "expected subcommand `analyze`, `plot`, `export-rule-package`, or `simulate`, got `{other}`"
+            "expected subcommand `analyze`, `plot`, `export-rule-package`, `simulate`, `batch`, or `transforms`, got `{other}`"
         )),
         None => Ok(help()),
     }
@@ -78,50 +85,62 @@ fn run_analyze(args: &[String]) -> Result<String, String> {
     let input_path = value_after(args, "--input").ok_or("missing --input <path>")?;
     let output_format = value_after(args, "--format").unwrap_or("text");
     let config = load_config(args)?;
-    let (options, filters, event_transforms, event_validations, criteria, tolerances, metadata) =
-        match config {
-            Some(config) => (
-                config.csv_options(),
-                config
-                    .filters()
-                    .map_err(|error| format!("invalid config filters: {error}"))?,
-                config
-                    .event_transforms()
-                    .map_err(|error| format!("invalid config event transforms: {error}"))?,
-                config
-                    .event_validations()
-                    .map_err(|error| format!("invalid config event validations: {error}"))?,
-                config
-                    .criteria()
-                    .map_err(|error| format!("invalid config criteria: {error}"))?,
-                config.tolerances,
-                config.metadata,
-            ),
-            None => {
-                let time_column = value_after(args, "--time-column").unwrap_or("time");
-                let channels =
-                    value_after(args, "--channels").ok_or("missing --channels <name[,name]>")?;
-                let channel_columns = channels
-                    .split(',')
-                    .map(str::trim)
-                    .filter(|channel| !channel.is_empty())
-                    .map(str::to_string)
-                    .collect::<Vec<_>>();
-                if channel_columns.is_empty() {
-                    return Err("--channels must include at least one channel".to_string());
-                }
-
-                (
-                    CsvParseOptions::new(time_column, channel_columns),
-                    parse_filters(args)?,
-                    Vec::new(),
-                    Vec::new(),
-                    parse_criteria(args)?,
-                    TolerancePolicy::default(),
-                    MetadataContext::default(),
-                )
+    let (
+        options,
+        filters,
+        feature_transforms,
+        event_transforms,
+        event_validations,
+        criteria,
+        tolerances,
+        metadata,
+    ) = match config {
+        Some(config) => (
+            config.csv_options(),
+            config
+                .filters()
+                .map_err(|error| format!("invalid config filters: {error}"))?,
+            config
+                .feature_transforms()
+                .map_err(|error| format!("invalid config feature transforms: {error}"))?,
+            config
+                .event_transforms()
+                .map_err(|error| format!("invalid config event transforms: {error}"))?,
+            config
+                .event_validations()
+                .map_err(|error| format!("invalid config event validations: {error}"))?,
+            config
+                .criteria()
+                .map_err(|error| format!("invalid config criteria: {error}"))?,
+            config.tolerances,
+            config.metadata,
+        ),
+        None => {
+            let time_column = value_after(args, "--time-column").unwrap_or("time");
+            let channels =
+                value_after(args, "--channels").ok_or("missing --channels <name[,name]>")?;
+            let channel_columns = channels
+                .split(',')
+                .map(str::trim)
+                .filter(|channel| !channel.is_empty())
+                .map(str::to_string)
+                .collect::<Vec<_>>();
+            if channel_columns.is_empty() {
+                return Err("--channels must include at least one channel".to_string());
             }
-        };
+
+            (
+                CsvParseOptions::new(time_column, channel_columns),
+                parse_filters(args)?,
+                Vec::new(),
+                Vec::new(),
+                Vec::new(),
+                parse_criteria(args)?,
+                TolerancePolicy::default(),
+                MetadataContext::default(),
+            )
+        }
+    };
 
     let input = fs::read_to_string(input_path)
         .map_err(|error| format!("failed to read `{input_path}`: {error}"))?;
@@ -136,6 +155,8 @@ fn run_analyze(args: &[String]) -> Result<String, String> {
     waveform = apply_filter_chain(&waveform, &filters)
         .map_err(|error| format!("filter pipeline failed: {error}"))?;
 
+    let feature_records = evaluate_feature_transforms(&waveform, &feature_transforms)
+        .map_err(|error| format!("feature analysis failed: {error}"))?;
     let event_evaluation =
         evaluate_event_pipeline(&waveform, &event_transforms, &event_validations)
             .map_err(|error| format!("event analysis failed: {error}"))?;
@@ -146,6 +167,7 @@ fn run_analyze(args: &[String]) -> Result<String, String> {
         waveform_metadata: waveform.metadata.clone(),
         evidence_context: ReportEvidenceContext::engineering_validation(tolerances),
         measurements: evaluation.measurements,
+        feature_records,
         event_records: event_evaluation.records,
         event_validations: event_evaluation.validations,
         results: evaluation.results,
@@ -245,6 +267,12 @@ fn run_export_rule_package(args: &[String]) -> Result<String, String> {
         parse_target_profile(value_after(args, "--target").unwrap_or("controller_runtime"))?;
     let target_identifier = value_after(args, "--target-id").map(str::to_string);
     let config = load_config(args)?.ok_or("export-rule-package requires --config <toml>")?;
+    if !config.feature_transforms.is_empty() {
+        return Err(
+            "rule package export does not yet support feature_transforms; remove them or run analyze"
+                .to_string(),
+        );
+    }
     let (report, filters, criteria) = analyze_configured_input(input_path, &config)?;
     let package = build_rule_package(RulePackageBuildInput {
         package_name,
@@ -391,6 +419,404 @@ fn run_simulate(args: &[String]) -> Result<String, String> {
     Ok(output)
 }
 
+fn run_batch(args: &[String]) -> Result<String, String> {
+    let manifest_path = value_after(args, "--manifest").ok_or("missing --manifest <toml>")?;
+    let output_format = value_after(args, "--format").unwrap_or("json");
+    validate_report_format(output_format)?;
+    let overwrite = args.iter().any(|arg| arg == "--overwrite");
+    let manifest = load_batch_manifest(manifest_path)?;
+    let manifest_dir = Path::new(manifest_path)
+        .parent()
+        .filter(|path| !path.as_os_str().is_empty())
+        .unwrap_or_else(|| Path::new("."));
+    let output_dir = if let Some(path) = value_after(args, "--output-dir") {
+        PathBuf::from(path)
+    } else if let Some(path) = manifest.output_dir.as_deref() {
+        resolve_path(manifest_dir, path)
+    } else {
+        return Err("batch requires --output-dir <dir> or output_dir in the manifest".to_string());
+    };
+    fs::create_dir_all(&output_dir)
+        .map_err(|error| format!("failed to create `{}`: {error}", output_dir.display()))?;
+
+    let default_format = manifest.default_format.as_deref().unwrap_or("json");
+    let mut run_results = Vec::new();
+    for run_config in &manifest.runs {
+        run_results.push(run_batch_entry(
+            manifest_dir,
+            &output_dir,
+            run_config,
+            default_format,
+            overwrite,
+        ));
+    }
+
+    let summary = BatchSummary::from_results(
+        manifest_path.to_string(),
+        output_dir.display().to_string(),
+        run_results,
+    );
+    let summary_file = manifest
+        .summary_file
+        .as_deref()
+        .unwrap_or("batch-summary.json");
+    validate_relative_output_path(summary_file, "summary_file")?;
+    let summary_path = output_dir.join(summary_file);
+    let summary_json = with_trailing_newline(
+        serde_json::to_string_pretty(&summary)
+            .map_err(|error| format!("failed to render batch summary: {error}"))?,
+    );
+    write_output_file(&summary_path, &summary_json, overwrite)?;
+
+    match output_format {
+        "json" => Ok(summary_json.trim_end().to_string()),
+        "text" => Ok(summary.render_text()),
+        _ => Err(format!(
+            "unsupported --format `{output_format}`; use text or json"
+        )),
+    }
+}
+
+fn run_transforms(args: &[String]) -> Result<String, String> {
+    let output_format = value_after(args, "--format").unwrap_or("text");
+    match output_format {
+        "json" => serde_json::to_string_pretty(transform_catalog())
+            .map_err(|error| format!("failed to render transform catalog: {error}")),
+        "text" => Ok(render_transform_catalog_text(transform_catalog())),
+        _ => Err(format!(
+            "unsupported --format `{output_format}`; use text or json"
+        )),
+    }
+}
+
+fn render_transform_catalog_text(entries: &[TransformCatalogEntry]) -> String {
+    let mut output = String::new();
+    output.push_str("FerrisOxide Transform Catalog\n");
+    output.push_str(&format!("Entries: {}\n", entries.len()));
+    for entry in entries {
+        let runtime_profiles = entry
+            .runtime_profiles
+            .iter()
+            .copied()
+            .map(runtime_profile_label)
+            .collect::<Vec<_>>()
+            .join(",");
+        output.push_str(&format!(
+            "- {} | milestone={} | status={} | family={} | category={} | package={} | runtime={} | evidence={} | docs={}\n",
+            entry.name,
+            entry.milestone,
+            capability_status_label(entry.capability_status),
+            entry.family.as_str(),
+            entry.category.as_str(),
+            entry.package_support.as_str(),
+            runtime_profiles,
+            evidence_level_label(entry.evidence_level),
+            entry.docs_path
+        ));
+    }
+    output
+}
+
+fn capability_status_label(status: TransformCapabilityStatus) -> &'static str {
+    match status {
+        TransformCapabilityStatus::Implemented => "implemented",
+        TransformCapabilityStatus::Planned => "planned",
+        TransformCapabilityStatus::Research => "research",
+        TransformCapabilityStatus::DependencyGated => "dependency_gated",
+        TransformCapabilityStatus::HardwareGated => "hardware_gated",
+        TransformCapabilityStatus::CertificationGated => "certification_gated",
+    }
+}
+
+fn evidence_level_label(level: TransformEvidenceLevel) -> &'static str {
+    match level {
+        TransformEvidenceLevel::DocumentedOnly => "documented_only",
+        TransformEvidenceLevel::UnitTested => "unit_tested",
+        TransformEvidenceLevel::FixtureTested => "fixture_tested",
+        TransformEvidenceLevel::GoldenReportTested => "golden_report_tested",
+        TransformEvidenceLevel::ParityTested => "parity_tested",
+        TransformEvidenceLevel::Validated => "validated",
+    }
+}
+
+fn runtime_profile_label(profile: TransformRuntimeProfile) -> &'static str {
+    profile.as_str()
+}
+
+#[derive(Debug, Deserialize)]
+struct BatchManifest {
+    pub output_dir: Option<String>,
+    pub summary_file: Option<String>,
+    #[serde(default)]
+    pub default_format: Option<String>,
+    #[serde(default)]
+    pub runs: Vec<BatchRunConfig>,
+}
+
+#[derive(Debug, Deserialize)]
+struct BatchRunConfig {
+    pub id: String,
+    pub input: String,
+    pub config: String,
+    pub report: Option<String>,
+    pub format: Option<String>,
+}
+
+#[derive(Debug, Serialize)]
+struct BatchSummary {
+    kind: &'static str,
+    manifest: String,
+    output_dir: String,
+    total_runs: usize,
+    passed_runs: usize,
+    failed_runs: usize,
+    error_runs: usize,
+    overall_outcome: String,
+    runs: Vec<BatchRunResult>,
+}
+
+#[derive(Debug, Serialize)]
+struct BatchRunResult {
+    id: String,
+    input: String,
+    config: String,
+    report: Option<String>,
+    status: String,
+    outcome: Option<String>,
+    error: Option<String>,
+}
+
+impl BatchSummary {
+    fn from_results(manifest: String, output_dir: String, runs: Vec<BatchRunResult>) -> Self {
+        let passed_runs = runs.iter().filter(|run| run.status == "pass").count();
+        let failed_runs = runs.iter().filter(|run| run.status == "fail").count();
+        let error_runs = runs.iter().filter(|run| run.status == "error").count();
+        let overall_outcome = if failed_runs == 0 && error_runs == 0 {
+            "pass"
+        } else {
+            "fail"
+        }
+        .to_string();
+
+        Self {
+            kind: "batch_analysis",
+            manifest,
+            output_dir,
+            total_runs: runs.len(),
+            passed_runs,
+            failed_runs,
+            error_runs,
+            overall_outcome,
+            runs,
+        }
+    }
+
+    fn render_text(&self) -> String {
+        let mut output = String::new();
+        output.push_str("FerrisOxide Batch Analysis Summary\n");
+        output.push_str(&format!("Manifest: {}\n", self.manifest));
+        output.push_str(&format!("Output Directory: {}\n", self.output_dir));
+        output.push_str(&format!("Overall: {}\n", self.overall_outcome));
+        output.push_str(&format!(
+            "Runs: total={} passed={} failed={} errors={}\n",
+            self.total_runs, self.passed_runs, self.failed_runs, self.error_runs
+        ));
+        for run in &self.runs {
+            output.push_str(&format!("- {}: {}", run.id, run.status));
+            if let Some(outcome) = &run.outcome {
+                output.push_str(&format!(" outcome={outcome}"));
+            }
+            if let Some(report) = &run.report {
+                output.push_str(&format!(" report={report}"));
+            }
+            if let Some(error) = &run.error {
+                output.push_str(&format!(" error={error}"));
+            }
+            output.push('\n');
+        }
+        output
+    }
+}
+
+fn load_batch_manifest(path: &str) -> Result<BatchManifest, String> {
+    let input =
+        fs::read_to_string(path).map_err(|error| format!("failed to read `{path}`: {error}"))?;
+    let manifest = toml::from_str::<BatchManifest>(&input)
+        .map_err(|error| format!("failed to parse batch manifest `{path}`: {error}"))?;
+    validate_batch_manifest(&manifest)?;
+    Ok(manifest)
+}
+
+fn validate_batch_manifest(manifest: &BatchManifest) -> Result<(), String> {
+    if manifest.runs.is_empty() {
+        return Err("batch manifest must include at least one [[runs]] entry".to_string());
+    }
+    if let Some(summary_file) = &manifest.summary_file {
+        validate_relative_output_path(summary_file, "summary_file")?;
+    }
+    let mut seen_ids = BTreeMap::new();
+    for run in &manifest.runs {
+        validate_batch_run_id(&run.id)?;
+        if seen_ids.insert(run.id.clone(), ()).is_some() {
+            return Err(format!("duplicate batch run id `{}`", run.id));
+        }
+        if run.input.trim().is_empty() {
+            return Err(format!("batch run `{}` input must not be empty", run.id));
+        }
+        if run.config.trim().is_empty() {
+            return Err(format!("batch run `{}` config must not be empty", run.id));
+        }
+        if let Some(report) = &run.report {
+            validate_relative_output_path(report, "runs.report")?;
+        }
+        if let Some(format) = &run.format {
+            validate_report_format(format)?;
+        }
+    }
+    if let Some(format) = &manifest.default_format {
+        validate_report_format(format)?;
+    }
+    Ok(())
+}
+
+fn run_batch_entry(
+    manifest_dir: &Path,
+    output_dir: &Path,
+    run_config: &BatchRunConfig,
+    default_format: &str,
+    overwrite: bool,
+) -> BatchRunResult {
+    let input_path = resolve_path(manifest_dir, &run_config.input);
+    let config_path = resolve_path(manifest_dir, &run_config.config);
+    let format = run_config.format.as_deref().unwrap_or(default_format);
+    let report_file = run_config
+        .report
+        .clone()
+        .unwrap_or_else(|| format!("{}.{}", run_config.id, report_extension(format)));
+    let report_path = output_dir.join(&report_file);
+
+    let result = (|| {
+        validate_report_format(format)?;
+        let config = load_analysis_config_from_path(&config_path)?;
+        let (report, _, _) = analyze_configured_input(path_to_str(&input_path)?, &config)?;
+        let outcome = report_outcome(&report);
+        let rendered = with_trailing_newline(render_report(&report, format)?);
+        write_output_file(&report_path, &rendered, overwrite)?;
+        Ok(outcome)
+    })();
+
+    match result {
+        Ok(outcome) => BatchRunResult {
+            id: run_config.id.clone(),
+            input: input_path.display().to_string(),
+            config: config_path.display().to_string(),
+            report: Some(report_path.display().to_string()),
+            status: outcome.clone(),
+            outcome: Some(outcome),
+            error: None,
+        },
+        Err(error) => BatchRunResult {
+            id: run_config.id.clone(),
+            input: input_path.display().to_string(),
+            config: config_path.display().to_string(),
+            report: None,
+            status: "error".to_string(),
+            outcome: None,
+            error: Some(error),
+        },
+    }
+}
+
+fn load_analysis_config_from_path(path: &Path) -> Result<AnalysisConfig, String> {
+    let path_str = path_to_str(path)?;
+    let input = fs::read_to_string(path)
+        .map_err(|error| format!("failed to read `{path_str}`: {error}"))?;
+    let config = toml::from_str::<AnalysisConfig>(&input)
+        .map_err(|error| format!("failed to parse config `{path_str}`: {error}"))?;
+    validate_loaded_config(&config)?;
+    Ok(config)
+}
+
+fn validate_loaded_config(config: &AnalysisConfig) -> Result<(), String> {
+    if config.input.channels.is_empty() {
+        return Err("config input.channels must include at least one channel".to_string());
+    }
+    if config.criteria.is_empty() {
+        return Err("config must include at least one [[criteria]] entry".to_string());
+    }
+    config
+        .validate()
+        .map_err(|error| format!("invalid config: {error}"))
+}
+
+fn report_outcome(report: &AnalysisReport) -> String {
+    match report.overall_outcome() {
+        ferrisoxide_core::analysis::Outcome::Pass => "pass".to_string(),
+        ferrisoxide_core::analysis::Outcome::Fail => "fail".to_string(),
+    }
+}
+
+fn report_extension(format: &str) -> &'static str {
+    match format {
+        "text" => "txt",
+        _ => "json",
+    }
+}
+
+fn validate_report_format(format: &str) -> Result<(), String> {
+    match format {
+        "text" | "json" => Ok(()),
+        _ => Err(format!(
+            "unsupported report format `{format}`; use text or json"
+        )),
+    }
+}
+
+fn validate_batch_run_id(id: &str) -> Result<(), String> {
+    if id.trim().is_empty() {
+        return Err("batch run id must not be empty".to_string());
+    }
+    if id.contains('/') || id.contains('\\') {
+        return Err("batch run id must not contain path separators".to_string());
+    }
+    validate_relative_output_path(id, "runs.id")
+}
+
+fn validate_relative_output_path(path: &str, field: &str) -> Result<(), String> {
+    if path.trim().is_empty() {
+        return Err(format!("{field} must not be empty"));
+    }
+    let path = Path::new(path);
+    if path.is_absolute() {
+        return Err(format!("{field} must be a relative output path"));
+    }
+    if path.components().any(|component| {
+        matches!(
+            component,
+            std::path::Component::ParentDir | std::path::Component::RootDir
+        )
+    }) {
+        return Err(format!(
+            "{field} must not contain parent directory components"
+        ));
+    }
+    Ok(())
+}
+
+fn resolve_path(base_dir: &Path, path: &str) -> PathBuf {
+    let path = Path::new(path);
+    if path.is_absolute() {
+        path.to_path_buf()
+    } else {
+        base_dir.join(path)
+    }
+}
+
+fn path_to_str(path: &Path) -> Result<&str, String> {
+    path.to_str()
+        .ok_or_else(|| format!("path `{}` is not valid UTF-8", path.display()))
+}
+
 struct DesktopSimulationInput<'a> {
     input_path: &'a str,
     control_config_path: &'a str,
@@ -467,6 +893,7 @@ fn run_desktop_simulation_workflow(
         waveform_metadata: waveform.metadata.clone(),
         evidence_context: ReportEvidenceContext::engineering_validation(TolerancePolicy::default()),
         measurements: evaluation.measurements,
+        feature_records: Vec::new(),
         event_records: Vec::new(),
         event_validations: Vec::new(),
         results: evaluation.results,
@@ -1169,6 +1596,11 @@ fn analyze_configured_input(
         .map_err(|error| format!("invalid config filters: {error}"))?;
     waveform = apply_filter_chain(&waveform, &filters)
         .map_err(|error| format!("filter pipeline failed: {error}"))?;
+    let feature_transforms = config
+        .feature_transforms()
+        .map_err(|error| format!("invalid config feature transforms: {error}"))?;
+    let feature_records = evaluate_feature_transforms(&waveform, &feature_transforms)
+        .map_err(|error| format!("feature analysis failed: {error}"))?;
     let criteria = config
         .criteria()
         .map_err(|error| format!("invalid config criteria: {error}"))?;
@@ -1188,6 +1620,7 @@ fn analyze_configured_input(
         waveform_metadata: waveform.metadata.clone(),
         evidence_context: ReportEvidenceContext::engineering_validation(config.tolerances),
         measurements: evaluation.measurements,
+        feature_records,
         event_records: event_evaluation.records,
         event_validations: event_evaluation.validations,
         results: evaluation.results,
@@ -1278,22 +1711,40 @@ fn schema_filters(
     let mut schema_filters = Vec::new();
     for (index, filter) in filters.iter().enumerate() {
         for channel in channels {
+            if !filter.rule_package_export_supported() {
+                return Err(format!(
+                    "rule package export does not yet support transform `{}`",
+                    filter.name()
+                ));
+            }
             let id = match filter {
                 FilterStep::MovingAverage(_) => format!("moving_average_{index}_{channel}"),
+                FilterStep::Offset(_) => format!("offset_{index}_{channel}"),
+                FilterStep::Gain(_) => format!("gain_{index}_{channel}"),
+                FilterStep::Invert(_) => format!("invert_{index}_{channel}"),
                 FilterStep::LowPass(_) => format!("low_pass_{index}_{channel}"),
                 FilterStep::AdcQuantize(_) => format!("adc_quantize_{index}_{channel}"),
-                _ => {
-                    return Err(format!(
-                        "rule package export does not yet support transform `{}`",
-                        filter.name()
-                    ));
-                }
+                _ => unreachable!("catalog rejected unsupported filters before id generation"),
             };
             schema_filters.push(match filter {
                 FilterStep::MovingAverage(filter) => FilterDefinition::MovingAverage {
                     id,
                     channel: channel.clone(),
                     window_samples: filter.window_samples,
+                },
+                FilterStep::Offset(filter) => FilterDefinition::Offset {
+                    id,
+                    channel: channel.clone(),
+                    offset: UnitValue::new(filter.offset_v, EngineeringUnit::Volt),
+                },
+                FilterStep::Gain(filter) => FilterDefinition::Gain {
+                    id,
+                    channel: channel.clone(),
+                    gain: filter.gain,
+                },
+                FilterStep::Invert(_) => FilterDefinition::Invert {
+                    id,
+                    channel: channel.clone(),
                 },
                 FilterStep::LowPass(filter) => FilterDefinition::LowPass {
                     id,
@@ -1866,6 +2317,15 @@ fn write_new_file(path: &Path, contents: &str) -> Result<(), String> {
         .map_err(|error| format!("failed to write `{}`: {error}", path.display()))
 }
 
+fn write_output_file(path: &Path, contents: &str, overwrite: bool) -> Result<(), String> {
+    if overwrite {
+        fs::write(path, contents)
+            .map_err(|error| format!("failed to write `{}`: {error}", path.display()))
+    } else {
+        write_new_file(path, contents)
+    }
+}
+
 fn include_channels(columns: &mut Vec<String>, required: &[String]) {
     for channel in required {
         if !columns.iter().any(|existing| existing == channel) {
@@ -1885,22 +2345,7 @@ fn load_config(args: &[String]) -> Result<Option<AnalysisConfig>, String> {
         return Ok(None);
     };
 
-    let input =
-        fs::read_to_string(path).map_err(|error| format!("failed to read `{path}`: {error}"))?;
-    let config = toml::from_str::<AnalysisConfig>(&input)
-        .map_err(|error| format!("failed to parse config `{path}`: {error}"))?;
-
-    if config.input.channels.is_empty() {
-        return Err("config input.channels must include at least one channel".to_string());
-    }
-    if config.criteria.is_empty() {
-        return Err("config must include at least one [[criteria]] entry".to_string());
-    }
-    config
-        .validate()
-        .map_err(|error| format!("invalid config: {error}"))?;
-
-    Ok(Some(config))
+    load_analysis_config_from_path(Path::new(path)).map(Some)
 }
 
 fn parse_filters(args: &[String]) -> Result<Vec<FilterStep>, String> {
@@ -2056,11 +2501,15 @@ fn help() -> String {
         "  ferrisoxide-signal plot --input <csv> --time-column time --channels input_v --z-column temp_c --output waveform-3d.svg",
         "  ferrisoxide-signal export-rule-package --input <csv> --config examples/basic-dsl-config.toml --output-dir deployment --package-name switch-rule --package-version 1.0.0 --target controller_runtime",
         "  ferrisoxide-signal simulate --input tests/e2e/heated_actuator/input/passing_run.csv --control-config examples/control-config/production-control-config.toml --verification-config examples/test-verification-config/test-verification-config.toml --channel-map examples/simulation/heated-actuator-channel-map.toml --format json",
+        "  ferrisoxide-signal batch --manifest examples/batch-analysis.toml --output-dir batch-output --format json",
+        "  ferrisoxide-signal transforms --format text",
         "",
         "ADC quantization syntax: --adc-quantize bits:min_v:max_v",
         "Plot output is SVG. Use --config to add 2D criteria evidence overlays; use --z-column for an optional third axis.",
         "Rule package export writes rules.toml, rules.json, and validation-report.json without overwriting existing artifacts.",
         "Desktop simulation loads production control config, test verification config, a channel map, and fixture CSV input.",
+        "Batch analysis processes local CSV/config pairs and writes per-run reports plus batch-summary.json.",
+        "Transform catalog output is generated from the core transform registry.",
         "Formats: text, json",
     ]
     .join("\n")
@@ -2070,8 +2519,9 @@ fn help() -> String {
 mod tests {
     use super::*;
     use ferrisoxide_rule_engine::{
-        evaluate_borrowed_rule, BorrowedRuleCriterion, BorrowedRuleCriterionCheck, RuleChannel,
-        RuleOutcome, RuleSummary, RuleTolerances, RuleWaveform,
+        apply_borrowed_transform_chain, evaluate_borrowed_rule, BorrowedRuleCriterion,
+        BorrowedRuleCriterionCheck, BorrowedTransformStep, RuleChannel, RuleOutcome, RuleSummary,
+        RuleTolerances, RuleWaveform,
     };
 
     #[derive(Debug, Serialize, PartialEq)]
@@ -2222,6 +2672,581 @@ mod tests {
     }
 
     #[test]
+    fn analyzes_config_with_m26_data_cleaning_filters() {
+        let output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            "../../examples/m26-data-cleaning-waveform.csv".to_string(),
+            "--config".to_string(),
+            "../../examples/m26-data-cleaning-config.toml".to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("M26 data-cleaning config should analyze");
+
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        for transform_name in [
+            "timestamp_sort",
+            "dedupe_timestamps",
+            "nan_interpolate",
+            "nan_remove",
+            "crop",
+            "fixed_delay",
+            "gap_fill",
+            "resample_fixed",
+            "channel_delay",
+        ] {
+            assert!(output.contains(&format!("\"name\": \"{transform_name}\"")));
+        }
+        assert!(output.contains("\"category\": \"DataCleaningTransform\""));
+        assert!(output.contains("\"category\": \"ResamplingTransform\""));
+        assert!(output.contains("\"offline_only\": true"));
+        assert!(output.contains("\"cleaned_input_max\""));
+    }
+
+    #[test]
+    fn analyzes_config_with_m27_pointwise_filters() {
+        let output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            "../../examples/m27-pointwise-waveform.csv".to_string(),
+            "--config".to_string(),
+            "../../examples/m27-pointwise-config.toml".to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("M27 pointwise config should analyze");
+
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        for transform_name in [
+            "absolute_value",
+            "square",
+            "square_root",
+            "log",
+            "exp",
+            "normalize",
+            "tanh",
+            "sigmoid",
+            "soft_limit",
+            "piecewise_linear",
+            "polynomial",
+        ] {
+            assert!(output.contains(&format!("\"name\": \"{transform_name}\"")));
+        }
+        assert!(output.contains("\"category\": \"PointwiseTransform\""));
+        assert!(output.contains("\"phase_effect\": \"nonlinear\""));
+        assert!(output.contains("\"offline_only\": true"));
+        assert!(output.contains("\"m27_max\""));
+    }
+
+    #[test]
+    fn analyzes_config_with_m28_smoothing_baseline_filters() {
+        let output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            "../../examples/m28-smoothing-waveform.csv".to_string(),
+            "--config".to_string(),
+            "../../examples/m28-smoothing-config.toml".to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("M28 smoothing/baseline config should analyze");
+
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        for transform_name in [
+            "weighted_moving_average",
+            "exponential_moving_average",
+            "boxcar_smoothing",
+            "gaussian_smoothing",
+            "savitzky_golay",
+            "centered_moving_median",
+            "rolling_mean_baseline",
+            "rolling_median_baseline",
+            "linear_detrend",
+            "polynomial_detrend",
+            "hampel_filter",
+            "spike_remove",
+        ] {
+            assert!(output.contains(&format!("\"name\": \"{transform_name}\"")));
+        }
+        assert!(output.contains("\"category\": \"WindowedTransform\""));
+        assert!(output.contains("\"category\": \"BaselineTransform\""));
+        assert!(output.contains("\"offline_only\": true"));
+        assert!(output.contains("\"m28_max\""));
+    }
+
+    #[test]
+    fn analyzes_config_with_m29_standard_frequency_filters() {
+        let output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            "../../examples/m29-frequency-waveform.csv".to_string(),
+            "--config".to_string(),
+            "../../examples/m29-frequency-config.toml".to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("M29 frequency config should analyze");
+
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        for transform_name in [
+            "fir_filter",
+            "zero_phase_fir_filter",
+            "iir_biquad",
+            "zero_phase_iir_biquad",
+            "high_pass",
+            "band_pass",
+            "band_stop",
+            "notch",
+            "comb_filter",
+            "butterworth_low_pass",
+            "butterworth_high_pass",
+            "chebyshev1_low_pass",
+            "chebyshev2_low_pass",
+            "bessel_low_pass",
+        ] {
+            assert!(output.contains(&format!("\"name\": \"{transform_name}\"")));
+        }
+        assert!(output.contains("\"category\": \"FrequencyFilterTransform\""));
+        assert!(output.contains("\"sample_rate_required\": true"));
+        assert!(output.contains("\"phase_effect\": \"delay\""));
+        assert!(output.contains("\"offline_only\": true"));
+        assert!(output.contains("\"m29_max\""));
+    }
+
+    #[test]
+    fn analyzes_config_with_m30_resampling_timing_filters() {
+        let output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            "../../examples/m30-resampling-waveform.csv".to_string(),
+            "--config".to_string(),
+            "../../examples/m30-resampling-config.toml".to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("M30 resampling/timing config should analyze");
+
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        for transform_name in [
+            "resample",
+            "downsample",
+            "decimate",
+            "upsample",
+            "interpolate",
+            "rational_resample",
+            "sample_and_hold",
+            "zero_order_hold",
+            "first_order_hold",
+            "fractional_delay",
+            "cross_correlation_delay",
+            "jitter_correction",
+            "clock_drift_correction",
+        ] {
+            assert!(output.contains(&format!("\"name\": \"{transform_name}\"")));
+        }
+        assert!(output.contains("\"category\": \"ResamplingTransform\""));
+        assert!(output.contains("\"estimated_delay_s\""));
+        assert!(output.contains("\"confidence\""));
+        assert!(output.contains("\"m30_max\""));
+    }
+
+    #[test]
+    fn analyzes_config_with_m31_envelope_energy_calculus_filters_and_features() {
+        let output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            "../../examples/m31-calculus-waveform.csv".to_string(),
+            "--config".to_string(),
+            "../../examples/m31-calculus-config.toml".to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("M31 envelope/energy/calculus config should analyze");
+
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        for transform_name in [
+            "half_wave_rectify",
+            "full_wave_rectify",
+            "envelope",
+            "moving_rms",
+            "peak_hold",
+            "first_derivative",
+            "second_derivative",
+            "integral",
+            "cumulative_integral",
+            "leaky_integrator",
+            "slope_detection",
+        ] {
+            assert!(output.contains(&format!("\"name\": \"{transform_name}\"")));
+        }
+        for feature_id in [
+            "m31_rms",
+            "m31_peak_to_peak",
+            "m31_crest_factor",
+            "m31_energy",
+            "m31_power",
+            "m31_area",
+            "m31_impulse",
+        ] {
+            assert!(output.contains(&format!("\"id\": \"{feature_id}\"")));
+        }
+        assert!(output.contains("\"feature_records\""));
+        assert!(output.contains("\"kind\": \"feature_records\""));
+        assert!(output.contains("\"category\": \"FeatureTransform\""));
+        assert!(output.contains("\"m31_max\""));
+    }
+
+    #[test]
+    fn analyzes_config_with_m32_statistics_correlation_filters_and_features() {
+        let filter_output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            "../../examples/m32-statistics-waveform.csv".to_string(),
+            "--config".to_string(),
+            "../../examples/m32-statistics-filters-config.toml".to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("M32 statistics filter config should analyze");
+
+        assert!(filter_output.contains("\"overall_outcome\": \"pass\""));
+        for transform_name in [
+            "rolling_mean",
+            "rolling_variance",
+            "rolling_stddev",
+            "rolling_min",
+            "rolling_max",
+            "z_score",
+            "outlier_detection",
+            "quantile_clip",
+        ] {
+            assert!(filter_output.contains(&format!("\"name\": \"{transform_name}\"")));
+        }
+
+        let feature_output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            "../../examples/m32-statistics-waveform.csv".to_string(),
+            "--config".to_string(),
+            "../../examples/m32-statistics-config.toml".to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("M32 statistics/correlation feature config should analyze");
+
+        assert!(feature_output.contains("\"overall_outcome\": \"pass\""));
+        for feature_id in [
+            "m32_mean",
+            "m32_median",
+            "m32_mode",
+            "m32_min",
+            "m32_max",
+            "m32_variance",
+            "m32_standard_deviation",
+            "m32_skewness",
+            "m32_kurtosis",
+            "m32_percentile",
+            "m32_quantile",
+            "m32_histogram_bin_0",
+            "m32_histogram_bin_1",
+            "m32_covariance",
+            "m32_correlation",
+            "m32_autocorrelation",
+            "m32_cross_correlation",
+        ] {
+            assert!(feature_output.contains(&format!("\"id\": \"{feature_id}\"")));
+        }
+        assert!(feature_output.contains("\"method_context\""));
+        assert!(feature_output.contains("\"other_channel\": \"other_v\""));
+        assert!(feature_output.contains("\"lag_samples\": 1"));
+        assert!(feature_output.contains("\"feature_records\""));
+        assert!(feature_output.contains("\"kind\": \"feature_records\""));
+    }
+
+    #[test]
+    fn analyzes_config_with_m33_spectrum_time_frequency_features() {
+        let output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            "../../examples/m33-spectrum-waveform.csv".to_string(),
+            "--config".to_string(),
+            "../../examples/m33-spectrum-config.toml".to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("M33 spectrum/time-frequency config should analyze");
+
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        for feature_id in [
+            "m33_window_sample_1",
+            "m33_dft_bin_1",
+            "m33_fft_bin_1",
+            "m33_square_fft_bin_1",
+            "m33_ifft_sample_0",
+            "m33_power_bin_1",
+            "m33_psd_bin_1",
+            "m33_welch_bin_1",
+            "m33_cross_bin_1",
+            "m33_coherence_bin_1",
+            "m33_transfer_bin_1",
+            "m33_harmonic_harmonic_2",
+            "m33_thd",
+            "m33_snr",
+            "m33_sinad",
+            "m33_enob",
+            "m33_stft_segment_0_bin_1",
+            "m33_spectrogram_segment_0_bin_1",
+            "m33_centroid",
+            "m33_bandwidth",
+            "m33_rolloff",
+            "m33_band_power",
+        ] {
+            assert!(output.contains(&format!("\"id\": \"{feature_id}\"")));
+        }
+        assert!(output.contains("\"frequency_hz\": 1.0"));
+        assert!(output.contains("\"window\": \"rectangular\""));
+        assert!(output.contains("\"normalization\""));
+        assert!(output.contains("\"category\": \"FrequencyFilterTransform\""));
+        assert!(output.contains("\"category\": \"TimeFrequencyTransform\""));
+    }
+
+    #[test]
+    fn analyzes_config_with_m34_fault_injection_adc_dac_filters() {
+        let output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            "../../examples/m34-fault-adc-waveform.csv".to_string(),
+            "--config".to_string(),
+            "../../examples/m34-fault-adc-config.toml".to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("M34 fault injection / ADC-DAC config should analyze");
+
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        for transform_name in [
+            "white_noise",
+            "gaussian_noise",
+            "uniform_noise",
+            "pink_noise",
+            "brown_noise",
+            "impulse_noise",
+            "salt_pepper_noise",
+            "quantization_noise",
+            "periodic_interference",
+            "hum_interference",
+            "ground_bounce",
+            "thermal_drift",
+            "random_walk_drift",
+            "dropout_fault",
+            "missing_samples",
+            "intermittent_fault",
+            "saturation_fault",
+            "stuck_at_fault",
+            "flatline_fault",
+            "rounding_quantizer",
+            "floor_quantizer",
+            "ceil_quantizer",
+            "midrise_quantizer",
+            "midtread_quantizer",
+            "saturating_quantizer",
+            "dither",
+            "companding",
+            "sample_clock_jitter",
+            "adc_missing_code",
+            "inl_error",
+            "dnl_error",
+            "adc_gain_error",
+            "adc_offset_error",
+        ] {
+            assert!(output.contains(&format!("\"name\": \"{transform_name}\"")));
+        }
+        assert!(output.contains("\"evidence_scope\""));
+        assert!(output.contains("\"simulation_only\""));
+        assert!(output.contains("\"category\": \"FaultInjectionTransform\""));
+        assert!(output.contains("\"category\": \"QuantizationTransform\""));
+    }
+
+    #[test]
+    fn analyzes_config_with_m35_multi_channel_sensor_domain_filters() {
+        let output = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            "../../examples/m35-domain-waveform.csv".to_string(),
+            "--config".to_string(),
+            "../../examples/m35-domain-config.toml".to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("M35 multi-channel / sensor / domain config should analyze");
+
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        for transform_name in [
+            "channel_add",
+            "channel_subtract",
+            "differential_channel",
+            "common_mode",
+            "vector_magnitude",
+            "euclidean_norm",
+            "matrix_transform",
+            "coordinate_rotation",
+            "linear_sensor_conversion",
+            "pressure_transducer",
+            "current_shunt",
+            "bridge_strain",
+            "load_cell_force",
+            "rtd_temperature",
+            "thermistor_temperature",
+            "tachometer_rpm",
+            "encoder_position",
+            "accelerometer_units",
+            "gyroscope_rate",
+            "hall_current",
+            "lvdt_position",
+            "microphone_spl",
+            "photodiode_power",
+            "velocity_from_acceleration",
+            "displacement_from_velocity",
+            "vibration_severity",
+            "control_error",
+            "proportional_control",
+            "pid_control",
+            "rate_limiter",
+            "slew_rate_limit",
+            "control_saturation",
+            "control_deadzone",
+            "feedforward_control",
+        ] {
+            assert!(output.contains(&format!("\"name\": \"{transform_name}\"")));
+        }
+        assert!(output.contains("\"category\": \"MultiChannelTransform\""));
+        assert!(output.contains("\"category\": \"CalibrationTransform\""));
+        assert!(output.contains("\"category\": \"ControlTransform\""));
+        assert!(output.contains("\"calibration_scope\""));
+        assert!(output.contains("\"software_formula_only\""));
+    }
+
+    #[test]
+    fn lists_transform_catalog_as_text() {
+        let output = run(vec![
+            "transforms".to_string(),
+            "--format".to_string(),
+            "text".to_string(),
+        ])
+        .expect("transform catalog should render");
+
+        assert!(output.contains("FerrisOxide Transform Catalog"));
+        assert!(output.contains("offset | milestone=implemented | status=implemented"));
+        assert!(output.contains("nan_interpolate | milestone=M26 | status=implemented"));
+        assert!(output.contains("normalize | milestone=M27 | status=implemented"));
+        assert!(output.contains("savitzky_golay | milestone=M28 | status=implemented"));
+        assert!(output.contains("band_pass | milestone=M29 | status=implemented"));
+        assert!(output.contains("rational_resample | milestone=M30 | status=implemented"));
+        assert!(output.contains("moving_rms | milestone=M31 | status=implemented"));
+        assert!(output.contains("correlation | milestone=M32 | status=implemented"));
+        assert!(output.contains("fft | milestone=M33 | status=implemented"));
+        assert!(output.contains("white_noise | milestone=M34 | status=implemented"));
+        assert!(output.contains("adc_missing_code | milestone=M34 | status=implemented"));
+        assert!(output.contains("vector_magnitude | milestone=M35 | status=implemented"));
+        assert!(output.contains("pid_control | milestone=M35 | status=implemented"));
+        assert!(output.contains("advanced_acoustic_pack | milestone=M35 | status=dependency_gated"));
+        assert!(output.contains("package=supported"));
+        assert!(output.contains("elliptic_low_pass | milestone=M29 | status=dependency_gated"));
+        assert!(output.contains("polyphase_resample | milestone=M30 | status=dependency_gated"));
+        assert!(output.contains("comprehensive_suite_closure | milestone=M36 | status=implemented"));
+    }
+
+    #[test]
+    fn lists_transform_catalog_as_json() {
+        let output = run(vec![
+            "transforms".to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("transform catalog JSON should render");
+        let entries: serde_json::Value =
+            serde_json::from_str(&output).expect("catalog output should be valid JSON");
+        let entries = entries.as_array().expect("catalog should render as array");
+
+        assert!(entries.iter().any(|entry| entry["name"] == "offset"
+            && entry["capability_status"] == "implemented"
+            && entry["package_support"] == "supported"));
+        assert!(entries.iter().any(|entry| entry["name"] == "channel_delay"
+            && entry["milestone"] == "M26"
+            && entry["capability_status"] == "implemented"
+            && entry["package_support"] == "rejected_desktop_only"));
+        assert!(entries.iter().any(|entry| entry["name"] == "polynomial"
+            && entry["milestone"] == "M27"
+            && entry["capability_status"] == "implemented"
+            && entry["package_support"] == "rejected_desktop_only"));
+        assert!(entries.iter().any(|entry| entry["name"] == "hampel_filter"
+            && entry["milestone"] == "M28"
+            && entry["capability_status"] == "implemented"
+            && entry["package_support"] == "rejected_desktop_only"));
+        assert!(entries.iter().any(|entry| entry["name"] == "notch"
+            && entry["milestone"] == "M29"
+            && entry["capability_status"] == "implemented"
+            && entry["package_support"] == "rejected_desktop_only"));
+        assert!(entries
+            .iter()
+            .any(|entry| entry["name"] == "cross_correlation_delay"
+                && entry["milestone"] == "M30"
+                && entry["capability_status"] == "implemented"
+                && entry["package_support"] == "rejected_desktop_only"));
+        assert!(entries.iter().any(|entry| entry["name"] == "fft"
+            && entry["milestone"] == "M33"
+            && entry["capability_status"] == "implemented"
+            && entry["package_support"] == "not_applicable"));
+        assert!(entries.iter().any(|entry| entry["name"] == "moving_rms"
+            && entry["milestone"] == "M31"
+            && entry["capability_status"] == "implemented"
+            && entry["package_support"] == "rejected_desktop_only"));
+        assert!(entries.iter().any(|entry| entry["name"] == "correlation"
+            && entry["milestone"] == "M32"
+            && entry["capability_status"] == "implemented"
+            && entry["package_support"] == "not_applicable"));
+        assert!(entries.iter().any(|entry| entry["name"] == "white_noise"
+            && entry["milestone"] == "M34"
+            && entry["capability_status"] == "implemented"
+            && entry["package_support"] == "rejected_desktop_only"));
+        assert!(entries
+            .iter()
+            .any(|entry| entry["name"] == "adc_missing_code"
+                && entry["milestone"] == "M34"
+                && entry["capability_status"] == "implemented"
+                && entry["package_support"] == "rejected_desktop_only"));
+        assert!(entries.iter().any(|entry| entry["name"] == "pid_control"
+            && entry["milestone"] == "M35"
+            && entry["capability_status"] == "implemented"
+            && entry["package_support"] == "rejected_desktop_only"));
+        assert!(entries
+            .iter()
+            .any(|entry| entry["name"] == "advanced_acoustic_pack"
+                && entry["milestone"] == "M35"
+                && entry["capability_status"] == "dependency_gated"
+                && entry["package_support"] == "dependency_gated"));
+        assert!(entries
+            .iter()
+            .any(|entry| entry["name"] == "comprehensive_suite_closure"
+                && entry["milestone"] == "M36"
+                && entry["capability_status"] == "implemented"
+                && entry["package_support"] == "not_applicable"));
+    }
+
+    #[test]
+    fn rejects_unsupported_transform_catalog_format() {
+        let error = run(vec![
+            "transforms".to_string(),
+            "--format".to_string(),
+            "xml".to_string(),
+        ])
+        .expect_err("unsupported catalog format should fail");
+
+        assert!(error.contains("unsupported --format `xml`; use text or json"));
+    }
+
+    #[test]
     fn rule_package_export_rejects_high_pass_baseline() {
         let manifest_dir = env!("CARGO_MANIFEST_DIR");
         let input_path = format!("{manifest_dir}/../../examples/basic-waveform.csv");
@@ -2254,6 +3279,967 @@ mod tests {
             .contains("rule package export does not yet support transform `high_pass_baseline`"));
         if temp_dir.exists() {
             fs::remove_dir_all(&temp_dir).expect("temp dir should be removable");
+        }
+    }
+
+    #[test]
+    fn rule_package_export_rejects_m31_feature_transforms() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path = format!("{manifest_dir}/../../examples/m31-calculus-waveform.csv");
+        let config_path = format!("{manifest_dir}/../../examples/m31-calculus-config.toml");
+        let temp_dir = env::temp_dir().join(format!(
+            "ferrisoxide-m31-rule-package-{}",
+            std::process::id()
+        ));
+        if temp_dir.exists() {
+            fs::remove_dir_all(&temp_dir).expect("stale temp dir should be removable");
+        }
+
+        let error = run(vec![
+            "export-rule-package".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--config".to_string(),
+            config_path,
+            "--output-dir".to_string(),
+            temp_dir.display().to_string(),
+            "--package-name".to_string(),
+            "m31-features".to_string(),
+            "--package-version".to_string(),
+            "0.31.0".to_string(),
+        ])
+        .expect_err("M31 feature transforms should not export to rule packages");
+
+        assert!(error.contains("rule package export does not yet support feature_transforms"));
+        if temp_dir.exists() {
+            fs::remove_dir_all(&temp_dir).expect("temp dir should be removable");
+        }
+    }
+
+    #[test]
+    fn rule_package_export_supports_linear_pointwise_transform_subset() {
+        use ferrisoxide_core::filter::{GainTransform, InvertTransform, OffsetTransform};
+
+        let channels = vec!["input_v".to_string()];
+        let filters = vec![
+            FilterStep::Offset(OffsetTransform { offset_v: 0.25 }),
+            FilterStep::Gain(GainTransform { gain: 2.0 }),
+            FilterStep::Invert(InvertTransform),
+        ];
+
+        let exported = schema_filters(&filters, &channels)
+            .expect("linear pointwise transforms should export to rule packages");
+
+        assert_eq!(
+            exported,
+            vec![
+                FilterDefinition::Offset {
+                    id: "offset_0_input_v".to_string(),
+                    channel: "input_v".to_string(),
+                    offset: UnitValue::new(0.25, EngineeringUnit::Volt),
+                },
+                FilterDefinition::Gain {
+                    id: "gain_1_input_v".to_string(),
+                    channel: "input_v".to_string(),
+                    gain: 2.0,
+                },
+                FilterDefinition::Invert {
+                    id: "invert_2_input_v".to_string(),
+                    channel: "input_v".to_string(),
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn linear_pointwise_runtime_helper_matches_desktop_filter_chain() {
+        use ferrisoxide_core::filter::{GainTransform, InvertTransform, OffsetTransform};
+
+        let samples = [1.0, -2.0, 3.5];
+        let waveform = Waveform::new(
+            vec![0.0, 0.001, 0.002],
+            vec![Channel::new("input_v", Unit::volts(), samples.to_vec())],
+        )
+        .expect("desktop waveform should be valid");
+        let filters = [
+            FilterStep::Offset(OffsetTransform { offset_v: 0.5 }),
+            FilterStep::Gain(GainTransform { gain: 2.0 }),
+            FilterStep::Invert(InvertTransform),
+        ];
+
+        let desktop =
+            apply_filter_chain(&waveform, &filters).expect("desktop filter chain should evaluate");
+        let transforms = [
+            BorrowedTransformStep::Offset { offset_v: 0.5 },
+            BorrowedTransformStep::Gain { gain: 2.0 },
+            BorrowedTransformStep::Invert,
+        ];
+        let mut borrowed_output = [0.0; 3];
+
+        apply_borrowed_transform_chain(&samples, &transforms, &mut borrowed_output)
+            .expect("borrowed runtime transform chain should evaluate");
+
+        assert_eq!(
+            desktop
+                .channel("input_v")
+                .expect("derived channel should exist")
+                .samples
+                .as_slice(),
+            &borrowed_output
+        );
+    }
+
+    #[test]
+    fn rule_package_export_rejects_remaining_desktop_only_transform_matrix() {
+        use ferrisoxide_core::filter::{
+            AbsoluteValueTransform, AdcCodeDefectKind, AdcCodeDefectTransform, BandPassFilter,
+            BandStopFilter, BaselineSubtractTransform, BesselLowPassFilter, BiquadCoefficients,
+            BoxcarSmoothingFilter, ButterworthHighPassFilter, ButterworthLowPassFilter,
+            CenteredMovingMedianFilter, ChannelArithmeticKind, ChannelArithmeticTransform,
+            ChannelDelayTransform, Chebyshev1LowPassFilter, Chebyshev2LowPassFilter,
+            ClampTransform, ClockDriftCorrectionTransform, CombFilter, CompandingKind,
+            CompandingTransform, ControlTransform, ControlTransformKind,
+            CoordinateRotationTransform, CropTransform, CrossCorrelationDelayTransform,
+            CumulativeIntegralTransform, DcRemoveTransform, DeadbandTransform, DecimateTransform,
+            DedupeTimestampsTransform, DitherTransform, DownsampleTransform, DriftFaultKind,
+            DriftFaultTransform, EnvelopeTransform, ExpTransform, ExponentialMovingAverageFilter,
+            FirFilter, FirstDerivativeTransform, FirstOrderHoldTransform, FixedDelayTransform,
+            FractionalDelayTransform, FullWaveRectifyTransform, GainOffsetErrorKind,
+            GainOffsetErrorTransform, GapFillTransform, GaussianSmoothingFilter,
+            HalfWaveRectifyTransform, HampelFilter, HighPassBaselineFilter, HighPassFilter,
+            IirBiquadFilter, IntegralTransform, InterpolateTransform, JitterCorrectionTransform,
+            LeakyIntegratorTransform, LinearDetrendTransform, LogTransform, MatrixTransform,
+            MovingMedianFilter, MovingRmsTransform, NanInterpolateTransform, NanRemoveTransform,
+            NoiseInjectionTransform, NoiseKind, NormalizeMode, NormalizeTransform, NotchFilter,
+            OutlierDetectionTransform, PeakHoldTransform, PeriodicInterferenceKind,
+            PeriodicInterferenceTransform, PiecewiseLinearTransform, PiecewisePoint,
+            PolynomialDetrendTransform, PolynomialTransform, QuantileClipTransform,
+            RationalResampleTransform, ResampleFixedTransform, ResampleTransform,
+            RollingMaxTransform, RollingMeanBaselineTransform, RollingMeanTransform,
+            RollingMedianBaselineTransform, RollingMinTransform, RollingStdDevTransform,
+            RollingVarianceTransform, SampleAndHoldTransform, SampleClockJitterTransform,
+            SampleFaultKind, SampleFaultTransform, SavitzkyGolayFilter, SecondDerivativeTransform,
+            SensorConversionKind, SensorConversionParameters, SensorConversionTransform,
+            SigmoidTransform, SimulationQuantizerKind, SimulationQuantizerTransform,
+            SlopeDetectionTransform, SoftLimitTransform, SpikeRemoveTransform, SquareRootTransform,
+            SquareTransform, TanhTransform, TimestampSortTransform, UpsampleTransform,
+            VectorMagnitudeKind, VectorMagnitudeTransform, VibrationTransform,
+            VibrationTransformKind, WeightedMovingAverageFilter, ZScoreTransform,
+            ZeroOrderHoldTransform, ZeroPhaseFirFilter, ZeroPhaseIirBiquadFilter,
+        };
+
+        let channels = vec!["input_v".to_string()];
+        let identity_biquad = BiquadCoefficients {
+            b0: 1.0,
+            b1: 0.0,
+            b2: 0.0,
+            a1: 0.0,
+            a2: 0.0,
+        };
+        let unsupported = vec![
+            FilterStep::Clamp(ClampTransform {
+                min_v: 0.0,
+                max_v: 5.0,
+            }),
+            FilterStep::Deadband(DeadbandTransform { threshold_v: 0.1 }),
+            FilterStep::DcRemove(DcRemoveTransform),
+            FilterStep::BaselineSubtract(BaselineSubtractTransform { baseline_v: 0.2 }),
+            FilterStep::HighPassBaseline(HighPassBaselineFilter { cutoff_hz: 0.5 }),
+            FilterStep::MovingMedian(MovingMedianFilter { window_samples: 3 }),
+            FilterStep::TimestampSort(TimestampSortTransform),
+            FilterStep::DedupeTimestamps(DedupeTimestampsTransform),
+            FilterStep::NanInterpolate(NanInterpolateTransform),
+            FilterStep::NanRemove(NanRemoveTransform),
+            FilterStep::Crop(CropTransform {
+                start_time_s: 0.0,
+                end_time_s: 1.0,
+            }),
+            FilterStep::FixedDelay(FixedDelayTransform { delay_s: 0.1 }),
+            FilterStep::GapFill(GapFillTransform {
+                sample_interval_s: 0.1,
+            }),
+            FilterStep::ResampleFixed(ResampleFixedTransform {
+                sample_interval_s: 0.1,
+            }),
+            FilterStep::ChannelDelay(ChannelDelayTransform {
+                channel: "input_v".to_string(),
+                delay_s: 0.1,
+            }),
+            FilterStep::AbsoluteValue(AbsoluteValueTransform),
+            FilterStep::Square(SquareTransform),
+            FilterStep::SquareRoot(SquareRootTransform),
+            FilterStep::Log(LogTransform { base: 10.0 }),
+            FilterStep::Exp(ExpTransform { base: 10.0 }),
+            FilterStep::Normalize(NormalizeTransform {
+                mode: NormalizeMode::ZeroToOne,
+            }),
+            FilterStep::Tanh(TanhTransform),
+            FilterStep::Sigmoid(SigmoidTransform),
+            FilterStep::SoftLimit(SoftLimitTransform { limit_v: 2.0 }),
+            FilterStep::PiecewiseLinear(PiecewiseLinearTransform {
+                points: vec![
+                    PiecewisePoint { x: 0.0, y: 0.0 },
+                    PiecewisePoint { x: 1.0, y: 1.0 },
+                ],
+            }),
+            FilterStep::Polynomial(PolynomialTransform {
+                coefficients: vec![0.0, 1.0],
+            }),
+            FilterStep::WeightedMovingAverage(WeightedMovingAverageFilter {
+                weights: vec![1.0, 2.0],
+            }),
+            FilterStep::ExponentialMovingAverage(ExponentialMovingAverageFilter { alpha: 0.5 }),
+            FilterStep::BoxcarSmoothing(BoxcarSmoothingFilter { window_samples: 3 }),
+            FilterStep::GaussianSmoothing(GaussianSmoothingFilter {
+                window_samples: 3,
+                sigma_samples: 1.0,
+            }),
+            FilterStep::SavitzkyGolay(SavitzkyGolayFilter {
+                window_samples: 3,
+                polynomial_order: 1,
+            }),
+            FilterStep::CenteredMovingMedian(CenteredMovingMedianFilter { window_samples: 3 }),
+            FilterStep::RollingMeanBaseline(RollingMeanBaselineTransform { window_samples: 3 }),
+            FilterStep::RollingMedianBaseline(RollingMedianBaselineTransform { window_samples: 3 }),
+            FilterStep::LinearDetrend(LinearDetrendTransform),
+            FilterStep::PolynomialDetrend(PolynomialDetrendTransform {
+                polynomial_order: 1,
+            }),
+            FilterStep::HampelFilter(HampelFilter {
+                window_samples: 3,
+                outlier_sigma: 3.0,
+            }),
+            FilterStep::SpikeRemove(SpikeRemoveTransform {
+                window_samples: 3,
+                threshold_v: 0.2,
+            }),
+            FilterStep::FirFilter(FirFilter {
+                coefficients: vec![0.25, 0.5, 0.25],
+            }),
+            FilterStep::ZeroPhaseFirFilter(ZeroPhaseFirFilter {
+                coefficients: vec![0.25, 0.5, 0.25],
+            }),
+            FilterStep::IirBiquad(IirBiquadFilter {
+                coefficients: identity_biquad,
+            }),
+            FilterStep::ZeroPhaseIirBiquad(ZeroPhaseIirBiquadFilter {
+                coefficients: identity_biquad,
+            }),
+            FilterStep::HighPass(HighPassFilter { cutoff_hz: 5.0 }),
+            FilterStep::BandPass(BandPassFilter {
+                center_hz: 50.0,
+                q: 2.0,
+            }),
+            FilterStep::BandStop(BandStopFilter {
+                center_hz: 60.0,
+                q: 5.0,
+            }),
+            FilterStep::Notch(NotchFilter {
+                center_hz: 60.0,
+                q: 30.0,
+            }),
+            FilterStep::CombFilter(CombFilter {
+                delay_samples: 2,
+                feedback_gain: -0.5,
+            }),
+            FilterStep::ButterworthLowPass(ButterworthLowPassFilter { cutoff_hz: 100.0 }),
+            FilterStep::ButterworthHighPass(ButterworthHighPassFilter { cutoff_hz: 5.0 }),
+            FilterStep::Chebyshev1LowPass(Chebyshev1LowPassFilter {
+                cutoff_hz: 100.0,
+                ripple_db: 1.0,
+            }),
+            FilterStep::Chebyshev2LowPass(Chebyshev2LowPassFilter {
+                cutoff_hz: 100.0,
+                stopband_attenuation_db: 40.0,
+            }),
+            FilterStep::BesselLowPass(BesselLowPassFilter { cutoff_hz: 100.0 }),
+            FilterStep::Resample(ResampleTransform {
+                sample_interval_s: 0.001,
+            }),
+            FilterStep::Downsample(DownsampleTransform { factor: 2 }),
+            FilterStep::Decimate(DecimateTransform {
+                factor: 2,
+                cutoff_hz: 100.0,
+            }),
+            FilterStep::Upsample(UpsampleTransform { factor: 2 }),
+            FilterStep::Interpolate(InterpolateTransform {
+                sample_interval_s: 0.001,
+            }),
+            FilterStep::RationalResample(RationalResampleTransform {
+                upsample_factor: 3,
+                downsample_factor: 2,
+            }),
+            FilterStep::SampleAndHold(SampleAndHoldTransform {
+                sample_interval_s: 0.001,
+            }),
+            FilterStep::ZeroOrderHold(ZeroOrderHoldTransform {
+                sample_interval_s: 0.001,
+            }),
+            FilterStep::FirstOrderHold(FirstOrderHoldTransform {
+                sample_interval_s: 0.001,
+            }),
+            FilterStep::FractionalDelay(FractionalDelayTransform { delay_s: 0.0005 }),
+            FilterStep::CrossCorrelationDelay(CrossCorrelationDelayTransform {
+                reference_channel: "input_v".to_string(),
+                target_channel: "input_v".to_string(),
+                max_lag_samples: 1,
+            }),
+            FilterStep::JitterCorrection(JitterCorrectionTransform {
+                sample_interval_s: 0.001,
+            }),
+            FilterStep::ClockDriftCorrection(ClockDriftCorrectionTransform {
+                sample_interval_s: 0.001,
+            }),
+            FilterStep::HalfWaveRectify(HalfWaveRectifyTransform),
+            FilterStep::FullWaveRectify(FullWaveRectifyTransform),
+            FilterStep::Envelope(EnvelopeTransform { alpha: 0.5 }),
+            FilterStep::MovingRms(MovingRmsTransform { window_samples: 3 }),
+            FilterStep::PeakHold(PeakHoldTransform),
+            FilterStep::FirstDerivative(FirstDerivativeTransform),
+            FilterStep::SecondDerivative(SecondDerivativeTransform),
+            FilterStep::Integral(IntegralTransform),
+            FilterStep::CumulativeIntegral(CumulativeIntegralTransform),
+            FilterStep::LeakyIntegrator(LeakyIntegratorTransform {
+                time_constant_s: 2.0,
+            }),
+            FilterStep::SlopeDetection(SlopeDetectionTransform {
+                threshold_per_s: 1.0,
+            }),
+            FilterStep::RollingMean(RollingMeanTransform { window_samples: 3 }),
+            FilterStep::RollingVariance(RollingVarianceTransform { window_samples: 3 }),
+            FilterStep::RollingStdDev(RollingStdDevTransform { window_samples: 3 }),
+            FilterStep::RollingMin(RollingMinTransform { window_samples: 3 }),
+            FilterStep::RollingMax(RollingMaxTransform { window_samples: 3 }),
+            FilterStep::ZScore(ZScoreTransform),
+            FilterStep::OutlierDetection(OutlierDetectionTransform {
+                threshold_sigma: 1.0,
+            }),
+            FilterStep::QuantileClip(QuantileClipTransform {
+                lower_quantile: 0.25,
+                upper_quantile: 0.75,
+            }),
+            FilterStep::NoiseInjection(NoiseInjectionTransform {
+                kind: NoiseKind::White,
+                amplitude_v: 0.01,
+                min_v: 0.0,
+                max_v: 0.0,
+                probability: 0.0,
+                seed: 1,
+            }),
+            FilterStep::NoiseInjection(NoiseInjectionTransform {
+                kind: NoiseKind::Gaussian,
+                amplitude_v: 0.01,
+                min_v: 0.0,
+                max_v: 0.0,
+                probability: 0.0,
+                seed: 2,
+            }),
+            FilterStep::NoiseInjection(NoiseInjectionTransform {
+                kind: NoiseKind::Uniform,
+                amplitude_v: 0.0,
+                min_v: -0.01,
+                max_v: 0.01,
+                probability: 0.0,
+                seed: 3,
+            }),
+            FilterStep::NoiseInjection(NoiseInjectionTransform {
+                kind: NoiseKind::Pink,
+                amplitude_v: 0.01,
+                min_v: 0.0,
+                max_v: 0.0,
+                probability: 0.0,
+                seed: 4,
+            }),
+            FilterStep::NoiseInjection(NoiseInjectionTransform {
+                kind: NoiseKind::Brown,
+                amplitude_v: 0.01,
+                min_v: 0.0,
+                max_v: 0.0,
+                probability: 0.0,
+                seed: 5,
+            }),
+            FilterStep::NoiseInjection(NoiseInjectionTransform {
+                kind: NoiseKind::Impulse,
+                amplitude_v: 0.1,
+                min_v: 0.0,
+                max_v: 0.0,
+                probability: 0.2,
+                seed: 6,
+            }),
+            FilterStep::NoiseInjection(NoiseInjectionTransform {
+                kind: NoiseKind::SaltPepper,
+                amplitude_v: 0.0,
+                min_v: 0.0,
+                max_v: 5.0,
+                probability: 0.2,
+                seed: 7,
+            }),
+            FilterStep::NoiseInjection(NoiseInjectionTransform {
+                kind: NoiseKind::Quantization,
+                amplitude_v: 0.05,
+                min_v: 0.0,
+                max_v: 0.0,
+                probability: 0.0,
+                seed: 8,
+            }),
+            FilterStep::PeriodicInterference(PeriodicInterferenceTransform {
+                kind: PeriodicInterferenceKind::Periodic,
+                amplitude_v: 0.1,
+                frequency_hz: 10.0,
+                phase_rad: 0.0,
+            }),
+            FilterStep::PeriodicInterference(PeriodicInterferenceTransform {
+                kind: PeriodicInterferenceKind::Hum,
+                amplitude_v: 0.1,
+                frequency_hz: 60.0,
+                phase_rad: 0.0,
+            }),
+            FilterStep::DriftFault(DriftFaultTransform {
+                kind: DriftFaultKind::GroundBounce,
+                amplitude_v: 0.1,
+                drift_rate_v_per_s: 0.0,
+                interval_samples: 2,
+                seed: 0,
+            }),
+            FilterStep::DriftFault(DriftFaultTransform {
+                kind: DriftFaultKind::Thermal,
+                amplitude_v: 0.0,
+                drift_rate_v_per_s: 0.01,
+                interval_samples: 1,
+                seed: 0,
+            }),
+            FilterStep::DriftFault(DriftFaultTransform {
+                kind: DriftFaultKind::RandomWalk,
+                amplitude_v: 0.01,
+                drift_rate_v_per_s: 0.0,
+                interval_samples: 1,
+                seed: 9,
+            }),
+            FilterStep::SampleFault(SampleFaultTransform {
+                kind: SampleFaultKind::Dropout,
+                probability: 0.2,
+                fault_value_v: 0.0,
+                min_v: 0.0,
+                max_v: 0.0,
+                start_index: 0,
+                duration_samples: 1,
+                seed: 10,
+            }),
+            FilterStep::SampleFault(SampleFaultTransform {
+                kind: SampleFaultKind::MissingSamples,
+                probability: 0.2,
+                fault_value_v: -999.0,
+                min_v: 0.0,
+                max_v: 0.0,
+                start_index: 0,
+                duration_samples: 1,
+                seed: 11,
+            }),
+            FilterStep::SampleFault(SampleFaultTransform {
+                kind: SampleFaultKind::Saturation,
+                probability: 0.0,
+                fault_value_v: 0.0,
+                min_v: 0.0,
+                max_v: 5.0,
+                start_index: 0,
+                duration_samples: 1,
+                seed: 0,
+            }),
+            FilterStep::SampleFault(SampleFaultTransform {
+                kind: SampleFaultKind::StuckAt,
+                probability: 0.0,
+                fault_value_v: 2.5,
+                min_v: 0.0,
+                max_v: 0.0,
+                start_index: 1,
+                duration_samples: 2,
+                seed: 0,
+            }),
+            FilterStep::SampleFault(SampleFaultTransform {
+                kind: SampleFaultKind::Flatline,
+                probability: 0.0,
+                fault_value_v: f64::NAN,
+                min_v: 0.0,
+                max_v: 0.0,
+                start_index: 1,
+                duration_samples: 1,
+                seed: 0,
+            }),
+            FilterStep::SampleFault(SampleFaultTransform {
+                kind: SampleFaultKind::Intermittent,
+                probability: 0.2,
+                fault_value_v: 0.0,
+                min_v: 0.0,
+                max_v: 0.0,
+                start_index: 0,
+                duration_samples: 1,
+                seed: 12,
+            }),
+            FilterStep::SimulationQuantizer(SimulationQuantizerTransform {
+                kind: SimulationQuantizerKind::Rounding,
+                lsb_v: 0.1,
+                min_v: 0.0,
+                max_v: 0.0,
+            }),
+            FilterStep::SimulationQuantizer(SimulationQuantizerTransform {
+                kind: SimulationQuantizerKind::Floor,
+                lsb_v: 0.1,
+                min_v: 0.0,
+                max_v: 0.0,
+            }),
+            FilterStep::SimulationQuantizer(SimulationQuantizerTransform {
+                kind: SimulationQuantizerKind::Ceil,
+                lsb_v: 0.1,
+                min_v: 0.0,
+                max_v: 0.0,
+            }),
+            FilterStep::SimulationQuantizer(SimulationQuantizerTransform {
+                kind: SimulationQuantizerKind::MidRise,
+                lsb_v: 0.1,
+                min_v: 0.0,
+                max_v: 0.0,
+            }),
+            FilterStep::SimulationQuantizer(SimulationQuantizerTransform {
+                kind: SimulationQuantizerKind::MidTread,
+                lsb_v: 0.1,
+                min_v: 0.0,
+                max_v: 0.0,
+            }),
+            FilterStep::SimulationQuantizer(SimulationQuantizerTransform {
+                kind: SimulationQuantizerKind::Saturating,
+                lsb_v: 1.0,
+                min_v: 0.0,
+                max_v: 5.0,
+            }),
+            FilterStep::Dither(DitherTransform {
+                lsb_v: 0.1,
+                seed: 13,
+            }),
+            FilterStep::Companding(CompandingTransform {
+                kind: CompandingKind::MuLaw,
+                max_v: 5.0,
+                mu: 255.0,
+            }),
+            FilterStep::SampleClockJitter(SampleClockJitterTransform {
+                jitter_s: 0.00001,
+                seed: 14,
+            }),
+            FilterStep::AdcCodeDefect(AdcCodeDefectTransform {
+                kind: AdcCodeDefectKind::MissingCode,
+                bits: 4,
+                min_v: 0.0,
+                max_v: 5.0,
+                missing_code: 3,
+                coefficients: Vec::new(),
+            }),
+            FilterStep::AdcCodeDefect(AdcCodeDefectTransform {
+                kind: AdcCodeDefectKind::Inl,
+                bits: 4,
+                min_v: 0.0,
+                max_v: 5.0,
+                missing_code: 0,
+                coefficients: vec![0.0, 0.01],
+            }),
+            FilterStep::AdcCodeDefect(AdcCodeDefectTransform {
+                kind: AdcCodeDefectKind::Dnl,
+                bits: 4,
+                min_v: 0.0,
+                max_v: 5.0,
+                missing_code: 0,
+                coefficients: vec![0.0, -0.01],
+            }),
+            FilterStep::GainOffsetError(GainOffsetErrorTransform {
+                kind: GainOffsetErrorKind::Gain,
+                gain_error: 0.01,
+                offset_error_v: 0.0,
+            }),
+            FilterStep::GainOffsetError(GainOffsetErrorTransform {
+                kind: GainOffsetErrorKind::Offset,
+                gain_error: 0.0,
+                offset_error_v: 0.02,
+            }),
+            FilterStep::ChannelArithmetic(ChannelArithmeticTransform {
+                kind: ChannelArithmeticKind::Add,
+                left_channel: "input_v".to_string(),
+                right_channel: "input_v".to_string(),
+                output_channel: "sum_v".to_string(),
+                output_unit: None,
+            }),
+            FilterStep::ChannelArithmetic(ChannelArithmeticTransform {
+                kind: ChannelArithmeticKind::Subtract,
+                left_channel: "input_v".to_string(),
+                right_channel: "input_v".to_string(),
+                output_channel: "sub_v".to_string(),
+                output_unit: None,
+            }),
+            FilterStep::ChannelArithmetic(ChannelArithmeticTransform {
+                kind: ChannelArithmeticKind::Differential,
+                left_channel: "input_v".to_string(),
+                right_channel: "input_v".to_string(),
+                output_channel: "diff_v".to_string(),
+                output_unit: None,
+            }),
+            FilterStep::ChannelArithmetic(ChannelArithmeticTransform {
+                kind: ChannelArithmeticKind::CommonMode,
+                left_channel: "input_v".to_string(),
+                right_channel: "input_v".to_string(),
+                output_channel: "common_v".to_string(),
+                output_unit: None,
+            }),
+            FilterStep::VectorMagnitude(VectorMagnitudeTransform {
+                kind: VectorMagnitudeKind::VectorMagnitude,
+                channels: vec!["input_v".to_string(), "input_v".to_string()],
+                output_channel: "vector_mag".to_string(),
+                output_unit: None,
+            }),
+            FilterStep::VectorMagnitude(VectorMagnitudeTransform {
+                kind: VectorMagnitudeKind::EuclideanNorm,
+                channels: vec!["input_v".to_string(), "input_v".to_string()],
+                output_channel: "norm_v".to_string(),
+                output_unit: None,
+            }),
+            FilterStep::MatrixTransform(MatrixTransform {
+                input_channels: vec!["input_v".to_string()],
+                matrix: vec![vec![1.0]],
+                output_channels: vec!["mix_v".to_string()],
+                output_unit: None,
+            }),
+            FilterStep::CoordinateRotation(CoordinateRotationTransform {
+                x_channel: "input_v".to_string(),
+                y_channel: "input_v".to_string(),
+                angle_rad: 0.0,
+                output_x_channel: "rot_x".to_string(),
+                output_y_channel: "rot_y".to_string(),
+                output_unit: None,
+            }),
+            FilterStep::sensor_conversion(SensorConversionTransform {
+                kind: SensorConversionKind::Linear,
+                channel: "input_v".to_string(),
+                output_channel: "linear_units".to_string(),
+                output_unit: "unit".to_string(),
+                parameters: SensorConversionParameters {
+                    input_min_v: Some(0.0),
+                    input_max_v: Some(5.0),
+                    output_min: Some(0.0),
+                    output_max: Some(100.0),
+                    ..SensorConversionParameters::default()
+                },
+            }),
+            FilterStep::sensor_conversion(SensorConversionTransform {
+                kind: SensorConversionKind::Pressure,
+                channel: "input_v".to_string(),
+                output_channel: "pressure_kpa".to_string(),
+                output_unit: "kPa".to_string(),
+                parameters: SensorConversionParameters {
+                    input_min_v: Some(0.0),
+                    input_max_v: Some(5.0),
+                    output_min: Some(0.0),
+                    output_max: Some(100.0),
+                    ..SensorConversionParameters::default()
+                },
+            }),
+            FilterStep::sensor_conversion(SensorConversionTransform {
+                kind: SensorConversionKind::CurrentShunt,
+                channel: "input_v".to_string(),
+                output_channel: "current_a".to_string(),
+                output_unit: "A".to_string(),
+                parameters: SensorConversionParameters {
+                    shunt_ohms: Some(1.0),
+                    ..SensorConversionParameters::default()
+                },
+            }),
+            FilterStep::sensor_conversion(SensorConversionTransform {
+                kind: SensorConversionKind::BridgeStrain,
+                channel: "input_v".to_string(),
+                output_channel: "strain".to_string(),
+                output_unit: "strain".to_string(),
+                parameters: SensorConversionParameters {
+                    excitation_v: Some(5.0),
+                    gauge_factor: Some(2.0),
+                    ..SensorConversionParameters::default()
+                },
+            }),
+            FilterStep::sensor_conversion(SensorConversionTransform {
+                kind: SensorConversionKind::LoadCell,
+                channel: "input_v".to_string(),
+                output_channel: "force_n".to_string(),
+                output_unit: "N".to_string(),
+                parameters: SensorConversionParameters {
+                    excitation_v: Some(5.0),
+                    sensitivity_mv_v: Some(2.0),
+                    full_scale: Some(100.0),
+                    ..SensorConversionParameters::default()
+                },
+            }),
+            FilterStep::sensor_conversion(SensorConversionTransform {
+                kind: SensorConversionKind::Rtd,
+                channel: "input_v".to_string(),
+                output_channel: "rtd_c".to_string(),
+                output_unit: "C".to_string(),
+                parameters: SensorConversionParameters {
+                    r0_ohm: Some(100.0),
+                    alpha_per_c: Some(0.00385),
+                    ..SensorConversionParameters::default()
+                },
+            }),
+            FilterStep::sensor_conversion(SensorConversionTransform {
+                kind: SensorConversionKind::Thermistor,
+                channel: "input_v".to_string(),
+                output_channel: "thermistor_c".to_string(),
+                output_unit: "C".to_string(),
+                parameters: SensorConversionParameters {
+                    r0_ohm: Some(10000.0),
+                    beta_k: Some(3950.0),
+                    t0_c: Some(25.0),
+                    ..SensorConversionParameters::default()
+                },
+            }),
+            FilterStep::sensor_conversion(SensorConversionTransform {
+                kind: SensorConversionKind::TachometerRpm,
+                channel: "input_v".to_string(),
+                output_channel: "rpm".to_string(),
+                output_unit: "rpm".to_string(),
+                parameters: SensorConversionParameters {
+                    pulses_per_rev: Some(2.0),
+                    ..SensorConversionParameters::default()
+                },
+            }),
+            FilterStep::sensor_conversion(SensorConversionTransform {
+                kind: SensorConversionKind::EncoderPosition,
+                channel: "input_v".to_string(),
+                output_channel: "angle_rad".to_string(),
+                output_unit: "rad".to_string(),
+                parameters: SensorConversionParameters {
+                    counts_per_rev: Some(1024.0),
+                    scale_per_rev: Some(std::f64::consts::TAU),
+                    ..SensorConversionParameters::default()
+                },
+            }),
+            FilterStep::sensor_conversion(SensorConversionTransform {
+                kind: SensorConversionKind::Accelerometer,
+                channel: "input_v".to_string(),
+                output_channel: "accel_g".to_string(),
+                output_unit: "g".to_string(),
+                parameters: SensorConversionParameters {
+                    sensitivity_v_per_unit: Some(0.1),
+                    bias_v: Some(2.5),
+                    ..SensorConversionParameters::default()
+                },
+            }),
+            FilterStep::sensor_conversion(SensorConversionTransform {
+                kind: SensorConversionKind::Gyroscope,
+                channel: "input_v".to_string(),
+                output_channel: "gyro_deg_s".to_string(),
+                output_unit: "deg/s".to_string(),
+                parameters: SensorConversionParameters {
+                    sensitivity_v_per_unit: Some(0.02),
+                    bias_v: Some(2.5),
+                    ..SensorConversionParameters::default()
+                },
+            }),
+            FilterStep::sensor_conversion(SensorConversionTransform {
+                kind: SensorConversionKind::HallCurrent,
+                channel: "input_v".to_string(),
+                output_channel: "hall_a".to_string(),
+                output_unit: "A".to_string(),
+                parameters: SensorConversionParameters {
+                    sensitivity_v_per_unit: Some(0.04),
+                    bias_v: Some(2.5),
+                    ..SensorConversionParameters::default()
+                },
+            }),
+            FilterStep::sensor_conversion(SensorConversionTransform {
+                kind: SensorConversionKind::LvdtPosition,
+                channel: "input_v".to_string(),
+                output_channel: "position_mm".to_string(),
+                output_unit: "mm".to_string(),
+                parameters: SensorConversionParameters {
+                    sensitivity_v_per_unit: Some(0.5),
+                    bias_v: Some(0.0),
+                    ..SensorConversionParameters::default()
+                },
+            }),
+            FilterStep::sensor_conversion(SensorConversionTransform {
+                kind: SensorConversionKind::MicrophoneSpl,
+                channel: "input_v".to_string(),
+                output_channel: "spl_db".to_string(),
+                output_unit: "dB".to_string(),
+                parameters: SensorConversionParameters {
+                    reference: Some(0.00002),
+                    ..SensorConversionParameters::default()
+                },
+            }),
+            FilterStep::sensor_conversion(SensorConversionTransform {
+                kind: SensorConversionKind::PhotodiodePower,
+                channel: "input_v".to_string(),
+                output_channel: "optical_w".to_string(),
+                output_unit: "W".to_string(),
+                parameters: SensorConversionParameters {
+                    responsivity_a_per_w: Some(0.4),
+                    ..SensorConversionParameters::default()
+                },
+            }),
+            FilterStep::VibrationTransform(VibrationTransform {
+                kind: VibrationTransformKind::VelocityFromAcceleration,
+                channel: "input_v".to_string(),
+                output_channel: "velocity_m_s".to_string(),
+                output_unit: "m/s".to_string(),
+                window_samples: 1,
+            }),
+            FilterStep::VibrationTransform(VibrationTransform {
+                kind: VibrationTransformKind::DisplacementFromVelocity,
+                channel: "input_v".to_string(),
+                output_channel: "displacement_m".to_string(),
+                output_unit: "m".to_string(),
+                window_samples: 1,
+            }),
+            FilterStep::VibrationTransform(VibrationTransform {
+                kind: VibrationTransformKind::VibrationSeverity,
+                channel: "input_v".to_string(),
+                output_channel: "severity".to_string(),
+                output_unit: "m/s^2".to_string(),
+                window_samples: 2,
+            }),
+            FilterStep::ControlTransform(ControlTransform {
+                kind: ControlTransformKind::ErrorSignal,
+                channel: "input_v".to_string(),
+                output_channel: "error_v".to_string(),
+                output_unit: None,
+                setpoint: 5.0,
+                kp: 0.0,
+                ki: 0.0,
+                kd: 0.0,
+                rate_limit_per_s: 0.0,
+                min_v: 0.0,
+                max_v: 0.0,
+                threshold_v: 0.0,
+                feedforward_gain: 0.0,
+                feedforward_offset: 0.0,
+            }),
+            FilterStep::ControlTransform(ControlTransform {
+                kind: ControlTransformKind::ProportionalControl,
+                channel: "input_v".to_string(),
+                output_channel: "p_out".to_string(),
+                output_unit: None,
+                setpoint: 5.0,
+                kp: 2.0,
+                ki: 0.0,
+                kd: 0.0,
+                rate_limit_per_s: 0.0,
+                min_v: 0.0,
+                max_v: 0.0,
+                threshold_v: 0.0,
+                feedforward_gain: 0.0,
+                feedforward_offset: 0.0,
+            }),
+            FilterStep::ControlTransform(ControlTransform {
+                kind: ControlTransformKind::PidControl,
+                channel: "input_v".to_string(),
+                output_channel: "pid_out".to_string(),
+                output_unit: None,
+                setpoint: 5.0,
+                kp: 2.0,
+                ki: 0.5,
+                kd: 0.1,
+                rate_limit_per_s: 0.0,
+                min_v: 0.0,
+                max_v: 0.0,
+                threshold_v: 0.0,
+                feedforward_gain: 0.0,
+                feedforward_offset: 0.0,
+            }),
+            FilterStep::ControlTransform(ControlTransform {
+                kind: ControlTransformKind::RateLimiter,
+                channel: "input_v".to_string(),
+                output_channel: "rate_limited".to_string(),
+                output_unit: None,
+                setpoint: 0.0,
+                kp: 0.0,
+                ki: 0.0,
+                kd: 0.0,
+                rate_limit_per_s: 1.0,
+                min_v: 0.0,
+                max_v: 0.0,
+                threshold_v: 0.0,
+                feedforward_gain: 0.0,
+                feedforward_offset: 0.0,
+            }),
+            FilterStep::ControlTransform(ControlTransform {
+                kind: ControlTransformKind::SlewRateLimit,
+                channel: "input_v".to_string(),
+                output_channel: "slew_limited".to_string(),
+                output_unit: None,
+                setpoint: 0.0,
+                kp: 0.0,
+                ki: 0.0,
+                kd: 0.0,
+                rate_limit_per_s: 1.0,
+                min_v: 0.0,
+                max_v: 0.0,
+                threshold_v: 0.0,
+                feedforward_gain: 0.0,
+                feedforward_offset: 0.0,
+            }),
+            FilterStep::ControlTransform(ControlTransform {
+                kind: ControlTransformKind::ControlSaturation,
+                channel: "input_v".to_string(),
+                output_channel: "saturated_v".to_string(),
+                output_unit: None,
+                setpoint: 0.0,
+                kp: 0.0,
+                ki: 0.0,
+                kd: 0.0,
+                rate_limit_per_s: 0.0,
+                min_v: 0.0,
+                max_v: 5.0,
+                threshold_v: 0.0,
+                feedforward_gain: 0.0,
+                feedforward_offset: 0.0,
+            }),
+            FilterStep::ControlTransform(ControlTransform {
+                kind: ControlTransformKind::ControlDeadzone,
+                channel: "input_v".to_string(),
+                output_channel: "deadzone_v".to_string(),
+                output_unit: None,
+                setpoint: 0.0,
+                kp: 0.0,
+                ki: 0.0,
+                kd: 0.0,
+                rate_limit_per_s: 0.0,
+                min_v: 0.0,
+                max_v: 0.0,
+                threshold_v: 0.1,
+                feedforward_gain: 0.0,
+                feedforward_offset: 0.0,
+            }),
+            FilterStep::ControlTransform(ControlTransform {
+                kind: ControlTransformKind::FeedforwardControl,
+                channel: "input_v".to_string(),
+                output_channel: "feedforward_v".to_string(),
+                output_unit: None,
+                setpoint: 0.0,
+                kp: 0.0,
+                ki: 0.0,
+                kd: 0.0,
+                rate_limit_per_s: 0.0,
+                min_v: 0.0,
+                max_v: 0.0,
+                threshold_v: 0.0,
+                feedforward_gain: 2.0,
+                feedforward_offset: 0.5,
+            }),
+        ];
+
+        for filter in unsupported {
+            let name = filter.name().to_string();
+            let error = schema_filters(&[filter], &channels)
+                .expect_err("desktop-only transform should be rejected");
+            assert!(
+                error.contains(&format!(
+                    "rule package export does not yet support transform `{name}`"
+                )),
+                "unexpected error for {name}: {error}"
+            );
         }
     }
 
@@ -2316,6 +4302,157 @@ mod tests {
             ))
             .to_string_lossy()
             .into_owned()
+    }
+
+    #[test]
+    fn runs_batch_analysis_manifest_with_pass_fail_and_error_runs() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let temp_root = PathBuf::from(unique_export_dir("batch-analysis"));
+        fs::create_dir_all(&temp_root).expect("temp root should be created");
+        let output_dir = temp_root.join("out");
+        let manifest_path = temp_root.join("batch.toml");
+        let basic_input = Path::new(manifest_dir)
+            .join("../../examples/basic-waveform.csv")
+            .display()
+            .to_string();
+        let basic_config = Path::new(manifest_dir)
+            .join("../../examples/basic-config.toml")
+            .display()
+            .to_string();
+        let slow_input = Path::new(manifest_dir)
+            .join("../../tests/fixtures/slow_rise_fall_signal.csv")
+            .display()
+            .to_string();
+        let slow_config = Path::new(manifest_dir)
+            .join("../../tests/configs/slow-rise-fail.toml")
+            .display()
+            .to_string();
+        let missing_input = temp_root.join("missing.csv").display().to_string();
+
+        fs::write(
+            &manifest_path,
+            format!(
+                r#"
+default_format = "json"
+summary_file = "summary.json"
+
+[[runs]]
+id = "basic_pass"
+input = "{basic_input}"
+config = "{basic_config}"
+report = "basic-pass.json"
+
+[[runs]]
+id = "slow_fail"
+input = "{slow_input}"
+config = "{slow_config}"
+report = "slow-fail.json"
+
+[[runs]]
+id = "missing_input"
+input = "{missing_input}"
+config = "{basic_config}"
+report = "missing-input.json"
+"#
+            ),
+        )
+        .expect("manifest should be writable");
+
+        let output = run(vec![
+            "batch".to_string(),
+            "--manifest".to_string(),
+            manifest_path.display().to_string(),
+            "--output-dir".to_string(),
+            output_dir.display().to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("batch workflow should return a summary");
+
+        assert!(output.contains("\"kind\": \"batch_analysis\""));
+        assert!(output.contains("\"total_runs\": 3"));
+        assert!(output.contains("\"passed_runs\": 1"));
+        assert!(output.contains("\"failed_runs\": 1"));
+        assert!(output.contains("\"error_runs\": 1"));
+        assert!(output.contains("\"overall_outcome\": \"fail\""));
+        assert!(output.contains("\"id\": \"basic_pass\""));
+        assert!(output.contains("\"id\": \"slow_fail\""));
+        assert!(output.contains("\"id\": \"missing_input\""));
+        assert!(output_dir.join("basic-pass.json").exists());
+        assert!(output_dir.join("slow-fail.json").exists());
+        assert!(output_dir.join("summary.json").exists());
+        assert!(!output_dir.join("missing-input.json").exists());
+
+        fs::remove_dir_all(&temp_root).expect("temp root should be removable");
+    }
+
+    #[test]
+    fn rejects_empty_batch_manifest() {
+        let temp_root = PathBuf::from(unique_export_dir("empty-batch"));
+        fs::create_dir_all(&temp_root).expect("temp root should be created");
+        let manifest_path = temp_root.join("batch.toml");
+        fs::write(&manifest_path, "default_format = \"json\"\n")
+            .expect("manifest should be writable");
+
+        let error = run(vec![
+            "batch".to_string(),
+            "--manifest".to_string(),
+            manifest_path.display().to_string(),
+            "--output-dir".to_string(),
+            temp_root.join("out").display().to_string(),
+        ])
+        .expect_err("empty batch manifest should be rejected");
+
+        assert!(error.contains("batch manifest must include at least one [[runs]] entry"));
+        fs::remove_dir_all(&temp_root).expect("temp root should be removable");
+    }
+
+    #[test]
+    fn rejects_batch_summary_format_before_writing_outputs() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let temp_root = PathBuf::from(unique_export_dir("batch-format"));
+        fs::create_dir_all(&temp_root).expect("temp root should be created");
+        let output_dir = temp_root.join("out");
+        let manifest_path = temp_root.join("batch.toml");
+        let basic_input = Path::new(manifest_dir)
+            .join("../../examples/basic-waveform.csv")
+            .display()
+            .to_string();
+        let basic_config = Path::new(manifest_dir)
+            .join("../../examples/basic-config.toml")
+            .display()
+            .to_string();
+
+        fs::write(
+            &manifest_path,
+            format!(
+                r#"
+default_format = "json"
+
+[[runs]]
+id = "basic_pass"
+input = "{basic_input}"
+config = "{basic_config}"
+report = "basic-pass.json"
+"#
+            ),
+        )
+        .expect("manifest should be writable");
+
+        let error = run(vec![
+            "batch".to_string(),
+            "--manifest".to_string(),
+            manifest_path.display().to_string(),
+            "--output-dir".to_string(),
+            output_dir.display().to_string(),
+            "--format".to_string(),
+            "xml".to_string(),
+        ])
+        .expect_err("unsupported batch summary format should be rejected");
+
+        assert!(error.contains("unsupported report format `xml`; use text or json"));
+        assert!(!output_dir.exists());
+        fs::remove_dir_all(&temp_root).expect("temp root should be removable");
     }
 
     #[test]

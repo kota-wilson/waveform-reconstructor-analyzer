@@ -76,6 +76,80 @@ impl<'a> fmt::Display for BorrowedRuleError<'a> {
     }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub enum BorrowedTransformStep {
+    Offset { offset_v: f64 },
+    Gain { gain: f64 },
+    Invert,
+}
+
+pub fn apply_borrowed_transform_chain(
+    samples: &[f64],
+    transforms: &[BorrowedTransformStep],
+    output: &mut [f64],
+) -> BorrowedRuleResult<'static, ()> {
+    if samples.is_empty() {
+        return Err(BorrowedRuleError::EmptyInput);
+    }
+
+    if output.len() != samples.len() {
+        return Err(BorrowedRuleError::InvalidWaveform {
+            reason: "output buffer length must match input sample length",
+        });
+    }
+
+    for transform in transforms {
+        validate_borrowed_transform_step(*transform)?;
+    }
+
+    for (output_sample, sample) in output.iter_mut().zip(samples.iter().copied()) {
+        if !sample.is_finite() {
+            return Err(BorrowedRuleError::InvalidWaveform {
+                reason: "sample values must be finite",
+            });
+        }
+
+        let mut value = sample;
+        for transform in transforms {
+            value = match transform {
+                BorrowedTransformStep::Offset { offset_v } => value + offset_v,
+                BorrowedTransformStep::Gain { gain } => value * gain,
+                BorrowedTransformStep::Invert => -value,
+            };
+
+            if !value.is_finite() {
+                return Err(BorrowedRuleError::InvalidWaveform {
+                    reason: "transform output values must be finite",
+                });
+            }
+        }
+
+        *output_sample = value;
+    }
+
+    Ok(())
+}
+
+fn validate_borrowed_transform_step(
+    transform: BorrowedTransformStep,
+) -> BorrowedRuleResult<'static, ()> {
+    match transform {
+        BorrowedTransformStep::Offset { offset_v } if !offset_v.is_finite() => {
+            Err(BorrowedRuleError::InvalidParameter {
+                name: "offset_v",
+                reason: "value must be finite",
+            })
+        }
+        BorrowedTransformStep::Gain { gain } if !gain.is_finite() => {
+            Err(BorrowedRuleError::InvalidParameter {
+                name: "gain",
+                reason: "value must be finite",
+            })
+        }
+        _ => Ok(()),
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RuleOutcome {
     Pass,
@@ -3045,6 +3119,74 @@ mod tests {
             error,
             BorrowedRuleError::MissingChannel {
                 channel: "missing_v"
+            }
+        );
+    }
+
+    #[test]
+    fn borrowed_linear_pointwise_transform_chain_matches_defined_order() {
+        let samples = [1.0, -2.0, 3.5];
+        let transforms = [
+            BorrowedTransformStep::Offset { offset_v: 0.5 },
+            BorrowedTransformStep::Gain { gain: 2.0 },
+            BorrowedTransformStep::Invert,
+        ];
+        let mut output = [0.0; 3];
+
+        apply_borrowed_transform_chain(&samples, &transforms, &mut output)
+            .expect("linear pointwise chain should evaluate");
+
+        assert_eq!(output, [-3.0, 3.0, -8.0]);
+    }
+
+    #[test]
+    fn borrowed_linear_pointwise_transform_chain_rejects_invalid_input() {
+        let samples = [1.0, f64::NAN];
+        let transforms = [BorrowedTransformStep::Gain { gain: 2.0 }];
+        let mut output = [0.0; 2];
+
+        let error = apply_borrowed_transform_chain(&samples, &transforms, &mut output)
+            .expect_err("non-finite samples should fail");
+
+        assert_eq!(
+            error,
+            BorrowedRuleError::InvalidWaveform {
+                reason: "sample values must be finite"
+            }
+        );
+    }
+
+    #[test]
+    fn borrowed_linear_pointwise_transform_chain_rejects_invalid_parameters() {
+        let samples = [1.0, 2.0];
+        let transforms = [BorrowedTransformStep::Offset { offset_v: f64::NAN }];
+        let mut output = [0.0; 2];
+
+        let error = apply_borrowed_transform_chain(&samples, &transforms, &mut output)
+            .expect_err("non-finite transform parameter should fail");
+
+        assert_eq!(
+            error,
+            BorrowedRuleError::InvalidParameter {
+                name: "offset_v",
+                reason: "value must be finite"
+            }
+        );
+    }
+
+    #[test]
+    fn borrowed_linear_pointwise_transform_chain_requires_caller_owned_output_capacity() {
+        let samples = [1.0, 2.0];
+        let transforms = [BorrowedTransformStep::Invert];
+        let mut output = [0.0; 1];
+
+        let error = apply_borrowed_transform_chain(&samples, &transforms, &mut output)
+            .expect_err("short output buffer should fail");
+
+        assert_eq!(
+            error,
+            BorrowedRuleError::InvalidWaveform {
+                reason: "output buffer length must match input sample length"
             }
         );
     }

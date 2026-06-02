@@ -1,0 +1,275 @@
+[input]
+time_column = "time"
+channels = [
+  "input_v",
+  "a_v",
+  "b_v",
+  "x_v",
+  "y_v",
+  "z_v",
+  "pressure_v",
+  "shunt_v",
+  "bridge_v",
+  "rtd_ohm",
+  "thermistor_ohm",
+  "frequency_hz",
+  "encoder_counts",
+  "accel_v",
+  "gyro_v",
+  "hall_v",
+  "lvdt_v",
+  "pressure_pa",
+  "photodiode_a",
+  "accel_m_s2",
+  "measured_v",
+  "command_v",
+]
+
+[[filters]]
+type = "channel_add"
+left_channel = "a_v"
+right_channel = "b_v"
+output_channel = "sum_v"
+
+[[filters]]
+type = "channel_subtract"
+left_channel = "a_v"
+right_channel = "b_v"
+output_channel = "sub_v"
+
+[[filters]]
+type = "differential_channel"
+left_channel = "a_v"
+right_channel = "b_v"
+output_channel = "diff_v"
+
+[[filters]]
+type = "common_mode"
+left_channel = "a_v"
+right_channel = "b_v"
+output_channel = "common_v"
+
+[[filters]]
+type = "vector_magnitude"
+channels = ["x_v", "y_v", "z_v"]
+output_channel = "vector_mag"
+
+[[filters]]
+type = "euclidean_norm"
+channels = ["x_v", "y_v"]
+output_channel = "norm_v"
+
+[[filters]]
+type = "matrix_transform"
+channels = ["x_v", "y_v"]
+matrix = [[1.0, 0.0], [0.0, 1.0]]
+output_channels = ["mix_x", "mix_y"]
+
+[[filters]]
+type = "coordinate_rotation"
+x_channel = "x_v"
+y_channel = "y_v"
+angle_rad = 1.57079632679
+output_x_channel = "rot_x"
+output_y_channel = "rot_y"
+
+[[filters]]
+type = "linear_sensor_conversion"
+channel = "input_v"
+output_channel = "linear_units"
+output_unit = "unit"
+input_min_v = 0.0
+input_max_v = 5.0
+output_min = 0.0
+output_max = 100.0
+
+[[filters]]
+type = "pressure_transducer"
+channel = "pressure_v"
+output_channel = "pressure_kpa"
+output_unit = "kPa"
+input_min_v = 0.0
+input_max_v = 5.0
+output_min = 0.0
+output_max = 100.0
+
+[[filters]]
+type = "current_shunt"
+channel = "shunt_v"
+output_channel = "current_a"
+output_unit = "A"
+shunt_ohms = 0.1
+
+[[filters]]
+type = "bridge_strain"
+channel = "bridge_v"
+output_channel = "strain"
+output_unit = "strain"
+excitation_v = 5.0
+gauge_factor = 2.0
+
+[[filters]]
+type = "load_cell_force"
+channel = "bridge_v"
+output_channel = "force_n"
+output_unit = "N"
+excitation_v = 5.0
+sensitivity_mv_v = 2.0
+full_scale = 100.0
+
+[[filters]]
+type = "rtd_temperature"
+channel = "rtd_ohm"
+output_channel = "rtd_c"
+output_unit = "C"
+r0_ohm = 100.0
+alpha_per_c = 0.00385
+
+[[filters]]
+type = "thermistor_temperature"
+channel = "thermistor_ohm"
+output_channel = "thermistor_c"
+output_unit = "C"
+r0_ohm = 10000.0
+beta_k = 3950.0
+t0_c = 25.0
+
+[[filters]]
+type = "tachometer_rpm"
+channel = "frequency_hz"
+output_channel = "rpm"
+output_unit = "rpm"
+pulses_per_rev = 2.0
+
+[[filters]]
+type = "encoder_position"
+channel = "encoder_counts"
+output_channel = "angle_rad"
+output_unit = "rad"
+counts_per_rev = 1024.0
+scale_per_rev = 6.28318530718
+
+[[filters]]
+type = "accelerometer_units"
+channel = "accel_v"
+output_channel = "accel_g"
+output_unit = "g"
+sensitivity_v_per_unit = 0.1
+bias_v = 2.5
+
+[[filters]]
+type = "gyroscope_rate"
+channel = "gyro_v"
+output_channel = "gyro_deg_s"
+output_unit = "deg/s"
+sensitivity_v_per_unit = 0.02
+bias_v = 2.5
+
+[[filters]]
+type = "hall_current"
+channel = "hall_v"
+output_channel = "hall_a"
+output_unit = "A"
+sensitivity_v_per_unit = 0.04
+bias_v = 2.5
+
+[[filters]]
+type = "lvdt_position"
+channel = "lvdt_v"
+output_channel = "position_mm"
+output_unit = "mm"
+sensitivity_v_per_unit = 0.5
+bias_v = 0.0
+
+[[filters]]
+type = "microphone_spl"
+channel = "pressure_pa"
+output_channel = "spl_db"
+output_unit = "dB"
+reference = 0.00002
+
+[[filters]]
+type = "photodiode_power"
+channel = "photodiode_a"
+output_channel = "optical_w"
+output_unit = "W"
+responsivity_a_per_w = 0.4
+
+[[filters]]
+type = "velocity_from_acceleration"
+channel = "accel_m_s2"
+output_channel = "velocity_m_s"
+output_unit = "m/s"
+
+[[filters]]
+type = "displacement_from_velocity"
+channel = "velocity_m_s"
+output_channel = "displacement_m"
+output_unit = "m"
+
+[[filters]]
+type = "vibration_severity"
+channel = "accel_m_s2"
+output_channel = "severity"
+output_unit = "m/s^2"
+window_samples = 2
+
+[[filters]]
+type = "control_error"
+channel = "measured_v"
+output_channel = "error_v"
+setpoint = 5.0
+
+[[filters]]
+type = "proportional_control"
+channel = "measured_v"
+output_channel = "p_out"
+setpoint = 5.0
+kp = 2.0
+
+[[filters]]
+type = "pid_control"
+channel = "measured_v"
+output_channel = "pid_out"
+setpoint = 5.0
+kp = 2.0
+ki = 0.5
+kd = 0.1
+
+[[filters]]
+type = "rate_limiter"
+channel = "command_v"
+output_channel = "rate_limited"
+rate_limit_per_s = 2.0
+
+[[filters]]
+type = "slew_rate_limit"
+channel = "command_v"
+output_channel = "slew_limited"
+rate_limit_per_s = 2.0
+
+[[filters]]
+type = "control_saturation"
+channel = "command_v"
+output_channel = "saturated_v"
+min_v = 0.0
+max_v = 5.0
+
+[[filters]]
+type = "control_deadzone"
+channel = "command_v"
+output_channel = "deadzone_v"
+threshold_v = 0.1
+
+[[filters]]
+type = "feedforward_control"
+channel = "command_v"
+output_channel = "feedforward_v"
+feedforward_gain = 2.0
+feedforward_offset = 0.5
+
+[[criteria]]
+id = "m35_pid_max"
+type = "maximum_voltage"
+channel = "pid_out"
+threshold_v = 20.0

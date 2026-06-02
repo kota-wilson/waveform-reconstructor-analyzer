@@ -6,7 +6,7 @@ Owner Role: Project Coordinator
 
 ## Current Status
 
-This is the initial publication retrospective. Follow-up GitHub issues have since been created for M1, v0.2.0, M3, M4, M5, ADC quantization, and M6 measurement/evidence work; after PR #52, the repository issue list is empty.
+This started as the initial publication retrospective. Follow-up GitHub issues have since covered M1, v0.2.0, M3, M4, M5, ADC quantization, M6 measurement/evidence work, and later milestones through M14. M15-M20 are complete locally as the MVP-exit pass without GitHub issue creation, M21-M24 are complete locally as the first narrow runtime-path follow-up, and M25-M36 are complete locally as the comprehensive filter and signal-conditioning suite.
 
 ## What Worked
 
@@ -20,6 +20,11 @@ This is the initial publication retrospective. Follow-up GitHub issues have sinc
 - M6 measurement extraction used existing golden JSON tests as a strong regression guard against subtle evidence drift.
 - M6-003 used the measurement layer to separate reusable report evidence from criteria decisions without expanding into SVG, DSL, batch, GUI, DAQ, or certification scope.
 - M6 completion reused report measurement IDs for SVG evidence, documented DSL direction before implementing syntax, and added known-answer measurement fixtures.
+- M15-M20 focused on product readiness instead of adding broad DSP scope: config reference, artifact contract, local batch workflow, transform-package compatibility, validation index, and readiness gates.
+- M21-M24 showed that post-MVP runtime work needs very small slices: package semantics for `offset`/`gain`/`invert`, borrowed-slice parity, fixture corpus, and a loader design gate before any loader implementation.
+- The batch workflow stayed local and file-based, which avoided pulling in DAQ, scheduling, service, database, or hardware assumptions.
+- M25-M36 worked because the registry came first: every new transform family had catalog metadata, package support, runtime support, evidence level, docs, examples, and validation before completeness claims.
+- Dependency-light implementation kept momentum while exact elliptic/Cauer design, efficient polyphase resampling, Hilbert envelope, optimized FFT work, phase/gain matching, advanced acoustic packs, and calibration packs stayed gated instead of blocking ordinary engineering workflows.
 
 ## What To Improve
 
@@ -32,21 +37,26 @@ This is the initial publication retrospective. Follow-up GitHub issues have sinc
 - Add visual regression automation before expanding beyond simple 2D evidence labels.
 - Add visual regression or rendered-output review before broadening plotting beyond SVG line charts.
 - Add target execution and SDK validation only after a fresh environment/toolchain gate.
+- Add automated docs link checking and config/report drift checks before broad post-MVP expansion.
+- Refresh benchmarks under a controlled performance gate before making stronger throughput claims.
+- Consider opening post-MVP issues one theme at a time to avoid turning runtime-loader work into broad embedded/platform scope.
+- Add generated catalog/config-reference drift checks before future broad transform expansion.
+- Add larger benchmark fixtures before claiming throughput on production-scale waveform sets.
 
 ## Gate Decision
 
 - Gate: Retrospective Gate.
 - Decision: Pass.
-- Reason: Lessons and next actions are recorded, including the M4 post-merge outcome, M5 plotting scope control, M3 embedded prototype scope control, M6 measurement regression-guard lesson, M6-003 report-schema migration lesson, and M6 completion overlay/fixture lesson.
-- Residual risk: Remaining follow-up issues still need prioritization and implementation.
+- Reason: Lessons and next actions are recorded, including the M4 post-merge outcome, M5 plotting scope control, M3 embedded prototype scope control, M6 measurement regression-guard lesson, M6-003 report-schema migration lesson, M6 completion overlay/fixture lesson, M15-M20 MVP-exit scope-control lesson, M21-M24 runtime-path scoping lesson, and M25-M36 catalog-first comprehensive-suite lesson.
+- Residual risk: External PR/release work, advanced DSP/domain follow-ups, and runtime-loader implementation still need prioritization, issue planning, and approval.
 - Next owner: Community Engineering Lead.
 
 ## Hand-Off Note
 
 Role: Project Coordinator
-Goal: Capture lessons from project creation through public publication.
+Goal: Capture lessons from project creation through public publication, local MVP exit, M21-M24 runtime-path follow-up, and M25-M36 comprehensive-suite closure.
 Files changed: `docs/retrospective.md`
 Checks run: Reviewed project artifacts and final CI status.
 Status: Pass.
-Known gaps: Annotated SVG evidence still lacks visual regression, the criteria DSL parser remains unimplemented, and embedded work still lacks target execution or SDK validation.
-Next recommended step: Close M6 after PR/CI/merge, then choose the next milestone before adding new visualization backends, interactive plotting scope, RTOS SDKs, HALs, or target CI.
+Known gaps: Annotated SVG evidence still lacks visual regression, automated config/report drift checks are not implemented, benchmark fixtures remain small, and embedded work still lacks target execution or SDK validation.
+Next recommended step: Review the completed M25-M36 local branch for external PR readiness or choose one gated advanced follow-up.

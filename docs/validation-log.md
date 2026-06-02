@@ -2,7 +2,7 @@
 
 Date: 2026-05-30
 
-Updated: 2026-06-01
+Updated: 2026-06-02
 
 Project: FerrisOxide Signal
 
@@ -21,6 +21,684 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - Rust: `rustc 1.95.0 (59807616e 2026-04-14)`
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, and `ferrisoxide-cli`.
+
+## README And M25-M36 Documentation Merge-Readiness Validation Update
+
+Date: 2026-06-02
+
+Stage: Local documentation review before external PR/merge
+
+Scope:
+
+- README review and update for the M25-M36 comprehensive filter and simulated signal-conditioning suite.
+- Documentation review updates for `docs/documentation-review.md`, `docs/evaluation-report.md`, `docs/transform-catalog.md`, and `docs/config-reference.md`.
+- Confirmation that public docs describe implemented local desktop conditioning support while preserving runtime, package, live DAQ, hardware, dependency, release, and certification gates.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-cli lists_transform_catalog -- --nocapture`: Pass; 2 focused catalog CLI tests passed.
+- `cargo test -p ferrisoxide-core roadmap_families_are_represented_in_catalog -- --nocapture`: Pass; 1 focused catalog coverage test passed.
+- `cargo run --quiet -p ferrisoxide-cli --bin ferrisoxide-signal -- transforms --format text`: Pass; catalog output reports 219 entries, including `comprehensive_suite_closure | milestone=M36 | status=implemented`.
+- `cargo test --workspace`: Pass; workspace unit, integration, and doc-test harnesses passed, including 42 CLI tests and 169 core tests.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no trailing whitespace matches.
+- Current-artifact stale-reference scan: Pass; README, current docs, requirements, traceability, risk, orchestration, and project-state artifacts no longer route M36 as pending or use stale M34/M35 status wording.
+- Local Markdown link-target scan: Pass; 196 FerrisOxide Markdown files scanned with no broken local links.
+
+Result:
+
+- README now reflects the implemented local M25-M36 desktop waveform-conditioning suite, points to the catalog command, and links the M36 closure report.
+- Documentation review and evaluation artifacts explicitly cover M25-M36.
+- External PR/merge readiness is supported by local validation evidence; release publication remains a separate gate.
+
+## M36 Comprehensive Suite Closure Validation Update
+
+Date: 2026-06-02
+
+Stage: Local M36 closure validation
+
+Scope:
+
+- Catalog, CLI catalog output, config reference, transform catalog docs, validation corpus index, package/runtime compatibility map, release readiness, community report, retrospective, README, changelog, requirements, traceability, risk, project state, root memory, and stale-reference closure for the local M25-M36 comprehensive filter and simulated signal-conditioning suite.
+- `comprehensive_suite_closure` catalog entry marked implemented as the M36 closure artifact.
+- Benchmark-readiness helper evidence over the M35 domain fixture.
+- No new dependency, live DAQ, HAL/RTOS, target hardware, runtime loader, external PR, release publication, binary signing, hardware calibration, hardware qualification, or certification scope.
+
+Dependency review:
+
+- Pass; M36 adds no crate, algorithm dependency, external service, credential, signing, auth, permission, network surface, target toolchain, or global environment change.
+- Residual risk: advanced FFT, Hilbert, exact elliptic/Cauer, efficient polyphase resampling, phase/gain matching, acoustic, advanced sensor calibration, and `split_by_event` work remains separately gated.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-cli lists_transform_catalog -- --nocapture`: Pass; text and JSON catalog output tests passed and include the M36 closure entry.
+- `cargo test -p ferrisoxide-core roadmap_families_are_represented_in_catalog -- --nocapture`: Pass; the roadmap-family catalog coverage test passed.
+- `cargo run --quiet -p ferrisoxide-cli --bin ferrisoxide-signal -- transforms --format text`: Pass; catalog output reports 219 entries and includes `comprehensive_suite_closure | milestone=M36 | status=implemented`.
+- `cargo run --quiet -p ferrisoxide-cli --bin ferrisoxide-signal-bench -- --input examples/m35-domain-waveform.csv --config examples/m35-domain-config.toml --iterations 5`: Pass; local benchmark helper reported 4 samples, 58 channels, 54059 report bytes, `read_ms_avg = 0.043`, `parse_ms_avg = 0.157`, `transform_ms_avg = 0.721`, `criteria_ms_avg = 0.015`, `report_ms_avg = 1.228`, and `total_ms_avg = 2.164`.
+- `cargo test --workspace`: Pass; workspace unit, integration, and doc-test harnesses passed, including 42 CLI tests and 169 core tests.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no FerrisOxide trailing whitespace matches.
+- Root memory trailing-whitespace scan over `project` and `projects/00-project-registry.md`: Pass; no trailing whitespace matches.
+- Local Markdown link-target scan: Pass; 196 FerrisOxide Markdown files scanned with no broken local links.
+- Root memory Markdown link-target scan: Pass; 24 root memory Markdown files scanned with no broken local links.
+- Current-artifact stale-reference scan: Pass; current roadmap, catalog, config, corpus, compatibility, readiness, community, retrospective, M36 report, requirements, traceability, risk, orchestration, project state, and root memory artifacts no longer route M36 as pending. Historical milestone reports preserve point-in-time planned wording.
+
+Result:
+
+- M36 is complete locally for catalog, UX, compatibility, validation-corpus, benchmark-readiness, release-readiness, community, retrospective, and stale-reference closure.
+- WRA-RQ-121 is implemented locally.
+- M25-M36 now forms the completed local comprehensive filter and simulated signal-conditioning suite for sampled DAQ/test waveform conditioning and calculations.
+- Package/runtime expansion, external PR/CI, release publication, live DAQ, HAL/RTOS, target hardware, calibration evidence, hardware qualification, certification evidence, dependency additions, optimized/advanced DSP work, advanced domain packs, and `split_by_event` remain separately gated.
+
+## M35 Multi-Channel, Sensor, And Domain Conditioning Validation Update
+
+Date: 2026-06-02
+
+Stage: Local M35 implementation validation
+
+Scope:
+
+- Desktop `[[filters]]` support for `channel_add`, `channel_subtract`, `differential_channel`, `common_mode`, `vector_magnitude`, `euclidean_norm`, `matrix_transform`, `coordinate_rotation`, software sensor conversions, vibration integration/severity, and control-signal transforms.
+- Catalog-visible dependency/design-gated entries for `phase_difference`, `gain_phase_match`, `advanced_acoustic_pack`, and `advanced_sensor_calibration_pack`.
+- Explicit derived output channels, declared output units, formula assumptions, unit/channel validation, catalog metadata, CLI fixture analysis, invalid config/domain tests, rule-package export rejection, documentation, traceability, and risk updates.
+- No new dependency, live DAQ, HAL/RTOS, target hardware, runtime loader, external PR, release publication, hardware calibration, hardware qualification, or certification scope.
+
+Dependency review:
+
+- Pass; no calibration, acoustic-analysis, phase-estimation, or numeric dependency was added. M35 uses dependency-free software formulas and keeps advanced domain packs dependency/design-gated.
+- Residual risk: software sensor conversions are not hardware calibration or sensor-accuracy evidence.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-core m35 -- --nocapture`: Pass; 7 focused M35 core/config/catalog tests passed.
+- `cargo test -p ferrisoxide-cli m35 -- --nocapture`: Pass; the focused M35 CLI fixture test passed.
+- `cargo test -p ferrisoxide-cli lists_transform_catalog -- --nocapture`: Pass; text and JSON catalog output include M35 implemented and dependency-gated entries.
+- `cargo test -p ferrisoxide-cli rule_package_export_rejects_remaining_desktop_only_transform_matrix -- --nocapture`: Pass; desktop-only export rejection matrix includes M35 transforms.
+- `cargo run --quiet -p ferrisoxide-cli --bin ferrisoxide-signal -- analyze --input examples/m35-domain-waveform.csv --config examples/m35-domain-config.toml --format json`: Pass; JSON report returned `overall_outcome = pass`, 34 M35 transform steps, 58 channels, and software-formula calibration-scope metadata.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass after boxing the large `SensorConversion` `FilterStep` variant.
+- `cargo test --workspace`: Pass after the clippy-driven enum-size fix; workspace unit, integration, and doc-test harnesses passed, including 42 CLI tests and 169 core tests.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no trailing whitespace matches.
+- Root memory trailing-whitespace scan over `project` and `projects/00-project-registry.md`: Pass; no trailing whitespace matches.
+- Local Markdown link-target scan: Pass; 195 FerrisOxide Markdown files scanned with no broken local links.
+- Root memory Markdown link-target scan: Pass; 5 root memory Markdown files scanned with no broken local links.
+- Stale-reference scan: Pass for current artifacts; remaining `M35-M36` matches are confined to the historical M34 pipeline report, while current docs route to M36.
+
+Result:
+
+- M35 is complete locally for desktop multi-channel arithmetic, vector/matrix/coordinate transforms, software sensor conversions, vibration calculations, and control conditioning.
+- Every implemented M35 transform remains desktop-only and rejected by rule-package export until runtime/package semantics are separately approved.
+- M35 docs and metadata state that software sensor conversions are not hardware calibration, hardware accuracy, hardware qualification, certification, live DAQ, HAL/RTOS, or runtime-package evidence.
+- M36 catalog, UX, compatibility, validation-corpus, benchmark, release-readiness, community, and retrospective closure is the next planned implementation slice.
+
+## M34 Fault Injection And ADC/DAC Simulation Validation Update
+
+Date: 2026-06-02
+
+Stage: Local M34 implementation validation
+
+Scope:
+
+- Desktop `[[filters]]` support for `white_noise`, `gaussian_noise`, `uniform_noise`, `pink_noise`, `brown_noise`, `impulse_noise`, `salt_pepper_noise`, `quantization_noise`, `periodic_interference`, `hum_interference`, `ground_bounce`, `thermal_drift`, `random_walk_drift`, `dropout_fault`, `missing_samples`, `saturation_fault`, `stuck_at_fault`, `flatline_fault`, `intermittent_fault`, `rounding_quantizer`, `floor_quantizer`, `ceil_quantizer`, `midrise_quantizer`, `midtread_quantizer`, `saturating_quantizer`, `dither`, `companding`, `sample_clock_jitter`, `adc_missing_code`, `inl_error`, `dnl_error`, `adc_gain_error`, and `adc_offset_error`.
+- Deterministic seeded simulation for stochastic fault fixtures, explicit `evidence_scope = simulation_only` metadata, derived waveform lineage, config parsing, catalog metadata, CLI fixture analysis, invalid config/domain tests, rule-package export rejection, documentation, traceability, and risk updates.
+- No new dependency, live DAQ, HAL/RTOS, target hardware, runtime loader, external PR, release publication, hardware qualification, or certification scope.
+
+Dependency review:
+
+- Pass; no new RNG, random-distribution, or noise-model dependency was added. M34 uses a deterministic in-repository seeded RNG path for repeatable simulation evidence.
+- Residual risk: M34 provides deterministic software simulation tools, not statistical quality certification or hardware-correlated ADC/noise evidence.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-core m34 -- --nocapture`: Pass; 6 focused M34 core/config/catalog tests passed.
+- `cargo test -p ferrisoxide-cli m34 -- --nocapture`: Pass; the focused M34 CLI fixture test passed.
+- `cargo test -p ferrisoxide-cli lists_transform_catalog -- --nocapture`: Pass; text and JSON catalog output include M34 implemented entries.
+- `cargo test -p ferrisoxide-cli rule_package_export_rejects_remaining_desktop_only_transform_matrix -- --nocapture`: Pass; desktop-only export rejection matrix includes M34 transforms.
+- `cargo run --quiet -p ferrisoxide-cli --bin ferrisoxide-signal -- analyze --input examples/m34-fault-adc-waveform.csv --config examples/m34-fault-adc-config.toml --format json`: Pass; JSON report returned `overall_outcome = pass` with 33 M34 transform steps and `simulation_only` metadata.
+- `cargo test --workspace`: Pass; workspace unit, integration, and doc-test harnesses passed, including 41 CLI tests and 162 core tests.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no trailing whitespace matches.
+- Root memory trailing-whitespace scan over `project` and `projects/00-project-registry.md`: Pass; no trailing whitespace matches.
+- Local Markdown link-target scan: Pass; 194 Markdown files scanned with no broken local links.
+
+Result:
+
+- M34 is complete locally for deterministic desktop fault injection, simulated interference, drift/fault injection, ADC quantizer variants, dithering, companding, jitter, missing-code/INL/DNL, gain, and offset simulation.
+- Every M34 transform remains desktop-only and rejected by rule-package export until runtime/package semantics are separately approved.
+- Simulation outputs are recorded as derived waveform evidence and do not claim measured hardware behavior.
+- M35 multi-channel, sensor, and domain conditioning packs are the next planned implementation slice.
+
+## M33 Spectrum, Windows, And Time-Frequency Validation Update
+
+Date: 2026-06-02
+
+Stage: Local M33 implementation validation
+
+Scope:
+
+- Desktop `[[feature_transforms]]` support for `window_function`, `dft`, `fft`, `ifft`, `power_spectrum`, `psd`, `welch_psd`, `cross_spectrum`, `coherence`, `transfer_function`, `harmonic_analysis`, `thd`, `snr`, `sinad`, `enob`, `stft`, `spectrogram`, `spectral_centroid`, `spectral_bandwidth`, `spectral_rolloff`, and `band_power`.
+- Dependency-free spectral routines, including window coefficients, radix-2 FFT with DFT fallback, IFFT, one-sided amplitude/power/PSD scaling, Welch averaging, paired spectra, harmonic metrics, and STFT/spectrogram records.
+- Config parsing, catalog metadata, feature-record method context, report schema docs, CLI fixture analysis, invalid config/domain tests, dependency review, documentation, traceability, and risk updates.
+- No new dependencies, live DAQ, HAL/RTOS, target hardware, runtime loader, external PR, release publication, hardware qualification, or certification scope.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-core m33 -- --nocapture`: Pass; 5 focused M33 core/config/feature tests passed.
+- `cargo test -p ferrisoxide-core transform_catalog -- --nocapture`: Pass; 10 focused catalog tests passed.
+- `cargo test -p ferrisoxide-cli m33 -- --nocapture`: Pass; the focused CLI M33 fixture test passed.
+- `cargo test -p ferrisoxide-cli lists_transform_catalog -- --nocapture`: Pass; text and JSON catalog output tests passed with M33 implemented entries.
+- `cargo run --quiet -p ferrisoxide-cli --bin ferrisoxide-signal -- analyze --input examples/m33-spectrum-waveform.csv --config examples/m33-spectrum-config.toml --format json`: Pass; JSON report returned `overall_outcome = pass` with 78 M33 feature records.
+- `cargo test --workspace`: Pass; workspace unit, integration, and doc-test harnesses passed, including 40 CLI tests and 156 core tests.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass after replacing two high-arity spectral record helpers with request structs.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no trailing whitespace matches.
+- Root memory trailing-whitespace scan over `project` and `projects/00-project-registry.md`: Pass; no trailing whitespace matches.
+- Local Markdown link-target scan: Pass; 217 Markdown files scanned with no broken local links.
+
+Result:
+
+- M33 is complete locally for offline desktop spectrum, window, and time-frequency feature evidence.
+- Feature records now support method context for frequency bins, window parameters, segment ranges, harmonic metrics, spectral bands, and frequency-domain scalar features.
+- Spectrum/time-frequency outputs remain `feature_records`, so they do not mutate the waveform or silently affect pass/fail criteria.
+- The dependency review chose a dependency-free implementation for M33; optimized FFT or advanced external numeric crates remain separately gated.
+- M34 deterministic fault injection and ADC/DAC simulation is complete locally; M35 multi-channel, sensor, and domain conditioning packs are the next planned implementation slice.
+
+## M32 Statistics And Correlation Validation Update
+
+Date: 2026-06-02
+
+Stage: Local M32 implementation validation
+
+Scope:
+
+- Desktop `[[filters]]` support for `rolling_mean`, `rolling_variance`, `rolling_stddev`, `rolling_min`, `rolling_max`, `z_score`, `outlier_detection`, and `quantile_clip`.
+- Desktop `[[feature_transforms]]` support for `mean`, `median`, `mode`, `min`, `max`, `variance`, `standard_deviation`, `skewness`, `kurtosis`, `percentile`, `quantile`, `histogram`, `covariance`, `correlation`, `autocorrelation`, and `cross_correlation`.
+- Config parsing, catalog metadata, feature-record method context, histogram multi-record output, lag convention docs, CLI fixture analysis, invalid config/domain tests, rule-package export rejection, documentation, traceability, and risk updates.
+- No new dependencies, live DAQ, HAL/RTOS, target hardware, runtime loader, external PR, release publication, hardware qualification, or certification scope.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-core m32 -- --nocapture`: Pass; 8 focused M32 core/config/feature/catalog tests passed.
+- `cargo test -p ferrisoxide-core transform_catalog -- --nocapture`: Pass; 10 focused catalog tests passed.
+- `cargo test -p ferrisoxide-cli m32 -- --nocapture`: Pass; the focused CLI M32 fixture test passed.
+- `cargo test -p ferrisoxide-cli lists_transform_catalog -- --nocapture`: Pass; text and JSON catalog output tests passed with M32 implemented entries.
+- `cargo test -p ferrisoxide-cli rule_package_export_rejects_remaining_desktop_only_transform_matrix -- --nocapture`: Pass; desktop-only export rejection matrix includes M32 waveform filters.
+- `cargo run --quiet -p ferrisoxide-cli --bin ferrisoxide-signal -- analyze --input examples/m32-statistics-waveform.csv --config examples/m32-statistics-config.toml --format json`: Pass; JSON report returned `overall_outcome = pass` with 16 M32 feature transform entries and histogram method context.
+- `cargo run --quiet -p ferrisoxide-cli --bin ferrisoxide-signal -- analyze --input examples/m32-statistics-waveform.csv --config examples/m32-statistics-filters-config.toml --format json`: Pass; JSON report returned `overall_outcome = pass` with 8 M32 filter transform steps.
+- `cargo test --workspace`: Pass; workspace unit, integration, and doc-test harnesses passed, including 39 CLI tests and 151 core tests.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no trailing whitespace matches.
+- Root memory trailing-whitespace scan over `project` and `projects/00-project-registry.md`: Pass; no trailing whitespace matches.
+- Local Markdown link-target scan: Pass; 192 Markdown files scanned with no broken local links.
+
+Result:
+
+- M32 is complete locally for desktop statistics, correlation, rolling-statistic, distribution-normalization, outlier, and quantile-clipping transforms.
+- Feature records now support optional method context for percentile, quantile, histogram bins, paired-channel features, and lagged correlation evidence.
+- Histogram transforms emit one feature record per bin without affecting validation pass/fail results.
+- Correlation features use explicit paired-channel and lag metadata so derived evidence is traceable in JSON reports.
+- Rule-package export rejects M32 waveform filters and `[[feature_transforms]]` until separate package/runtime semantics are approved.
+- FFT, PSD, Welch, STFT, spectrogram, and spectral feature work remain dependency/design-gated for M33.
+
+## M31 Envelope, Energy, And Calculus Validation Update
+
+Date: 2026-06-02
+
+Stage: Local M31 implementation validation
+
+Scope:
+
+- Desktop `[[filters]]` support for `half_wave_rectify`, `full_wave_rectify`, `envelope`, `moving_rms`, `peak_hold`, `first_derivative`, `second_derivative`, `integral`, `cumulative_integral`, `leaky_integrator`, and `slope_detection`.
+- Desktop `[[feature_transforms]]` support for scalar `feature_records`: `rms`, `peak_to_peak`, `crest_factor`, `energy`, `power`, `area_under_curve`, and `impulse_estimate`.
+- Config parsing, catalog metadata, report schema/rendering, CLI fixture analysis, invalid config/domain tests, rule-package export rejection, documentation, traceability, and risk updates.
+- No new dependencies, live DAQ, HAL/RTOS, target hardware, runtime loader, external PR, release publication, hardware qualification, or certification scope.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-core m31 -- --nocapture`: Pass; 7 focused M31 core/config/feature/catalog tests passed.
+- `cargo test -p ferrisoxide-core transform_catalog -- --nocapture`: Pass; 10 focused catalog tests passed.
+- `cargo test -p ferrisoxide-cli m31 -- --nocapture`: Pass; 2 focused CLI M31 tests passed.
+- `cargo test -p ferrisoxide-cli lists_transform_catalog -- --nocapture`: Pass; text and JSON catalog output tests passed with M31 implemented entries.
+- `cargo test -p ferrisoxide-cli rule_package_export_rejects_remaining_desktop_only_transform_matrix -- --nocapture`: Pass; desktop-only export rejection matrix includes M31 waveform filters.
+- `cargo run --quiet -p ferrisoxide-cli --bin ferrisoxide-signal -- analyze --input examples/m31-calculus-waveform.csv --config examples/m31-calculus-config.toml --format json`: Pass; JSON report returned `overall_outcome = pass` with 11 M31 transform steps and 7 feature records.
+- `cargo test --workspace`: Pass; workspace unit, integration, and doc-test harnesses passed, including M31 CLI/core coverage.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no trailing whitespace matches.
+- Root memory trailing-whitespace scan over `project` and `projects/00-project-registry.md`: Pass; no trailing whitespace matches.
+- Local Markdown link-target scan: Pass; 191 Markdown files scanned with no broken local links.
+
+Result:
+
+- M31 is complete locally for desktop envelope, energy, calculus, and scalar feature-record transforms.
+- `feature_records` are rendered separately from measurements and validation results, so scalar calculations do not silently affect pass/fail outcomes.
+- Time-dependent transforms and features enforce finite, strictly increasing time evidence before derivative, integral, energy, area, power, leaky integration, or slope calculations.
+- Rule-package export rejects M31 waveform filters and `[[feature_transforms]]` until separate package/runtime semantics are approved.
+- Hilbert envelope remains dependency/design-gated; M32 statistical and correlation calculations are the next planned implementation slice.
+
+## M30 Resampling And Timing Alignment Validation Update
+
+Date: 2026-06-02
+
+Stage: Local M30 implementation validation
+
+Scope:
+
+- Desktop `[[filters]]` support for `resample`, `downsample`, `decimate`, `upsample`, `interpolate`, `rational_resample`, `sample_and_hold`, `zero_order_hold`, `first_order_hold`, `fractional_delay`, `cross_correlation_delay`, `jitter_correction`, and `clock_drift_correction`.
+- Config parsing, catalog metadata, CLI fixture analysis, decimation anti-alias cutoff validation, timing/alignment invalid-input tests, cross-correlation lag/delay/confidence metadata, rule-package export rejection, documentation, traceability, and risk updates.
+- No new dependencies, live DAQ, HAL/RTOS, target hardware, runtime loader, external PR, release publication, hardware qualification, or certification scope.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-core m30 -- --nocapture`: Pass; 7 focused M30 core/config/catalog tests passed.
+- `cargo test -p ferrisoxide-core transform_catalog -- --nocapture`: Pass; 10 focused catalog tests passed, including M30 metadata/catalog parity.
+- `cargo test -p ferrisoxide-cli analyzes_config_with_m30_resampling_timing_filters -- --nocapture`: Pass; M30 CLI fixture analysis passed.
+- `cargo test -p ferrisoxide-cli lists_transform_catalog -- --nocapture`: Pass; text and JSON catalog output include M30 implemented entries and the dependency-gated polyphase entry.
+- `cargo test -p ferrisoxide-cli rule_package_export_rejects_remaining_desktop_only_transform_matrix -- --nocapture`: Pass; desktop-only export rejection matrix includes M30 transforms.
+- `cargo run --quiet -p ferrisoxide-cli --bin ferrisoxide-signal -- analyze --input examples/m30-resampling-waveform.csv --config examples/m30-resampling-config.toml --format json`: Pass; JSON report returned `overall_outcome = pass` with 13 M30 transform steps and cross-correlation delay/confidence metadata.
+- `cargo test --workspace`: Pass; 280 workspace unit/integration checks plus doc-test harnesses passed.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass after replacing `Option::is_none_or` with an MSRV-compatible `match`.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no trailing whitespace matches.
+- Local Markdown link-target scan: Pass; no broken local links in the changed FerrisOxide/root-memory Markdown set.
+
+Result:
+
+- M30 is complete locally for desktop resampling and timing-alignment filters.
+- Raw waveform preservation remains intact through derived waveform lineage and structured transform metadata.
+- `decimate` enforces target-Nyquist cutoff validation before integer downsampling.
+- `cross_correlation_delay` records estimated lag, delay, and confidence metadata before aligning the target channel.
+- Rule-package export rejects every M30 transform until separate package/runtime semantics are approved.
+- Efficient polyphase resampling remains dependency/performance-gated; M31 envelope, energy, and calculus is the next planned implementation slice.
+
+## M29 Standard Frequency Filter Validation Update
+
+Date: 2026-06-02
+
+Stage: Local M29 implementation validation
+
+Scope:
+
+- Desktop `[[filters]]` support for `fir_filter`, `zero_phase_fir_filter`, `iir_biquad`, `zero_phase_iir_biquad`, `high_pass`, `band_pass`, `band_stop`, `notch`, `comb_filter`, `butterworth_low_pass`, `butterworth_high_pass`, `chebyshev1_low_pass`, `chebyshev2_low_pass`, and `bessel_low_pass`.
+- Config parsing, catalog metadata, CLI fixture analysis, generated frequency-response checks, sample-rate and stability validation, rule-package export rejection, documentation, traceability, and risk updates.
+- No new dependencies, live DAQ, HAL/RTOS, target hardware, runtime loader, external PR, release publication, hardware qualification, or certification scope.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-core m29 -- --nocapture`: Pass; 8 focused M29 core/config/catalog tests passed.
+- `cargo test -p ferrisoxide-core transform_catalog -- --nocapture`: Pass; 9 focused catalog tests passed, including M29 metadata/catalog parity.
+- `cargo test -p ferrisoxide-cli analyzes_config_with_m29_standard_frequency_filters -- --nocapture`: Pass; M29 CLI fixture analysis passed.
+- `cargo test -p ferrisoxide-cli lists_transform_catalog -- --nocapture`: Pass; text and JSON catalog output include M29 implemented entries and the dependency-gated elliptic entry.
+- `cargo test -p ferrisoxide-cli rule_package_export_rejects_remaining_desktop_only_transform_matrix -- --nocapture`: Pass; desktop-only export rejection matrix includes M29 transforms.
+- `cargo run --quiet -p ferrisoxide-cli --bin ferrisoxide-signal -- analyze --input examples/m29-frequency-waveform.csv --config examples/m29-frequency-config.toml --format json`: Pass; JSON report returned `overall_outcome = pass` with 14 M29 transform steps.
+- `cargo test --workspace`: Pass; workspace unit, integration, and doc-test harnesses passed.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no trailing whitespace matches.
+- Local Markdown link-target scan: Pass; no broken local links in the changed FerrisOxide/root-memory Markdown set.
+
+Result:
+
+- M29 is complete locally for desktop standard frequency filters.
+- Raw waveform preservation remains intact through derived waveform lineage and structured transform metadata.
+- Designed filters require uniform sample-rate evidence and reject cutoff or center frequencies at or above Nyquist.
+- Direct biquad filters validate denominator shape and reject unstable pole placements.
+- Zero-phase FIR/IIR filters are recorded as offline-only transforms with no phase effect.
+- Rule-package export rejects every M29 transform until separate package/runtime semantics are approved.
+- Exact elliptic/Cauer support remains dependency-gated; M30 resampling and timing alignment is the next planned implementation slice.
+
+## M28 Smoothing, Detrending, And Baseline Validation Update
+
+Date: 2026-06-02
+
+Stage: Local M28 implementation validation
+
+Scope:
+
+- Desktop `[[filters]]` support for `weighted_moving_average`, `exponential_moving_average`, `boxcar_smoothing`, `gaussian_smoothing`, `savitzky_golay`, `centered_moving_median`, `rolling_mean_baseline`, `rolling_median_baseline`, `linear_detrend`, `polynomial_detrend`, `hampel_filter`, and `spike_remove`.
+- Config parsing, catalog metadata, CLI fixture analysis, rule-package export rejection, documentation, traceability, and risk updates.
+- No new dependencies, live DAQ, HAL/RTOS, target hardware, runtime loader, external PR, release publication, hardware qualification, or certification scope.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-core m28 -- --nocapture`: Pass; 10 focused M28 core/config/catalog tests passed.
+- `cargo test -p ferrisoxide-core transform_catalog -- --nocapture`: Pass; 8 focused catalog tests passed, including M28 metadata/catalog parity.
+- `cargo test -p ferrisoxide-core filter_config_covers_m28 -- --nocapture`: Pass; config conversion for M28 filter types passed.
+- `cargo test -p ferrisoxide-cli analyzes_config_with_m28_smoothing_baseline_filters -- --nocapture`: Pass; M28 CLI fixture analysis passed.
+- `cargo test -p ferrisoxide-cli lists_transform_catalog -- --nocapture`: Pass; text and JSON catalog output include M28 implemented entries.
+- `cargo test -p ferrisoxide-cli rule_package_export_rejects_remaining_desktop_only_transform_matrix -- --nocapture`: Pass; desktop-only export rejection matrix includes M28 transforms.
+- `cargo run --quiet --bin ferrisoxide-signal -- analyze --input examples/m28-smoothing-waveform.csv --config examples/m28-smoothing-config.toml --format json`: Pass; JSON report returned `overall_outcome = pass` with 12 M28 transform steps.
+- `cargo test --workspace`: Pass; 263 workspace unit/integration checks plus doc-test harnesses passed.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass after replacing clippy-flagged range-index loops in the local polynomial solver.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no trailing whitespace matches.
+- Local Markdown link-target scan: Pass; 188 Markdown files scanned with no broken local links.
+
+Result:
+
+- M28 is complete locally for desktop smoothing, detrending, baseline, Hampel, and spike-cleanup transforms.
+- Raw waveform preservation remains intact through derived waveform lineage and structured transform metadata.
+- Causal and offline transforms are separated in metadata and catalog entries.
+- Rule-package export rejects every M28 transform until separate package/runtime semantics are approved.
+- M29 standard frequency filters remain the next planned implementation slice.
+
+## M27 Pointwise, Normalization, And Nonlinear Validation Update
+
+Date: 2026-06-02
+
+Stage: Local M27 implementation validation
+
+### Commands
+
+```text
+cargo fmt --check
+cargo test -p ferrisoxide-core m27 -- --nocapture
+cargo test -p ferrisoxide-core transform_catalog -- --nocapture
+cargo test -p ferrisoxide-core filter_config_covers_m27 -- --nocapture
+cargo test -p ferrisoxide-cli analyzes_config_with_m27_pointwise_filters -- --nocapture
+cargo test -p ferrisoxide-cli lists_transform_catalog -- --nocapture
+cargo test -p ferrisoxide-cli rule_package_export_rejects_remaining_desktop_only_transform_matrix -- --nocapture
+cargo run --quiet --bin ferrisoxide-signal -- analyze --input examples/m27-pointwise-waveform.csv --config examples/m27-pointwise-config.toml --format json
+cargo test --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+git diff --check
+rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv' --glob '!target/**' --glob '!examples/rule-package/**'
+local Markdown link-target scan over repository Markdown files
+root memory trailing-whitespace scan over project/current-state.md, project/project-state.md, project/active-objectives.md, project/next-actions.md, and projects/00-project-registry.md
+root memory Markdown link-target scan over the same five root memory files
+```
+
+### Result
+
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-core m27 -- --nocapture`: Pass; 8 focused M27 core/config/catalog tests passed.
+- `cargo test -p ferrisoxide-core transform_catalog -- --nocapture`: Pass; 7 focused catalog tests passed, including M27 metadata/catalog parity.
+- `cargo test -p ferrisoxide-core filter_config_covers_m27 -- --nocapture`: Pass; config conversion for M27 filter types passed.
+- `cargo test -p ferrisoxide-cli analyzes_config_with_m27_pointwise_filters -- --nocapture`: Pass; M27 CLI fixture analysis passed.
+- `cargo test -p ferrisoxide-cli lists_transform_catalog -- --nocapture`: Pass; text and JSON catalog listing tests passed.
+- `cargo test -p ferrisoxide-cli rule_package_export_rejects_remaining_desktop_only_transform_matrix -- --nocapture`: Pass; desktop-only export rejection matrix includes M27 transforms.
+- `cargo run --quiet --bin ferrisoxide-signal -- analyze --input examples/m27-pointwise-waveform.csv --config examples/m27-pointwise-config.toml --format json`: Pass; JSON report returned `overall_outcome = pass` with 12 transform steps including M27 nonlinear transforms.
+- `cargo test --workspace`: Pass; 252 workspace unit, integration, and doctest checks passed.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `git diff --check`: Pass.
+- Trailing-whitespace scan over code, docs, examples, requirements, traceability, risk, orchestration, and state files: Pass; no matches found.
+- Local Markdown link-target scan: Pass; 187 Markdown files scanned.
+- Root memory trailing-whitespace scan: Pass; no matches found.
+- Root memory Markdown link-target scan: Pass.
+
+### Scope Notes
+
+- M27 is complete locally for desktop `[[filters]]` pointwise, normalization, and nonlinear conditioning transforms.
+- Implemented transforms: `absolute_value`, `square`, `square_root`, `log`, `exp`, `normalize`, `tanh`, `sigmoid`, `soft_limit`, `piecewise_linear`, and `polynomial`.
+- Existing `offset`, `gain`, `invert`, `clamp`, and `deadband` remain part of the pointwise suite.
+- Rule-package export rejects every M27 transform until separate package/runtime semantics are approved.
+- No new dependencies, GitHub issues, external PR, release publication, live DAQ, HAL/RTOS, runtime-loader implementation, target hardware execution, hardware qualification, or certification claim was added.
+
+## M26 Data Cleaning And Timing Conditioning Validation Update
+
+Date: 2026-06-02
+
+Stage: Local M26 implementation validation
+
+### Commands
+
+```text
+cargo fmt --check
+cargo test -p ferrisoxide-core m26 -- --nocapture
+cargo test -p ferrisoxide-core transform_catalog -- --nocapture
+cargo test -p ferrisoxide-core filter_config_covers_m26 -- --nocapture
+cargo test -p ferrisoxide-cli analyzes_config_with_m26_data_cleaning_filters -- --nocapture
+cargo test -p ferrisoxide-cli lists_transform_catalog -- --nocapture
+cargo test -p ferrisoxide-cli rule_package_export_rejects_remaining_desktop_only_transform_matrix -- --nocapture
+cargo run --quiet --bin ferrisoxide-signal -- analyze --input examples/m26-data-cleaning-waveform.csv --config examples/m26-data-cleaning-config.toml --format json
+cargo test --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+git diff --check
+rg -n "[[:blank:]]$" AGENTS.md CHANGELOG.md README.md docs examples requirements.md traceability-matrix.md risk-register.md orchestration-plan.md project-state.md crates/ferrisoxide-cli/src/main.rs crates/ferrisoxide-core/src/config.rs crates/ferrisoxide-core/src/filter.rs crates/ferrisoxide-core/src/lib.rs crates/ferrisoxide-core/src/model.rs crates/ferrisoxide-core/src/transform_catalog.rs crates/ferrisoxide-rule-schema/src/lib.rs crates/ferrisoxide-rule-engine/src/lib.rs
+local Markdown link-target scan over README, CHANGELOG, docs, requirements, traceability, risk, orchestration, and project state
+root memory trailing-whitespace scan over project/project-state.md, project/current-state.md, project/active-objectives.md, project/next-actions.md, and projects/00-project-registry.md
+root memory Markdown link-target scan over the same five root memory files
+```
+
+### Result
+
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-core m26 -- --nocapture`: Pass; 10 focused M26 core/config/catalog tests passed.
+- `cargo test -p ferrisoxide-core transform_catalog -- --nocapture`: Pass; 6 focused catalog tests passed, including M26 metadata/catalog parity.
+- `cargo test -p ferrisoxide-core filter_config_covers_m26 -- --nocapture`: Pass; config conversion for M26 filter types passed.
+- `cargo test -p ferrisoxide-cli analyzes_config_with_m26_data_cleaning_filters -- --nocapture`: Pass; M26 CLI fixture analysis passed.
+- `cargo test -p ferrisoxide-cli lists_transform_catalog -- --nocapture`: Pass; text and JSON catalog listing tests passed.
+- `cargo test -p ferrisoxide-cli rule_package_export_rejects_remaining_desktop_only_transform_matrix -- --nocapture`: Pass; desktop-only export rejection matrix includes M26 transforms.
+- `cargo run --quiet --bin ferrisoxide-signal -- analyze --input examples/m26-data-cleaning-waveform.csv --config examples/m26-data-cleaning-config.toml --format json`: Pass; JSON report returned `overall_outcome = pass` with all nine M26 transform steps.
+- `cargo test --workspace`: Pass; 243 workspace unit, integration, and doctest checks passed.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `git diff --check`: Pass.
+- Trailing-whitespace scan over changed/new code, docs, examples, requirements, traceability, risk, orchestration, and state files: Pass; no matches found.
+- Local Markdown link-target scan: Pass; 92 local links resolved across 144 Markdown files.
+- Root memory trailing-whitespace scan: Pass; no matches found.
+- Root memory Markdown link-target scan: Pass; no local Markdown links required resolution in the five touched root memory files.
+
+### Scope Notes
+
+- M26 is complete locally for desktop `[[filters]]` data-cleaning and timing-conditioning transforms.
+- Implemented transforms: `timestamp_sort`, `dedupe_timestamps`, `nan_interpolate`, `nan_remove`, `crop`, `fixed_delay`, `gap_fill`, `resample_fixed`, and `channel_delay`.
+- Rule-package export rejects every M26 transform until separate package/runtime semantics are approved.
+- `split_by_event` remains deferred to M36 because it creates multiple segment artifacts rather than one derived waveform.
+- No new dependencies, GitHub issues, external PR, release publication, live DAQ, HAL/RTOS, runtime-loader implementation, target hardware execution, hardware qualification, or certification claim was added.
+
+## M25 Transform Registry Validation Update
+
+Date: 2026-06-02
+
+Stage: Local M25 implementation validation
+
+### Commands
+
+```text
+cargo fmt --check
+cargo test -p ferrisoxide-core transform_catalog -- --nocapture
+cargo test -p ferrisoxide-cli transform_catalog -- --nocapture
+cargo test -p ferrisoxide-cli rule_package_export_rejects_remaining_desktop_only_transform_matrix -- --nocapture
+cargo run --quiet --bin ferrisoxide-signal -- transforms --format json
+cargo test --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+git diff --check
+rg -n "[[:blank:]]$" AGENTS.md CHANGELOG.md README.md docs examples requirements.md traceability-matrix.md risk-register.md orchestration-plan.md project-state.md crates/ferrisoxide-cli/src/main.rs crates/ferrisoxide-core/src/filter.rs crates/ferrisoxide-core/src/lib.rs crates/ferrisoxide-core/src/transform_catalog.rs crates/ferrisoxide-rule-schema/src/lib.rs crates/ferrisoxide-rule-engine/src/lib.rs
+local Markdown link-target scan over README, docs, requirements, traceability, risk, orchestration, project state, and changelog
+```
+
+### Result
+
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-core transform_catalog -- --nocapture`: Pass; 5 focused catalog tests passed.
+- `cargo test -p ferrisoxide-cli transform_catalog -- --nocapture`: Pass; 3 CLI catalog tests passed.
+- `cargo test -p ferrisoxide-cli rule_package_export_rejects_remaining_desktop_only_transform_matrix -- --nocapture`: Pass; desktop-only package export rejection matrix still passes.
+- `cargo run --quiet --bin ferrisoxide-signal -- transforms --format json`: Pass; catalog rendered as JSON from the core registry.
+- `cargo test --workspace`: Pass; 232 workspace unit, integration, and doctest checks passed.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `git diff --check`: Pass.
+- Trailing-whitespace scan over changed/new code, docs, examples, requirements, traceability, risk, orchestration, and state files: Pass; no matches found.
+- Local Markdown link-target scan: Pass; 92 local links resolved across 143 Markdown files.
+
+### Scope Notes
+
+- M25 is complete locally for the transform registry and completeness contract.
+- The source-of-truth catalog lives in `crates/ferrisoxide-core/src/transform_catalog.rs`.
+- `ferrisoxide-signal transforms --format text/json` lists catalog entries from code.
+- Current waveform, event, and validation transform metadata is compared against catalog entries in focused tests.
+- Rule-package export now checks catalog package support before schema conversion.
+- M26-M36 remain planned or gated catalog entries.
+- No new transform algorithms, dependencies, GitHub issues, external PR, release publication, live DAQ, HAL/RTOS, runtime-loader implementation, target hardware execution, hardware qualification, or certification claim was added.
+
+## M25-M36 Comprehensive Conditioning Roadmap Planning Validation Update
+
+Date: 2026-06-02
+
+Stage: Local roadmap planning validation
+
+### Commands
+
+```text
+cargo fmt --check
+git diff --check
+rg -n "[[:blank:]]$" AGENTS.md CHANGELOG.md README.md docs examples requirements.md traceability-matrix.md risk-register.md orchestration-plan.md project-state.md crates/ferrisoxide-cli/src/main.rs crates/ferrisoxide-rule-schema/src/lib.rs crates/ferrisoxide-rule-engine/src/lib.rs
+local Markdown link-target scan over README, docs, requirements, traceability, risk, orchestration, project state, and changelog
+root memory trailing-whitespace scan over project/project-state.md, project/current-state.md, project/active-objectives.md, project/next-actions.md, and projects/00-project-registry.md
+root memory Markdown link-target scan over the same five root memory files
+```
+
+### Result
+
+- `cargo fmt --check`: Pass.
+- `git diff --check`: Pass.
+- Trailing-whitespace scan over changed/new FerrisOxide code, docs, examples, requirements, traceability, risk, orchestration, and state files: Pass; no matches found.
+- Local Markdown link-target scan: Pass; 91 local links resolved across 141 Markdown files.
+- Root memory trailing-whitespace scan: Pass; no matches found.
+- Root memory Markdown link-target scan: Pass; no local Markdown links required resolution in the five touched root memory files.
+
+### Scope Notes
+
+- M25-M36 are planned in `docs/comprehensive-filter-signal-conditioning-roadmap.md`.
+- Requirements WRA-RQ-110 through WRA-RQ-121, traceability rows, risk rows, project state, orchestration plan, README, changelog, and root studio memory were updated for the planning path.
+- M25 is the next gate and should establish the transform registry and completeness contract before new algorithm families are implemented.
+- No new algorithms, dependencies, GitHub issues, external PR, release publication, live DAQ, HAL/RTOS, runtime-loader implementation, target hardware execution, hardware qualification, or certification claim was added.
+- Full workspace tests were not rerun for this planning-only documentation/state update.
+
+## M21-M24 Runtime Path Validation Update
+
+Date: 2026-06-01
+
+Stage: Local runtime-path implementation validation
+
+### Commands
+
+```text
+cargo fmt
+cargo fmt --check
+cargo test -p ferrisoxide-rule-schema linear_pointwise -- --nocapture
+cargo test -p ferrisoxide-rule-schema unsupported_transform_fixtures -- --nocapture
+cargo test -p ferrisoxide-rule-engine borrowed_linear_pointwise -- --nocapture
+cargo test -p ferrisoxide-cli linear_pointwise -- --nocapture
+cargo test -p ferrisoxide-cli rule_package_export_rejects_remaining_desktop_only_transform_matrix -- --nocapture
+cargo run --quiet --bin ferrisoxide-signal -- export-rule-package --input examples/basic-waveform.csv --config examples/m21-linear-pointwise-package-config.toml --output-dir target/ferrisoxide-m21-package-smoke-2 --package-name linear-pointwise --package-version 1.0.0 --target controller_runtime
+rg -n "type = \"offset\"|type = \"gain\"|type = \"invert\"|offset_|gain_|invert_" target/ferrisoxide-m21-package-smoke-2/rules.toml target/ferrisoxide-m21-package-smoke-2/rules.json
+cargo test --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+git diff --check
+rg -n "[[:blank:]]$" AGENTS.md CHANGELOG.md README.md docs examples requirements.md traceability-matrix.md risk-register.md orchestration-plan.md project-state.md crates/ferrisoxide-cli/src/main.rs crates/ferrisoxide-rule-schema/src/lib.rs crates/ferrisoxide-rule-engine/src/lib.rs
+local Markdown link-target scan over README, docs, requirements, traceability, risk, orchestration, project state, and changelog
+```
+
+### Result
+
+- `cargo fmt`: Pass.
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-rule-schema linear_pointwise -- --nocapture`: Pass; 2 focused linear pointwise schema tests passed.
+- `cargo test -p ferrisoxide-rule-schema unsupported_transform_fixtures -- --nocapture`: Pass; unsupported clamp TOML/JSON fixtures reject as unknown filters.
+- `cargo test -p ferrisoxide-rule-engine borrowed_linear_pointwise -- --nocapture`: Pass; 4 borrowed-slice runtime-compatible transform tests passed.
+- `cargo test -p ferrisoxide-cli linear_pointwise -- --nocapture`: Pass; 2 CLI export/parity tests passed.
+- `cargo test -p ferrisoxide-cli rule_package_export_rejects_remaining_desktop_only_transform_matrix -- --nocapture`: Pass; remaining unsupported desktop-only transform export guardrail passed.
+- M21 export smoke command: Pass; wrote `rules.toml`, `rules.json`, `validation-report.json`, `manifest.json`, and `checksum.txt`.
+- Exported artifact spot-check: Pass; generated TOML/JSON contain `offset`, `gain`, and `invert` filters.
+- `cargo test --workspace`: Pass; 224 workspace unit, integration, and doctest checks passed.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `git diff --check`: Pass.
+- Trailing-whitespace scan over changed/new code, docs, examples, requirements, traceability, risk, orchestration, and state files: Pass; no matches found.
+- Local Markdown link-target scan: Pass; 90 local links resolved across 140 Markdown files.
+
+### Scope Notes
+
+- M21-M24 are complete locally for the selected runtime-path follow-up.
+- Rule-package export now supports `offset`, `gain`, and `invert` as software-only linear pointwise transforms.
+- `ferrisoxide-rule-engine` has shared borrowed-slice semantics for the linear pointwise subset, with desktop parity coverage.
+- Runtime-loader work stops at a design gate.
+- No GitHub milestones/issues were created for M21-M24.
+- No external PR was opened.
+- No release tag was published.
+- No new dependencies, global tooling, live DAQ, HAL/RTOS SDK, target hardware execution, binary package serialization, binary package loading, cryptographic signing, hardware qualification, calibrated sensor accuracy claim, or certification claim was added.
+
+## M15-M20 MVP Exit Validation Update
+
+Date: 2026-06-01
+
+Stage: Local MVP-exit implementation validation
+
+### Commands
+
+```text
+cargo fmt --check
+cargo test -p ferrisoxide-cli batch -- --nocapture
+cargo test -p ferrisoxide-cli rule_package_export_rejects_desktop_only_transform_matrix -- --nocapture
+cargo test --workspace
+cargo clippy --workspace --all-targets -- -D warnings
+cargo run --quiet --bin ferrisoxide-signal -- batch --manifest examples/batch-analysis.toml --output-dir target/ferrisoxide-batch-smoke --format json --overwrite
+git diff --check
+rg -n "[[:blank:]]$" AGENTS.md CHANGELOG.md README.md docs examples requirements.md traceability-matrix.md risk-register.md orchestration-plan.md project-state.md crates/ferrisoxide-cli/src/main.rs
+local explicit Markdown link-target scan over 27 changed/new Markdown files
+```
+
+### Result
+
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-cli batch -- --nocapture`: Pass; 3 focused batch workflow tests passed.
+- `cargo test -p ferrisoxide-cli rule_package_export_rejects_desktop_only_transform_matrix -- --nocapture`: Pass; unsupported desktop-only transform export matrix test passed.
+- `cargo test --workspace`: Pass; 215 workspace unit, integration, and doctest checks passed.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- Batch smoke command with `examples/batch-analysis.toml`: Pass; 2 runs passed and `overall_outcome` was `pass`.
+- `git diff --check`: Pass.
+- Trailing-whitespace scan over changed/new code, docs, examples, requirements, traceability, risk, orchestration, and state files: Pass; no matches found.
+- Local explicit Markdown link-target scan: Pass; 86 local links resolved across 27 changed/new Markdown files.
+
+### Scope Notes
+
+- M15-M20 are complete locally for MVP exit.
+- No GitHub milestones/issues were created for M15-M20.
+- No external PR was opened.
+- No release tag was published.
+- No new dependencies, global tooling, live DAQ, HAL/RTOS SDK, target hardware execution, binary package signing, hardware qualification, calibrated drift-removal, broad DSP-library, or certification claim was added.
+- External PR review, protected CI, release publication, post-MVP issue planning, live hardware/DAQ/runtime work, and certification-adjacent evidence remain separately gated.
+
+## MVP Exit Roadmap Planning Validation Update
+
+Date: 2026-06-01
+
+Stage: Documentation-only roadmap validation
+
+### Commands
+
+```text
+cargo fmt --check
+git diff --check
+rg -n "[[:blank:]]$" docs/mvp-exit-roadmap.md docs/next-milestones-issue-planning-report.md docs/next-milestones-roadmap.md orchestration-plan.md project-state.md requirements.md risk-register.md traceability-matrix.md
+local explicit Markdown link-target scan over changed/new roadmap files
+```
+
+### Result
+
+- `cargo fmt --check`: Pass.
+- `git diff --check`: Pass for tracked changes.
+- Trailing-whitespace scan over the changed/new FerrisOxide roadmap files: Pass; no matches found.
+- Local explicit Markdown link-target scan over 9 changed/new Markdown files: Pass.
+
+### Scope Notes
+
+- Documentation and planning only.
+- No GitHub milestones or issues created for M15 through M20.
+- No implementation code, dependency, report/config schema migration, rule-package transform export change, live DAQ, HAL/RTOS, target hardware, release publication, or certification scope added.
 
 ## M14 High-Pass Baseline Correction Validation Update
 

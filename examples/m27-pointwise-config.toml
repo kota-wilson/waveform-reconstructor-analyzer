@@ -1,0 +1,58 @@
+[input]
+time_column = "time"
+channels = ["input_v"]
+
+[[filters]]
+type = "absolute_value"
+
+[[filters]]
+type = "square"
+
+[[filters]]
+type = "square_root"
+
+[[filters]]
+type = "offset"
+offset_v = 1.0
+
+[[filters]]
+type = "log"
+base = 10.0
+
+[[filters]]
+type = "exp"
+base = 10.0
+
+[[filters]]
+type = "normalize"
+mode = "zero_to_one"
+
+[[filters]]
+type = "tanh"
+
+[[filters]]
+type = "sigmoid"
+
+[[filters]]
+type = "soft_limit"
+limit_v = 2.0
+
+[[filters]]
+type = "piecewise_linear"
+points = [{ x = 0.0, y = 0.0 }, { x = 1.0, y = 2.0 }]
+
+[[filters]]
+type = "polynomial"
+coefficients = [0.0, 1.0]
+
+[[criteria]]
+id = "m27_min"
+type = "minimum_voltage"
+channel = "input_v"
+threshold_v = 0.0
+
+[[criteria]]
+id = "m27_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 2.0

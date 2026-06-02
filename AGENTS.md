@@ -8,7 +8,7 @@ This project inherits the root `/Users/kota/Desktop/softwareai/AGENTS.md`, `STUD
 - Current implemented product slice: FerrisOxide Signal.
 - Type: Rust-centered open-source product repository.
 - Domain: signal analysis for CSV waveform reconstruction, filter simulation, and pass/fail evaluation.
-- Current phase: validated MVP implementation slice.
+- Current phase: local MVP-exit passed for the desktop software workflow; post-MVP scope remains gated.
 
 ## Engineering Guardrails
 
@@ -22,4 +22,4 @@ This project inherits the root `/Users/kota/Desktop/softwareai/AGENTS.md`, `STUD
 
 ## Current Stop Condition
 
-This repository has a dependency-reviewed MVP slice with CSV loading, waveform modeling, derived transforms, TOML config parsing, waveform criteria, text/JSON reports, CLI analysis, and a separate `ferrisoxide-signal` embedded foundation crate. Stop before claiming production-grade signal-processing behavior, expanding into GUI/DAQ/certification work, or adding more dependencies without a fresh gate decision.
+This repository has a dependency-reviewed post-MVP local desktop slice with CSV loading, waveform modeling, derived transforms, TOML config parsing, waveform criteria, text/JSON/SVG reports, local batch analysis, rule-package review artifacts, and separate embedded-boundary crates. Stop before claiming production-grade signal-processing behavior, expanding into GUI/DAQ/certification/hardware/runtime work, publishing releases, or adding dependencies without a fresh gate decision.

@@ -1,0 +1,184 @@
+[input]
+time_column = "time"
+channels = ["input_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[filters]]
+type = "white_noise"
+amplitude_v = 0.01
+seed = 1
+
+[[filters]]
+type = "gaussian_noise"
+stddev_v = 0.01
+seed = 2
+
+[[filters]]
+type = "uniform_noise"
+min_v = -0.01
+max_v = 0.01
+seed = 3
+
+[[filters]]
+type = "pink_noise"
+amplitude_v = 0.01
+seed = 4
+
+[[filters]]
+type = "brown_noise"
+amplitude_v = 0.01
+seed = 5
+
+[[filters]]
+type = "impulse_noise"
+amplitude_v = 0.10
+probability = 0.15
+seed = 6
+
+[[filters]]
+type = "salt_pepper_noise"
+min_v = 0.0
+max_v = 5.0
+probability = 0.15
+seed = 7
+
+[[filters]]
+type = "quantization_noise"
+lsb_v = 0.05
+seed = 8
+
+[[filters]]
+type = "periodic_interference"
+amplitude_v = 0.05
+frequency_hz = 10.0
+phase_rad = 0.0
+
+[[filters]]
+type = "hum_interference"
+amplitude_v = 0.03
+frequency_hz = 60.0
+phase_rad = 0.0
+
+[[filters]]
+type = "ground_bounce"
+amplitude_v = 0.02
+interval_samples = 4
+
+[[filters]]
+type = "thermal_drift"
+drift_rate_v_per_s = 0.10
+
+[[filters]]
+type = "random_walk_drift"
+amplitude_v = 0.01
+seed = 9
+
+[[filters]]
+type = "dropout_fault"
+fault_value_v = 0.0
+probability = 0.10
+seed = 10
+
+[[filters]]
+type = "missing_samples"
+fault_value_v = -999.0
+probability = 0.10
+seed = 11
+
+[[filters]]
+type = "intermittent_fault"
+fault_value_v = 0.0
+probability = 0.10
+seed = 12
+
+[[filters]]
+type = "saturation_fault"
+min_v = 0.0
+max_v = 5.0
+
+[[filters]]
+type = "stuck_at_fault"
+fault_value_v = 2.5
+start_index = 3
+duration_samples = 3
+
+[[filters]]
+type = "flatline_fault"
+start_index = 8
+
+[[filters]]
+type = "rounding_quantizer"
+lsb_v = 0.1
+
+[[filters]]
+type = "floor_quantizer"
+lsb_v = 0.1
+
+[[filters]]
+type = "ceil_quantizer"
+lsb_v = 0.1
+
+[[filters]]
+type = "midrise_quantizer"
+lsb_v = 0.1
+
+[[filters]]
+type = "midtread_quantizer"
+lsb_v = 0.1
+
+[[filters]]
+type = "saturating_quantizer"
+min_v = 0.0
+max_v = 5.0
+
+[[filters]]
+type = "dither"
+lsb_v = 0.1
+seed = 13
+
+[[filters]]
+type = "companding"
+mode = "mu_law"
+max_v = 5.0
+mu = 255.0
+
+[[filters]]
+type = "sample_clock_jitter"
+jitter_s = 0.00001
+seed = 14
+
+[[filters]]
+type = "adc_missing_code"
+bits = 4
+min_v = 0.0
+max_v = 5.0
+missing_code = 3
+
+[[filters]]
+type = "inl_error"
+bits = 4
+min_v = 0.0
+max_v = 5.0
+coefficients = [0.0, 0.01]
+
+[[filters]]
+type = "dnl_error"
+bits = 4
+min_v = 0.0
+max_v = 5.0
+coefficients = [0.0, -0.01]
+
+[[filters]]
+type = "adc_gain_error"
+gain_error = 0.01
+
+[[filters]]
+type = "adc_offset_error"
+offset_error_v = 0.02
+
+[[criteria]]
+id = "m34_fault_adc_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 10.0

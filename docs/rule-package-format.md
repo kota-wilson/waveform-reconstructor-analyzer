@@ -1,10 +1,10 @@
 # FerrisOxide Rule Package Format
 
-Date: 2026-05-31
+Date: 2026-06-01
 
-Status: Reviewable format with M8-008 desktop-vs-embedded parity fixtures merged.
+Status: Reviewable format with M8-008 desktop-vs-embedded parity fixtures and M21 linear pointwise package semantics.
 
-Related requirements: WRA-RQ-043, WRA-RQ-044, WRA-RQ-046, WRA-RQ-047, WRA-RQ-048, WRA-RQ-049, WRA-RQ-050.
+Related requirements: WRA-RQ-043, WRA-RQ-044, WRA-RQ-046, WRA-RQ-047, WRA-RQ-048, WRA-RQ-049, WRA-RQ-050, WRA-RQ-106, WRA-RQ-107, WRA-RQ-108, WRA-RQ-109.
 
 ## Purpose
 
@@ -70,6 +70,8 @@ Parse-tested examples live in:
 
 - `examples/rule-package/rules.toml`
 - `examples/rule-package/rules.json`
+- `examples/rule-package/linear-pointwise-rules.toml`
+- `examples/rule-package/linear-pointwise-rules.json`
 
 The example package includes:
 
@@ -82,6 +84,8 @@ The example package includes:
 - transient-event/dropout duration criterion,
 - stable-state duration criterion,
 - state-transition count criterion.
+
+The linear pointwise package example adds ordered `offset`, `gain`, and `invert` filters. Those are software transforms only and must not be used as calibration, sensor-accuracy, hardware ADC, hardware qualification, or certification evidence.
 
 Excerpt from `rules.toml`:
 
@@ -132,15 +136,18 @@ The `rules.json` example represents the same schema model for automation and fut
 
 ## Filters
 
-Initial filter definitions are schema entries only. They describe intended transform order but are not executed by `ferrisoxide-rule-schema`.
+Filter definitions are schema entries. They describe intended transform order but are not executed by `ferrisoxide-rule-schema`.
 
-M11/M14 desktop transforms such as `offset`, `gain`, `clamp`, `deadband`, `dc_remove`, `baseline_subtract`, `high_pass_baseline`, and `moving_median` are not yet part of the portable rule-package filter subset. Exporting those transforms requires a later package-semantics design and compatibility gate.
+M21 adds `offset`, `gain`, and `invert` to the portable package subset. These are limited to linear pointwise software semantics. M11/M14 desktop transforms such as `clamp`, `deadband`, `dc_remove`, `baseline_subtract`, `high_pass_baseline`, and `moving_median` are not part of the portable rule-package filter subset. `docs/transform-package-compatibility.md` records the current support/rejection matrix. Exporting additional transforms requires a later package-semantics design and compatibility gate.
 
-M13 adds transform runtime-profile validation in `ferrisoxide-core`. The current portable filter subset remains legacy package-schema support; it is not a blanket claim that every transform is safe for embedded, Pico, deployment, hardware, or certification workflows. Future transform-package exposure should validate transform metadata against the requested runtime profile before accepting or exporting it.
+M13 adds transform runtime-profile validation in `ferrisoxide-core`. M22 adds shared borrowed-slice semantics for `offset`, `gain`, and `invert` in `ferrisoxide-rule-engine`. This is not a blanket claim that every transform is safe for embedded, Pico, deployment, hardware, or certification workflows. Future transform-package exposure should validate transform metadata against the requested runtime profile before accepting or exporting it.
 
 | Type | Required fields | Notes |
 |---|---|---|
 | `moving_average` | `id`, `channel`, `window_samples` | Mirrors the existing desktop filter concept. |
+| `offset` | `id`, `channel`, `offset` | `offset` is a unit-bearing value and should use `V`. Software transform only; not calibration evidence. |
+| `gain` | `id`, `channel`, `gain` | `gain` must be a finite ratio. Software transform only; not span-calibration evidence. |
+| `invert` | `id`, `channel` | Parameterless polarity inversion. |
 | `low_pass` | `id`, `channel`, `cutoff` | `cutoff` is a unit-bearing value and should use `Hz`. |
 | `adc_quantize` | `id`, `channel`, `bits`, `min`, `max` | `min` and `max` are unit-bearing values and should use `V` for voltage channels. |
 

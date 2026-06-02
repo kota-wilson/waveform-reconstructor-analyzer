@@ -31,6 +31,7 @@ The main repository is `kota-wilson/ferrisoxide`. The current CLI binary is stil
 - [Criteria And Measurements](#criteria-and-measurements)
 - [Reports](#reports)
 - [SVG Plotting](#svg-plotting)
+- [Batch Analysis](#batch-analysis)
 - [Heated Actuator Example](#heated-actuator-example)
 - [Desktop Simulation Workflow](#desktop-simulation-workflow)
 - [Portable Rule Packages](#portable-rule-packages)
@@ -111,7 +112,7 @@ FerrisOxide is useful when signal review needs to be repeatable, inspectable, an
 
 ## Current Status
 
-FerrisOxide is in a validated MVP stage. It is not a finished commercial product, not a certified test system, and not a live controller runtime.
+FerrisOxide has passed the local MVP-exit review for its desktop software workflow. It is not a finished commercial product, not a certified test system, not a live DAQ system, and not a live controller runtime.
 
 Implemented today:
 
@@ -119,16 +120,17 @@ Implemented today:
 - CSV waveform loading.
 - Named time and channel mapping.
 - Waveform metadata for units, source, sample count, sample interval, nominal sample rate, lineage, legacy transform history, structured transform steps, validation context, and tolerance policy.
-- Moving-average, moving-median, first-order low-pass, high-pass baseline correction, ideal ADC quantization, pointwise, and baseline transforms.
+- Moving-average, moving-median, first-order low-pass, high-pass baseline correction, ideal ADC quantization, pointwise, baseline, smoothing, detrending, Hampel, and spike-cleanup transforms.
 - Transform architecture docs that classify current support, planned transform families, and runtime compatibility boundaries.
 - Measurement primitives for extrema, state transitions, pulse width, stable-state duration, transient duration, and rise/fall time.
 - Criteria for min/max voltage, state transitions, response latency, pulse width, transient events, stable-state duration, and rise/fall time.
 - TOML config parsing with clear errors for invalid config.
 - Text and JSON analysis reports.
+- Local batch analysis over multiple CSV/config pairs with per-run reports and deterministic summary output.
 - Exact golden JSON tests.
 - SVG waveform plotting with optional third-axis 3D line plots.
 - 2D SVG evidence overlays from report evidence.
-- Portable rule package schema, validation, manifest, checksum, and export command.
+- Portable rule package schema, validation, manifest, checksum, and export command, including package-export support for the linear pointwise `offset`, `gain`, and `invert` software transform subset.
 - Production control and test verification config schema boundaries for future controller-in-the-loop workflows.
 - Virtual controller simulation engine over deterministic abstract sample frames.
 - Fixture/test-double DAQ input abstraction for deterministic sample sources.
@@ -141,12 +143,18 @@ Implemented today:
 - `no_std` signal, measurement, rule-engine, and embedded-boundary crates.
 - Desktop-vs-embedded-compatible parity tests for rule evidence.
 - Software-only heated actuator qualification scenario.
+- Source-of-truth transform catalog with CLI inspection through `ferrisoxide-signal transforms --format text` or `--format json`.
+- Comprehensive desktop waveform-conditioning suite covering data cleaning, timing repair, pointwise/nonlinear transforms, smoothing, detrending, baseline correction, standard frequency filters, resampling/timing alignment, envelope/energy/calculus, statistics/correlation, spectrum/window/time-frequency feature records, deterministic fault injection, ADC/DAC simulation, multi-channel math, software sensor conversions, vibration conditioning, and control-signal conditioning.
+- Local M25-M36 comprehensive-suite closure artifacts for catalog completeness, config/searchability, validation corpus, benchmark-readiness, package/runtime compatibility, release-readiness messaging, community notes, and retrospective evidence.
 
-Planned or future:
+Post-MVP or future-gated:
 
 - Runtime loaders.
 - Raspberry Pi 5 bare-metal runtime work.
 - Optional Pico 2 micro-runtime profile.
+- Automated config/report drift checks.
+- Broader validation-corpus and benchmark refresh automation.
+- Advanced phase/gain matching, acoustic analysis packs, advanced sensor calibration packs, optimized FFT/Hilbert/polyphase/exact elliptic work, broader package/runtime transform exposure, external release publication, hardware validation, and certification claims.
 
 ## What Is In Scope
 
@@ -156,6 +164,7 @@ The current repo focuses on engineering signal analysis from local files:
 - Local TOML config.
 - Local text/JSON reports.
 - Local SVG plots.
+- Local batch reports and summaries.
 - Local rule-package export.
 - Software-only validation fixtures.
 - Rust library and CLI development.
@@ -176,6 +185,7 @@ The repo intentionally does not claim or implement:
 - Certified aerospace validation.
 - Safety certification.
 - Cloud storage.
+- Hosted batch service, scheduler, or database-backed workflow.
 - Multi-user accounts.
 - Plugin runtime.
 - Machine learning analysis.
@@ -193,7 +203,7 @@ crates/ferrisoxide-core/         Desktop core library:
 crates/ferrisoxide-cli/          CLI entry point.
                                   Builds the `ferrisoxide-signal` binary,
                                   including analyze, plot, export, and
-                                  desktop simulation workflows.
+                                  desktop simulation and batch workflows.
 
 crates/ferrisoxide-control-schema/
                                   Production control config schema for future
@@ -237,6 +247,7 @@ crates/ferrisoxide-embedded/     no_std embedded adapter boundary.
                                   SampleSource, EventSink, RuntimeHooks.
 
 examples/                        Small example CSV and TOML configs.
+                                  Includes `batch-analysis.toml`.
 
 tests/fixtures/                  Shared waveform fixtures.
 
@@ -584,9 +595,15 @@ Use config files for repeatable engineering evidence. Use CLI flags for quick lo
 
 ## Transforms, Filters, And ADC Quantization
 
-FerrisOxide currently implements ordered pre-criteria transforms for smoothing, filtering, quantization, pointwise correction, baseline handling, and event/validation analysis. Waveform transforms are exposed through the existing `[[filters]]` config table for compatibility. Event analysis uses additive `[[event_transforms]]` and `[[event_validations]]` tables. The architecture treats all of them as transform capabilities with auditable derived evidence while preserving raw input.
+FerrisOxide currently implements ordered pre-criteria transforms for smoothing, filtering, quantization, pointwise correction, baseline handling, data cleaning, timing repair, frequency filtering, resampling, envelope/energy/calculus, statistics, deterministic fault/ADC-DAC simulation, multi-channel math, software sensor conversion, vibration conditioning, control-signal conditioning, and event/validation analysis. Waveform transforms are exposed through the existing `[[filters]]` config table for compatibility. Feature calculations use `[[feature_transforms]]`. Event analysis uses additive `[[event_transforms]]` and `[[event_validations]]` tables. The architecture treats all of them as transform capabilities with auditable derived evidence while preserving raw input.
 
-The broader transform taxonomy is planning input, not implemented support. See [analog transform taxonomy](docs/analog-transform-taxonomy.md), [transform capability model](docs/transform-capability-model.md), [structured transform metadata](docs/structured-transform-metadata.md), [current transform metadata mapping](docs/current-transform-metadata-mapping.md), and [transform runtime profile compatibility](docs/transform-runtime-profile-compatibility.md) for vocabulary, support-status, metadata, and runtime-boundary direction.
+The source of truth for support status is the transform catalog. Inspect it with:
+
+```bash
+cargo run --quiet --bin ferrisoxide-signal -- transforms --format text
+```
+
+The catalog currently reports 219 entries, including implemented desktop support, package-export decisions, runtime profile boundaries, dependency-gated entries, and future-gated entries such as `split_by_event`. See [analog transform taxonomy](docs/analog-transform-taxonomy.md), [comprehensive filter and signal conditioning roadmap](docs/comprehensive-filter-signal-conditioning-roadmap.md), [transform catalog](docs/transform-catalog.md), [config reference](docs/config-reference.md), [transform package compatibility](docs/transform-package-compatibility.md), [structured transform metadata](docs/structured-transform-metadata.md), [current transform metadata mapping](docs/current-transform-metadata-mapping.md), and [transform runtime profile compatibility](docs/transform-runtime-profile-compatibility.md) for vocabulary, support status, metadata, package compatibility, and runtime-boundary direction.
 
 | Transform | Config type | Purpose |
 |---|---|---|
@@ -600,6 +617,18 @@ The broader transform taxonomy is planning input, not implemented support. See [
 | High-pass baseline correction | `high_pass_baseline` | Reduce slow baseline wander with a causal first-order high-pass recurrence over a strictly increasing time axis. |
 | Moving average | `moving_average` | Smooth samples with a trailing window that includes the current sample. |
 | Moving median | `moving_median` | Smooth spikes with a trailing median window. |
+| Weighted moving average | `weighted_moving_average` | Smooth samples with a trailing positive-weight window. |
+| Exponential moving average | `exponential_moving_average` | Smooth samples with a causal single-pole recurrence. |
+| Boxcar smoothing | `boxcar_smoothing` | Smooth samples offline with a centered uniform window. |
+| Gaussian smoothing | `gaussian_smoothing` | Smooth samples offline with a centered Gaussian kernel. |
+| Savitzky-Golay smoothing | `savitzky_golay` | Smooth samples offline with a local polynomial fit. |
+| Centered moving median | `centered_moving_median` | Smooth samples offline with a centered median window. |
+| Rolling mean baseline | `rolling_mean_baseline` | Subtract a causal trailing mean baseline. |
+| Rolling median baseline | `rolling_median_baseline` | Subtract a causal trailing median baseline. |
+| Linear detrend | `linear_detrend` | Remove a fitted linear trend over a strictly increasing time axis. |
+| Polynomial detrend | `polynomial_detrend` | Remove a fitted polynomial trend over a strictly increasing time axis. |
+| Hampel filter | `hampel_filter` | Replace robust outliers using centered median/MAD windows. |
+| Spike removal | `spike_remove` | Replace thresholded spikes using a centered median window. |
 | First-order low-pass | `low_pass` | Apply a simple low-pass smoothing model over a strictly increasing time axis. |
 | Ideal ADC quantization | `adc_quantize` | Clip and snap analog values to ideal ADC code levels before criteria evaluation. |
 | Schmitt trigger | `schmitt_trigger` in `[[event_transforms]]` | Convert analog samples into a hysteretic state trace and state-transition records. |
@@ -611,12 +640,14 @@ Timing and unit assumptions remain transform-specific:
 
 - Moving average uses a sample-count window and does not require a nominal sample rate.
 - Moving median uses a trailing sample-count window, records nonlinear phase behavior, and does not require a nominal sample rate.
+- M28 causal smoothers and rolling baselines record phase delay; centered smoothing, detrending, Hampel, and spike cleanup are offline-only derived analysis views.
+- Baseline, detrending, Hampel, and spike-cleanup transforms can hide real failures if criteria are interpreted without raw waveform lineage.
 - Low-pass uses a cutoff in hertz and requires a strictly increasing time axis.
 - High-pass baseline correction uses a cutoff in hertz, requires a strictly increasing time axis, records phase delay, and remains a derived software transform rather than calibrated drift removal.
 - ADC quantization uses a configured voltage range and outputs volts; it is not a calibrated physical ADC model.
 - DC removal is offline-only because it subtracts the mean of the full waveform.
 - Event validations contribute to report-level pass/fail outcome and remain software-only evidence.
-- Portable rule-package export still supports the earlier portable filter subset (`moving_average`, `low_pass`, and `adc_quantize`) until transform package semantics are separately designed. That legacy export support is not a blanket runtime-profile claim; future transform-package or deployment-package exposure must pass runtime-profile validation first.
+- Portable rule-package export supports `moving_average`, `low_pass`, `adc_quantize`, `offset`, `gain`, and `invert`. `offset` and `gain` are software transforms only, not calibration or sensor-accuracy evidence. Runtime-loader implementation and broader transform exposure remain separately gated.
 
 Example ADC quantization config:
 
@@ -906,6 +937,21 @@ cargo run --quiet --bin ferrisoxide-signal -- plot \
 
 Evidence overlays are currently 2D only. See [SVG plotting](docs/plotting.md) for supported behavior and limits.
 
+## Batch Analysis
+
+FerrisOxide can run repeated local analyses from a batch manifest. This is a desktop file workflow for CSV/config pairs, not a live DAQ runner, scheduler, hosted service, or hardware workflow.
+
+```bash
+cargo run --quiet --bin ferrisoxide-signal -- batch \
+  --manifest examples/batch-analysis.toml \
+  --output-dir target/ferrisoxide-batch-example \
+  --format json
+```
+
+The command writes one report per completed run plus a `batch-summary.json` file. A run can have status `pass`, `fail`, or `error`; the batch summary fails if any run fails or errors. Existing outputs are not overwritten unless `--overwrite` is passed.
+
+See [batch analysis workflow](docs/batch-analysis-workflow.md), [config reference](docs/config-reference.md), and [artifact contract](docs/artifact-contract.md).
+
 ## Heated Actuator Example
 
 The heated actuator suite is the clearest end-to-end software-only example in the repository.
@@ -1097,6 +1143,8 @@ checksum.txt
 
 The package is meant to be inspected by humans and consumed by future tooling. It is not a signed release, not a binary runtime package, and not certification evidence.
 
+Current package-export filter support is limited to `moving_average`, `low_pass`, `adc_quantize`, `offset`, `gain`, and `invert`. Nonlinear, baseline, high-pass baseline, moving-median, M26 cleaning/timing, M27 pointwise/nonlinear, M28 smoothing/baseline, M29 frequency-filter, M30 resampling/timing, and M31 envelope/calculus transforms are rejected for rule-package export until a future compatibility milestone approves their schema, runtime semantics, and validation evidence. M31 `feature_transforms` are analysis evidence records and are not exported as rule-package filters.
+
 `manifest.json` records:
 
 - Manifest version.
@@ -1111,7 +1159,7 @@ The package is meant to be inspected by humans and consumed by future tooling. I
 
 `checksum.txt` uses a deterministic non-cryptographic checksum for artifact drift detection. It is not cryptographic signing.
 
-See [rule package format](docs/rule-package-format.md) and [ADR-004 portable rule package architecture](decisions/ADR-004-portable-rule-package-architecture.md).
+See [rule package format](docs/rule-package-format.md), [transform package compatibility](docs/transform-package-compatibility.md), [runtime loader design gate](docs/runtime-loader-design-gate.md), and [ADR-004 portable rule package architecture](decisions/ADR-004-portable-rule-package-architecture.md).
 
 ## Controller Deployment Package Format
 
@@ -1278,6 +1326,9 @@ Start here:
 - [Architecture](docs/architecture.md)
 - [MVP usage sketch](docs/usage-mvp.md)
 - [Report schema](docs/report-schema.md)
+- [Config reference](docs/config-reference.md)
+- [Artifact contract](docs/artifact-contract.md)
+- [Batch analysis workflow](docs/batch-analysis-workflow.md)
 - [Criteria DSL](docs/criteria-dsl.md)
 - [Criteria DSL migration](docs/criteria-dsl-migration.md)
 - [Analog transform taxonomy](docs/analog-transform-taxonomy.md)
@@ -1286,7 +1337,17 @@ Start here:
 - [Current transform metadata mapping](docs/current-transform-metadata-mapping.md)
 - [Event validation transforms](docs/event-validation-transforms.md)
 - [Transform runtime profile compatibility](docs/transform-runtime-profile-compatibility.md)
+- [Transform package compatibility](docs/transform-package-compatibility.md)
+- [Transform catalog](docs/transform-catalog.md)
+- [Runtime loader design gate](docs/runtime-loader-design-gate.md)
 - [Next milestones roadmap](docs/next-milestones-roadmap.md)
+- [MVP exit roadmap](docs/mvp-exit-roadmap.md)
+- [MVP exit readiness report](docs/mvp-exit-readiness-report.md)
+- [M15-M20 MVP exit pipeline report](docs/m15-m20-mvp-exit-pipeline-report.md)
+- [M21-M24 runtime path pipeline report](docs/m21-m24-runtime-path-pipeline-report.md)
+- [Comprehensive filter and signal conditioning roadmap](docs/comprehensive-filter-signal-conditioning-roadmap.md)
+- [M36 comprehensive suite closure report](docs/m36-comprehensive-suite-closure-pipeline-report.md)
+- [Post-MVP roadmap](docs/post-mvp-roadmap.md)
 - [v0.8.0 transform architecture proposal](docs/v0.8.0-transform-architecture-milestone-proposal.md)
 - [v0.9.0 pointwise/windowed transform proposal](docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md)
 - [v0.10.0 event/validation transform proposal](docs/v0.10.0-event-validation-transform-milestone-proposal.md)
@@ -1299,6 +1360,7 @@ Start here:
 - [Rule package format](docs/rule-package-format.md)
 - [Heated actuator qualification suite](docs/heated-actuator-qualification-suite.md)
 - [Environmental test use cases](docs/environmental-test-use-cases.md)
+- [Validation corpus index](docs/validation-corpus-index.md)
 - [Embedded roadmap](docs/embedded-roadmap.md)
 - [Platform targets](docs/platform-targets.md)
 - [Controller-in-the-loop workflow](docs/controller-in-the-loop-workflow.md)

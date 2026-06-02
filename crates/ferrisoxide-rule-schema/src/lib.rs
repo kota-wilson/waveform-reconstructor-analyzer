@@ -605,6 +605,20 @@ pub enum FilterDefinition {
         channel: String,
         window_samples: usize,
     },
+    Offset {
+        id: String,
+        channel: String,
+        offset: UnitValue,
+    },
+    Gain {
+        id: String,
+        channel: String,
+        gain: f64,
+    },
+    Invert {
+        id: String,
+        channel: String,
+    },
     LowPass {
         id: String,
         channel: String,
@@ -865,6 +879,23 @@ fn validate_filter(
             RulePackageValidationErrorKind::InvalidFilter,
             report,
         ),
+        FilterDefinition::Offset { offset, .. } => validate_unit_value(
+            &format!("{field}.offset"),
+            *offset,
+            Some(EngineeringUnit::Volt),
+            RulePackageValidationErrorKind::InvalidFilter,
+            report,
+        ),
+        FilterDefinition::Gain { gain, .. } => {
+            if !gain.is_finite() {
+                report.push(RulePackageValidationError::new(
+                    format!("{field}.gain"),
+                    RulePackageValidationErrorKind::InvalidFilter,
+                    "value must be finite",
+                ));
+            }
+        }
+        FilterDefinition::Invert { .. } => {}
         FilterDefinition::AdcQuantize { bits, min, max, .. } => {
             if *bits == 0 || *bits > 32 {
                 report.push(RulePackageValidationError::new(
@@ -1198,6 +1229,9 @@ impl FilterDefinition {
     fn id(&self) -> &str {
         match self {
             Self::MovingAverage { id, .. }
+            | Self::Offset { id, .. }
+            | Self::Gain { id, .. }
+            | Self::Invert { id, .. }
             | Self::LowPass { id, .. }
             | Self::AdcQuantize { id, .. } => id,
         }
@@ -1206,6 +1240,9 @@ impl FilterDefinition {
     fn channel(&self) -> &str {
         match self {
             Self::MovingAverage { channel, .. }
+            | Self::Offset { channel, .. }
+            | Self::Gain { channel, .. }
+            | Self::Invert { channel, .. }
             | Self::LowPass { channel, .. }
             | Self::AdcQuantize { channel, .. } => channel,
         }
@@ -1255,6 +1292,20 @@ mod tests {
                     id: "filter_switch_average".to_string(),
                     channel: "switch_v".to_string(),
                     window_samples: 5,
+                },
+                FilterDefinition::Offset {
+                    id: "offset_switch".to_string(),
+                    channel: "switch_v".to_string(),
+                    offset: UnitValue::new(0.05, EngineeringUnit::Volt),
+                },
+                FilterDefinition::Gain {
+                    id: "scale_switch".to_string(),
+                    channel: "switch_v".to_string(),
+                    gain: 1.25,
+                },
+                FilterDefinition::Invert {
+                    id: "invert_switch".to_string(),
+                    channel: "switch_v".to_string(),
                 },
                 FilterDefinition::LowPass {
                     id: "filter_switch_low_pass".to_string(),
@@ -1344,6 +1395,58 @@ mod tests {
         assert_eq!(toml_package.filters.len(), 2);
         assert_eq!(toml_package.criteria.len(), 3);
         assert_eq!(toml_package.validate(), Ok(()));
+    }
+
+    #[test]
+    fn examples_linear_pointwise_rules_toml_and_json_describe_same_package() {
+        let rules_toml = include_str!("../../../examples/rule-package/linear-pointwise-rules.toml");
+        let rules_json = include_str!("../../../examples/rule-package/linear-pointwise-rules.json");
+
+        let toml_package =
+            parse_rule_package_toml(rules_toml).expect("linear pointwise TOML should parse");
+        let json_package =
+            parse_rule_package_json(rules_json).expect("linear pointwise JSON should parse");
+
+        assert_eq!(toml_package, json_package);
+        assert_eq!(toml_package.package.schema_version, CURRENT_SCHEMA_VERSION);
+        assert_eq!(toml_package.filters.len(), 3);
+        assert!(matches!(
+            toml_package.filters[0],
+            FilterDefinition::Offset { .. }
+        ));
+        assert!(matches!(
+            toml_package.filters[1],
+            FilterDefinition::Gain { .. }
+        ));
+        assert!(matches!(
+            toml_package.filters[2],
+            FilterDefinition::Invert { .. }
+        ));
+        assert_eq!(toml_package.validate(), Ok(()));
+    }
+
+    #[test]
+    fn unsupported_transform_fixtures_fail_as_unknown_filters() {
+        let toml_rules =
+            include_str!("../../../examples/rule-package/unsupported-clamp-rules.toml");
+        let json_rules =
+            include_str!("../../../examples/rule-package/unsupported-clamp-rules.json");
+
+        let toml_error =
+            parse_rule_package_toml(toml_rules).expect_err("unsupported clamp TOML should fail");
+        let json_error =
+            parse_rule_package_json(json_rules).expect_err("unsupported clamp JSON should fail");
+
+        assert_eq!(
+            toml_error.kind,
+            RulePackageValidationErrorKind::UnknownFilter
+        );
+        assert_eq!(
+            json_error.kind,
+            RulePackageValidationErrorKind::UnknownFilter
+        );
+        assert_eq!(toml_error.field, "rules.toml");
+        assert_eq!(json_error.field, "rules.json");
     }
 
     #[test]
@@ -1571,6 +1674,37 @@ mod tests {
         assert!(report.errors.iter().any(|error| {
             error.kind == RulePackageValidationErrorKind::InvalidCriterion
                 && error.field == "criteria[2].requirement.value"
+        }));
+    }
+
+    #[test]
+    fn rejects_invalid_linear_pointwise_filter_parameters() {
+        let mut package = parse_rule_package_toml(include_str!(
+            "../../../examples/rule-package/linear-pointwise-rules.toml"
+        ))
+        .expect("linear pointwise fixture should parse");
+        package.filters[0] = FilterDefinition::Offset {
+            id: "input_offset".to_string(),
+            channel: "input_v".to_string(),
+            offset: UnitValue::new(0.25, EngineeringUnit::Second),
+        };
+        package.filters[1] = FilterDefinition::Gain {
+            id: "input_gain".to_string(),
+            channel: "input_v".to_string(),
+            gain: f64::INFINITY,
+        };
+
+        let report = package
+            .validate()
+            .expect_err("invalid linear pointwise filters should fail validation");
+
+        assert!(report.errors.iter().any(|error| {
+            error.kind == RulePackageValidationErrorKind::InvalidFilter
+                && error.field == "filters[0].offset.unit"
+        }));
+        assert!(report.errors.iter().any(|error| {
+            error.kind == RulePackageValidationErrorKind::InvalidFilter
+                && error.field == "filters[1].gain"
         }));
     }
 

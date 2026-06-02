@@ -1,0 +1,31 @@
+# Example M21 config for rule package export with portable linear pointwise transforms.
+# Offset and gain are software transform parameters; they are not calibration evidence.
+
+[input]
+time_column = "time"
+channels = ["input_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[filters]]
+type = "offset"
+offset_v = 0.25
+
+[[filters]]
+type = "gain"
+gain = 2.0
+
+[[filters]]
+type = "invert"
+
+[[criteria]]
+id = "input_max_after_linear_transforms"
+channel = "input_v"
+
+[criteria.measurement]
+type = "maximum_sample"
+
+[criteria.requirement]
+operator = "less_than_or_equal"
+value = 0.0
+unit = "V"

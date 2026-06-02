@@ -1,0 +1,14 @@
+default_format = "json"
+summary_file = "batch-summary.json"
+
+[[runs]]
+id = "basic_config"
+input = "basic-waveform.csv"
+config = "basic-config.toml"
+report = "basic-config.json"
+
+[[runs]]
+id = "high_pass_baseline"
+input = "basic-waveform.csv"
+config = "m14-high-pass-baseline-config.toml"
+report = "high-pass-baseline.json"

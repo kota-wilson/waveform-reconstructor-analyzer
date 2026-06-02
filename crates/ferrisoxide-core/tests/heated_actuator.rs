@@ -22,6 +22,7 @@ fn render_report(input_name: &str, csv_input: &str, config_input: &str) -> Strin
         waveform_metadata: waveform.metadata.clone(),
         evidence_context: ReportEvidenceContext::engineering_validation(config.tolerances),
         measurements: evaluation.measurements,
+        feature_records: Vec::new(),
         event_records: Vec::new(),
         event_validations: Vec::new(),
         results: evaluation.results,
