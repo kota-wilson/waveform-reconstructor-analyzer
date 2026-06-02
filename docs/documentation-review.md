@@ -44,7 +44,7 @@ M15-M20 review update: The local MVP-exit pass adds config reference, artifact c
 
 M21-M24 review update: The local runtime-path pass adds linear pointwise package semantics, shared borrowed-slice runtime semantics, positive/negative package fixtures, a runtime-loader design gate, and pipeline docs while preserving no-loader-implementation, no-binary-package, no-HAL/RTOS, no-target-hardware, no-signing, and no-certification scope.
 
-M25-M36 review update: The local comprehensive-suite pass adds the transform catalog, config reference expansion, transform package compatibility matrix, validation corpus index, M25-M36 pipeline reports, comprehensive roadmap closure, benchmark-readiness evidence, release/community/retrospective updates, and README coverage for implemented desktop waveform conditioning while preserving no-external-release, no-runtime-loader, no-live-DAQ, no-HAL/RTOS, no-target-hardware, no-new-dependency, no-hardware-calibration, no-hardware-qualification, and no-certification scope.
+M25-M36 review update: The comprehensive-suite pass is merged to `main` through PR #175 and adds the transform catalog, config reference expansion, transform package compatibility matrix, validation corpus index, M25-M36 pipeline reports, comprehensive roadmap closure, benchmark-readiness evidence, release/community/retrospective updates, and README coverage for implemented desktop waveform conditioning while preserving no-release-publication, no-runtime-loader, no-live-DAQ, no-HAL/RTOS, no-target-hardware, no-new-dependency, no-hardware-calibration, no-hardware-qualification, and no-certification scope.
 
 ## Evidence
 
@@ -110,9 +110,9 @@ M25-M36 review update: The local comprehensive-suite pass adds the transform cat
 ## Hand-Off Note
 
 Role: Documentation Engineer
-Goal: Confirm docs are accurate and readable after the validated-MVP, MVP-exit, M21-M24 runtime-path, and M25-M36 comprehensive-suite feature baseline.
+Goal: Confirm docs are accurate and readable after the validated-MVP, MVP-exit, M21-M24 runtime-path, and M25-M36 comprehensive-suite mainline feature baseline.
 Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05-31.md`, `docs/plotting.md`, `docs/measurements.md`, `docs/control-config-schema.md`, `docs/test-verification-config-schema.md`, `docs/simulator.md`, `docs/daq-abstraction.md`, `docs/controller-io-abstraction.md`, `docs/desktop-simulation-workflow.md`, `docs/rtos-deployment-package-format.md`, `docs/controller-operating-modes.md`, `docs/controller-config-parity.md`, `docs/qualification-evidence-report.md`, M15-M36 docs, criteria DSL docs, embedded docs, README, current-state docs, traceability docs, validation log, and historical pipeline reports.
 Checks run: Documentation inspection plus the validation commands recorded in `docs/documentation-audit-2026-05-31.md`.
 Status: Pass.
 Known gaps: Add API docs, external reader feedback, embedded target build docs, simulator docs, automated README example refresh, automated config/report drift checks, and automated docs/link checking later.
-Next recommended step: Review the completed M25-M36 branch for external PR readiness or choose one post-MVP documentation or automation theme under a fresh gate.
+Next recommended step: Choose one post-MVP documentation, automation, or advanced-transform theme under a fresh gate.

@@ -6,7 +6,7 @@ Owner Role: Project Coordinator
 
 ## Current Status
 
-This started as the initial publication retrospective. Follow-up GitHub issues have since covered M1, v0.2.0, M3, M4, M5, ADC quantization, M6 measurement/evidence work, and later milestones through M14. M15-M20 are complete locally as the MVP-exit pass without GitHub issue creation, M21-M24 are complete locally as the first narrow runtime-path follow-up, and M25-M36 are complete locally as the comprehensive filter and signal-conditioning suite.
+This started as the initial publication retrospective. Follow-up GitHub issues have since covered M1, v0.2.0, M3, M4, M5, ADC quantization, M6 measurement/evidence work, and later milestones through M14. M15-M20 are complete as the MVP-exit pass without GitHub issue creation, M21-M24 are complete as the first narrow runtime-path follow-up, and M25-M36 are merged to `main` through PR #175 as the comprehensive filter and signal-conditioning suite.
 
 ## What Worked
 
@@ -47,16 +47,16 @@ This started as the initial publication retrospective. Follow-up GitHub issues h
 
 - Gate: Retrospective Gate.
 - Decision: Pass.
-- Reason: Lessons and next actions are recorded, including the M4 post-merge outcome, M5 plotting scope control, M3 embedded prototype scope control, M6 measurement regression-guard lesson, M6-003 report-schema migration lesson, M6 completion overlay/fixture lesson, M15-M20 MVP-exit scope-control lesson, M21-M24 runtime-path scoping lesson, and M25-M36 catalog-first comprehensive-suite lesson.
-- Residual risk: External PR/release work, advanced DSP/domain follow-ups, and runtime-loader implementation still need prioritization, issue planning, and approval.
+- Reason: Lessons and next actions are recorded, including the M4 post-merge outcome, M5 plotting scope control, M3 embedded prototype scope control, M6 measurement regression-guard lesson, M6-003 report-schema migration lesson, M6 completion overlay/fixture lesson, M15-M20 MVP-exit scope-control lesson, M21-M24 runtime-path scoping lesson, M25-M36 catalog-first comprehensive-suite lesson, and PR #175 mainline merge.
+- Residual risk: Release publication, advanced DSP/domain follow-ups, and runtime-loader implementation still need prioritization, issue planning, and approval.
 - Next owner: Community Engineering Lead.
 
 ## Hand-Off Note
 
 Role: Project Coordinator
-Goal: Capture lessons from project creation through public publication, local MVP exit, M21-M24 runtime-path follow-up, and M25-M36 comprehensive-suite closure.
+Goal: Capture lessons from project creation through public publication, MVP exit, M21-M24 runtime-path follow-up, and M25-M36 comprehensive-suite mainline merge.
 Files changed: `docs/retrospective.md`
 Checks run: Reviewed project artifacts and final CI status.
 Status: Pass.
 Known gaps: Annotated SVG evidence still lacks visual regression, automated config/report drift checks are not implemented, benchmark fixtures remain small, and embedded work still lacks target execution or SDK validation.
-Next recommended step: Review the completed M25-M36 local branch for external PR readiness or choose one gated advanced follow-up.
+Next recommended step: Choose one gated advanced follow-up or a separate release-publication plan.

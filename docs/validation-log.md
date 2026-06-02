@@ -22,6 +22,39 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, and `ferrisoxide-cli`.
 
+## PR #175 Merge Evidence And Documentation State Validation Update
+
+Date: 2026-06-02
+
+Stage: Post-merge documentation state review
+
+Scope:
+
+- Record PR #175 merge evidence after the README and M25-M36 documentation updates reached `main`.
+- Update release, community, retrospective, roadmap, orchestration, evaluation, documentation, catalog, corpus, changelog, and project-state artifacts so current docs no longer route M25-M36 to an already-completed branch review.
+- Preserve separate gates for release publication, dependency additions, runtime-loader implementation, package/runtime expansion, live DAQ, HAL/RTOS, target hardware, hardware evidence, and certification claims.
+
+GitHub evidence:
+
+- PR: `https://github.com/kota-wilson/ferrisoxide/pull/175`
+- Merge commit: `f833a02f7bd59eec15119f88984dad10bdcc3725`
+- Required check: `rust`, passed; completed 2026-06-02T10:40:12Z.
+- Main branch: protected; `main` points at `f833a02f7bd59eec15119f88984dad10bdcc3725` after the PR #175 merge.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no trailing whitespace matches.
+- Current-artifact stale-reference scan: Pass; current README, changelog, roadmap, readiness, community, retrospective, documentation, evaluation, M36, catalog, corpus, orchestration, and project-state artifacts no longer route M25-M36 to pending branch review.
+- Local Markdown link-target scan: Pass; 196 FerrisOxide Markdown files scanned with no broken local links.
+
+Result:
+
+- Current documentation now reflects that M15-M36 reached `main` through PR #175.
+- Release publication remains unperformed and separately gated.
+- No code, dependency, runtime, hardware, release tag, or certification scope changed in this documentation-state follow-up.
+
 ## README And M25-M36 Documentation Merge-Readiness Validation Update
 
 Date: 2026-06-02
@@ -89,10 +122,10 @@ Commands:
 
 Result:
 
-- M36 is complete locally for catalog, UX, compatibility, validation-corpus, benchmark-readiness, release-readiness, community, retrospective, and stale-reference closure.
-- WRA-RQ-121 is implemented locally.
-- M25-M36 now forms the completed local comprehensive filter and simulated signal-conditioning suite for sampled DAQ/test waveform conditioning and calculations.
-- Package/runtime expansion, external PR/CI, release publication, live DAQ, HAL/RTOS, target hardware, calibration evidence, hardware qualification, certification evidence, dependency additions, optimized/advanced DSP work, advanced domain packs, and `split_by_event` remain separately gated.
+- M36 is complete for catalog, UX, compatibility, validation-corpus, benchmark-readiness, release-readiness, community, retrospective, and stale-reference closure.
+- WRA-RQ-121 is implemented.
+- M25-M36 now forms the completed comprehensive filter and simulated signal-conditioning suite for sampled DAQ/test waveform conditioning and calculations.
+- Package/runtime expansion, release publication, live DAQ, HAL/RTOS, target hardware, calibration evidence, hardware qualification, certification evidence, dependency additions, optimized/advanced DSP work, advanced domain packs, and `split_by_event` remain separately gated.
 
 ## M35 Multi-Channel, Sensor, And Domain Conditioning Validation Update
 
@@ -497,7 +530,7 @@ root memory Markdown link-target scan over the same five root memory files
 - M26 is complete locally for desktop `[[filters]]` data-cleaning and timing-conditioning transforms.
 - Implemented transforms: `timestamp_sort`, `dedupe_timestamps`, `nan_interpolate`, `nan_remove`, `crop`, `fixed_delay`, `gap_fill`, `resample_fixed`, and `channel_delay`.
 - Rule-package export rejects every M26 transform until separate package/runtime semantics are approved.
-- `split_by_event` remains deferred to M36 because it creates multiple segment artifacts rather than one derived waveform.
+- `split_by_event` remains future-gated after M36 because it creates multiple segment artifacts rather than one derived waveform.
 - No new dependencies, GitHub issues, external PR, release publication, live DAQ, HAL/RTOS, runtime-loader implementation, target hardware execution, hardware qualification, or certification claim was added.
 
 ## M25 Transform Registry Validation Update

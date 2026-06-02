@@ -344,6 +344,6 @@ Role: Software Architect / Documentation Engineer
 Goal: Implement the M25 transform registry and completeness contract.
 Files changed: `crates/ferrisoxide-core/src/transform_catalog.rs`, `crates/ferrisoxide-core/src/lib.rs`, `crates/ferrisoxide-core/src/filter.rs`, `crates/ferrisoxide-cli/src/main.rs`, and this document.
 Checks run: See `docs/validation-log.md`.
-Status: Complete locally for M25 and updated through M36.
+Status: Complete and merged through PR #175 for M25-M36.
 Known gaps: Exact elliptic/Cauer design, efficient polyphase resampling, Hilbert envelope, optimized FFT dependency/performance follow-up, phase-difference estimation, gain/phase matching, advanced acoustic/domain packs, and large spectral-output UX remain gated; `split_by_event` remains future-gated as a multi-artifact segmentation feature.
-Next recommended step: Review the completed M25-M36 local suite for external PR readiness or choose one gated advanced follow-up.
+Next recommended step: Choose one gated advanced follow-up or a separate release-publication plan.

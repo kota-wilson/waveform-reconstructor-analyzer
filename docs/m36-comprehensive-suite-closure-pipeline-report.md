@@ -2,21 +2,29 @@
 
 Date: 2026-06-02
 
-Status: Complete locally
+Status: Complete; merged through PR #175
 
 Related requirement: WRA-RQ-121
 
 ## Scope
 
-M36 closes the local M25-M36 comprehensive filter and simulated signal-conditioning path. The milestone does not add a new algorithm family; it proves that the implemented catalog, configuration reference, fixtures, validation corpus, compatibility map, benchmark helper, readiness docs, community messaging, and retrospective can support engineers using FerrisOxide as a comprehensive sampled-waveform conditioning and calculation library.
+M36 closes the M25-M36 comprehensive filter and simulated signal-conditioning path. The milestone does not add a new algorithm family; it proves that the implemented catalog, configuration reference, fixtures, validation corpus, compatibility map, benchmark helper, readiness docs, community messaging, and retrospective can support engineers using FerrisOxide as a comprehensive sampled-waveform conditioning and calculation library.
 
-M36 does not create GitHub issues, open an external PR, publish a release, add dependencies, add live DAQ, add HAL/RTOS adapters, implement runtime loaders, run target hardware, add binary signing, or create hardware qualification or certification evidence.
+M36 does not create GitHub issues, publish a release, add dependencies, add live DAQ, add HAL/RTOS adapters, implement runtime loaders, run target hardware, add binary signing, or create hardware qualification or certification evidence. The closure branch was later merged to `main` through PR #175 after the required `rust` check passed.
+
+## PR #175 Merge Update
+
+- PR: `https://github.com/kota-wilson/ferrisoxide/pull/175`
+- Merge commit: `f833a02f7bd59eec15119f88984dad10bdcc3725`
+- Required check: `rust`, passed; completed 2026-06-02T10:40:12Z
+- Merge result: M15-M36 documentation and implementation evidence are on `main`.
+- Release scope: no release tag, crate publication, runtime-loader implementation, dependency addition, hardware evidence, or certification claim was added.
 
 ## Closure Artifacts
 
 | Artifact | Closure Role |
 |---|---|
-| `docs/comprehensive-filter-signal-conditioning-roadmap.md` | Records M25-M36 as complete locally and keeps advanced follow-ups gated. |
+| `docs/comprehensive-filter-signal-conditioning-roadmap.md` | Records M25-M36 as complete and merged through PR #175 while keeping advanced follow-ups gated. |
 | `crates/ferrisoxide-core/src/transform_catalog.rs` | Marks `comprehensive_suite_closure` as the implemented M36 registry artifact. |
 | `crates/ferrisoxide-cli/src/main.rs` | Verifies text and JSON catalog output for the M36 closure entry. |
 | `docs/transform-catalog.md` | Provides the user-facing source of truth for implemented, future-gated, dependency-gated, and package/runtime status. |
@@ -61,7 +69,7 @@ The benchmark output is local software timing only. It is not hard real-time, li
 | Abstraction Review | Abstraction Review Gate | Pass | M36 artifacts name files, catalog entries, commands, acceptance criteria, and out-of-scope claims. | Future advanced work must keep the same specificity. Owner: Abstraction Review Engineer. |
 | Approval | Human Approval Gate | Pass | User pre-approved the active goal and no new dependency/destructive/release action was taken. | External PR and release publication still need explicit gates. Owner: User / Project Coordinator. |
 | Implementation | Implementation Gate | Pass | Catalog marker, CLI catalog assertions, roadmap, compatibility, corpus, release/community/retrospective, README, changelog, and state docs updated. | No algorithm family was added in M36. Owner: Core Software Engineer. |
-| Testing | Testing Gate | Pass | See `docs/validation-log.md` for focused catalog tests, workspace tests, clippy, formatting, diff, whitespace, link, stale-reference, fixture, and benchmark commands. | External CI not run for this local branch. Owner: Test Automation Engineer. |
+| Testing | Testing Gate | Pass | See `docs/validation-log.md` for focused catalog tests, workspace tests, clippy, formatting, diff, whitespace, link, stale-reference, fixture, benchmark commands, and PR #175 required `rust` CI. | Future PRs still need protected CI. Owner: Test Automation Engineer. |
 | V&V | V&V Gate | Pass | Evidence shows local software behavior, compatibility boundaries, and documentation closure; no hardware/runtime/certification claim is made. | Hardware validation remains out of scope. Owner: V&V Engineer. |
 | QA | QA Gate | Pass | Current docs and state files route to M36 closure artifacts; stale-reference scan separates historical reports from current artifacts. | Historical reports retain point-in-time wording by design. Owner: QA Engineer. |
 | Security | Security Gate | Pass | No dependency, credential, auth, permission, signing, or network-surface change was added. | Future dependency additions require policy review. Owner: Security Engineer. |
@@ -89,14 +97,14 @@ The benchmark output is local software timing only. It is not hard real-time, li
 
 Role: Project Coordinator / Evaluation Engineer
 
-Goal: Close M36 and the local M25-M36 comprehensive filter and simulated signal-conditioning suite.
+Goal: Close M36 and the M25-M36 comprehensive filter and simulated signal-conditioning suite.
 
 Files changed: `docs/m36-comprehensive-suite-closure-pipeline-report.md`, `docs/comprehensive-filter-signal-conditioning-roadmap.md`, `docs/transform-catalog.md`, `docs/config-reference.md`, `docs/current-transform-metadata-mapping.md`, `docs/validation-corpus-index.md`, `docs/transform-package-compatibility.md`, `docs/release-readiness.md`, `docs/community-report.md`, `docs/retrospective.md`, `docs/validation-log.md`, `README.md`, `CHANGELOG.md`, `requirements.md`, `traceability-matrix.md`, `risk-register.md`, `orchestration-plan.md`, `project-state.md`, and root studio memory files.
 
 Checks run: See `docs/validation-log.md`.
 
-Status: Complete locally.
+Status: Complete and merged through PR #175.
 
-Known gaps: External PR/CI, release publication, runtime-loader implementation, package/runtime expansion, live DAQ, target hardware, hardware calibration, hardware qualification, certification evidence, optimized FFT/polyphase/Hilbert/exact elliptic implementations, phase/gain matching, advanced acoustic features, advanced sensor calibration packs, and `split_by_event` remain separately gated.
+Known gaps: Release publication, runtime-loader implementation, package/runtime expansion, live DAQ, target hardware, hardware calibration, hardware qualification, certification evidence, optimized FFT/polyphase/Hilbert/exact elliptic implementations, phase/gain matching, advanced acoustic features, advanced sensor calibration packs, and `split_by_event` remain separately gated.
 
-Next recommended step: Review the completed local M25-M36 branch for external PR readiness or choose one separately gated advanced follow-up.
+Next recommended step: Choose one separately gated advanced follow-up or release-publication plan.

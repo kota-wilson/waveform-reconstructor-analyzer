@@ -10,14 +10,18 @@ Owner Role: Release Engineer / GitHub Maintainer Specialist
 
 ## Current Status
 
-This review records the initial public-repository publication gate. Since publication, later PRs have completed the validated MVP, transform milestones through M14, the local M15-M20 MVP-exit implementation, M21-M24 runtime-path follow-up, and M25-M36 comprehensive filter/signal-conditioning suite. The release notes below preserve historical slices; the M36 update records local readiness only and does not publish a tag.
+This review records the initial public-repository publication gate. Since publication, later PRs have completed the validated MVP, transform milestones through M14, the M15-M20 MVP-exit implementation, M21-M24 runtime-path follow-up, and M25-M36 comprehensive filter/signal-conditioning suite. The release notes below preserve historical slices; PR #175 records the M15-M36 mainline merge while release tags, crate publication, and public announcement remain separate approval gates.
 
-## M36 Local Release Readiness Update
+## M36 Release Readiness Update
 
-- Scope: local M25-M36 comprehensive-suite closure through `docs/m36-comprehensive-suite-closure-pipeline-report.md`.
-- Validation: `cargo fmt --check`; focused M35 and catalog/package tests; direct M35 fixture analysis; benchmark helper; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`; trailing-whitespace scans; Markdown link scans; stale-reference scans.
-- Release decision: Pass locally for branch readiness review; Not Applicable for release publication because the user did not request an external PR, tag, crate publication, or public announcement.
-- Messaging boundary: may say the local desktop sampled-waveform conditioning suite is complete through M36 after branch review, but must not claim live DAQ, runtime loader, HAL/RTOS support, target hardware execution, hardware calibration, hardware qualification, safety certification, regulatory compliance, or airworthiness evidence.
+- Scope: M25-M36 comprehensive-suite closure through `docs/m36-comprehensive-suite-closure-pipeline-report.md`.
+- PR: `https://github.com/kota-wilson/ferrisoxide/pull/175`.
+- Merge commit: `f833a02f7bd59eec15119f88984dad10bdcc3725`.
+- Merge method: rebase / fast-forward mainline.
+- Required check: `rust`, passed; completed 2026-06-02T10:40:12Z.
+- Validation: `cargo fmt --check`; focused catalog tests; direct catalog CLI inspection; `cargo test --workspace`; `cargo clippy --workspace --all-targets -- -D warnings`; `git diff --check`; trailing-whitespace scans; Markdown link scans; stale-reference scans.
+- Release decision: Pass for mainline merge through PR #175; Not Applicable for tag publication, crate publication, or public announcement because those release actions were not requested.
+- Messaging boundary: may say the desktop sampled-waveform conditioning suite is complete through M36 on `main`, but must not claim live DAQ, runtime loader, HAL/RTOS support, target hardware execution, hardware calibration, hardware qualification, safety certification, regulatory compliance, or airworthiness evidence.
 - Gated follow-ups: exact elliptic/Cauer design, efficient polyphase resampling, Hilbert envelope, optimized FFT/performance work, phase-difference estimation, gain/phase matching, advanced acoustic/domain packs, advanced sensor calibration packs, `split_by_event`, package/runtime expansion, and external release operations.
 
 ## Scope
@@ -163,35 +167,35 @@ Residual risk: This is mainline repository evidence, not a tagged product releas
 - Scope: Local MVP-exit branch readiness for M15 config reference, M16 artifact contract, M17 batch analysis workflow, M18 transform-package compatibility, M19 validation corpus index, and M20 readiness review.
 - Release publication: Not performed.
 - GitHub milestones/issues: Not created for M15-M20.
-- External PR: Not opened by this local implementation pass.
+- External PR: Not opened by the original local implementation pass; later included in PR #175.
 - Dependency evidence: No new third-party dependencies.
 - Validation evidence: See `docs/validation-log.md`.
 - Readiness evidence: `docs/mvp-exit-readiness-report.md` and `docs/m15-m20-mvp-exit-pipeline-report.md`.
 
 Gate: Release Gate for local MVP exit.
 Decision: Pass locally, no publication.
-Residual risk: This is local branch evidence until a PR is opened, protected CI runs, and maintainers approve a merge or release tag.
+Residual risk: No release tag was published; release publication remains separately gated.
 
 ## M21-M24 Runtime Path Release Readiness Update
 
 - Scope: Local runtime-path branch readiness for M21 linear pointwise package semantics, M22 shared borrowed-slice runtime semantics, M23 package compatibility corpus, and M24 runtime-loader design gate.
 - Release publication: Not performed.
 - GitHub milestones/issues: Not created for M21-M24.
-- External PR: Not opened by this local implementation pass.
+- External PR: Not opened by the original local implementation pass; later included in PR #175.
 - Dependency evidence: No new third-party dependencies.
 - Validation evidence: See `docs/validation-log.md`.
 - Readiness evidence: `docs/m21-m24-runtime-path-pipeline-report.md` and `docs/runtime-loader-design-gate.md`.
 
 Gate: Release Gate for local M21-M24 runtime path.
 Decision: Pass locally, no publication.
-Residual risk: This is local branch evidence until a PR is opened, protected CI runs, and maintainers approve a merge or release tag. Runtime-loader implementation remains separately gated.
+Residual risk: No release tag was published; release publication and runtime-loader implementation remain separately gated.
 
 ## Hand-Off Note
 
 Role: Release Engineer / GitHub Maintainer Specialist
-Goal: Track release readiness from initial publication through local MVP exit and M21-M24 runtime-path follow-up.
-Files changed: `docs/release-readiness.md`, `.github/workflows/ci.yml`, and linked MVP-exit/runtime-path artifacts.
-Checks run: Uses validation evidence from `docs/validation-log.md`; GitHub Actions historical CI evidence is preserved for prior merged PRs.
-Status: Pass locally for MVP exit and M21-M24; no release tag published.
-Known gaps: M15-M24 still need external PR review/protected CI before merge, and release publication needs a separate approval gate.
-Next recommended step: Open a PR only after user approval, then treat release tagging as a separate release decision.
+Goal: Track release readiness from initial publication through MVP exit, M21-M24 runtime-path follow-up, and M25-M36 comprehensive-suite mainline merge.
+Files changed: `docs/release-readiness.md`, `.github/workflows/ci.yml`, and linked MVP-exit/runtime-path/comprehensive-suite artifacts.
+Checks run: Uses validation evidence from `docs/validation-log.md`; GitHub Actions historical CI evidence is preserved for prior merged PRs, including PR #175.
+Status: Pass for M25-M36 mainline merge through PR #175; no release tag published.
+Known gaps: Release publication, crate publication, runtime-loader implementation, package/runtime expansion, hardware evidence, and certification evidence need separate approval gates.
+Next recommended step: Choose a separately gated release publication plan or the next advanced follow-up theme.

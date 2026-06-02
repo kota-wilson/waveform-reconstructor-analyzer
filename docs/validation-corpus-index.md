@@ -109,6 +109,6 @@ Role: Verification and Validation Engineer / Performance Engineer
 Goal: Index validation corpus and benchmark baseline evidence before MVP exit.
 Files changed: `docs/validation-corpus-index.md`, docs, validation log, traceability, risk, and readiness artifacts.
 Checks run: See `docs/validation-log.md`.
-Status: M19 validation corpus index complete locally and updated through M36.
+Status: M19 validation corpus index complete and updated through M36; M25-M36 merged through PR #175.
 Known gaps: Automated corpus coverage and benchmark refresh automation remain future work; existing benchmark helper remains available.
-Next recommended step: Review the completed local M25-M36 branch for external PR readiness or choose one separately gated advanced follow-up.
+Next recommended step: Choose one separately gated advanced follow-up or release-publication plan.

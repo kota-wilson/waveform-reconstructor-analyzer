@@ -2,7 +2,7 @@
 
 Date: 2026-06-02
 
-Status: Planning backlog after MVP exit, the local M21-M24 runtime-path follow-up, and the complete local M25-M36 comprehensive filter/signal-conditioning suite. M36 closure evidence is complete locally; external PRs, release publication, dependency additions, runtime-loader implementation, live DAQ, HAL/RTOS, target hardware, and certification scope remain separately gated.
+Status: Planning backlog after MVP exit, the M21-M24 runtime-path follow-up, and the complete M25-M36 comprehensive filter/signal-conditioning suite merged through PR #175. Release publication, dependency additions, runtime-loader implementation, live DAQ, HAL/RTOS, target hardware, and certification scope remain separately gated.
 
 ## Purpose
 
@@ -14,16 +14,16 @@ The next selected planning theme is a comprehensive sampled-waveform filter and 
 
 | Milestone | Scope | Status |
 |---|---|---|
-| M21 | Portable rule-package schema/export support for `offset`, `gain`, and `invert`. | Complete locally |
-| M22 | Shared borrowed-slice runtime-compatible semantics and desktop parity coverage for the linear pointwise subset. | Complete locally |
-| M23 | Positive TOML/JSON package fixtures and negative unsupported-transform fixtures. | Complete locally |
-| M24 | Runtime loader design gate for bounded Raspberry Pi 5 bare-metal package consumption. | Complete locally as design only |
+| M21 | Portable rule-package schema/export support for `offset`, `gain`, and `invert`. | Complete; merged in PR #175 |
+| M22 | Shared borrowed-slice runtime-compatible semantics and desktop parity coverage for the linear pointwise subset. | Complete; merged in PR #175 |
+| M23 | Positive TOML/JSON package fixtures and negative unsupported-transform fixtures. | Complete; merged in PR #175 |
+| M24 | Runtime loader design gate for bounded Raspberry Pi 5 bare-metal package consumption. | Complete as design only; merged in PR #175 |
 
 ## Selected Next Planning Theme
 
 | Theme | Scope | Status |
 |---|---|---|
-| Comprehensive filter and signal conditioning suite | M25-M36 roadmap for transform registry, data cleaning, pointwise/nonlinear conditioning, smoothing, frequency filters, resampling, envelope/energy/calculus, statistics, spectrum/time-frequency, fault injection, ADC/DAC simulation, multi-channel/sensor packs, and completeness closure. | M25-M36 complete locally in `docs/comprehensive-filter-signal-conditioning-roadmap.md` |
+| Comprehensive filter and signal conditioning suite | M25-M36 roadmap for transform registry, data cleaning, pointwise/nonlinear conditioning, smoothing, frequency filters, resampling, envelope/energy/calculus, statistics, spectrum/time-frequency, fault injection, ADC/DAC simulation, multi-channel/sensor packs, and completeness closure. | M25-M36 complete and merged through PR #175; see `docs/comprehensive-filter-signal-conditioning-roadmap.md` |
 
 ## Candidate Milestone Themes
 
@@ -50,7 +50,7 @@ The next selected planning theme is a comprehensive sampled-waveform filter and 
 
 ## First Recommended Post-MVP Step
 
-Review the completed M25-M36 branch for external PR readiness or choose one gated advanced follow-up. M25 created the transform registry and completeness contract, M26 added data-cleaning/timing-conditioning transforms, M27 added pointwise normalization/nonlinear transforms, M28 added smoothing/baseline conditioning transforms, M29 added standard frequency filters, M30 added resampling/timing-alignment transforms, M31 added envelope/energy/calculus filters and feature records, M32 added statistics/correlation filters and feature records, M33 added spectrum/window/time-frequency feature records, M34 added deterministic fault injection and ADC/DAC simulation, M35 added multi-channel, sensor, vibration, and control conditioning, and M36 closed catalog/docs/corpus/compatibility/readiness evidence.
+Choose one gated advanced follow-up or a separate release-publication plan. M25 created the transform registry and completeness contract, M26 added data-cleaning/timing-conditioning transforms, M27 added pointwise normalization/nonlinear transforms, M28 added smoothing/baseline conditioning transforms, M29 added standard frequency filters, M30 added resampling/timing-alignment transforms, M31 added envelope/energy/calculus filters and feature records, M32 added statistics/correlation filters and feature records, M33 added spectrum/window/time-frequency feature records, M34 added deterministic fault injection and ADC/DAC simulation, M35 added multi-channel, sensor, vibration, and control conditioning, and M36 closed catalog/docs/corpus/compatibility/readiness evidence before the PR #175 merge.
 
 ## Hand-Off Note
 
@@ -58,6 +58,6 @@ Role: Product Architect / Project Coordinator
 Goal: Separate post-MVP backlog from MVP-exit readiness.
 Files changed: `docs/post-mvp-roadmap.md`, linked readiness and roadmap docs.
 Checks run: See `docs/validation-log.md`.
-Status: Backlog separated; M21-M24 runtime-path follow-up is complete locally; M25-M36 comprehensive suite work is complete locally.
+Status: Backlog separated; M21-M24 runtime-path follow-up and M25-M36 comprehensive suite work are complete and merged through PR #175.
 Known gaps: Dependency-using advanced follow-ups still require dependency review. Exact elliptic/Cauer design, efficient polyphase resampling, Hilbert envelope, optimized FFT dependency/performance work, phase-difference estimation, gain/phase matching, advanced acoustic packs, advanced sensor calibration packs, and `split_by_event` multi-artifact segmentation remain dependency/design/future-gated.
-Next recommended step: Review the completed local M25-M36 branch for external PR readiness or choose one gated advanced follow-up.
+Next recommended step: Choose one gated advanced follow-up or a separate release-publication plan.

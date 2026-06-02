@@ -62,38 +62,38 @@ Owner Role: Community Engineering Lead
 
 ## M15-M20 MVP Exit Community Update
 
-- M15-M20 are complete locally as a branch-level MVP-exit pass.
-- No GitHub milestones/issues, external PR, release tag, or public announcement is created by this update.
+- M15-M20 are complete as the MVP-exit pass and were later included in PR #175.
+- No GitHub milestones/issues, release tag, or public announcement is created by this update.
 - User-facing messaging may say FerrisOxide has passed local MVP-exit readiness for the desktop software workflow after this branch is reviewed, but must not claim live DAQ, target hardware execution, production RTOS readiness, hardware qualification, safety certification, regulatory compliance, or airworthiness evidence.
 - Post-MVP work should be introduced from `docs/post-mvp-roadmap.md` one gated theme at a time.
 
 ## M21-M24 Runtime Path Community Update
 
-- M21-M24 are complete locally as a branch-level runtime-path follow-up.
+- M21-M24 are complete as the runtime-path follow-up and were later included in PR #175.
 - User-facing messaging may say rule-package export now supports `offset`, `gain`, and `invert` as software transforms, but must not claim calibrated sensor accuracy, runtime-loader implementation, target hardware execution, production RTOS readiness, hardware qualification, safety certification, regulatory compliance, or airworthiness evidence.
 - Runtime-loader implementation should not be announced until a fresh implementation gate is approved and completed.
 
 ## M25-M36 Comprehensive Suite Community Update
 
-- M25-M36 are complete locally as a branch-level comprehensive filter and signal-conditioning suite.
-- User-facing messaging may say FerrisOxide covers the ordinary desktop sampled-waveform conditioning workflow through cataloged filters, feature records, simulation filters, sensor/software domain transforms, examples, corpus docs, package/runtime guardrails, and validation evidence after branch review.
+- M25-M36 are merged to `main` through PR #175 as the comprehensive filter and signal-conditioning suite.
+- User-facing messaging may say FerrisOxide covers the ordinary desktop sampled-waveform conditioning workflow through cataloged filters, feature records, simulation filters, sensor/software domain transforms, examples, corpus docs, package/runtime guardrails, and validation evidence.
 - Messaging must still avoid claiming live DAQ, runtime-loader implementation, target hardware execution, production RTOS readiness, hardware calibration, hardware qualification, safety certification, regulatory compliance, or airworthiness evidence.
 - Advanced dependency/design-gated work should be introduced as separate follow-up scope, not as already-supported behavior.
 
 ## Gate Decision
 
 - Gate: Community Gate.
-- Decision: Pass for initial publication, M5 issue/milestone closure, M3 issue/milestone closure, M6 issue planning, M6-001 issue closure, M6-003 issue closure, M6 completion, local M15-M20 MVP exit, local M21-M24 runtime path, and local M25-M36 comprehensive-suite closure.
-- Reason: Public repository exists with templates, contribution docs, CI, clear scope, historical issue/PR closure evidence, and local MVP-exit/runtime/comprehensive-suite messaging that separates desktop software readiness and narrow package semantics from hardware/runtime/certification scope.
+- Decision: Pass for initial publication, M5 issue/milestone closure, M3 issue/milestone closure, M6 issue planning, M6-001 issue closure, M6-003 issue closure, M6 completion, M15-M20 MVP exit, M21-M24 runtime path, and M25-M36 comprehensive-suite merge through PR #175.
+- Reason: Public repository exists with templates, contribution docs, CI, clear scope, historical issue/PR closure evidence, and MVP-exit/runtime/comprehensive-suite messaging that separates desktop software readiness and narrow package semantics from hardware/runtime/certification scope.
 - Residual risk: Community onboarding quality, plotting usability, downstream measurement-schema usability, batch workflow usability, comprehensive-suite usability, and embedded adapter usability are untested until external issue/PR feedback.
 - Next owner: Project Coordinator.
 
 ## Hand-Off Note
 
 Role: Community Engineering Lead
-Goal: Confirm public community surface, MVP-exit messaging, and runtime-path messaging boundaries exist.
+Goal: Confirm public community surface, MVP-exit messaging, runtime-path messaging, and M25-M36 mainline messaging boundaries exist.
 Files changed: `docs/community-report.md`
-Checks run: Repository and CI inspection.
-Status: Pass locally for MVP exit, M21-M24 runtime path, and M25-M36 comprehensive-suite closure.
-Known gaps: M15-M36 local changes have not received external community feedback or PR review.
-Next recommended step: Review the completed local branch for external PR readiness or choose one gated follow-up.
+Checks run: Repository, PR #175, and CI inspection.
+Status: Pass for M25-M36 mainline merge through PR #175.
+Known gaps: M15-M36 changes have not received broad external community feedback.
+Next recommended step: Choose one gated follow-up or a separate release-publication plan.

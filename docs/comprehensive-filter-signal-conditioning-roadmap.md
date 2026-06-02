@@ -2,7 +2,7 @@
 
 Date: 2026-06-02
 
-Status: Execution roadmap for M25-M36. M25 is complete locally as the transform registry and completeness contract. M26 is complete locally for data-cleaning and timing-conditioning transforms. M27 is complete locally for pointwise, normalization, and nonlinear conditioning transforms. M28 is complete locally for smoothing, detrending, baseline, Hampel, and spike-cleanup transforms. M29 is complete locally for standard frequency filters. M30 is complete locally for resampling and timing alignment transforms. M31 is complete locally for envelope, energy, and calculus transforms. M32 is complete locally for statistical and correlation transforms. M33 is complete locally for spectrum, window, and time-frequency analysis. M34 is complete locally for deterministic fault injection and ADC/DAC simulation. M35 is complete locally for multi-channel, sensor, vibration, and control conditioning. M36 is complete locally as the comprehensive-suite closure milestone. This roadmap defines the completed milestone path for making FerrisOxide a comprehensive sampled-waveform conditioning and calculation library. It does not add dependencies, create GitHub issues, open a PR, publish a release, add live DAQ, add HAL/RTOS SDKs, implement runtime loaders, execute target hardware, or create hardware qualification or certification evidence.
+Status: Execution roadmap for M25-M36. M25 is complete as the transform registry and completeness contract. M26 is complete for data-cleaning and timing-conditioning transforms. M27 is complete for pointwise, normalization, and nonlinear conditioning transforms. M28 is complete for smoothing, detrending, baseline, Hampel, and spike-cleanup transforms. M29 is complete for standard frequency filters. M30 is complete for resampling and timing alignment transforms. M31 is complete for envelope, energy, and calculus transforms. M32 is complete for statistical and correlation transforms. M33 is complete for spectrum, window, and time-frequency analysis. M34 is complete for deterministic fault injection and ADC/DAC simulation. M35 is complete for multi-channel, sensor, vibration, and control conditioning. M36 is complete as the comprehensive-suite closure milestone and merged to `main` through PR #175. This roadmap defines the completed milestone path for making FerrisOxide a comprehensive sampled-waveform conditioning and calculation library. It does not add dependencies, create GitHub issues, publish a release tag, add live DAQ, add HAL/RTOS SDKs, implement runtime loaders, execute target hardware, or create hardware qualification or certification evidence.
 
 Related requirements: WRA-RQ-110 through WRA-RQ-121.
 
@@ -52,7 +52,7 @@ This does not mean FerrisOxide will claim every academic DSP method, every propr
 | M33 | Spectrum, Windows, And Time-Frequency Suite | Implemented locally for window coefficients, DFT, radix-2 FFT with DFT fallback, IFFT, power spectrum, PSD, Welch PSD, cross-spectrum, coherence, transfer estimate, harmonic analysis, THD, SNR, SINAD, ENOB, STFT, spectrogram, centroid, bandwidth, rolloff, and band power. | Dependency review complete; no new dependency added |
 | M34 | Fault Injection And ADC/DAC Simulation Suite | Implemented locally for white/Gaussian/uniform/pink/brown noise, impulse/salt-pepper/quantization noise, periodic/hum interference, ground-bounce/thermal/random-walk drift, dropout/missing/saturation/stuck-at/flatline/intermittent faults, quantizer variants, dithering, companding, sample-clock jitter, missing codes, INL/DNL, gain error, and offset error. | RNG/noise dependency review complete; no new dependency added |
 | M35 | Multi-Channel, Sensor, And Domain Conditioning Packs | Implemented locally for channel arithmetic, differential/common-mode, vector/euclidean norm, matrix transform, coordinate rotation, software sensor conversions, vibration integration/severity, and control-signal transforms; advanced phase/gain matching, acoustic features, and calibration packs remain dependency/design-gated. | No new dependency added |
-| M36 | Completeness, UX, And Compatibility Closure | Complete locally for catalog completeness review, examples, docs, validation corpus, negative-case matrix, benchmark-readiness evidence, rule-package/runtime compatibility map, release/community/retrospective closure, and stale-reference checks. | No new dependency added |
+| M36 | Completeness, UX, And Compatibility Closure | Complete for catalog completeness review, examples, docs, validation corpus, negative-case matrix, benchmark-readiness evidence, rule-package/runtime compatibility map, release/community/retrospective closure, stale-reference checks, and PR #175 mainline merge evidence. | No new dependency added |
 
 ## M25: Transform Registry And Completeness Contract
 
@@ -133,7 +133,7 @@ Acceptance criteria:
 
 Goal: provide the standard preprocessing filters engineers expect before analysis.
 
-Status: Complete locally for desktop `[[filters]]` support with no new dependencies. See `docs/m28-smoothing-baseline-pipeline-report.md`.
+Status: Complete for desktop `[[filters]]` support with no new dependencies. See `docs/m28-smoothing-baseline-pipeline-report.md`.
 
 Scope:
 
@@ -161,7 +161,7 @@ Acceptance criteria:
 
 Goal: make FerrisOxide useful as the normal filter toolbox for sampled waveforms.
 
-Status: Complete locally for dependency-free desktop `[[filters]]` frequency conditioning. Exact elliptic/Cauer design remains dependency-gated pending numeric-library review.
+Status: Complete for dependency-free desktop `[[filters]]` frequency conditioning. Exact elliptic/Cauer design remains dependency-gated pending numeric-library review.
 
 Scope:
 
@@ -202,7 +202,7 @@ Implemented M29 surface:
 
 Goal: let engineers normalize sample grids and align channels before comparison.
 
-Status: Complete locally for dependency-free desktop `[[filters]]` support with no new dependencies. See `docs/m30-resampling-timing-pipeline-report.md`.
+Status: Complete for dependency-free desktop `[[filters]]` support with no new dependencies. See `docs/m30-resampling-timing-pipeline-report.md`.
 
 Scope:
 
@@ -415,6 +415,6 @@ Role: Product Architect / Software Architect
 Goal: Define the post-MVP milestone path for a comprehensive FerrisOxide filter and signal-conditioning suite.
 Files changed: `docs/comprehensive-filter-signal-conditioning-roadmap.md`, `docs/post-mvp-roadmap.md`, `docs/next-milestones-roadmap.md`, `requirements.md`, `traceability-matrix.md`, `risk-register.md`, `project-state.md`, `orchestration-plan.md`, `README.md`, `CHANGELOG.md`, `docs/validation-log.md`, and root studio memory files.
 Checks run: `cargo fmt --check`; `git diff --check`; trailing-whitespace scans; local Markdown link-target scans.
-Status: M25, M26, M27, M28, M29, M30, M31, M32, M33, M34, M35, and M36 complete locally.
-Known gaps: External PR/release work remains separately gated. Exact elliptic/Cauer design, efficient polyphase resampling, Hilbert envelope, optimized FFT dependency/performance work, phase-difference estimation, gain/phase matching, large spectral-output UX, advanced acoustic/domain packs, advanced sensor calibration packs, and `split_by_event` multi-artifact segmentation remain separately gated follow-ups.
-Next recommended step: Review the completed local M25-M36 branch for possible external PR creation or choose one gated advanced follow-up.
+Status: M25, M26, M27, M28, M29, M30, M31, M32, M33, M34, M35, and M36 complete and merged to `main` through PR #175.
+Known gaps: Release publication remains separately gated. Exact elliptic/Cauer design, efficient polyphase resampling, Hilbert envelope, optimized FFT dependency/performance work, phase-difference estimation, gain/phase matching, large spectral-output UX, advanced acoustic/domain packs, advanced sensor calibration packs, and `split_by_event` multi-artifact segmentation remain separately gated follow-ups.
+Next recommended step: Choose one gated advanced follow-up or a separate release-publication plan.

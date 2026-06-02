@@ -2,7 +2,7 @@
 
 Date: 2026-06-02
 
-Status: M10 through M14 complete through merged PR evidence. M15 through M20 are complete locally as the MVP-exit sequence. M21 through M24 are complete locally as the first runtime-path follow-up. M25 through M36 are complete locally as the comprehensive filter and simulated signal-conditioning suite. No GitHub milestones/issues, external PR, release publication, dependency addition, runtime-loader implementation, live DAQ, HAL/RTOS, target hardware, or certification scope is created by this local update.
+Status: M10 through M14 complete through merged PR evidence. M15 through M20 are complete as the MVP-exit sequence. M21 through M24 are complete as the first runtime-path follow-up. M25 through M36 are complete as the comprehensive filter and simulated signal-conditioning suite and merged to `main` through PR #175. No GitHub milestones/issues for M15-M36, release publication, dependency addition, runtime-loader implementation, live DAQ, HAL/RTOS, target hardware, or certification scope is created by this update.
 
 ## Purpose
 
@@ -17,28 +17,28 @@ This roadmap records the completed transform milestones, completed local MVP-exi
 | M12 | v0.10.0 | Event and validation transform MVP | Complete in PR #156; milestone #12 closed |
 | M13 | v0.11.0 | Transform runtime-profile validation | Complete in PR #164; milestone #13 closed |
 | M14 | v0.12.0 | High-pass baseline correction | Complete in PR #173; milestone #14 closed |
-| M15 | v0.13.0 | Config and schema reference hardening | Complete locally |
-| M16 | v0.14.0 | Report and artifact contract stabilization | Complete locally |
-| M17 | v0.15.0 | Desktop batch analysis workflow MVP | Complete locally |
-| M18 | v0.16.0 | Rule-package transform semantics | Complete locally |
-| M19 | v0.17.0 | Validation corpus and benchmark baseline expansion | Complete locally |
-| M20 | v0.18.0 | MVP exit readiness review | Complete locally |
-| M21 | local | Portable linear pointwise package semantics | Complete locally |
-| M22 | local | Shared runtime-compatible linear transform semantics | Complete locally |
-| M23 | local | Package compatibility corpus | Complete locally |
-| M24 | local | Runtime loader design gate | Complete locally as design only |
-| M25 | local | Transform registry and completeness contract | Complete locally |
-| M26 | local | Data cleaning and timing conditioning | Complete locally |
-| M27 | local | Pointwise, normalization, and nonlinear suite | Complete locally |
-| M28 | local | Smoothing, detrending, and baseline suite | Complete locally |
-| M29 | local | Standard frequency filter suite | Complete locally |
-| M30 | local | Resampling and timing alignment suite | Complete locally |
-| M31 | local | Envelope, energy, and calculus suite | Complete locally |
-| M32 | complete-local | Statistical and correlation suite | `docs/m32-statistics-correlation-pipeline-report.md` |
-| M33 | complete-local | Spectrum, windows, and time-frequency suite | `docs/m33-spectrum-time-frequency-pipeline-report.md` |
-| M34 | complete-local | Fault injection and ADC/DAC simulation suite | `docs/m34-fault-injection-adc-dac-pipeline-report.md` |
-| M35 | complete-local | Multi-channel, sensor, and domain conditioning packs | `docs/m35-multi-channel-sensor-domain-pipeline-report.md` |
-| M36 | complete-local | Completeness, UX, and compatibility closure | `docs/m36-comprehensive-suite-closure-pipeline-report.md` |
+| M15 | v0.13.0 | Config and schema reference hardening | Complete; merged in PR #175 |
+| M16 | v0.14.0 | Report and artifact contract stabilization | Complete; merged in PR #175 |
+| M17 | v0.15.0 | Desktop batch analysis workflow MVP | Complete; merged in PR #175 |
+| M18 | v0.16.0 | Rule-package transform semantics | Complete; merged in PR #175 |
+| M19 | v0.17.0 | Validation corpus and benchmark baseline expansion | Complete; merged in PR #175 |
+| M20 | v0.18.0 | MVP exit readiness review | Complete; merged in PR #175 |
+| M21 | mainline | Portable linear pointwise package semantics | Complete; merged in PR #175 |
+| M22 | mainline | Shared runtime-compatible linear transform semantics | Complete; merged in PR #175 |
+| M23 | mainline | Package compatibility corpus | Complete; merged in PR #175 |
+| M24 | mainline | Runtime loader design gate | Complete as design only; merged in PR #175 |
+| M25 | mainline | Transform registry and completeness contract | Complete; merged in PR #175 |
+| M26 | mainline | Data cleaning and timing conditioning | Complete; merged in PR #175 |
+| M27 | mainline | Pointwise, normalization, and nonlinear suite | Complete; merged in PR #175 |
+| M28 | mainline | Smoothing, detrending, and baseline suite | Complete; merged in PR #175 |
+| M29 | mainline | Standard frequency filter suite | Complete; merged in PR #175 |
+| M30 | mainline | Resampling and timing alignment suite | Complete; merged in PR #175 |
+| M31 | mainline | Envelope, energy, and calculus suite | Complete; merged in PR #175 |
+| M32 | mainline | Statistical and correlation suite | Complete; merged in PR #175 |
+| M33 | mainline | Spectrum, windows, and time-frequency suite | Complete; merged in PR #175 |
+| M34 | mainline | Fault injection and ADC/DAC simulation suite | Complete; merged in PR #175 |
+| M35 | mainline | Multi-channel, sensor, and domain conditioning packs | Complete; merged in PR #175 |
+| M36 | mainline | Completeness, UX, and compatibility closure | Complete; merged in PR #175 |
 
 ## Sequencing Rationale
 
@@ -56,7 +56,7 @@ M15 through M20 are deliberately not a new algorithm sprint. They harden the exi
 
 M21 through M24 prove a narrow runtime-path slice for `offset`, `gain`, and `invert` package semantics, shared borrowed-slice transform semantics, positive/negative package fixtures, and a runtime-loader design gate.
 
-M25 through M36 are the comprehensive filter and signal-conditioning path. M25 came first because broad algorithm expansion needed a central transform registry and completeness contract. M26 through M35 then added transform families in dependency-aware groups. M36 closes the suite by proving docs, fixtures, package/runtime compatibility, validation corpus, benchmark readiness, and user-facing completeness. The next decision is external PR readiness or a separately gated advanced follow-up.
+M25 through M36 are the comprehensive filter and signal-conditioning path. M25 came first because broad algorithm expansion needed a central transform registry and completeness contract. M26 through M35 then added transform families in dependency-aware groups. M36 closed the suite by proving docs, fixtures, package/runtime compatibility, validation corpus, benchmark readiness, and user-facing completeness; PR #175 merged the suite to `main`. The next decision is a separately gated advanced follow-up or release-publication plan.
 
 ## Near-Term Milestones
 
@@ -159,7 +159,7 @@ Exit evidence:
 
 Primary artifact: `docs/mvp-exit-roadmap.md`
 
-These milestones are complete locally for MVP exit. GitHub issue creation, external PR submission, and release publication still require separate approval.
+These milestones are complete for MVP exit and merged through PR #175. GitHub issue creation for M15-M20 and release publication still require separate approval.
 
 | Milestone | Goal | Required Exit Evidence |
 |---|---|---|
@@ -199,7 +199,7 @@ The following remain outside M10 through M20 unless a fresh proposal and approva
 | M13 Planning Gate | Pass | M13 proposal and issue-planning report define WRA-RQ-087 through WRA-RQ-092; GitHub milestone #13 and issues #158 through #163 created after user approval, then closed by PR #164. | Project Coordinator |
 | M14 Planning Gate | Pass | M14 proposal and issue-planning report define WRA-RQ-093 through WRA-RQ-098; GitHub milestone #14 and issues #167 through #172 created after user approval, then closed by PR #173. | Project Coordinator |
 | MVP Exit Roadmap Gate | Pass locally | `docs/mvp-exit-roadmap.md` defines M15 through M20, MVP-exit criteria, outside-MVP scope, and gate decisions. | Project Coordinator |
-| Human Approval Gate For M15-M20 | Pass for local implementation | User approved continuing the implementation pipeline through MVP exit on 2026-06-01. GitHub milestones/issues, external PRs, and release publication remain separately gated. | User / Project Coordinator |
+| Human Approval Gate For M15-M20 | Pass for local implementation and later PR #175 merge | User approved continuing the implementation pipeline through MVP exit on 2026-06-01, then requested the documentation update and mainline merge on 2026-06-02. GitHub milestones/issues and release publication remain separately gated. | User / Project Coordinator |
 | M15-M20 Implementation Gate | Pass locally | `docs/config-reference.md`, `docs/artifact-contract.md`, `docs/batch-analysis-workflow.md`, `docs/transform-package-compatibility.md`, `docs/validation-corpus-index.md`, `docs/mvp-exit-readiness-report.md`, and `crates/ferrisoxide-cli/src/main.rs` complete the local MVP-exit scope. | Project Orchestrator |
 | Implementation Gate | Pass for M14 | `high_pass_baseline` filter/config support, first-order recurrence, timing validation, metadata, CLI/config coverage, export guardrail coverage, docs, traceability, and risk updates merged in PR #173. | Core Software Engineer |
 | Testing Gate | Pass for M14 | Focused M14 tests, full workspace tests, clippy, formatting, diff check, local Markdown link scan, and PR #173 protected `rust` CI pass. | Test Automation Engineer |
@@ -220,6 +220,6 @@ Role: Project Coordinator / Product Architect
 Goal: Track the staged FerrisOxide milestone roadmap from transform architecture through comprehensive-suite closure.
 Files changed: This roadmap plus comprehensive-suite roadmap, MVP-exit/runtime-path reports, requirements, traceability, risk, orchestration, and state files.
 Checks run: See `docs/validation-log.md`.
-Status: M10 through M14 are complete through GitHub evidence; M15 through M36 are complete locally.
-Known gaps: No GitHub release tag was published for M14 or M15-M36; GitHub milestones/issues are not created for M15 through M36; external PR/CI has not run for this local branch; live DAQ, runtime loaders, hardware validation, certification evidence, and advanced follow-up work remain separately gated.
-Next recommended step: Review the completed local M25-M36 branch for external PR readiness or choose one gated advanced follow-up.
+Status: M10 through M14 are complete through GitHub issue/milestone evidence; M15 through M36 are complete and merged through PR #175.
+Known gaps: No GitHub release tag was published for M14 or M15-M36; GitHub milestones/issues are not created for M15 through M36; live DAQ, runtime loaders, hardware validation, certification evidence, and advanced follow-up work remain separately gated.
+Next recommended step: Choose one gated advanced follow-up or a separate release-publication plan.
