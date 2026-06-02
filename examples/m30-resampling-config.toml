@@ -1,0 +1,65 @@
+[input]
+time_column = "time"
+channels = ["input_v", "reference_v", "target_v"]
+
+[[filters]]
+type = "resample"
+sample_interval_s = 0.001
+
+[[filters]]
+type = "upsample"
+factor = 2
+
+[[filters]]
+type = "downsample"
+factor = 2
+
+[[filters]]
+type = "decimate"
+factor = 2
+cutoff_hz = 100.0
+
+[[filters]]
+type = "interpolate"
+sample_interval_s = 0.001
+
+[[filters]]
+type = "rational_resample"
+upsample_factor = 1
+downsample_factor = 1
+
+[[filters]]
+type = "sample_and_hold"
+sample_interval_s = 0.001
+
+[[filters]]
+type = "zero_order_hold"
+sample_interval_s = 0.001
+
+[[filters]]
+type = "first_order_hold"
+sample_interval_s = 0.001
+
+[[filters]]
+type = "fractional_delay"
+delay_s = 0.0
+
+[[filters]]
+type = "cross_correlation_delay"
+reference_channel = "reference_v"
+target_channel = "target_v"
+max_lag_samples = 3
+
+[[filters]]
+type = "jitter_correction"
+sample_interval_s = 0.001
+
+[[filters]]
+type = "clock_drift_correction"
+sample_interval_s = 0.001
+
+[[criteria]]
+id = "m30_max"
+type = "maximum_voltage"
+channel = "target_v"
+threshold_v = 2.0

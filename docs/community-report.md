@@ -60,20 +60,40 @@ Owner Role: Community Engineering Lead
 - Repository issue list is empty after M6 completion.
 - Follow-up community messaging should describe this as SVG evidence overlays, DSL direction documentation, and software known-answer validation, not GUI, DAQ, plugin runtime, hardware validation, or certification evidence.
 
+## M15-M20 MVP Exit Community Update
+
+- M15-M20 are complete locally as a branch-level MVP-exit pass.
+- No GitHub milestones/issues, external PR, release tag, or public announcement is created by this update.
+- User-facing messaging may say FerrisOxide has passed local MVP-exit readiness for the desktop software workflow after this branch is reviewed, but must not claim live DAQ, target hardware execution, production RTOS readiness, hardware qualification, safety certification, regulatory compliance, or airworthiness evidence.
+- Post-MVP work should be introduced from `docs/post-mvp-roadmap.md` one gated theme at a time.
+
+## M21-M24 Runtime Path Community Update
+
+- M21-M24 are complete locally as a branch-level runtime-path follow-up.
+- User-facing messaging may say rule-package export now supports `offset`, `gain`, and `invert` as software transforms, but must not claim calibrated sensor accuracy, runtime-loader implementation, target hardware execution, production RTOS readiness, hardware qualification, safety certification, regulatory compliance, or airworthiness evidence.
+- Runtime-loader implementation should not be announced until a fresh implementation gate is approved and completed.
+
+## M25-M36 Comprehensive Suite Community Update
+
+- M25-M36 are complete locally as a branch-level comprehensive filter and signal-conditioning suite.
+- User-facing messaging may say FerrisOxide covers the ordinary desktop sampled-waveform conditioning workflow through cataloged filters, feature records, simulation filters, sensor/software domain transforms, examples, corpus docs, package/runtime guardrails, and validation evidence after branch review.
+- Messaging must still avoid claiming live DAQ, runtime-loader implementation, target hardware execution, production RTOS readiness, hardware calibration, hardware qualification, safety certification, regulatory compliance, or airworthiness evidence.
+- Advanced dependency/design-gated work should be introduced as separate follow-up scope, not as already-supported behavior.
+
 ## Gate Decision
 
 - Gate: Community Gate.
-- Decision: Pass for initial publication, M5 issue/milestone closure, M3 issue/milestone closure, M6 issue planning, M6-001 issue closure, M6-003 issue closure, and M6 completion.
-- Reason: Public repository exists with templates, contribution docs, CI, clear scope, M4/M5 issue closure evidence, M3 issue/milestone closure evidence, M6 roadmap issues, PR #48 merge evidence, PR #50 merge evidence, PR #52 merge evidence, closed milestone #6, and an empty repository issue list.
-- Residual risk: Community onboarding quality, plotting usability, downstream measurement-schema usability, and embedded adapter usability are untested until external issue/PR feedback.
+- Decision: Pass for initial publication, M5 issue/milestone closure, M3 issue/milestone closure, M6 issue planning, M6-001 issue closure, M6-003 issue closure, M6 completion, local M15-M20 MVP exit, local M21-M24 runtime path, and local M25-M36 comprehensive-suite closure.
+- Reason: Public repository exists with templates, contribution docs, CI, clear scope, historical issue/PR closure evidence, and local MVP-exit/runtime/comprehensive-suite messaging that separates desktop software readiness and narrow package semantics from hardware/runtime/certification scope.
+- Residual risk: Community onboarding quality, plotting usability, downstream measurement-schema usability, batch workflow usability, comprehensive-suite usability, and embedded adapter usability are untested until external issue/PR feedback.
 - Next owner: Project Coordinator.
 
 ## Hand-Off Note
 
 Role: Community Engineering Lead
-Goal: Confirm initial public community surface exists.
+Goal: Confirm public community surface, MVP-exit messaging, and runtime-path messaging boundaries exist.
 Files changed: `docs/community-report.md`
 Checks run: Repository and CI inspection.
-Status: Pass.
-Known gaps: No first public issue has been created yet.
-Next recommended step: Retrospective.
+Status: Pass locally for MVP exit, M21-M24 runtime path, and M25-M36 comprehensive-suite closure.
+Known gaps: M15-M36 local changes have not received external community feedback or PR review.
+Next recommended step: Review the completed local branch for external PR readiness or choose one gated follow-up.

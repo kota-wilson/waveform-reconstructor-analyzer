@@ -1,0 +1,71 @@
+[input]
+time_column = "time"
+channels = ["input_v"]
+
+[[filters]]
+type = "fir_filter"
+coefficients = [0.25, 0.5, 0.25]
+
+[[filters]]
+type = "zero_phase_fir_filter"
+coefficients = [0.25, 0.5, 0.25]
+
+[[filters]]
+type = "iir_biquad"
+coefficients = [1.0, 0.0, 0.0, 0.0, 0.0]
+
+[[filters]]
+type = "zero_phase_iir_biquad"
+coefficients = [1.0, 0.0, 0.0, 0.0, 0.0]
+
+[[filters]]
+type = "high_pass"
+cutoff_hz = 5.0
+
+[[filters]]
+type = "band_pass"
+center_hz = 20.0
+q = 2.0
+
+[[filters]]
+type = "band_stop"
+center_hz = 60.0
+q = 5.0
+
+[[filters]]
+type = "notch"
+center_hz = 60.0
+q = 30.0
+
+[[filters]]
+type = "comb_filter"
+delay_samples = 2
+feedback_gain = -0.5
+
+[[filters]]
+type = "butterworth_low_pass"
+cutoff_hz = 120.0
+
+[[filters]]
+type = "butterworth_high_pass"
+cutoff_hz = 5.0
+
+[[filters]]
+type = "chebyshev1_low_pass"
+cutoff_hz = 150.0
+ripple_db = 1.0
+
+[[filters]]
+type = "chebyshev2_low_pass"
+cutoff_hz = 150.0
+stopband_attenuation_db = 40.0
+
+[[filters]]
+type = "bessel_low_pass"
+cutoff_hz = 150.0
+
+[[criteria]]
+id = "m29_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 1000.0

@@ -2,13 +2,13 @@
 
 Date: 2026-06-01
 
-Status: M10 GitHub milestone and issues are closed through PR #138. M11 GitHub milestone #11 and issues #140 through #146 are closed through PR #147. M12 milestone #12 and issues #149 through #155 are closed through PR #156. M13 milestone #13 and issues #158 through #163 are closed through PR #164; PR #165 records M13 release/community closure. M14 milestone #14 and issues #167 through #172 are closed through PR #173.
+Status: M10 GitHub milestone and issues are closed through PR #138. M11 GitHub milestone #11 and issues #140 through #146 are closed through PR #147. M12 milestone #12 and issues #149 through #155 are closed through PR #156. M13 milestone #13 and issues #158 through #163 are closed through PR #164; PR #165 records M13 release/community closure. M14 milestone #14 and issues #167 through #172 are closed through PR #173. M15 through M20 are complete locally through `docs/m15-m20-mvp-exit-pipeline-report.md`; GitHub issue planning for them was intentionally not created in this local MVP-exit pass.
 
 ## Scope
 
-This report converts the transform taxonomy and current FerrisOxide project state into local issue placeholders for M10 through M14.
+This report converts the transform taxonomy and current FerrisOxide project state into issue evidence for M10 through M14. M15 through M20 were completed as a local MVP-exit implementation pass without creating GitHub milestones or issues; future GitHub tracking for post-MVP work requires a fresh gate.
 
-It intentionally stops before external GitHub actions, implementation, dependency changes, live DAQ work, HAL/RTOS work, binary packaging, signing, hardware validation, or certification claims.
+It intentionally stops before new external GitHub actions for M15-M20, dependency changes, live DAQ work, HAL/RTOS work, binary packaging, signing, hardware validation, or certification claims.
 
 ## Planned Milestones
 
@@ -19,6 +19,7 @@ It intentionally stops before external GitHub actions, implementation, dependenc
 | M12 | v0.10.0 | `docs/v0.10.0-event-validation-transform-milestone-proposal.md` | GitHub milestone #12 closed |
 | M13 | v0.11.0 | `docs/v0.11.0-transform-runtime-profile-validation-milestone-proposal.md` | GitHub milestone #13 closed |
 | M14 | v0.12.0 | `docs/v0.12.0-high-pass-baseline-correction-milestone-proposal.md` | Complete through PR #173; milestone #14 closed |
+| M15-M20 | v0.13.0-v0.18.0 | `docs/mvp-exit-roadmap.md`; `docs/m15-m20-mvp-exit-pipeline-report.md`; `docs/mvp-exit-readiness-report.md` | Complete locally; no GitHub issues created |
 
 ## M10 GitHub Issues
 
@@ -84,8 +85,8 @@ It intentionally stops before external GitHub actions, implementation, dependenc
 | Intake Gate | Pass | User supplied transform taxonomy and requested next milestones. | Project Coordinator |
 | Issue Planning Gate | Pass for M10 | GitHub milestone #10 and issues #132 through #137 were created for M10 and are now closed. | GitHub Maintainer Specialist |
 | Issue Planning Gate | Pass for M12 | GitHub milestone #12 and issues #149 through #155 were created after explicit M12 approval. | GitHub Maintainer Specialist |
-| Requirements Gate | Pass for proposal | WRA-RQ-070 through WRA-RQ-098 added as proposed or implemented requirements. | Software Architect |
-| Scope Gate | Pass locally | Dependencies, live DAQ, HAL/RTOS, signing, hardware validation, certification, and M15+ work remain gated. | Project Orchestrator |
+| Requirements Gate | Pass | WRA-RQ-070 through WRA-RQ-105 are implemented or locally closed requirements. | Software Architect |
+| Scope Gate | Pass locally | Dependencies, live DAQ, HAL/RTOS, signing, hardware validation, certification, and post-MVP work remain gated. | Project Orchestrator |
 | Human Approval Gate | Pass for M10 issue creation | User approved M10 issue creation on 2026-06-01. | Project Coordinator |
 | Human Approval Gate | Pass for M11 issue creation and implementation | User requested continuing the pipeline with the next milestone on 2026-06-01. | Project Coordinator |
 | Human Approval Gate | Pass for M12 issue creation and implementation | User approved M12 on 2026-06-01. | Project Coordinator |
@@ -93,6 +94,8 @@ It intentionally stops before external GitHub actions, implementation, dependenc
 | Human Approval Gate | Pass for M14 planning, issue creation, and implementation | User approved continuing after M13 closure on 2026-06-01. | Project Coordinator |
 | Issue Planning Gate | Pass for M13 | GitHub milestone #13 and issues #158 through #163 created. | GitHub Maintainer Specialist |
 | Issue Planning Gate | Pass for M14 | GitHub milestone #14 and issues #167 through #172 created, then closed through PR #173. | GitHub Maintainer Specialist |
+| MVP Exit Issue Planning Gate | Not Applicable | M15 through M20 were implemented locally as a single MVP-exit pass after user approval; no GitHub milestones/issues were created. Residual risk: external issue closure evidence does not exist for M15-M20. | User / Project Coordinator |
+| MVP Exit Implementation Gate | Pass locally | `docs/m15-m20-mvp-exit-pipeline-report.md` records M15-M20 implementation artifacts and explicit gates. | Project Orchestrator |
 | Implementation Gate | Pass for M14 | `high_pass_baseline` config/model support, first-order transform, tests, docs, traceability, risk, and pipeline evidence merged in PR #173. | Core Software Engineer |
 | Testing Gate | Pass for M14 | Focused M14 tests, full workspace tests, clippy, formatting, diff check, local Markdown link scan, and PR #173 protected `rust` CI pass. | Test Automation Engineer |
 | Release Gate | Pass for M14 | PR #173 merged after required `rust` CI passed; squash commit `a17cd4c0ae7af5ab768688c9301484e5eb4799cf`. | GitHub Maintainer Specialist |
@@ -111,7 +114,7 @@ It intentionally stops before external GitHub actions, implementation, dependenc
 Stop and ask for approval before:
 
 - creating additional GitHub milestones or issues beyond M14
-- starting M15 implementation or changing M14 scope
+- changing M15-M20 scope after local MVP-exit closure
 - adding or changing dependencies
 - changing public report schema incompatibly
 - adding live DAQ, vendor SDK, HAL, RTOS SDK, unsafe FFI, target hardware execution, or global setup
@@ -123,6 +126,6 @@ Role: Project Orchestrator / GitHub Maintainer Specialist
 Goal: Convert next milestone proposals into local issue placeholders.
 Files changed: This report, milestone proposals, requirements, traceability, risk, orchestration, README, architecture, and project state.
 Checks run: Documentation and traceability inspection.
-Status: M10, M11, M12, M13, and M14 complete; milestone #14 is closed with issues #167 through #172 closed by PR #173.
-Known gaps: Runtime loaders, hardware evidence, certification evidence, and M15+ work remain separately gated.
-Next recommended step: Hold before M15 or new scope until explicit approval.
+Status: M10 through M14 are closed through GitHub milestones/issues; M15 through M20 are complete locally without GitHub issue creation.
+Known gaps: Runtime loaders, hardware evidence, certification evidence, release publication, and post-MVP work remain separately gated.
+Next recommended step: Use `docs/post-mvp-roadmap.md` for the next issue-planning gate after the MVP-exit branch is reviewed.

@@ -1,0 +1,54 @@
+{
+  "package": {
+    "name": "unsupported-clamp-rule",
+    "version": "1.0.0",
+    "schema_version": "0.1.0",
+    "description": "Negative fixture proving nonlinear clamp is not part of the portable rule package subset."
+  },
+  "target": {
+    "kind": "controller_runtime",
+    "identifier": "raspberry-pi-5-bare-metal"
+  },
+  "sample_timing": {
+    "timestamp_unit": "s",
+    "nominal_sample_rate_hz": 1000.0,
+    "nominal_sample_interval_s": 0.001
+  },
+  "channels": [
+    {
+      "name": "input_v",
+      "unit": "V"
+    }
+  ],
+  "filters": [
+    {
+      "type": "clamp",
+      "id": "input_clamp",
+      "channel": "input_v",
+      "min": {
+        "value": 0.0,
+        "unit": "V"
+      },
+      "max": {
+        "value": 5.0,
+        "unit": "V"
+      }
+    }
+  ],
+  "criteria": [
+    {
+      "id": "CRIT-UNSUPPORTED-001",
+      "channel": "input_v",
+      "measurement": {
+        "type": "maximum_sample"
+      },
+      "requirement": {
+        "operator": "less_than_or_equal",
+        "value": {
+          "value": 5.0,
+          "unit": "V"
+        }
+      }
+    }
+  ]
+}

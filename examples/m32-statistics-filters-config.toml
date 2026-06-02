@@ -1,0 +1,43 @@
+[input]
+time_column = "time"
+channels = ["input_v", "other_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[filters]]
+type = "z_score"
+
+[[filters]]
+type = "rolling_mean"
+window_samples = 3
+
+[[filters]]
+type = "rolling_variance"
+window_samples = 3
+
+[[filters]]
+type = "rolling_stddev"
+window_samples = 3
+
+[[filters]]
+type = "rolling_min"
+window_samples = 3
+
+[[filters]]
+type = "rolling_max"
+window_samples = 3
+
+[[filters]]
+type = "quantile_clip"
+lower_quantile = 0.0
+upper_quantile = 1.0
+
+[[filters]]
+type = "outlier_detection"
+threshold_sigma = 0.5
+
+[[criteria]]
+id = "m32_filter_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 2.0

@@ -62,6 +62,22 @@ pub enum TransformCategory {
     FrequencyFilter,
     #[serde(rename = "QuantizationTransform")]
     Quantization,
+    #[serde(rename = "FaultInjectionTransform")]
+    FaultInjection,
+    #[serde(rename = "MultiChannelTransform")]
+    MultiChannel,
+    #[serde(rename = "CalibrationTransform")]
+    Calibration,
+    #[serde(rename = "ControlTransform")]
+    Control,
+    #[serde(rename = "DataCleaningTransform")]
+    DataCleaning,
+    #[serde(rename = "ResamplingTransform")]
+    Resampling,
+    #[serde(rename = "FeatureTransform")]
+    Feature,
+    #[serde(rename = "TimeFrequencyTransform")]
+    TimeFrequency,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -89,6 +105,7 @@ pub enum TransformOutputChannelKind {
     DerivedChannels,
     EventRecords,
     ValidationRecords,
+    FeatureRecords,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -105,6 +122,13 @@ impl TransformOutputChannels {
         }
     }
 
+    pub fn derived_channels_with_new_names() -> Self {
+        Self {
+            kind: TransformOutputChannelKind::DerivedChannels,
+            preserves_names: false,
+        }
+    }
+
     pub fn event_records() -> Self {
         Self {
             kind: TransformOutputChannelKind::EventRecords,
@@ -115,6 +139,13 @@ impl TransformOutputChannels {
     pub fn validation_records() -> Self {
         Self {
             kind: TransformOutputChannelKind::ValidationRecords,
+            preserves_names: false,
+        }
+    }
+
+    pub fn feature_records() -> Self {
+        Self {
+            kind: TransformOutputChannelKind::FeatureRecords,
             preserves_names: false,
         }
     }
@@ -150,6 +181,14 @@ impl TransformParameterMetadata {
             name: name.into(),
             value: TransformParameterValue::Float(value),
             unit: Some(unit.into()),
+        }
+    }
+
+    pub fn text(name: impl Into<String>, value: impl Into<String>) -> Self {
+        Self {
+            name: name.into(),
+            value: TransformParameterValue::Text(value.into()),
+            unit: None,
         }
     }
 }

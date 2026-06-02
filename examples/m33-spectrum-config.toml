@@ -1,0 +1,152 @@
+[input]
+time_column = "time"
+channels = [
+  "input_v",
+  "other_v",
+  "harmonic_v",
+  "noisy_v",
+  "square_v",
+  "constant_spectrum_real",
+  "constant_spectrum_imag",
+]
+
+[[feature_transforms]]
+id = "m33_window"
+type = "window_function"
+channel = "input_v"
+window = "hann"
+window_samples = 4
+
+[[feature_transforms]]
+id = "m33_dft"
+type = "dft"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m33_fft"
+type = "fft"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m33_square_fft"
+type = "fft"
+channel = "square_v"
+
+[[feature_transforms]]
+id = "m33_ifft"
+type = "ifft"
+channel = "constant_spectrum_real"
+other_channel = "constant_spectrum_imag"
+
+[[feature_transforms]]
+id = "m33_power"
+type = "power_spectrum"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m33_psd"
+type = "psd"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m33_welch"
+type = "welch_psd"
+channel = "input_v"
+window_samples = 8
+overlap_samples = 0
+
+[[feature_transforms]]
+id = "m33_cross"
+type = "cross_spectrum"
+channel = "input_v"
+other_channel = "other_v"
+
+[[feature_transforms]]
+id = "m33_coherence"
+type = "coherence"
+channel = "input_v"
+other_channel = "other_v"
+
+[[feature_transforms]]
+id = "m33_transfer"
+type = "transfer_function"
+channel = "input_v"
+other_channel = "other_v"
+
+[[feature_transforms]]
+id = "m33_harmonic"
+type = "harmonic_analysis"
+channel = "harmonic_v"
+fundamental_hz = 1.0
+harmonic_count = 3
+
+[[feature_transforms]]
+id = "m33_thd"
+type = "thd"
+channel = "harmonic_v"
+fundamental_hz = 1.0
+harmonic_count = 3
+
+[[feature_transforms]]
+id = "m33_snr"
+type = "snr"
+channel = "noisy_v"
+fundamental_hz = 1.0
+harmonic_count = 1
+
+[[feature_transforms]]
+id = "m33_sinad"
+type = "sinad"
+channel = "noisy_v"
+fundamental_hz = 1.0
+harmonic_count = 1
+
+[[feature_transforms]]
+id = "m33_enob"
+type = "enob"
+channel = "noisy_v"
+fundamental_hz = 1.0
+harmonic_count = 1
+
+[[feature_transforms]]
+id = "m33_stft"
+type = "stft"
+channel = "input_v"
+window_samples = 8
+overlap_samples = 0
+
+[[feature_transforms]]
+id = "m33_spectrogram"
+type = "spectrogram"
+channel = "input_v"
+window_samples = 8
+overlap_samples = 0
+
+[[feature_transforms]]
+id = "m33_centroid"
+type = "spectral_centroid"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m33_bandwidth"
+type = "spectral_bandwidth"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m33_rolloff"
+type = "spectral_rolloff"
+channel = "input_v"
+rolloff_percent = 85.0
+
+[[feature_transforms]]
+id = "m33_band_power"
+type = "band_power"
+channel = "input_v"
+band_low_hz = 0.5
+band_high_hz = 1.5
+
+[[criteria]]
+id = "m33_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 2.0

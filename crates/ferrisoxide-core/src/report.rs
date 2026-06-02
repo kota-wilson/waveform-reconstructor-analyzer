@@ -1,6 +1,7 @@
 use crate::analysis::{AnalysisResult, MeasurementRecord, Outcome};
 use crate::error::{Result, WaveformError};
 use crate::event::{EventRecord, EventValidationResult};
+use crate::feature::FeatureRecord;
 use crate::model::{TolerancePolicy, WaveformMetadata};
 use serde::Serialize;
 
@@ -10,6 +11,7 @@ pub struct AnalysisReport {
     pub waveform_metadata: WaveformMetadata,
     pub evidence_context: ReportEvidenceContext,
     pub measurements: Vec<MeasurementRecord>,
+    pub feature_records: Vec<FeatureRecord>,
     pub event_records: Vec<EventRecord>,
     pub event_validations: Vec<EventValidationResult>,
     pub results: Vec<AnalysisResult>,
@@ -120,6 +122,16 @@ impl AnalysisReport {
             ));
         }
 
+        if !self.feature_records.is_empty() {
+            output.push_str("Feature Records:\n");
+            for feature in &self.feature_records {
+                output.push_str(&format!(
+                    "- {}: transform={} channel={} value={:.6} {}\n",
+                    feature.id, feature.transform, feature.channel, feature.value, feature.unit
+                ));
+            }
+        }
+
         if !self.event_records.is_empty() {
             output.push_str("Event Records:\n");
             for event in &self.event_records {
@@ -195,6 +207,7 @@ impl AnalysisReport {
             evidence_context: &self.evidence_context,
             overall_outcome: self.overall_outcome(),
             measurements: &self.measurements,
+            feature_records: &self.feature_records,
             event_records: &self.event_records,
             event_validations: &self.event_validations,
             results: &self.results,
@@ -214,6 +227,8 @@ struct JsonReport<'a> {
     evidence_context: &'a ReportEvidenceContext,
     overall_outcome: Outcome,
     measurements: &'a [MeasurementRecord],
+    #[serde(skip_serializing_if = "<[_]>::is_empty")]
+    feature_records: &'a [FeatureRecord],
     #[serde(skip_serializing_if = "<[_]>::is_empty")]
     event_records: &'a [EventRecord],
     #[serde(skip_serializing_if = "<[_]>::is_empty")]
@@ -259,6 +274,7 @@ mod tests {
             waveform_metadata: metadata(),
             evidence_context: ReportEvidenceContext::default(),
             measurements: vec![measurement()],
+            feature_records: Vec::new(),
             event_records: Vec::new(),
             event_validations: Vec::new(),
             results: vec![AnalysisResult {
@@ -297,6 +313,7 @@ mod tests {
             waveform_metadata: metadata(),
             evidence_context: ReportEvidenceContext::default(),
             measurements: vec![measurement()],
+            feature_records: Vec::new(),
             event_records: Vec::new(),
             event_validations: Vec::new(),
             results: vec![AnalysisResult {
@@ -335,6 +352,7 @@ mod tests {
             waveform_metadata: metadata(),
             evidence_context: ReportEvidenceContext::default(),
             measurements: vec![measurement()],
+            feature_records: Vec::new(),
             event_records: Vec::new(),
             event_validations: vec![EventValidationResult {
                 requirement_id: "no_extra_rise".to_string(),
@@ -381,6 +399,7 @@ mod tests {
             waveform_metadata: derived.metadata,
             evidence_context: ReportEvidenceContext::default(),
             measurements: Vec::new(),
+            feature_records: Vec::new(),
             event_records: Vec::new(),
             event_validations: Vec::new(),
             results: Vec::new(),

@@ -6,6 +6,7 @@ use std::time::Instant;
 use ferrisoxide_core::analysis::evaluate_criteria_with_measurements;
 use ferrisoxide_core::config::AnalysisConfig;
 use ferrisoxide_core::csv::{SimpleCsvParser, WaveformParser};
+use ferrisoxide_core::feature::evaluate_feature_transforms;
 use ferrisoxide_core::filter::apply_filter_chain;
 use ferrisoxide_core::report::{AnalysisReport, ReportEvidenceContext};
 
@@ -55,6 +56,9 @@ fn run(args: Vec<String>) -> Result<String, String> {
     let filters = config
         .filters()
         .map_err(|error| format!("invalid config filters: {error}"))?;
+    let feature_transforms = config
+        .feature_transforms()
+        .map_err(|error| format!("invalid config feature transforms: {error}"))?;
     let criteria = config
         .criteria()
         .map_err(|error| format!("invalid config criteria: {error}"))?;
@@ -88,6 +92,8 @@ fn run(args: Vec<String>) -> Result<String, String> {
         totals.transform_ms += elapsed_ms(transform_start);
 
         let criteria_start = Instant::now();
+        let feature_records = evaluate_feature_transforms(&waveform, &feature_transforms)
+            .map_err(|error| format!("feature analysis failed: {error}"))?;
         let evaluation =
             evaluate_criteria_with_measurements(&waveform, &criteria, config.tolerances)
                 .map_err(|error| format!("analysis failed: {error}"))?;
@@ -99,6 +105,7 @@ fn run(args: Vec<String>) -> Result<String, String> {
             waveform_metadata: waveform.metadata.clone(),
             evidence_context: ReportEvidenceContext::engineering_validation(config.tolerances),
             measurements: evaluation.measurements,
+            feature_records,
             event_records: Vec::new(),
             event_validations: Vec::new(),
             results: evaluation.results,

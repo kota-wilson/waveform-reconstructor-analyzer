@@ -1,0 +1,83 @@
+[input]
+time_column = "time"
+channels = ["input_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[filters]]
+type = "half_wave_rectify"
+
+[[filters]]
+type = "full_wave_rectify"
+
+[[filters]]
+type = "envelope"
+alpha = 0.5
+
+[[filters]]
+type = "moving_rms"
+window_samples = 3
+
+[[filters]]
+type = "peak_hold"
+
+[[filters]]
+type = "first_derivative"
+
+[[filters]]
+type = "second_derivative"
+
+[[filters]]
+type = "integral"
+
+[[filters]]
+type = "cumulative_integral"
+
+[[filters]]
+type = "leaky_integrator"
+time_constant_s = 2.0
+
+[[filters]]
+type = "slope_detection"
+threshold_per_s = 0.02
+
+[[feature_transforms]]
+id = "m31_rms"
+type = "rms"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m31_peak_to_peak"
+type = "peak_to_peak"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m31_crest_factor"
+type = "crest_factor"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m31_energy"
+type = "energy"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m31_power"
+type = "power"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m31_area"
+type = "area_under_curve"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m31_impulse"
+type = "impulse_estimate"
+channel = "input_v"
+
+[[criteria]]
+id = "m31_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 2.0

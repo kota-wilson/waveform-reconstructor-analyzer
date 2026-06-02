@@ -1,0 +1,101 @@
+[input]
+time_column = "time"
+channels = ["input_v", "other_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[feature_transforms]]
+id = "m32_mean"
+type = "mean"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m32_median"
+type = "median"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m32_mode"
+type = "mode"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m32_min"
+type = "min"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m32_max"
+type = "max"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m32_variance"
+type = "variance"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m32_standard_deviation"
+type = "standard_deviation"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m32_skewness"
+type = "skewness"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m32_kurtosis"
+type = "kurtosis"
+channel = "input_v"
+
+[[feature_transforms]]
+id = "m32_percentile"
+type = "percentile"
+channel = "input_v"
+percentile = 75.0
+
+[[feature_transforms]]
+id = "m32_quantile"
+type = "quantile"
+channel = "input_v"
+quantile = 0.25
+
+[[feature_transforms]]
+id = "m32_histogram"
+type = "histogram"
+channel = "input_v"
+bins = 2
+min_v = 0.0
+max_v = 1.0
+
+[[feature_transforms]]
+id = "m32_covariance"
+type = "covariance"
+channel = "input_v"
+other_channel = "other_v"
+
+[[feature_transforms]]
+id = "m32_correlation"
+type = "correlation"
+channel = "input_v"
+other_channel = "other_v"
+
+[[feature_transforms]]
+id = "m32_autocorrelation"
+type = "autocorrelation"
+channel = "input_v"
+lag_samples = 1
+
+[[feature_transforms]]
+id = "m32_cross_correlation"
+type = "cross_correlation"
+channel = "input_v"
+other_channel = "other_v"
+lag_samples = 1
+
+[[criteria]]
+id = "m32_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 30.0

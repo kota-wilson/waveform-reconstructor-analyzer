@@ -1,0 +1,49 @@
+[input]
+time_column = "time"
+channels = ["input_v", "reference_v"]
+
+[[filters]]
+type = "timestamp_sort"
+
+[[filters]]
+type = "dedupe_timestamps"
+
+[[filters]]
+type = "nan_interpolate"
+
+[[filters]]
+type = "nan_remove"
+
+[[filters]]
+type = "crop"
+start_time_s = 0.0
+end_time_s = 0.4
+
+[[filters]]
+type = "fixed_delay"
+delay_s = 0.0
+
+[[filters]]
+type = "gap_fill"
+sample_interval_s = 0.1
+
+[[filters]]
+type = "resample_fixed"
+sample_interval_s = 0.2
+
+[[filters]]
+type = "channel_delay"
+channel = "input_v"
+delay_s = 0.1
+
+[[criteria]]
+id = "cleaned_input_min"
+type = "minimum_voltage"
+channel = "input_v"
+threshold_v = 0.0
+
+[[criteria]]
+id = "cleaned_input_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 3.1

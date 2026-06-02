@@ -1,10 +1,10 @@
 # Analysis Report Schema
 
-Date: 2026-06-01
+Date: 2026-06-02
 
 ## Scope
 
-This document describes the MVP JSON report shape used by golden tests and validation reports.
+This document describes the MVP JSON report shape used by golden tests and validation reports. Generated artifact compatibility expectations are recorded in `docs/artifact-contract.md`.
 
 ## Top-Level Fields
 
@@ -15,6 +15,7 @@ This document describes the MVP JSON report shape used by golden tests and valid
 | `evidence_context` | object | Report-level engineering-validation context, evidence source, tolerance policy, and confidence notes. |
 | `overall_outcome` | `pass` or `fail` | `fail` when any criterion or event validation fails. |
 | `measurements` | array | Reusable measurement evidence records with stable IDs. |
+| `feature_records` | array, omitted when empty | Scalar feature evidence emitted by configured `[[feature_transforms]]`. Feature records do not affect `overall_outcome`. |
 | `event_records` | array, omitted when empty | Event evidence records emitted by configured event transforms. |
 | `event_validations` | array, omitted when empty | Pass/fail evidence emitted by configured event validation transforms. |
 | `results` | array | Per-criterion evidence rows. |
@@ -49,9 +50,9 @@ M10-006 implements the additive `waveform_metadata.transform_steps` field descri
 - Skip `transform_steps` for raw or untransformed waveform reports unless a later schema migration explicitly changes that rule.
 - Update exact golden reports whenever structured transform metadata intentionally changes.
 
-Current transform records cover `moving_average`, `low_pass`, `adc_quantize`, `offset`, `gain`, `invert`, `clamp`, `deadband`, `dc_remove`, `baseline_subtract`, `high_pass_baseline`, and `moving_median`. Each record includes `sequence_index`, `history_label`, `name`, `category`, channel behavior, parameters with units, sample-rate requirement, statefulness, causality, phase effect, streaming/offline flags, runtime profile, capability status, and evidence level.
+Current waveform transform records cover `moving_average`, `low_pass`, `adc_quantize`, `offset`, `gain`, `invert`, `clamp`, `deadband`, `dc_remove`, `baseline_subtract`, `high_pass_baseline`, `moving_median`, M26 data-cleaning/timing transforms, M27 pointwise/nonlinear transforms, M28 smoothing/baseline transforms, M29 frequency filters, M30 resampling/timing transforms, M31 envelope/calculus waveform filters, M32 statistics waveform filters, and M34 fault-injection/ADC-DAC simulation filters. Each record includes `sequence_index`, `history_label`, `name`, `category`, channel behavior, parameters with units, sample-rate requirement, statefulness, causality, phase effect, streaming/offline flags, runtime profile, capability status, and evidence level.
 
-M12 event reports reuse the same metadata shape inside `event_records[].transform_metadata` and `event_validations[].transform_metadata`. Event transforms use `output_channels.kind = event_records`; validation transforms use `output_channels.kind = validation_records`.
+M12 event reports reuse the same metadata shape inside `event_records[].transform_metadata` and `event_validations[].transform_metadata`. Event transforms use `output_channels.kind = event_records`; validation transforms use `output_channels.kind = validation_records`. M31-M33 feature reports reuse the same metadata shape inside `feature_records[].transform_metadata` and use `output_channels.kind = feature_records`.
 
 ## Evidence Context Fields
 
@@ -90,6 +91,56 @@ The `measurements` array separates measured signal evidence from pass/fail crite
 | `event_kind` | string or null | Transient subtype, such as `dropout` or `contact bounce`, when applicable. |
 | `direction` | string or null | Edge direction, `rise` or `fall`, when applicable. |
 | `selection` | string or null | Run-selection policy, such as `shortest`, `longest`, or `first_response`, when applicable. |
+
+## Feature Record Fields
+
+`feature_records` is emitted only when `[[feature_transforms]]` are configured. Feature records are evidence, not pass/fail decisions.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `id` | string | Stable config-provided feature ID. |
+| `transform` | string | Feature transform name, such as `rms`, `energy`, `mean`, `histogram`, `correlation`, `fft`, `welch_psd`, `spectrogram`, or `band_power`. |
+| `channel` | string | Source channel after configured filters have been applied. |
+| `value` | number | Calculated scalar feature value. |
+| `unit` | string | Source unit, `count`, `ratio`, `Hz`, `dB`, `bits`, `<unit>^2*s`, `<unit>^2`, `<unit>^2/Hz`, `<unit>*s`, `<unit>*<other_unit>`, or `<other_unit>/<unit>` depending on feature type. |
+| `method_context` | object, omitted when empty | Optional method-specific context for percentile/quantile, histogram bins, comparison channel, lag, frequency bins, windows, harmonics, bands, or time-frequency segments. |
+| `transform_metadata` | object | Structured metadata for the feature transform. |
+
+## Feature Method Context Fields
+
+`method_context` is additive and appears only when a feature transform needs method-specific evidence.
+
+| Field | Type | Meaning |
+|---|---|---|
+| `percentile` | number | Percentile used by a `percentile` feature. |
+| `quantile` | number | Quantile used by a `quantile` feature. |
+| `bins` | integer | Histogram bin count. |
+| `bin_index` | integer | Zero-based histogram bin index. |
+| `bin_min` | number | Lower edge for the histogram bin. |
+| `bin_max` | number | Upper edge for the histogram bin. |
+| `other_channel` | string | Comparison channel for covariance/correlation features. |
+| `lag_samples` | integer | Lag used by autocorrelation or cross-correlation. The convention is `channel[t]` compared with `other_channel[t + lag_samples]`; autocorrelation uses the same channel on both sides. |
+| `frequency_hz` | number | Frequency represented by a spectral record. |
+| `bin_frequency_hz` | number | Frequency-bin center in Hz. |
+| `bin_width_hz` | number | Frequency-bin width in Hz. |
+| `window` | string | Window function used by a spectral or time-frequency feature. |
+| `window_index` | integer | Zero-based window coefficient index for `window_function`. |
+| `window_samples` | integer | Segment/window length in samples. |
+| `overlap_samples` | integer | Segment overlap in samples for Welch/STFT/spectrogram records. |
+| `sample_index` | integer | Reconstructed sample or window coefficient index. |
+| `segment_index` | integer | Zero-based time-frequency segment index. |
+| `segment_start_s` | number | Segment start time in seconds. |
+| `segment_end_s` | number | Segment end time in seconds. |
+| `real` | number | Real component for complex spectral evidence. |
+| `imaginary` | number | Imaginary component for complex spectral evidence. |
+| `magnitude` | number | Magnitude or amplitude associated with the record. |
+| `phase_rad` | number | Phase in radians for complex spectral evidence. |
+| `harmonic_index` | integer | Harmonic number or harmonic-count context. |
+| `fundamental_hz` | number | Fundamental frequency used by harmonic metrics. |
+| `band_low_hz` | number | Lower edge for a band-power record. |
+| `band_high_hz` | number | Upper edge for a band-power record. |
+| `rolloff_percent` | number | Cumulative power percentage used by `spectral_rolloff`. |
+| `normalization` | string | Scaling convention, such as `one_sided_peak_amplitude`, `one_sided_power_spectral_density`, or `welch_averaged_power_spectral_density`. |
 
 ## Result Fields
 
@@ -149,6 +200,10 @@ The `measurements` array separates measured signal evidence from pass/fail crite
 ## Stability
 
 Golden tests in `tests/golden/` compare JSON output exactly. Any intentional schema change should update this document, the golden files, and release notes together.
+
+## Batch Summary Note
+
+`ferrisoxide-signal batch` does not change the per-run analysis report schema. Each completed batch run writes the same text or JSON report produced by `analyze`. The batch summary is a separate artifact with `kind = "batch_analysis"` and stable run-count/status fields documented in `docs/artifact-contract.md`.
 
 ## Criteria DSL Evidence Note
 

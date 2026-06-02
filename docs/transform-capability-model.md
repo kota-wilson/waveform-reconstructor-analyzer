@@ -1,14 +1,22 @@
 # Transform Capability Model
 
-Date: 2026-06-01
+Date: 2026-06-02
 
-Status: M10-001 / issue #132 architecture artifact updated by M14 PR #173. This document defines vocabulary and capability boundaries; current implementation status is limited to rows marked `implemented`.
+Status: M10-001 / issue #132 architecture artifact updated by M14 PR #173, M25 local catalog work, M26 data-cleaning/timing transforms, M27 pointwise/nonlinear conditioning transforms, and M28 smoothing/baseline conditioning transforms. This document defines vocabulary and capability boundaries; current implementation status is authoritative in the Rust transform catalog.
 
 ## Purpose
 
 FerrisOxide is moving from a small filter-oriented surface toward a broader transform architecture. The capability model prevents a taxonomy entry from being mistaken for implemented product support.
 
 Every transform family, transform implementation, and future runtime exposure should be described with stable vocabulary before it appears in config, reports, rule packages, or deployment packages.
+
+M25 implements the source-of-truth catalog in `crates/ferrisoxide-core/src/transform_catalog.rs`. Use `ferrisoxide-signal transforms --format text` or `--format json` to inspect the current catalog generated from code.
+
+M26 promotes the first post-catalog expansion into implemented desktop support for data-cleaning and resampling/timing transforms. Those entries remain desktop-only and rule-package-rejected until separate runtime/package gates exist.
+
+M27 promotes pointwise normalization and nonlinear conditioning into implemented desktop support. Those entries also remain desktop-only and rule-package-rejected until separate runtime/package gates exist.
+
+M28 promotes smoothing, detrending, rolling baseline correction, Hampel filtering, and spike cleanup into implemented desktop support. Those entries remain desktop-only and rule-package-rejected until separate runtime/package gates exist.
 
 ## Scope
 
@@ -132,6 +140,8 @@ This matrix records M10-001 vocabulary boundaries. Later issues own implementati
 | Existing measurement evidence | extrema, transitions, pulse width, rise/fall time | `FeatureTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested`, `parity_tested` where rule-engine paths apply | `desktop`, `pi5_no_std_candidate` where no_std primitives already exist |
 | Existing criteria evidence | voltage ranges, response latency, stable state, transient event | `ValidationTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested`, `parity_tested` where rule-engine paths apply | `desktop`, `pi5_no_std_candidate` where no_std rule-engine paths apply |
 | Pointwise MVP | `offset`, `gain`, `invert`, `clamp`, `deadband` | `PointwiseTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; embedded candidacy requires later evidence |
+| Pointwise and nonlinear M27 | `absolute_value`, `square`, `square_root`, `log`, `exp`, `normalize`, `tanh`, `sigmoid`, `soft_limit`, `piecewise_linear`, `polynomial` | `PointwiseTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; embedded/package exposure requires later evidence |
+| Smoothing and baseline M28 | `weighted_moving_average`, `exponential_moving_average`, `boxcar_smoothing`, `gaussian_smoothing`, `savitzky_golay`, `centered_moving_median`, `rolling_mean_baseline`, `rolling_median_baseline`, `linear_detrend`, `polynomial_detrend`, `hampel_filter`, `spike_remove` | `WindowedTransform`, `StatefulTransform`, `BaselineTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; embedded/package exposure requires later evidence |
 | Baseline MVP | `dc_remove`, `baseline_subtract` | `BaselineTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; embedded candidacy requires later evidence |
 | High-pass baseline correction | `high_pass_baseline` | `StatefulTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; embedded candidacy and package export require later evidence |
 | Moving median MVP | `moving_median` | `WindowedTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; embedded candidacy requires later evidence |
@@ -141,7 +151,7 @@ This matrix records M10-001 vocabulary boundaries. Later issues own implementati
 | Time-frequency analysis | STFT, spectrogram, wavelets | `TimeFrequencyTransform` | `research` | `documented_only` | `future_gated` |
 | Resampling and timing repair | decimation, interpolation, clock-drift correction | `TimingTransform` | `research` | `documented_only` | `future_gated` |
 | Sensor-specific calibration | thermocouple, RTD, strain gauge, load cell, LVDT | `CalibrationTransform` | `research` | `documented_only` | `future_gated` |
-| Fault injection | noise, drift, dropout, stuck-at, saturation | `FaultInjectionTransform` | `research` | `documented_only` | `future_gated` |
+| Fault injection and ADC/DAC simulation M34 | `white_noise`, `gaussian_noise`, `uniform_noise`, `pink_noise`, `brown_noise`, `impulse_noise`, `salt_pepper_noise`, `quantization_noise`, `periodic_interference`, `hum_interference`, `ground_bounce`, `thermal_drift`, `random_walk_drift`, `dropout_fault`, `missing_samples`, `saturation_fault`, `stuck_at_fault`, `flatline_fault`, `intermittent_fault`, ADC/DAC simulation filters | `FaultInjectionTransform`, `QuantizationTransform` | `implemented` | `unit_tested`, `fixture_tested`, `golden_report_tested` | `desktop`; hardware accuracy, calibration, runtime/package exposure, and certification remain gated |
 | Vibration/acoustic analysis | A-weighting, order tracking, cepstrum, shock response spectrum | `VibrationAcousticTransform` | `research` | `documented_only` | `future_gated` |
 
 ## Code-Design Vocabulary
@@ -204,6 +214,6 @@ Role: Software Architect
 Goal: Complete M10-001 / issue #132 by defining transform capability vocabulary and matrix boundaries.
 Files changed: `docs/transform-capability-model.md`
 Checks run: Documentation and traceability review.
-Status: Updated by M14 planning and implementation work for high-pass baseline correction.
+Status: Updated through local M28 smoothing and baseline conditioning work.
 Known gaps: Bounded-buffer embedded event runtime and package/runtime transform exposure remain future gated work.
 Next recommended step: Use the M13 runtime-profile validator before future transform package or runtime exposure.

@@ -40,6 +40,12 @@ M9-009 review update: Issue #85 adds `docs/controller-config-parity.md`, `tests/
 
 M9-010 review update: Issue #86 adds `docs/qualification-evidence-report.md`, a typed qualification evidence report schema, an exact JSON fixture, README and architecture references, controller workflow status updates, and a pipeline report for software-only qualification evidence reports while preserving no-export-command, no-target-loader, no-HAL, no-SDK, no-live-DAQ, no-signing, no-hardware-qualification, and no-certification scope.
 
+M15-M20 review update: The local MVP-exit pass adds config reference, artifact contract, batch workflow, transform-package compatibility, validation corpus index, MVP-exit readiness, pipeline, and post-MVP roadmap docs while preserving no-live-DAQ, no-HAL/RTOS, no-target-hardware, no-binary-signing, no-hosted-service, no-database/scheduler, and no-certification scope.
+
+M21-M24 review update: The local runtime-path pass adds linear pointwise package semantics, shared borrowed-slice runtime semantics, positive/negative package fixtures, a runtime-loader design gate, and pipeline docs while preserving no-loader-implementation, no-binary-package, no-HAL/RTOS, no-target-hardware, no-signing, and no-certification scope.
+
+M25-M36 review update: The local comprehensive-suite pass adds the transform catalog, config reference expansion, transform package compatibility matrix, validation corpus index, M25-M36 pipeline reports, comprehensive roadmap closure, benchmark-readiness evidence, release/community/retrospective updates, and README coverage for implemented desktop waveform conditioning while preserving no-external-release, no-runtime-loader, no-live-DAQ, no-HAL/RTOS, no-target-hardware, no-new-dependency, no-hardware-calibration, no-hardware-qualification, and no-certification scope.
+
 ## Evidence
 
 | Artifact | Result |
@@ -81,21 +87,32 @@ M9-010 review update: Issue #86 adds `docs/qualification-evidence-report.md`, a 
 | M9-008 controller operating modes docs and pipeline report | Pass |
 | M9-009 controller config parity docs and pipeline report | Pass |
 | M9-010 qualification evidence report docs, exact fixture, and pipeline report | Pass |
+| M15 config reference | Pass |
+| M16 artifact contract | Pass |
+| M17 batch analysis workflow docs | Pass |
+| M18 transform package compatibility docs | Pass |
+| M19 validation corpus index | Pass |
+| M20 MVP exit readiness, pipeline, and post-MVP roadmap docs | Pass |
+| M21-M24 runtime path docs and loader design gate | Pass |
+| M25 transform catalog and completeness contract | Pass |
+| M26-M35 comprehensive transform family pipeline reports | Pass |
+| M36 comprehensive-suite closure report | Pass |
+| M25-M36 comprehensive roadmap, config reference, package compatibility, corpus index, release/community/retrospective updates, and README coverage | Pass |
 
 ## Gate Decision
 
 - Gate: Documentation Gate.
 - Decision: Pass.
-- Reason: Public usage, contribution, security, change, validation, plotting, embedded adapter/prototype, measurement, report schema, criteria DSL direction/migration/schema, README product workflow, production/test verification schema boundaries, simulator/DAQ/controller-I/O/desktop-simulation/deployment-package/mode-separation/parity/qualification-evidence boundaries, traceability, current-state, and M4/M5/M3/M6/M7/DOCS-001/M9-001/M9-002/M9-003/M9-004/M9-005/M9-006/M9-007/M9-008/M9-009/M9-010 follow-up documentation exist and are human-readable.
-- Residual risk: API docs, external reader feedback, embedded target build docs, simulator docs, automated README example refresh, and automated Markdown link checking are still thin.
+- Reason: Public usage, contribution, security, change, validation, plotting, embedded adapter/prototype, measurement, report schema, criteria DSL direction/migration/schema, README product workflow, production/test verification schema boundaries, simulator/DAQ/controller-I/O/desktop-simulation/deployment-package/mode-separation/parity/qualification-evidence boundaries, M15-M20 MVP-exit docs, M21-M24 runtime-path docs, M25-M36 comprehensive-suite docs, traceability, and current-state documentation exist and are human-readable.
+- Residual risk: API docs, external reader feedback, embedded target build docs, simulator docs, automated README example refresh, automated config/report drift checks, and automated Markdown link checking are still thin.
 - Next owner: Code Reviewer.
 
 ## Hand-Off Note
 
 Role: Documentation Engineer
-Goal: Confirm MVP docs are accurate and readable after the validated-MVP feature baseline.
-Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05-31.md`, `docs/plotting.md`, `docs/measurements.md`, `docs/control-config-schema.md`, `docs/test-verification-config-schema.md`, `docs/simulator.md`, `docs/daq-abstraction.md`, `docs/controller-io-abstraction.md`, `docs/desktop-simulation-workflow.md`, `docs/rtos-deployment-package-format.md`, `docs/controller-operating-modes.md`, `docs/controller-config-parity.md`, `docs/qualification-evidence-report.md`, criteria DSL docs, embedded docs, README, current-state docs, traceability docs, validation log, and historical pipeline reports.
+Goal: Confirm docs are accurate and readable after the validated-MVP, MVP-exit, M21-M24 runtime-path, and M25-M36 comprehensive-suite feature baseline.
+Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05-31.md`, `docs/plotting.md`, `docs/measurements.md`, `docs/control-config-schema.md`, `docs/test-verification-config-schema.md`, `docs/simulator.md`, `docs/daq-abstraction.md`, `docs/controller-io-abstraction.md`, `docs/desktop-simulation-workflow.md`, `docs/rtos-deployment-package-format.md`, `docs/controller-operating-modes.md`, `docs/controller-config-parity.md`, `docs/qualification-evidence-report.md`, M15-M36 docs, criteria DSL docs, embedded docs, README, current-state docs, traceability docs, validation log, and historical pipeline reports.
 Checks run: Documentation inspection plus the validation commands recorded in `docs/documentation-audit-2026-05-31.md`.
 Status: Pass.
-Known gaps: Add API docs, external reader feedback, embedded target build docs, simulator docs, automated README example refresh, and automated docs/link checking later.
-Next recommended step: Close M9 after M9-010 completion, then start a fresh milestone proposal for exporter/runtime follow-up work.
+Known gaps: Add API docs, external reader feedback, embedded target build docs, simulator docs, automated README example refresh, automated config/report drift checks, and automated docs/link checking later.
+Next recommended step: Review the completed M25-M36 branch for external PR readiness or choose one post-MVP documentation or automation theme under a fresh gate.

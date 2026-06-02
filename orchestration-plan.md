@@ -6,9 +6,9 @@ Project folder: `/Users/kota/Desktop/codexprojects/softwaredev/projects/ferrisox
 
 Execution tier: Tier 2 MVP plus roadmap-controlled follow-on milestones
 
-Current objective: Hold after M14 high-pass baseline correction closure and wait for explicit approval before M15 or new scope.
+Current objective: Implement M25-M36 comprehensive filter and signal-conditioning milestones after the M15-M20 MVP-exit pass and M21-M24 runtime-path follow-up.
 
-Current stage: M14 is complete through PR #173; issues #167 through #172 and milestone #14 are closed.
+Current stage: M10 through M14 are complete through merged PR evidence; M15 through M24 are complete locally; M25 is complete locally as a source-of-truth transform registry and completeness contract; M26 is complete locally as the desktop data-cleaning/timing-conditioning implementation slice; M27 is complete locally as the desktop pointwise/nonlinear conditioning implementation slice; M28 is complete locally as the desktop smoothing/baseline conditioning implementation slice; M29 is complete locally as the desktop standard frequency-filter implementation slice; M30 is complete locally as the desktop resampling/timing-alignment implementation slice; M31 is complete locally as the desktop envelope/energy/calculus implementation slice; M32 is complete locally as the desktop statistics/correlation implementation slice; M33 is complete locally as the desktop spectrum/window/time-frequency implementation slice; M34 is complete locally as the desktop deterministic fault-injection/ADC-DAC simulation implementation slice; M35 is complete locally as the desktop multi-channel/sensor/domain conditioning implementation slice; M36 is complete locally as the catalog, UX, compatibility, validation-corpus, benchmark, release-readiness, community, and retrospective closure slice without GitHub issue creation, external PR, release publication, dependency changes, live DAQ, HAL/RTOS, hardware, binary signing, runtime-loader implementation, or certification scope.
 
 Selected workflow: `workflows/project-orchestration-pipeline.md`
 
@@ -24,6 +24,13 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 - Project state: `project-state.md`
 - Transform taxonomy: `docs/analog-transform-taxonomy.md`
 - Next milestone roadmap: `docs/next-milestones-roadmap.md`
+- MVP exit roadmap: `docs/mvp-exit-roadmap.md`
+- MVP exit pipeline report: `docs/m15-m20-mvp-exit-pipeline-report.md`
+- MVP exit readiness report: `docs/mvp-exit-readiness-report.md`
+- Post-MVP roadmap: `docs/post-mvp-roadmap.md`
+- Runtime path pipeline report: `docs/m21-m24-runtime-path-pipeline-report.md`
+- Runtime loader design gate: `docs/runtime-loader-design-gate.md`
+- Comprehensive conditioning roadmap: `docs/comprehensive-filter-signal-conditioning-roadmap.md`
 - M13 proposal: `docs/v0.11.0-transform-runtime-profile-validation-milestone-proposal.md`
 - M14 proposal: `docs/v0.12.0-high-pass-baseline-correction-milestone-proposal.md`
 - Selected standards: Rust, signal-processing, open-source library, data-analysis, environment, granularity.
@@ -38,6 +45,28 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | M12 / v0.10.0 | Event and validation transform MVP | Core Software Engineer / V&V Engineer | M10 accepted, M11 compatibility path established, and user approved M12 | Event records, Schmitt trigger, debounce, glitch removal, event validation, fixtures, docs, PR #156, closed issues #149 through #155, closed milestone #12 | Complete |
 | M13 / v0.11.0 | Transform runtime-profile validation | Software Architect / Core Software Engineer / V&V Engineer | M12 closed and user approved continuing | Runtime-profile validator API, timing-evidence checks, waveform/event metadata rejection tests, docs guardrails, PR #164, closed issues #158 through #163, closed milestone #13 | Complete |
 | M14 / v0.12.0 | High-pass baseline correction | Systems Engineer / Core Software Engineer / V&V Engineer | M13 closed and user approved continuing | `high_pass_baseline` config, first-order high-pass recurrence, invalid timing checks, metadata tests, CLI/config guardrails, docs, traceability, PR, closed issues, closed milestone | Complete through PR #173; milestone #14 closed |
+| M15 / v0.13.0 | Config and schema reference hardening | Documentation Engineer / Software Architect | MVP-exit roadmap approved | Config reference, invalid-config matrix, example index, compatibility/deprecation policy, docs links, tests | Complete locally |
+| M16 / v0.14.0 | Report and artifact contract stabilization | Documentation Engineer / V&V Engineer | M15 reference complete | Report/artifact contract docs, golden artifact matrix, compatibility gate language, expected artifacts | Complete locally |
+| M17 / v0.15.0 | Desktop batch analysis workflow MVP | Core Software Engineer / Test Automation Engineer | M15/M16 compatibility baselines accepted | Batch input docs, deterministic per-run/aggregate outputs, partial-failure tests, unchanged single-run behavior | Complete locally |
+| M18 / v0.16.0 | Rule-package transform semantics | Software Architect / Embedded RTOS Engineer | M13/M14 guardrails accepted and package behavior approved | Transform/package compatibility matrix, supported/rejected export tests, runtime-profile guardrails | Complete locally |
+| M19 / v0.17.0 | Validation corpus and benchmark baseline expansion | V&V Engineer / Performance Engineer | M15-M18 behavior surfaces known | Validation index, known-answer fixtures, negative cases, exact reports, benchmark log scope | Complete locally |
+| M20 / v0.18.0 | MVP exit readiness review | Project Coordinator / Evaluation Engineer | M15-M19 complete | MVP exit readiness report, requirements/traceability/risk audit, docs/onboarding audit, release/community/retrospective gates | Complete locally |
+| M21 | Portable linear pointwise package semantics | Software Architect / Core Software Engineer | User selected runtime path and linear pointwise package semantics | Rule-schema/export support for `offset`, `gain`, and `invert`; rejection retained for unsupported transforms | Complete locally |
+| M22 | Shared runtime-compatible linear transform semantics | Embedded RTOS Engineer / Core Software Engineer | M21 subset accepted | Borrowed-slice runtime helper, caller-owned output buffers, finite validation, desktop parity test | Complete locally |
+| M23 | Package compatibility corpus | V&V Engineer / Test Automation Engineer | M21/M22 behavior implemented | Positive TOML/JSON fixtures and unsupported-transform negative fixtures | Complete locally |
+| M24 | Runtime loader design gate | Embedded RTOS Engineer / Project Coordinator | M21-M23 evidence complete | Accepted subset, memory constraints, failure modes, checksum role, target checks, implementation stop condition | Complete locally as design only |
+| M25 | Transform registry and completeness contract | Software Architect / Documentation Engineer | M25 approval after roadmap review | Transform catalog, metadata contract, docs generation/source-of-truth, package/runtime compatibility rules | Complete locally |
+| M26 | Data cleaning and timing conditioning | Core Software Engineer / V&V Engineer | M25 registry complete | NaN/gap/timestamp repair, timestamp sort/dedupe, trimming/cropping, delay/alignment, fixed-grid normalization, catalog metadata, CLI fixture, package rejection guardrail; `split_by_event` future-gated as multi-artifact segmentation | Complete locally |
+| M27 | Pointwise, normalization, and nonlinear suite | Systems Engineer / Core Software Engineer | M25 registry complete | Absolute/square/square-root/log/exp, normalization modes, tanh/sigmoid, soft limit, piecewise/polynomial transforms, catalog metadata, CLI fixture, package rejection guardrail | Complete locally |
+| M28 | Smoothing, detrending, and baseline suite | Systems Engineer / V&V Engineer | M25 registry complete | Weighted/EMA/boxcar/Gaussian/Savitzky-Golay/median smoothing, rolling baseline, detrending, Hampel/spike cleanup, catalog metadata, CLI fixture, package rejection guardrail | Complete locally |
+| M29 | Standard frequency filter suite | Signal Processing Engineer / Security Engineer | M25 registry and dependency review | FIR/IIR representation, high/band/notch/comb filters, named families, zero-phase offline support, sample-rate validation, catalog metadata, CLI fixture, package rejection guardrail | Complete locally |
+| M30 | Resampling and timing alignment suite | Core Software Engineer / Performance Engineer | M25 registry and dependency review if needed | Fixed-grid resampling/interpolation, down/upsampling, decimation, rational resampling, holds, fractional delay, cross-correlation alignment, jitter correction, clock-drift correction | Complete locally |
+| M31 | Envelope, energy, and calculus suite | Core Software Engineer / V&V Engineer | M25 registry complete | Rectification, RMS, energy/power, derivatives, integrals, area, impulse | Complete locally |
+| M32 | Statistical and correlation suite | Core Software Engineer / V&V Engineer | M25 registry complete | Rolling statistics, z-score/outliers, quantile clipping, scalar statistics, histograms, covariance/correlation feature records | Complete locally |
+| M33 | Spectrum, windows, and time-frequency suite | Signal Processing Engineer / Security Engineer | M25 registry and dependency review | Windows, FFT/IFFT, PSD/Welch, cross-spectrum, coherence, STFT/spectrogram, spectral features | Complete locally |
+| M34 | Fault injection and ADC/DAC simulation suite | Test Automation Engineer / Electrical Signal Integrity Engineer | M25 registry and RNG/noise review complete | Seeded noise/fault/drift/interference simulation, quantizer variants, dithering, companding, jitter, ADC defects, simulation-only docs | Complete locally |
+| M35 | Multi-channel, sensor, and domain conditioning packs | Domain Specialists / Software Architect | M25 registry and domain review | Differential/common-mode, vector/matrix/coordinate, sensor conversions, vibration/control packs, config/CLI fixture, catalog metadata, dependency-gated advanced domain packs | Complete locally |
+| M36 | Completeness, UX, and compatibility closure | Project Coordinator / Evaluation Engineer | M25-M35 complete | Catalog/docs/examples/corpus/benchmark/package-runtime compatibility/release readiness closure | Complete locally |
 
 ## Zoom-Level Plan
 
@@ -49,6 +78,24 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | M12 implementation | 3-5 | Event records, validation records, known-answer fixtures, parity tests | Yes |
 | M13 implementation | 3-5 | Runtime validator module, structured errors, timing evidence, transform metadata tests, docs | Yes |
 | M14 implementation | 3-5 | Filter enum/config wiring, high-pass recurrence, invalid timing tests, metadata tests, CLI/config coverage, export guardrail test, docs | Yes |
+| M15 planning and docs | 2-4 | Config reference, invalid-config matrix, example index, compatibility/deprecation policy | Yes |
+| M16 artifact contracts | 2-4 | Report/artifact contract, golden artifact matrix, compatibility gate definitions | Yes |
+| M17 batch workflow | 3-5 | Batch input schema, CLI or local runner behavior, aggregate summary schema, tests | Yes |
+| M18 package transform semantics | 2-5 | Transform/package matrix, export validator behavior, supported/rejected fixtures, docs | Yes |
+| M19 validation corpus | 2-5 | Validation index, known-answer docs, exact reports, negative cases, benchmark log | Yes |
+| M20 MVP exit review | 1-3 | Readiness report, gate decisions, risk/traceability closure, post-MVP backlog | Yes |
+| M21 package semantics | 3-5 | Schema variants, CLI export mapping, export tests, docs | Yes |
+| M22 runtime semantics | 3-5 | Borrowed-slice helper, finite validation, desktop parity coverage | Yes |
+| M23 corpus | 2-4 | Positive and negative TOML/JSON fixtures, corpus index | Yes |
+| M24 loader design gate | 1-3 | Accepted subset, memory/failure/checksum/target constraints, stop condition | Yes |
+| M25 registry | 2-4 | Transform catalog, metadata contract, completeness matrix, docs source-of-truth | Yes |
+| M26-M28 conditioning | 3-5 | Transform implementations, config/report integration, fixtures, negative cases, docs | Yes |
+| M30 timing suite | 2-5 | Dependency decisions, algorithms, timing fixtures, benchmarks, docs | Yes |
+| M31-M32 calculations | 3-5 | Feature records, unit behavior, known-answer fixtures, validation examples | Yes |
+| M33 spectrum suite | 2-5 | Dependency review, spectral conventions, known-answer fixtures, offline-only docs | Yes |
+| M34 simulation suite | 3-5 | Seed policy, deterministic fixtures, fault/ADC/DAC docs, no-hardware wording | Yes |
+| M35 domain packs | 2-5 | Domain assumptions, sensor formulas, unit/alignment tests, calibration disclaimers | Yes |
+| M36 closure | 1-3 | Catalog completeness, validation corpus, docs, compatibility, release readiness | Yes |
 
 ## Task Queue
 
@@ -76,6 +123,38 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | WRA-TASK-028 | Create M14 high-pass baseline correction proposal | Systems Engineer / Project Coordinator | Deferred WRA-RQ-078, M11/M13 metadata and runtime-profile model, user approval to continue | `docs/v0.12.0-high-pass-baseline-correction-milestone-proposal.md`; WRA-RQ-093 through WRA-RQ-098 | Requirements Gate | Complete locally |
 | WRA-TASK-029 | Approve M14 and create GitHub issues | Project Coordinator / GitHub Maintainer Specialist | M14 proposal and placeholders M14-001 through M14-006 | GitHub milestone #14 and issues #167 through #172 | Human Approval Gate | Complete |
 | WRA-TASK-030 | Implement M14 high-pass baseline correction | Core Software Engineer / V&V Engineer / Documentation Engineer | Issues #167 through #172, existing `[[filters]]` config, M10 metadata model, M13 runtime-profile guardrails | `crates/ferrisoxide-core/src/filter.rs`, config/CLI tests, example config, docs, traceability, risk, and pipeline report | Implementation/Release Gate | Complete through PR #173 |
+| WRA-TASK-031 | Create MVP-exit roadmap | Project Coordinator / Product Architect | M14 closure state, current risks, user request to flesh out roadmap before leaving MVP | `docs/mvp-exit-roadmap.md`; updated roadmap, requirements, traceability, risk, orchestration, state | Roadmap Gate | Complete locally |
+| WRA-TASK-032 | Approve M15-M20 local MVP-exit implementation | User / Project Coordinator | `docs/mvp-exit-roadmap.md`, WRA-RQ-099 through WRA-RQ-105, risk updates | Approval to continue through implementation locally | Human Approval Gate | Complete |
+| WRA-TASK-033 | Plan M15-M20 local artifacts without GitHub issues | Project Coordinator / GitHub Maintainer Specialist | Approved MVP-exit scope | Local milestone artifacts and explicit no-GitHub-issue decision | Issue Planning Gate | Not Applicable; local implementation approved |
+| WRA-TASK-034 | Implement M15 config reference hardening | Documentation Engineer / Software Architect | Current CLI/config/examples/tests | `docs/config-reference.md`, invalid-config matrix, example index, compatibility/deprecation policy | Implementation/Docs Gate | Complete locally |
+| WRA-TASK-035 | Plan M16 artifact contract | Project Coordinator / V&V Engineer | M15 reference | Local artifact contract scope | Issue Planning Gate | Not Applicable; local implementation approved |
+| WRA-TASK-036 | Implement M16 report/artifact contract stabilization | Documentation Engineer / V&V Engineer | Report/schema/package/SVG artifacts | `docs/artifact-contract.md`, golden artifact matrix, compatibility gate language | Implementation/Docs Gate | Complete locally |
+| WRA-TASK-037 | Plan M17 batch workflow | Project Coordinator / Core Software Engineer | M15/M16 closure | Local batch workflow design | Issue Planning Gate | Not Applicable; local implementation approved |
+| WRA-TASK-038 | Implement M17 desktop batch workflow MVP | Core Software Engineer / Test Automation Engineer | CLI/config/report contracts | Batch input docs, workflow implementation, aggregate summary, tests | Implementation/Testing Gate | Complete locally |
+| WRA-TASK-039 | Plan M18 transform/package semantics | Project Coordinator / Software Architect | M13/M14 guardrails, M16 artifact contract | Local transform/package matrix scope | Issue Planning Gate | Not Applicable; local implementation approved |
+| WRA-TASK-040 | Implement M18 rule-package transform semantics | Software Architect / Core Software Engineer / Embedded RTOS Engineer | Runtime-profile validator, package export path | Compatibility matrix, export validator behavior, supported/rejected fixtures, docs | Implementation/V&V Gate | Complete locally |
+| WRA-TASK-041 | Plan M19 validation corpus index | Project Coordinator / V&V Engineer | M15-M18 state and approved validation scope | Local validation corpus index scope | Issue Planning Gate | Not Applicable; local implementation approved |
+| WRA-TASK-042 | Implement M19 validation corpus and benchmark baseline | V&V Engineer / Performance Engineer | Existing fixtures/reports/benchmarks | `docs/validation-corpus-index.md`, known-answer mapping, negative cases, benchmark scope | V&V/Performance Gate | Complete locally |
+| WRA-TASK-043 | Plan M20 readiness review | Project Coordinator / Evaluation Engineer | M15-M19 closure state | Readiness gate scope and post-MVP separation | Issue Planning Gate | Not Applicable; local implementation approved |
+| WRA-TASK-044 | Run M20 MVP exit readiness review | Project Coordinator / Evaluation Engineer / GitHub Maintainer Specialist | M15-M19 evidence, requirements, traceability, risk, docs, validation, release/community artifacts | `docs/mvp-exit-readiness-report.md`, gate decisions, post-MVP backlog separation | MVP Exit Gate | Complete locally |
+| WRA-TASK-045 | Implement M21 portable linear pointwise package semantics | Software Architect / Core Software Engineer | User-selected runtime path, package semantics, linear pointwise subset | Rule-schema variants, CLI export mapping, export tests, compatibility docs | Implementation/V&V Gate | Complete locally |
+| WRA-TASK-046 | Implement M22 shared runtime-compatible transform semantics | Embedded RTOS Engineer / Core Software Engineer | M21 subset and existing no_std rule engine | Borrowed-slice transform helper, validation errors, desktop parity test | Implementation/V&V Gate | Complete locally |
+| WRA-TASK-047 | Implement M23 package compatibility corpus | V&V Engineer / Test Automation Engineer | M21/M22 behavior | Positive linear pointwise TOML/JSON fixtures, unsupported clamp TOML/JSON fixtures, schema tests, corpus index | V&V Gate | Complete locally |
+| WRA-TASK-048 | Complete M24 runtime loader design gate | Embedded RTOS Engineer / Project Coordinator | M21-M23 evidence and target-profile guardrails | `docs/runtime-loader-design-gate.md`, pipeline report, stop condition for loader implementation | Design Gate | Complete locally |
+| WRA-TASK-049 | Plan M25-M36 comprehensive filter and signal-conditioning path | Product Architect / Software Architect | User request for comprehensive filters and simulated signal conditioning | `docs/comprehensive-filter-signal-conditioning-roadmap.md`, requirements WRA-RQ-110 through WRA-RQ-121, risk and state updates | Roadmap Gate | Complete locally |
+| WRA-TASK-050 | Approve M25 issue creation | User / Project Coordinator | M25-M36 roadmap and scope/risk review | Local M25 scope accepted under user pre-approval for the active goal | Human Approval Gate | Passed for local implementation |
+| WRA-TASK-051 | Implement M25 transform registry and completeness contract | Software Architect / Documentation Engineer | Approved M25 scope | Transform catalog, metadata contract, catalog docs, compatibility checks | Implementation Gate | Complete locally |
+| WRA-TASK-052 | Implement M26 data cleaning and timing conditioning | Core Software Engineer / V&V Engineer | M25 registry complete | NaN/gap/timestamp repair, trimming/cropping, alignment, fixed-grid normalization, catalog metadata, CLI fixture, docs, and validation evidence; `split_by_event` future-gated as multi-artifact segmentation | Implementation/V&V Gate | Complete locally |
+| WRA-TASK-053 | Implement M27 pointwise, normalization, and nonlinear conditioning | Systems Engineer / Core Software Engineer | M25 registry complete; M26 closure evidence | Pointwise/nonlinear transforms, normalization modes, formula/domain tests, config/CLI fixture, catalog metadata, docs, and package rejection evidence | Implementation/V&V Gate | Complete locally |
+| WRA-TASK-054 | Implement M28 smoothing, detrending, and baseline conditioning | Systems Engineer / V&V Engineer | M25 registry complete; M27 closure evidence | Smoothing/baseline transforms, edge/drift/spike tests, config/CLI fixture, catalog metadata, docs, and package rejection evidence | Implementation/V&V Gate | Complete locally |
+| WRA-TASK-055 | Implement M29 standard frequency filters | Signal Processing Engineer / Security Engineer | M25 registry complete; dependency review complete | Standard desktop frequency filters, generated response tests, config/CLI fixture, catalog metadata, docs, and package rejection evidence | Implementation/V&V Gate | Complete locally |
+| WRA-TASK-056 | Implement M30 resampling and timing alignment | Core Software Engineer / Performance Engineer | M25 registry complete; M29 closure evidence | Resampling/timing transforms, anti-alias and alignment metadata tests, config/CLI fixture, docs, and package rejection evidence | Implementation/V&V Gate | Complete locally |
+| WRA-TASK-057 | Implement M31 envelope, energy, and calculus calculations | Core Software Engineer / V&V Engineer | M25 registry complete; M30 closure evidence | Waveform filters, feature records, unit/known-answer tests, config/CLI fixture, docs, and package rejection evidence | Implementation/V&V Gate | Complete locally |
+| WRA-TASK-058 | Implement M32 statistics and correlation calculations | Core Software Engineer / V&V Engineer | M25 registry complete; M31 closure evidence | Rolling statistics, scalar statistics, histogram, covariance/correlation feature records, config/CLI fixtures, docs, and package rejection evidence | Implementation/V&V Gate | Complete locally |
+| WRA-TASK-059 | Implement M33 spectrum, windows, and time-frequency analysis | Signal Processing Engineer / Security Engineer | M25 registry complete; dependency review complete | Window coefficients, spectrum/PSD/Welch, paired spectra, harmonic metrics, STFT/spectrogram, spectral features, config/CLI fixture, docs, and validation evidence | Implementation/V&V Gate | Complete locally |
+| WRA-TASK-060 | Implement M34 fault injection and ADC/DAC simulation | Test Automation Engineer / Electrical Signal Integrity Engineer | M25 registry complete; M33 closure evidence; RNG/noise dependency review complete | Seeded fault/noise/ADC-DAC transforms, simulation-only docs, config/CLI fixture, catalog metadata, risk updates, and validation evidence | Implementation/V&V Gate | Complete locally |
+| WRA-TASK-061 | Implement M35 multi-channel, sensor, and domain conditioning packs | Domain Specialists / Software Architect | M25 registry complete; M34 closure evidence; calibration/domain dependency review if needed | Multi-channel transforms, sensor/unit conversions, vibration/control transforms, config/CLI fixtures, catalog metadata, docs, validation evidence, and dependency-gated advanced domain entries | Implementation/V&V Gate | Complete locally |
+| WRA-TASK-062 | Close M36 catalog, UX, compatibility, and release-readiness evidence | Project Coordinator / Evaluation Engineer | M25-M35 complete with validation evidence | Catalog completeness audit, config/doc searchability, validation corpus index, negative-case matrix, benchmark/readiness review, package/runtime compatibility map, release/community/retrospective closure, and stale-reference scan | Full Pipeline Closure Gate | Complete locally |
 
 ## Approval Gates
 
@@ -87,6 +166,14 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | M12 issue creation and implementation approval | Before creating GitHub issues and editing code for event/validation transforms | User / Project Coordinator | User message "M12 approved" on 2026-06-01; M12 proposal, M10/M11 closure evidence | Passed |
 | M13 issue creation and implementation approval | Before creating GitHub issues and editing code for runtime-profile validation | User / Project Coordinator | User approved continuing after M12 closure on 2026-06-01; M13 proposal, M12 closure evidence | Passed for planning and issue creation |
 | M14 issue creation and implementation approval | Before creating GitHub issues and editing code for high-pass baseline correction | User / Project Coordinator | User approved continuing after M13 closure on 2026-06-01; M14 proposal, M13 closure evidence | Passed for planning, issue creation, and implementation |
+| M15-M20 issue creation approval | Before creating GitHub milestones/issues for MVP-exit work | User / Project Coordinator | `docs/mvp-exit-roadmap.md`, updated requirements, traceability, risk, orchestration plan | Not Applicable for local pass; no GitHub issues created |
+| M15-M20 implementation approval | Before editing code or opening PRs for MVP-exit milestones | User / Project Coordinator | User approval to continue implementation through MVP exit | Passed for local implementation |
+| MVP exit approval | Before claiming the project has moved out of MVP | User / Project Coordinator / Evaluation Engineer | M20 readiness report with explicit `Pass`, `Fail`, or `Blocked` decision and completed release/community/retrospective gates | Passed locally |
+| M21-M24 runtime-path implementation approval | Before editing code/docs for the selected runtime-path follow-up | User / Project Coordinator | User selected runtime path, package semantics, and linear pointwise subset, then requested implementation | Passed for local implementation |
+| M25 issue creation approval | Before creating issues or implementation tasks for comprehensive conditioning | User / Project Coordinator | User pre-approval for the active goal; `docs/comprehensive-filter-signal-conditioning-roadmap.md`; WRA-RQ-110 through WRA-RQ-121; risk review | Passed for local implementation |
+| M25 implementation approval | Before editing code for transform registry and completeness contract | User / Project Coordinator | User pre-approval for the active goal and scope-limited M25 acceptance criteria | Passed for local implementation |
+| M26-M36 implementation approval | Before starting each later comprehensive-suite milestone | User / Project Coordinator | User pre-approval for the active goal, prior milestone closure evidence, dependency review where needed, V&V plan | Passed for local implementation under active goal |
+| Runtime loader implementation approval | Before adding a runtime loader, binary package format, target execution, HAL/RTOS integration, or new runtime crate | User / Technical Director / Embedded RTOS Engineer | Reviewed `docs/runtime-loader-design-gate.md`, implementation plan, V&V plan, target checks, risk review | Pending |
 | Dependency approval | Before adding third-party crates | User / Security Engineer | Dependency reason, license, alternatives, no_std impact | Pending |
 | Schema compatibility approval | Before incompatible report/config schema changes | Project Coordinator / V&V Engineer | Migration plan, golden tests, compatibility statement | Pending |
 | Hardware/runtime approval | Before live DAQ, HAL, RTOS SDK, target hardware, unsafe FFI, or global setup | User / Technical Director | Environment plan, risk review, rollback plan, validation scope | Pending |
@@ -101,6 +188,14 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | Desktop/embedded event drift | Embedded RTOS Engineer / V&V Engineer | Shared deterministic logic where practical and parity tests | M12 implementation |
 | Runtime-profile validation overclaim | Software Architect / Documentation Engineer | Keep M13 scoped to metadata rejection evidence and require separate gates for runtime execution, hardware, or certification claims | M13 implementation |
 | High-pass baseline correction hiding failures | Systems Engineer / V&V Engineer | Preserve raw data, require explicit config, reject invalid timing/cutoff values, and document phase/edge behavior | M14 implementation |
+| MVP-exit planning overread as external-release approval | Project Coordinator / GitHub Maintainer Specialist | M15-M20 are local only; external PR, issue creation, and release publication remain separately gated | M15-M20 PR, release, or post-MVP issue planning |
+| Config/report/artifact compatibility drift | Documentation Engineer / V&V Engineer | M15 and M16 docs now exist; keep them updated with future schema/config changes | Config docs, report schema, artifact contract, MVP exit review |
+| Batch workflow scope creep | Core Software Engineer / Project Coordinator | M17 is file-based and local; separately gate DAQ, GUI, services, databases, schedulers, and hardware | Batch workflow changes or post-MVP expansion |
+| Linear transform package overclaim | Electrical Signal Integrity Engineer / Documentation Engineer | M21 docs label `offset` and `gain` as software transforms only, not calibration or hardware evidence | Rule-package docs, config examples, calibration wording |
+| Runtime-loader design overread | Embedded RTOS Engineer / Project Coordinator | M24 is design only; implementation, target execution, and binary package loading remain separately gated | Runtime loader proposal, embedded crate changes, target checks |
+| Comprehensive-suite scope explosion | Product Architect / Project Coordinator | M25-M36 split work into bounded families and requires M25 registry before new algorithms | M25-M36 planning, issue creation, release messaging |
+| Advanced numeric dependency risk | Security Engineer / Performance Engineer | Require dependency review, known-answer fixtures, benchmarks, and rollback plans for advanced filters/spectral/domain work | M29, M30, M33, or M35 dependency proposals |
+| Simulation evidence overclaim | Test Automation Engineer / Documentation Engineer | M34 records deterministic seeds, `evidence_scope = simulation_only`, derived lineage, and no hardware/certification claims | Fault injection, ADC/DAC simulation, validation reports, release messaging |
 
 ## State Updates Required
 
@@ -112,24 +207,27 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 
 ## Next Role Ticket
 
-You are the Project Orchestrator / Core Software Engineer.
+You are the Project Orchestrator / Project Coordinator.
 
 Purpose
 
-Hold after M14 high-pass baseline correction closure and wait for explicit approval before M15 or new scope.
+Review the completed local M25-M36 comprehensive-suite branch after the completed M25 transform registry, M26 data-cleaning/timing-conditioning implementation, M27 pointwise/nonlinear conditioning implementation, M28 smoothing/baseline conditioning implementation, M29 frequency-filter implementation, M30 resampling/timing-alignment implementation, M31 envelope/energy/calculus implementation, M32 statistics/correlation implementation, M33 spectrum/window/time-frequency implementation, M34 fault-injection/ADC-DAC simulation implementation, M35 multi-channel/sensor/domain conditioning implementation, and M36 closure; keep external PR, release, runtime-loader implementation, dependencies, and hardware/certification claims behind their explicit gates.
 
 Responsibilities
 
 - Keep changes inside this project.
 - Do not add third-party crates without dependency approval.
 - Do not create additional GitHub milestones/issues beyond M14 without approval.
-- Do not start M15 or hardware/runtime work without explicit user approval.
+- Review the completed M25-M36 local branch or choose one gated advanced follow-up while keeping runtime-loader implementation, post-MVP hardware/runtime work, external PRs, release publication, and dependency additions separately gated.
 - Preserve raw waveform data and avoid unsupported algorithm, hardware, runtime, or certification claims.
 
 Deliverables
 
 - M14 high-pass baseline correction is implemented, validated, merged in PR #173, and closed with milestone #14.
-- High-pass baseline correction remains desktop-only and did not add rule-package export, live DAQ, HAL/RTOS, target hardware, dependencies, or certification claims.
+- M15 through M20 are complete locally through `docs/m15-m20-mvp-exit-pipeline-report.md` and `docs/mvp-exit-readiness-report.md`.
+- M21 through M24 are complete locally through `docs/m21-m24-runtime-path-pipeline-report.md` and `docs/runtime-loader-design-gate.md`.
+- M25 is complete locally through `docs/m25-transform-registry-pipeline-report.md` and `docs/transform-catalog.md`; M26 is complete locally through `docs/m26-data-cleaning-timing-pipeline-report.md`; M27 is complete locally through `docs/m27-pointwise-normalization-nonlinear-pipeline-report.md`; M28 is complete locally through `docs/m28-smoothing-baseline-pipeline-report.md`; M29 is complete locally through `docs/m29-standard-frequency-filter-pipeline-report.md`; M30 is complete locally through `docs/m30-resampling-timing-pipeline-report.md`; M31 is complete locally through `docs/m31-envelope-energy-calculus-pipeline-report.md`; M32 is complete locally through `docs/m32-statistics-correlation-pipeline-report.md`; M33 is complete locally through `docs/m33-spectrum-time-frequency-pipeline-report.md`; M34 is complete locally through `docs/m34-fault-injection-adc-dac-pipeline-report.md`; M35 is complete locally through `docs/m35-multi-channel-sensor-domain-pipeline-report.md`; M36 is complete locally through `docs/m36-comprehensive-suite-closure-pipeline-report.md`.
+- `docs/post-mvp-roadmap.md` separates future work from the MVP-exit decision.
 - Handoff note.
 
 Expected format to receive deliverables
@@ -140,4 +238,5 @@ Use the shared handoff note format from root `AGENTS.md`.
 
 - Stop before incompatible report/config schema changes without schema compatibility approval.
 - Stop before adding dependencies.
-- Stop before live DAQ, HAL, RTOS SDK, unsafe FFI, target hardware, GUI, plugin runtime, binary package signing, hardware validation, certification, or public production-readiness claims.
+- Stop before creating GitHub milestones/issues, opening external PRs, or publishing releases for M15-M20 or post-MVP work without explicit approval.
+- Stop before adding dependencies without review, live DAQ, runtime-loader implementation, binary package loading, HAL, RTOS SDK, unsafe FFI, target hardware, GUI, plugin runtime, hosted service, database-backed workflow, scheduler, binary package signing, hardware validation, certification, external PRs, release publication, or public production-readiness claims.
