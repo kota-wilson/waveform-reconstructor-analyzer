@@ -295,6 +295,6 @@ Role: Documentation Engineer / Verification and Validation Engineer
 Goal: Document the implemented M38-M42 desktop user workflow.
 Files changed: `docs/desktop-user-workflow.md`, README, examples, CLI tests, roadmap/state/traceability/risk artifacts, and validation log.
 Checks run: See `docs/validation-log.md`.
-Status: Implemented and merged through PR #177; optional native GUI shell implemented locally in M43-M53 plus WRA-RQ-139.
+Status: Implemented and merged through PR #177; optional native GUI shell implemented and merged through PR #190 for M43-M53 plus WRA-RQ-139.
 Known gaps: GUI packaging, live/realtime DAQ, SDKs, hardware acquisition, HAL/RTOS adapters, runtime loaders, release publication, and certification evidence remain future-gated.
 Next recommended step: Review the M43-M53 GUI shell, WRA-RQ-139 Run-page picker, and protected CI before closing tracking issues.

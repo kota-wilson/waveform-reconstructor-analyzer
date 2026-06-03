@@ -22,6 +22,36 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; optional native GUI dependencies `eframe`, `egui_plot`, and `rfd`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, `ferrisoxide-workflow`, `ferrisoxide-gui`, and `ferrisoxide-cli`.
 
+## Native GUI PR #190 Merge Evidence Update
+
+Date: 2026-06-03
+
+Stage: GitHub merge verification for the M43-M53 native GUI workflow shell plus WRA-RQ-139
+
+Scope:
+
+- Verify that PR #190 merged the native GUI workflow shell implementation into GitHub `main`.
+- Verify that protected GitHub checks passed before merge.
+- Verify that local `main` fast-forwarded to GitHub `main` after the merge.
+- Verify that GitHub milestone #15 and issues #179 through #189 are closed.
+- Preserve separate gates for GUI packaging/installers/signing, live/realtime DAQ, vendor SDKs, drivers, hardware acquisition, HAL/RTOS adapters, runtime-loader implementation, release publication, and certification evidence.
+
+Commands and GitHub evidence:
+
+- `gh api repos/kota-wilson/ferrisoxide/pulls/190`: Pass; PR #190 is closed and merged with merge commit `ab7b086c660e55f1703065860a4f8486f6f482c6`.
+- `gh api repos/kota-wilson/ferrisoxide/commits/996a3887db4ca8c87ece1e251e8b8e47a78d5853/check-runs`: Pass; `rust` and `gui-macos` check runs completed successfully before merge.
+- `git pull --ff-only`: Pass; local `main` fast-forwarded from `bb1eec3` to `ab7b086`.
+- `gh api repos/kota-wilson/ferrisoxide/branches/main --jq .commit.sha`: Pass; GitHub `main` points at `ab7b086c660e55f1703065860a4f8486f6f482c6`.
+- `git rev-parse HEAD`: Pass; local `main` points at `ab7b086c660e55f1703065860a4f8486f6f482c6`.
+- `gh api "repos/kota-wilson/ferrisoxide/issues?milestone=15&state=all&per_page=100"`: Pass; issues #179 through #189 are closed.
+- `gh api -X PATCH repos/kota-wilson/ferrisoxide/milestones/15 -f state=closed`: Pass; milestone #15 is closed with 0 open issues and 11 closed issues.
+
+Result:
+
+- M43-M53 plus WRA-RQ-139 are merged to GitHub `main` through PR #190.
+- GitHub issues #179 through #189 and milestone #15 are closed.
+- No new live/realtime DAQ, vendor SDK, driver, hardware acquisition, HAL/RTOS adapter, runtime-loader, release artifact, packaging, installer, signing, or certification evidence was added.
+
 ## Native GUI Merge Readiness Validation Update
 
 Date: 2026-06-03
@@ -49,7 +79,7 @@ Commands:
 
 Result:
 
-- The local branch is ready for a GitHub PR and merge after protected checks complete.
+- The local branch was ready for PR creation and protected-check review before PR #190 merged.
 - No new live/realtime DAQ, vendor SDK, driver, hardware acquisition, HAL/RTOS adapter, runtime-loader, release artifact, packaging, installer, signing, or certification evidence was added.
 
 ## Native GUI Documentation Review Validation Update

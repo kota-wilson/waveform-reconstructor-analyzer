@@ -2,7 +2,7 @@
 
 Date: 2026-06-03
 
-Status: Planning backlog after MVP exit, the M21-M24 runtime-path follow-up, the complete M25-M36 comprehensive filter/signal-conditioning suite merged through PR #175, the complete M37-M42 desktop user workflow path merged through PR #177, and local M43-M53 native egui workflow shell plus Source/Config/Run/Plot-page UX and scalable rendering implementation. Release publication, runtime-loader implementation, live DAQ, HAL/RTOS, target hardware, full GUI packaging, and certification scope remain separately gated.
+Status: Planning backlog after MVP exit, the M21-M24 runtime-path follow-up, the complete M25-M36 comprehensive filter/signal-conditioning suite merged through PR #175, the complete M37-M42 desktop user workflow path merged through PR #177, and the complete M43-M53 native egui workflow shell plus Source/Config/Run/Plot-page UX and scalable rendering implementation merged through PR #190. Release publication, runtime-loader implementation, live DAQ, HAL/RTOS, target hardware, full GUI packaging, and certification scope remain separately gated.
 
 ## Purpose
 
@@ -25,7 +25,7 @@ The completed selected planning themes are the comprehensive sampled-waveform fi
 |---|---|---|
 | Comprehensive filter and signal conditioning suite | M25-M36 roadmap for transform registry, data cleaning, pointwise/nonlinear conditioning, smoothing, frequency filters, resampling, envelope/energy/calculus, statistics, spectrum/time-frequency, fault injection, ADC/DAC simulation, multi-channel/sensor packs, and completeness closure. | M25-M36 complete and merged through PR #175; see `docs/comprehensive-filter-signal-conditioning-roadmap.md` |
 | Desktop user workflow path | M37-M42 roadmap for source intake, channel labeling, transform/criteria authoring, evaluation bundles, result review, and validation corpus coverage. | Complete and merged through PR #177; see `docs/desktop-user-workflow.md` and `docs/desktop-user-workflow-roadmap.md` |
-| Native egui workflow shell | M43-M53 roadmap for GUI gate, shared workflow APIs, optional native app shell, source/config panels, run/results review, interactive CSV plotting, Source-page file selection/header loading/unit selectors, channel-based Config builder, Run-page output directory picker, Plot-page channel selectors, scalable render-only plotting for large loaded CSV series, and macOS GUI CI. | Implemented locally; see `docs/egui-workflow-shell-roadmap.md` |
+| Native egui workflow shell | M43-M53 roadmap for GUI gate, shared workflow APIs, optional native app shell, source/config panels, run/results review, interactive CSV plotting, Source-page file selection/header loading/unit selectors, channel-based Config builder, Run-page output directory picker, Plot-page channel selectors, scalable render-only plotting for large loaded CSV series, and macOS GUI CI. | Complete and merged through PR #190; see `docs/egui-workflow-shell-roadmap.md` |
 
 ## Candidate Milestone Themes
 
@@ -63,6 +63,6 @@ Role: Product Architect / Project Coordinator
 Goal: Separate post-MVP backlog from MVP-exit readiness and record the implemented desktop user workflow path plus native egui workflow shell.
 Files changed: `docs/post-mvp-roadmap.md`, linked readiness and roadmap docs.
 Checks run: See `docs/validation-log.md`.
-Status: Backlog separated; M21-M24 runtime-path follow-up and M25-M36 comprehensive suite work are complete and merged through PR #175; M37-M42 desktop workflow path is implemented, validated, and merged through PR #177; M43-M53 native egui workflow shell, Source/Config/Run/Plot-page UX, and scalable Plot-page rendering are implemented locally.
+Status: Backlog separated; M21-M24 runtime-path follow-up and M25-M36 comprehensive suite work are complete and merged through PR #175; M37-M42 desktop workflow path is implemented, validated, and merged through PR #177; M43-M53 native egui workflow shell, Source/Config/Run/Plot-page UX, scalable Plot-page rendering, and WRA-RQ-139 are implemented, validated, and merged through PR #190.
 Known gaps: Dependency-using advanced follow-ups still require dependency review. Exact elliptic/Cauer design, efficient polyphase resampling, Hilbert envelope, optimized FFT dependency/performance work, phase-difference estimation, gain/phase matching, advanced acoustic packs, advanced sensor calibration packs, `split_by_event` multi-artifact segmentation, live DAQ, GUI packaging, hardware channel discovery, runtime loaders, release publication, and certification evidence remain dependency/design/future-gated.
 Next recommended step: Select any future post-M42 follow-up only after an explicit gate.

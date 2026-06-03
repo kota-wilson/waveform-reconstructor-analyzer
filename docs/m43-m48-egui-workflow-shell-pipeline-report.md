@@ -32,7 +32,7 @@ GitHub tracking:
 | Architecture | Pass | `ferrisoxide-workflow` shares CLI behavior with the GUI; `ferrisoxide-cli` delegates to the shared crate. |
 | Dependency | Pass | `docs/dependency-review.md` records exact `eframe = "=0.28.1"`, `egui_plot = "=0.28.1"`, and `rfd = "=0.14.1"` pins. |
 | Implementation | Pass locally | `crates/ferrisoxide-workflow` and `crates/ferrisoxide-gui` implement the approved workflow shell. |
-| Testing | Pass locally | Focused workflow and GUI checks pass locally; full workspace validation is recorded in `docs/validation-log.md`. |
+| Testing | Pass | Focused workflow and GUI checks passed locally; full workspace validation is recorded in `docs/validation-log.md`; PR #190 `rust` and `gui-macos` checks passed before merge. |
 | Release | Not Applicable | No release, installer, tag, package, publication, or public announcement is included. |
 
 ## Implementation Evidence
@@ -61,7 +61,7 @@ Commands run locally:
 - `cargo tree -p ferrisoxide-gui --features native -i egui`: Pass; single `egui v0.28.1` resolved through `eframe`, `egui-winit`, `egui_glow`, and `egui_plot`.
 - `cargo tree -p ferrisoxide-gui --features native --depth 2`: Pass; native GUI dependency surface recorded for review.
 
-Final workspace validation is recorded in the newest `docs/validation-log.md` section.
+Final workspace validation and PR #190 merge evidence are recorded in the newest `docs/validation-log.md` sections.
 
 ## Scope Notes
 
@@ -76,6 +76,6 @@ Role: Core Software Engineer / Product Architect
 Goal: Implement the M43-M53 native egui workflow shell plus Source/Config/Run/Plot-page UX and scalable rendering refinements.
 Files changed: `Cargo.toml`, `.github/workflows/ci.yml`, `crates/ferrisoxide-workflow/`, `crates/ferrisoxide-gui/`, roadmap/state docs.
 Checks run: See validation section and `docs/validation-log.md`.
-Status: Implemented locally.
+Status: Complete; merged in PR #190.
 Known gaps: No installer, release artifact, persisted per-channel unit config schema beyond generated config text, simulated/live plot-channel support beyond future-compatible state derivation, live DAQ, runtime-loader, hardware acquisition, or certification evidence. M52 is render-only GUI optimization and does not make benchmarked end-to-end performance claims.
-Next recommended step: Run PR CI and close the GUI tracking issues after review.
+Next recommended step: Select any future GUI, packaging, live DAQ, runtime, hardware, release, or certification follow-up only after an explicit gate.

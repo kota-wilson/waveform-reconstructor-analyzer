@@ -2,7 +2,7 @@
 
 Date: 2026-06-03
 
-Status: M43-M48 are implemented locally as a gated native egui workflow shell, with Source, Config, Run, and Plot page UX plus scalable plotting refinements implemented locally on top of that shell. GitHub milestone #15 tracks issues #179 through #189. Live/realtime DAQ, vendor SDKs, hardware acquisition, runtime loaders, installers, release publication, and certification evidence remain separately gated.
+Status: M43-M53 plus WRA-RQ-139 are complete and merged through PR #190 as a gated native egui workflow shell, with Source, Config, Run, and Plot page UX plus scalable plotting refinements. GitHub milestone #15 is closed with issues #179 through #189 closed by PR #190. Live/realtime DAQ, vendor SDKs, hardware acquisition, runtime loaders, installers, release publication, and certification evidence remain separately gated.
 
 ## Purpose
 
@@ -14,17 +14,17 @@ The GUI is an authoring and review surface for existing software-only CSV and fi
 
 | Milestone | Goal | Status |
 |---|---|---|
-| M43 | GUI gate, dependency review, GitHub tracking, and MSRV-compatible dependency pins. | Implemented locally |
-| M44 | Shared workflow library extraction from the CLI implementation. | Implemented locally |
-| M45 | Optional native `ferrisoxide-gui` crate and egui app shell. | Implemented locally |
-| M46 | Source inspection and config scaffolding panels. | Implemented locally |
-| M47 | Analysis/evaluation run controls and results/artifact review. | Implemented locally |
-| M48 | Interactive CSV plot review, macOS GUI CI, docs, and validation closure. | Implemented locally |
-| M49 | Source-page CSV file selector and explicit Load Channels header-loading action. | Implemented locally |
-| M50 | Header-driven Time Column dropdown, Time Unit dropdown, and per-channel unit selectors. | Implemented locally |
-| M51 | Plot-page channel checkboxes derived from Source channel state. | Implemented locally |
-| M52 | Scalable Plot-page rendering with resolution control, min/max viewport decimation, cached render points, and multiresolution plot pyramids. | Implemented locally |
-| M53 | Channel-based Config-page builder with dropdown-only action/criteria choices and numeric-only value fields. | Implemented locally |
+| M43 | GUI gate, dependency review, GitHub tracking, and MSRV-compatible dependency pins. | Complete; merged in PR #190 |
+| M44 | Shared workflow library extraction from the CLI implementation. | Complete; merged in PR #190 |
+| M45 | Optional native `ferrisoxide-gui` crate and egui app shell. | Complete; merged in PR #190 |
+| M46 | Source inspection and config scaffolding panels. | Complete; merged in PR #190 |
+| M47 | Analysis/evaluation run controls and results/artifact review. | Complete; merged in PR #190 |
+| M48 | Interactive CSV plot review, macOS GUI CI, docs, and validation closure. | Complete; merged in PR #190 |
+| M49 | Source-page CSV file selector and explicit Load Channels header-loading action. | Complete; merged in PR #190 |
+| M50 | Header-driven Time Column dropdown, Time Unit dropdown, and per-channel unit selectors. | Complete; merged in PR #190 |
+| M51 | Plot-page channel checkboxes derived from Source channel state. | Complete; merged in PR #190 |
+| M52 | Scalable Plot-page rendering with resolution control, min/max viewport decimation, cached render points, and multiresolution plot pyramids. | Complete; merged in PR #190 |
+| M53 | Channel-based Config-page builder with dropdown-only action/criteria choices and numeric-only value fields. | Complete; merged in PR #190 |
 
 ## Implementation Shape
 
@@ -71,8 +71,8 @@ Out of scope:
 | Human approval | Pass | User requested GUI milestone gate and implementation of the egui plan. | Future GUI expansion still needs scoped approval. |
 | Dependency gate | Pass | `docs/dependency-review.md` records exact `eframe`/`egui_plot` pins, MSRV rationale, `rfd` file-dialog review, and Cargo evidence. | Native GUI transitive surface is much larger than the CLI path. |
 | Architecture gate | Pass | CLI behavior moved behind `ferrisoxide-workflow`, and GUI calls shared APIs. | Broader workflow refactoring should remain incremental. |
-| CI gate | Pass locally | `cargo test -p ferrisoxide-gui` and `cargo check -p ferrisoxide-gui --features native` pass locally; CI adds `gui-macos`. | GitHub macOS runner result is pending until PR CI runs. |
-| Issue tracking gate | Pass | GitHub milestone #15 and issues #179 through #189 exist for M43-M53 GUI work. | Issues remain open until PR review/closure. |
+| CI gate | Pass | `cargo test -p ferrisoxide-gui`, `cargo check -p ferrisoxide-gui --features native`, PR #190 `rust`, and PR #190 `gui-macos` checks passed. | Visual regression automation remains future-gated. |
+| Issue tracking gate | Pass | GitHub milestone #15 is closed with issues #179 through #189 closed by PR #190. | Future GUI expansion needs a new gate and tracking package. |
 
 ## Hand-Off Note
 
@@ -80,6 +80,6 @@ Role: Product Architect / Core Software Engineer
 Goal: Gate and implement the native egui workflow shell without expanding live DAQ, runtime, hardware, release, or certification scope.
 Files changed: `Cargo.toml`, `.github/workflows/ci.yml`, `crates/ferrisoxide-workflow/`, `crates/ferrisoxide-gui/`, roadmap/state docs.
 Checks run: See `docs/validation-log.md`.
-Status: Implemented locally.
+Status: Complete; merged in PR #190.
 Known gaps: No packaging, no installer, no visual regression harness, no persisted per-channel unit schema beyond generated config text, no simulated/live plot-channel support beyond future-compatible state derivation, no live DAQ, no runtime loader, no hardware validation, no certification evidence. M52 optimizes GUI rendering only; analysis/export data remains full-fidelity and separate benchmark claims still require dedicated performance evidence.
-Next recommended step: Open/close GitHub tracking issues through review, then run protected CI on the implementation PR.
+Next recommended step: Select any future GUI, packaging, live DAQ, runtime, hardware, release, or certification follow-up only after an explicit gate.
