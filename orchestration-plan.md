@@ -6,9 +6,9 @@ Project folder: `/Users/kota/Desktop/codexprojects/softwaredev/projects/ferrisox
 
 Execution tier: Tier 2 MVP plus roadmap-controlled follow-on milestones
 
-Current objective: Record PR #177 merge evidence and close the M37-M42 desktop user workflow path after the M25-M36 comprehensive filter and signal-conditioning suite reached `main`.
+Current objective: Implement and record the M43-M53 native egui workflow shell, Source/Config/Run/Plot-page UX refinements, and scalable Plot-page rendering after the M37-M42 desktop user workflow path reached `main`.
 
-Current stage: M10 through M14 are complete through merged PR evidence; M15 through M36 are complete and merged through PR #175. M25 is complete as a source-of-truth transform registry and completeness contract; M26 is complete as the desktop data-cleaning/timing-conditioning implementation slice; M27 is complete as the desktop pointwise/nonlinear conditioning implementation slice; M28 is complete as the desktop smoothing/baseline conditioning implementation slice; M29 is complete as the desktop standard frequency-filter implementation slice; M30 is complete as the desktop resampling/timing-alignment implementation slice; M31 is complete as the desktop envelope/energy/calculus implementation slice; M32 is complete as the desktop statistics/correlation implementation slice; M33 is complete as the desktop spectrum/window/time-frequency implementation slice; M34 is complete as the desktop deterministic fault-injection/ADC-DAC simulation implementation slice; M35 is complete as the desktop multi-channel/sensor/domain conditioning implementation slice; M36 is complete as the catalog, UX, compatibility, validation-corpus, benchmark, release-readiness, community, retrospective, and PR #175 merge-evidence closure slice. M37-M42 are complete and merged through PR #177 as the desktop workflow path: source intake/inspect, channel labeling/scaffold, transform/criteria authoring templates, evaluation bundles, and workflow validation corpus/docs. This stage adds no GitHub issue creation, release publication, dependency changes, live DAQ, GUI, HAL/RTOS, hardware, binary signing, runtime-loader implementation, or certification scope.
+Current stage: M10 through M14 are complete through merged PR evidence; M15 through M36 are complete and merged through PR #175. M25 is complete as a source-of-truth transform registry and completeness contract; M26 is complete as the desktop data-cleaning/timing-conditioning implementation slice; M27 is complete as the desktop pointwise/nonlinear conditioning implementation slice; M28 is complete as the desktop smoothing/baseline conditioning implementation slice; M29 is complete as the desktop standard frequency-filter implementation slice; M30 is complete as the desktop resampling/timing-alignment implementation slice; M31 is complete as the desktop envelope/energy/calculus implementation slice; M32 is complete as the desktop statistics/correlation implementation slice; M33 is complete as the desktop spectrum/window/time-frequency implementation slice; M34 is complete as the desktop deterministic fault-injection/ADC-DAC simulation implementation slice; M35 is complete as the desktop multi-channel/sensor/domain conditioning implementation slice; M36 is complete as the catalog, UX, compatibility, validation-corpus, benchmark, release-readiness, community, retrospective, and PR #175 merge-evidence closure slice. M37-M42 are complete and merged through PR #177 as the desktop workflow path. M43-M53 plus WRA-RQ-139 are implemented locally as the optional native egui workflow shell: dependency gate, shared workflow APIs, app shell, source/config panels, Source-page file selector/header loading/unit selectors, channel-based Config builder, Run-page output directory picker, run/results review, plot review with channel selectors, scalable Plot-page rendering, and macOS GUI CI. This stage adds no release publication, live DAQ, HAL/RTOS, hardware, binary signing, runtime-loader implementation, packaging, installer, or certification scope.
 
 Selected workflow: `workflows/project-orchestration-pipeline.md`
 
@@ -32,6 +32,8 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 - Runtime loader design gate: `docs/runtime-loader-design-gate.md`
 - Comprehensive conditioning roadmap: `docs/comprehensive-filter-signal-conditioning-roadmap.md`
 - Desktop user workflow roadmap: `docs/desktop-user-workflow-roadmap.md`
+- Native egui workflow shell roadmap: `docs/egui-workflow-shell-roadmap.md`
+- Native egui workflow shell pipeline report: `docs/m43-m48-egui-workflow-shell-pipeline-report.md`
 - M13 proposal: `docs/v0.11.0-transform-runtime-profile-validation-milestone-proposal.md`
 - M14 proposal: `docs/v0.12.0-high-pass-baseline-correction-milestone-proposal.md`
 - Selected standards: Rust, signal-processing, open-source library, data-analysis, environment, granularity.
@@ -74,6 +76,17 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | M40 | Transform and criteria authoring UX | Product Architect / Documentation Engineer | M39 scaffold accepted | Recipes/templates tying transform catalog, filters, feature/event transforms, event validations, and per-channel criteria together | Complete; merged in PR #177 |
 | M41 | Evaluation run bundle | Core Software Engineer / QA Engineer | M40 authoring path accepted | Deterministic results directory contract with source summary, config copy, report text/JSON, optional SVG, transform catalog, and triage notes | Complete; merged in PR #177 |
 | M42 | Desktop workflow polish and validation corpus | V&V Engineer / Documentation Engineer | M41 bundle behavior accepted | End-to-end CSV and simulation workflow docs, fixtures, validation corpus entries, and docs validation | Complete; validated and merged in PR #177 |
+| M43 | Native GUI gate and dependency review | Product Architect / Security Engineer | User GUI gate approval | Dependency review, exact egui pins, MSRV rationale, GitHub milestone #15 / issue #179, non-goals | Implemented locally |
+| M44 | Shared desktop workflow APIs | Software Architect / Core Software Engineer | M43 gate accepted | `ferrisoxide-workflow` shared APIs and CLI delegation | Implemented locally |
+| M45 | Optional native egui app shell | Core Software Engineer / DX Engineer | M44 API boundary accepted | `ferrisoxide-gui` default tests and `native` feature app shell | Implemented locally |
+| M46 | GUI source inspection and config scaffolding | Core Software Engineer / Documentation Engineer | M45 shell accepted | Source/config panels backed by shared workflow APIs | Implemented locally |
+| M47 | GUI run controls and results review | Core Software Engineer / QA Engineer | M46 source/config flow accepted | Analysis/evaluate-bundle controls, status/error output, artifact/result review | Implemented locally |
+| M48 | GUI plotting and validation closure | V&V Engineer / Test Automation Engineer | M47 run/results flow accepted | `egui_plot` CSV series review, macOS GUI CI, validation docs | Implemented locally |
+| M49 | GUI Source-page CSV picker and header loading | Core Software Engineer / Security Engineer | User Source-page UX gate and dependency pre-approval | Optional native `rfd` file selector, shared CSV header loading API, `Load Channels` action | Implemented locally |
+| M50 | GUI Source-page time and channel unit selectors | Core Software Engineer / UX Reviewer | M49 header-loading behavior accepted | Header-populated Time Column dropdown, Time Unit dropdown, per-channel unit rows, GUI state tests | Implemented locally |
+| M51 | GUI Plot-page channel selectors | Core Software Engineer / UX Reviewer | User Plot-page UX request and M50 source channel state | Plot-channel checkboxes derived from Source channel state; selected channels filter series without mutating Source assignment | Implemented locally |
+| M52 | GUI Plot-page scalable rendering | Core Software Engineer / Performance Engineer | User large-dataset plot performance request and M51 plot selectors | Resolution control, viewport-aware min/max decimation, cached render points, and multiresolution plot pyramids | Implemented locally |
+| M53 | GUI Config-page channel builder | Core Software Engineer / UX Reviewer | User Config-page UX request and M50 source channel state | Source-derived channel sections, dropdown-driven filter/action and criterion rows, numeric-only value fields, generated TOML preview, and GUI state tests | Implemented locally |
 
 ## Zoom-Level Plan
 
@@ -106,6 +119,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | M37 workflow contract | 1-3 | Desktop workflow roadmap, README/state/requirements/traceability/risk updates | Yes |
 | M38-M39 source and scaffold | 3-5 | Source inspect behavior, starter config schema/output, tests, docs | Yes |
 | M40-M42 authoring, bundle, corpus | 2-5 | Recipes, bundle contract, end-to-end fixtures, validation corpus, docs | Yes |
+| M43-M53 GUI shell | 2-5 | Dependency review, shared workflow APIs, GUI crate, native feature, Source-page file selector/header loading/unit selectors, channel-based Config builder, Run-page output directory picker, Plot-page channel selectors, scalable Plot-page rendering, app state tests, macOS CI, docs | Yes |
 
 ## Task Queue
 
@@ -171,6 +185,17 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | WRA-TASK-066 | Implement M40 transform and criteria authoring UX | Product Architect / Documentation Engineer | M39 scaffold | Recipes/templates, transform catalog links, channel criteria examples, raw-lineage warnings | Documentation/QA Gate | Complete; merged in PR #177 |
 | WRA-TASK-067 | Implement M41 evaluation run bundle | Core Software Engineer / QA Engineer | M40 authoring path | Bundle contract, command support or wrapper, deterministic artifacts, overwrite/partial failure tests | Implementation/QA Gate | Complete; merged in PR #177 |
 | WRA-TASK-068 | Close M42 desktop workflow polish and validation corpus | V&V Engineer / Documentation Engineer | M41 bundle behavior | End-to-end CSV and simulation workflow assets, corpus entries, README/docs polish, validation evidence | Full Workflow Gate | Complete; validated and merged in PR #177 |
+| WRA-TASK-069 | Gate M43 native GUI dependencies and tracking | Product Architect / Security Engineer | User GUI gate approval and egui plan | Dependency review, GitHub milestone #15 and issues #179-#184, roadmap, MSRV-compatible pins | Dependency/Human Gate | Implemented locally |
+| WRA-TASK-070 | Implement M44 shared workflow API extraction | Software Architect / Core Software Engineer | M37-M42 CLI workflow behavior | `ferrisoxide-workflow` APIs and CLI delegation | Architecture/Implementation Gate | Implemented locally |
+| WRA-TASK-071 | Implement M45 optional native egui shell | Core Software Engineer / DX Engineer | M44 APIs and dependency gate | `ferrisoxide-gui` default state crate plus `native` egui app | Implementation Gate | Implemented locally |
+| WRA-TASK-072 | Implement M46 GUI source/config panels | Core Software Engineer / Documentation Engineer | M45 app shell | Source inspection and config scaffold/edit/save panels | Implementation/Docs Gate | Implemented locally |
+| WRA-TASK-073 | Implement M47 GUI run/results review | Core Software Engineer / QA Engineer | M46 source/config panels | Analyze/evaluate-bundle controls, status, summaries, artifact list | Implementation/QA Gate | Implemented locally |
+| WRA-TASK-074 | Close M48 GUI plot and validation evidence | V&V Engineer / Test Automation Engineer | M47 run/results review | Interactive CSV plot series, macOS GUI CI, validation log, pipeline report | V&V/CI Gate | Implemented locally |
+| WRA-TASK-075 | Implement M49 GUI CSV picker and channel loading | Core Software Engineer / Security Engineer | User Source-page UX request and dependency pre-approval | `rfd` dependency review, file selector UI, shared header-loading API, GUI state test | Dependency/Implementation Gate | Implemented locally |
+| WRA-TASK-076 | Implement M50 GUI Source-page selectors | Core Software Engineer / UX Reviewer | M49 header-loading state | Time Column dropdown, Time Unit dropdown, per-channel unit selectors, request-state tests | Implementation/UX Gate | Implemented locally |
+| WRA-TASK-077 | Implement M51 GUI Plot-page selectors | Core Software Engineer / UX Reviewer | M50 Source channel state | Plot-channel checkboxes, filtered plot-series loading, empty-selection error, GUI state tests | Implementation/UX Gate | Implemented locally |
+| WRA-TASK-078 | Implement M52 scalable GUI plot rendering | Core Software Engineer / Performance Engineer | M51 Plot-page selector state | Resolution control, viewport min/max decimation, render cache, plot pyramid, GUI state tests | Implementation/Performance Gate | Implemented locally |
+| WRA-TASK-079 | Implement M53 GUI Config-page builder | Core Software Engineer / UX Reviewer | M50 Source channel state | Config channel sections, dropdown-only action/criteria choices, numeric controls, generated TOML preview, GUI state tests | Implementation/UX Gate | Implemented locally |
 
 ## Approval Gates
 
@@ -191,6 +216,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | M26-M36 implementation approval | Before starting each later comprehensive-suite milestone | User / Project Coordinator | User pre-approval for the active goal, prior milestone closure evidence, dependency review where needed, V&V plan | Passed for local implementation under active goal |
 | M37 desktop workflow planning approval | Before recording the desktop workflow roadmap and state updates | User / Project Coordinator | User supplied desktop flow direction after M36 mainline merge | Passed for local planning |
 | M38-M42 implementation approval | Before editing code for source inspection, config scaffolding, authoring UX, evaluation bundles, or workflow validation corpus | User / Project Coordinator | M37 workflow contract, requirements WRA-RQ-122 through WRA-RQ-127, risk review, V&V plan, and user pre-approval for remaining milestones | Passed for local implementation |
+| M43-M53 GUI shell approval | Before adding GUI dependencies, workflow extraction, native app crate, GUI CI, file-dialog dependency, Source-page UX refinements, Config-page builder, Run-page output directory picker, Plot-page channel selectors, or scalable Plot-page rendering | User / Project Coordinator / Security Engineer / UX Reviewer / Performance Engineer | User approved GUI milestone gate, egui implementation plan, Source-page UX request, Config-page UX request, Run-page output directory request, Plot-page UX request, scalable plot rendering request, and pre-approved human gates where dependency review applied; dependency review records exact pins and residual risk | Passed for local implementation |
 | Runtime loader implementation approval | Before adding a runtime loader, binary package format, target execution, HAL/RTOS integration, or new runtime crate | User / Technical Director / Embedded RTOS Engineer | Reviewed `docs/runtime-loader-design-gate.md`, implementation plan, V&V plan, target checks, risk review | Pending |
 | Dependency approval | Before adding third-party crates | User / Security Engineer | Dependency reason, license, alternatives, no_std impact | Pending |
 | Schema compatibility approval | Before incompatible report/config schema changes | Project Coordinator / V&V Engineer | Migration plan, golden tests, compatibility statement | Pending |
@@ -215,6 +241,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | Advanced numeric dependency risk | Security Engineer / Performance Engineer | Require dependency review, known-answer fixtures, benchmarks, and rollback plans for advanced filters/spectral/domain work | M29, M30, M33, or M35 dependency proposals |
 | Simulation evidence overclaim | Test Automation Engineer / Documentation Engineer | M34 records deterministic seeds, `evidence_scope = simulation_only`, derived lineage, and no hardware/certification claims | Fault injection, ADC/DAC simulation, validation reports, release messaging |
 | Desktop workflow overclaim | Product Architect / Documentation Engineer | M37-M42 label CSV and fixture simulation as current support and keep live/realtime DAQ, GUI, runtime-loader, hardware, release, and certification scope gated | Workflow roadmap, README, source inspection, config scaffold, evaluation bundle, release messaging |
+| GUI shell overclaim | Product Architect / Security Engineer / Documentation Engineer | M43-M53 keep native dependencies optional, limit native file/folder selection to local CSV input, TOML config open/save, and evaluation output-directory selection, limit Config builder behavior to generated software config text from loaded Source channels, limit Plot-page selectors to already-derived channels, limit scalable plotting to render-only loaded CSV series, and explicitly exclude packaging, live DAQ, runtime, hardware, release, and certification scope | GUI docs, dependency changes, packaging proposal, live DAQ proposal, release messaging |
 
 ## State Updates Required
 
@@ -230,15 +257,15 @@ You are the Project Orchestrator / Project Coordinator.
 
 Purpose
 
-Record PR #177 closure evidence for the M37-M42 desktop user workflow path after PR #175 merged the completed M15-M36 work to `main`; keep release publication, runtime-loader implementation, dependencies, GUI, live/realtime DAQ, and hardware/certification claims behind their explicit gates.
+Review and close the M43-M53 native egui workflow shell after PR #177 merged the M37-M42 desktop user workflow path; keep release publication, runtime-loader implementation, additional dependencies beyond the reviewed native GUI scope, GUI packaging, live/realtime DAQ, and hardware/certification claims behind their explicit gates.
 
 Responsibilities
 
 - Keep changes inside this project.
-- Do not add third-party crates without dependency approval.
-- Do not create additional GitHub milestones/issues beyond M14 without approval.
-- Preserve final M42 validation evidence and PR #177 merge evidence for the implemented CLI source inspection, config scaffold, authoring templates, evaluation bundles, examples, and docs.
-- Keep runtime-loader implementation, post-MVP hardware/runtime work, GUI, live/realtime DAQ, release publication, and dependency additions separately gated.
+- Do not add third-party crates beyond the reviewed optional GUI pins without dependency approval.
+- Do not create additional GitHub milestones/issues beyond M43-M53 without approval.
+- Preserve final M42 validation evidence, PR #177 merge evidence, and M43-M53 GUI shell validation evidence.
+- Keep runtime-loader implementation, post-MVP hardware/runtime work, GUI packaging, live/realtime DAQ, release publication, and dependency additions separately gated.
 - Preserve raw waveform data and avoid unsupported algorithm, hardware, runtime, or certification claims.
 
 Deliverables
@@ -250,6 +277,7 @@ Deliverables
 - `docs/post-mvp-roadmap.md` separates future work from the MVP-exit decision.
 - `docs/desktop-user-workflow-roadmap.md` defines M37-M42 for source intake, channel labeling, transform/criteria authoring, evaluation bundles, result review, and workflow validation; PR #177 merged this path to `main`.
 - `docs/desktop-user-workflow.md`, README, `examples/m42-desktop-workflow-waveform.csv`, and `examples/m42-desktop-workflow-config.toml` document and exercise the implemented CLI desktop workflow on `main`.
+- `docs/egui-workflow-shell-roadmap.md`, `docs/m43-m48-egui-workflow-shell-pipeline-report.md`, `ferrisoxide-workflow`, `ferrisoxide-gui`, and GitHub milestone #15 / issues #179-#189 record the M43-M53 native GUI shell, Source/Config/Run/Plot-page UX refinements, and scalable Plot-page rendering.
 - Handoff note.
 
 Expected format to receive deliverables
@@ -259,6 +287,6 @@ Use the shared handoff note format from root `AGENTS.md`.
 ## Stop Conditions
 
 - Stop before incompatible report/config schema changes without schema compatibility approval.
-- Stop before adding dependencies.
-- Stop before creating GitHub milestones/issues, opening external PRs, or publishing releases for M15-M20 or post-MVP work without explicit approval.
-- Stop before adding dependencies without review, live/realtime DAQ, runtime-loader implementation, binary package loading, HAL, RTOS SDK, unsafe FFI, target hardware, GUI, plugin runtime, hosted service, database-backed workflow, scheduler, binary package signing, hardware validation, certification, external PRs, release publication, or public production-readiness claims.
+- Stop before adding dependencies beyond the reviewed optional GUI pins without review.
+- Stop before creating GitHub milestones/issues beyond M43-M53, opening external PRs, or publishing releases for post-MVP work without explicit approval.
+- Stop before adding live/realtime DAQ, runtime-loader implementation, binary package loading, HAL, RTOS SDK, unsafe FFI, target hardware, GUI packaging/installers, plugin runtime, hosted service, database-backed workflow, scheduler, binary package signing, hardware validation, certification, external PRs, release publication, or public production-readiness claims.

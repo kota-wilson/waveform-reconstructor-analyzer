@@ -14,3 +14,12 @@ jobs:
       - run: cargo fmt --check
       - run: cargo test --workspace
       - run: cargo clippy --workspace --all-targets -- -D warnings
+
+  gui-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dtolnay/rust-toolchain@stable
+      - run: cargo test -p ferrisoxide-gui
+      - run: cargo check -p ferrisoxide-gui --features native
+      - run: cargo clippy -p ferrisoxide-gui --features native --all-targets -- -D warnings

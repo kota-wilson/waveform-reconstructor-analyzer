@@ -19,6 +19,7 @@ The main repository is `kota-wilson/ferrisoxide`. The current CLI binary is stil
 - [What It Looks Like In A Real Workflow](#what-it-looks-like-in-a-real-workflow)
 - [Desktop User Flow Direction](#desktop-user-flow-direction)
 - [Desktop Workflow Commands](#desktop-workflow-commands)
+- [Native GUI Workflow Shell](#native-gui-workflow-shell)
 - [Why This Is Useful](#why-this-is-useful)
 - [Current Status](#current-status)
 - [What Is In Scope](#what-is-in-scope)
@@ -117,7 +118,7 @@ Current support and remaining gated gaps:
 
 | Step | Current support | Remaining gated gaps |
 |---|---|---|
-| Run program | `ferrisoxide-signal` CLI. | GUI remains separately gated. |
+| Run program | `ferrisoxide-signal` CLI and optional `ferrisoxide-gui --features native` workflow shell. | GUI packaging, installers, release publication, and broader product polish remain separately gated. |
 | Choose source | CSV via `analyze`, `plot`, `batch`, `inspect-source`, and `evaluate-bundle`; software-only simulation via `simulate`, `inspect-source --source simulation`, and `evaluate-bundle --source simulation`. | Live/realtime DAQ remains separately gated. |
 | Identify and label channels | TOML `[input]` mappings, simulation channel maps, `inspect-source`, and `scaffold-config`. | Hardware channel discovery and vendor SDK mapping remain future work. |
 | Apply transforms and filters | `[[filters]]`, `[[feature_transforms]]`, `[[event_transforms]]`, `[[event_validations]]`, the transform catalog, and `workflow-template`. | Dependency-heavy or hardware-specific transforms remain gated where marked in the catalog. |
@@ -125,7 +126,7 @@ Current support and remaining gated gaps:
 | Run evaluation | `analyze`, `simulate`, `batch`, and `evaluate-bundle`. | Runtime-loader execution remains future work. |
 | Get results | Text, JSON, SVG overlays, batch summaries, rule packages, deployment fixtures, qualification evidence reports, bundle summaries, source summaries, config copies, and failure-triage notes. | Release publication and certification evidence remain separately gated. |
 
-See [desktop user workflow guide](docs/desktop-user-workflow.md) for the implemented M38-M42 CLI workflow and [desktop user workflow roadmap](docs/desktop-user-workflow-roadmap.md) for the milestone rationale. This direction does not implement a GUI, vendor DAQ SDK, live hardware acquisition, HAL/RTOS adapter, runtime loader, release publication, or certification evidence.
+See [desktop user workflow guide](docs/desktop-user-workflow.md) for the implemented M38-M42 CLI workflow, [desktop user workflow roadmap](docs/desktop-user-workflow-roadmap.md) for the milestone rationale, and [native egui workflow shell roadmap](docs/egui-workflow-shell-roadmap.md) for the optional M43-M53 GUI shell. This direction does not implement vendor DAQ SDKs, live hardware acquisition, HAL/RTOS adapters, runtime loaders, release publication, installers, or certification evidence.
 
 ## Desktop Workflow Commands
 
@@ -155,6 +156,32 @@ cargo run --quiet --bin ferrisoxide-signal -- evaluate-bundle \
   --output-dir m42-bundle \
   --plot
 ```
+
+## Native GUI Workflow Shell
+
+The first native GUI shell is optional and macOS-first. It calls the same shared workflow APIs as the CLI for source inspection, CSV header loading, config scaffolding, CSV analysis, evaluation bundles, result summaries, artifact lists, and interactive CSV plot review. It is a local workflow shell, not a packaged product or live DAQ application.
+
+Build or launch it explicitly with the `native` feature:
+
+```bash
+cargo check -p ferrisoxide-gui --features native
+cargo run -p ferrisoxide-gui --features native
+```
+
+Recommended CSV workflow:
+
+1. Open `Source`, choose `CSV`, click the `CSV File` picker, select a local CSV, then click `Load Channels`.
+2. Choose `Time Column`, `Time Unit`, enabled channel checkboxes, and each channel `Unit`, then click `Inspect`.
+3. Open `Config`, click `Load From Source` to build channel sections, or click `Open TOML` to load an existing config.
+4. In `Config`, select a channel, use `Add Filter` / `Add Criterion`, choose dropdown options, adjust numeric values, then click `Generate`.
+5. Use `Save As` to choose a TOML path and write the generated config, or `Save` to update the active config file.
+6. Open `Run`, click the `Output Dir` picker, choose `Overwrite` and `SVG Plot Artifact` as needed, then click `Analyze` or `Evaluate Bundle`.
+7. Open `Results` to review the latest report preview, bundle outcome, output path, and artifact list.
+8. Open `Plot`, click `Load Series`, choose plotted channel checkboxes, and choose `Fast`, `Balanced`, `Detailed`, or `Full` resolution for interactive rendering.
+
+The Source page supports native CSV file selection. The Config page supports `Open TOML`, `Save As`, and `Save`. The Run page supports native output-directory selection. The Plot page has channel checkboxes beside `Load Series`, plus Fast/Balanced/Detailed/Full render modes for large loaded CSV series. Plot render optimization is GUI-only: raw loaded data remains unchanged for analysis/export.
+
+See [desktop user workflow guide](docs/desktop-user-workflow.md#native-gui-button-and-control-reference) for the complete page-by-page reference covering every visible native GUI button, selector, checkbox, numeric control, picker, and display area. Current fixture-simulation path fields remain manual text fields. The GUI does not add installers, app signing, live DAQ, vendor SDKs, hardware acquisition, runtime-loader execution, release publication, or certification evidence.
 
 ## Why This Is Useful
 
@@ -192,6 +219,7 @@ Implemented today:
 - CSV config scaffolding with starter channel criteria and transform placeholders.
 - Workflow template rendering for common signal-conditioning and validation use cases.
 - Evaluation bundle output for CSV and software-only simulation workflows.
+- Optional native egui workflow shell for source/config/run/results/plot review.
 - Exact golden JSON tests.
 - SVG waveform plotting with optional third-axis 3D line plots.
 - 2D SVG evidence overlays from report evidence.
@@ -220,7 +248,7 @@ Post-MVP or future-gated:
 - Automated config/report drift checks.
 - Broader validation-corpus and benchmark refresh automation.
 - Advanced phase/gain matching, acoustic analysis packs, advanced sensor calibration packs, optimized FFT/Hilbert/polyphase/exact elliptic work, broader package/runtime transform exposure, external release publication, hardware validation, and certification claims.
-- GUI, live/realtime source acquisition, vendor SDK integration, and hardware channel discovery.
+- GUI packaging, live/realtime source acquisition, vendor SDK integration, and hardware channel discovery.
 
 ## What Is In Scope
 
@@ -232,6 +260,7 @@ The current repo focuses on engineering signal analysis from local files:
 - Local SVG plots.
 - Local batch reports and summaries.
 - Local rule-package export.
+- Optional native GUI workflow shell for local desktop review.
 - Software-only validation fixtures.
 - Rust library and CLI development.
 - `no_std` reusable primitives where they make architectural sense.
@@ -240,7 +269,7 @@ The current repo focuses on engineering signal analysis from local files:
 
 The repo intentionally does not claim or implement:
 
-- Full GUI.
+- Full packaged GUI product.
 - Live DAQ integration.
 - Vendor DAQ SDK support.
 - Hardware control.
@@ -1211,7 +1240,7 @@ Current simulation workflow limits:
 
 - Fixture CSV input only.
 - No live DAQ SDK.
-- No GUI.
+- No live hardware simulation controls; the optional native GUI shell can run fixture simulation bundles through shared workflow APIs.
 - No production RTOS binding.
 - No hardware timing guarantee.
 - No certification claim.
@@ -1336,6 +1365,8 @@ FerrisOxide has embedded-oriented crates, but the project is not yet an embedded
 | `ferrisoxide-measurements` | `#![no_std]` measurement primitives over slices. |
 | `ferrisoxide-rule-engine` | `#![no_std]` rule execution semantics over caller-provided time/sample slices. |
 | `ferrisoxide-embedded` | `#![no_std]` adapter traits for sample sources, event sinks, and runtime hooks. |
+| `ferrisoxide-workflow` | Shared desktop workflow APIs for CLI and GUI source/config/run/result behavior. |
+| `ferrisoxide-gui` | Optional native egui workflow shell; not a live DAQ, runtime loader, packaged app, or certification artifact. |
 | `ferrisoxide-control-schema` | Production control config schema for future controller-in-the-loop workflows; not a runtime executor. |
 | `ferrisoxide-verification-schema` | Test verification config schema for qualification criteria, timing windows, evidence settings, and report settings; not a criteria executor. |
 | `ferrisoxide-deployment` | Deployment package manifest schema and validator for future controller/runtime package workflows; not an RTOS loader. |
@@ -1347,7 +1378,7 @@ Desktop-only concerns stay out of those crates:
 - JSON report rendering.
 - SVG plotting.
 - File I/O.
-- GUI.
+- Native GUI runtime dependencies.
 - DAQ SDKs.
 - HALs.
 - RTOS SDKs.
@@ -1432,6 +1463,7 @@ Start here:
 - [Config reference](docs/config-reference.md)
 - [Artifact contract](docs/artifact-contract.md)
 - [Batch analysis workflow](docs/batch-analysis-workflow.md)
+- [Desktop user workflow and native GUI button reference](docs/desktop-user-workflow.md)
 - [Criteria DSL](docs/criteria-dsl.md)
 - [Criteria DSL migration](docs/criteria-dsl-migration.md)
 - [Analog transform taxonomy](docs/analog-transform-taxonomy.md)
@@ -1451,6 +1483,8 @@ Start here:
 - [Comprehensive filter and signal conditioning roadmap](docs/comprehensive-filter-signal-conditioning-roadmap.md)
 - [M36 comprehensive suite closure report](docs/m36-comprehensive-suite-closure-pipeline-report.md)
 - [Desktop user workflow roadmap](docs/desktop-user-workflow-roadmap.md)
+- [Native egui workflow shell roadmap](docs/egui-workflow-shell-roadmap.md)
+- [M43-M53 native egui workflow shell pipeline report](docs/m43-m48-egui-workflow-shell-pipeline-report.md)
 - [Post-MVP roadmap](docs/post-mvp-roadmap.md)
 - [v0.8.0 transform architecture proposal](docs/v0.8.0-transform-architecture-milestone-proposal.md)
 - [v0.9.0 pointwise/windowed transform proposal](docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md)

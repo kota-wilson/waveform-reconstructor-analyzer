@@ -166,13 +166,89 @@ The M8-008 parity branch adds no new third-party crates. It adds a local dev-dep
 | Runtime surface | No new runtime dependency, parser dependency, plotting backend, report dependency, HAL, SDK, RTOS integration, DAQ integration, binary package loader, signing, hardware qualification, or certification claim is added. | Pass |
 | Validation | `cargo test -p ferrisoxide-core --test rule_parity` exercises the local dev-dependency only in tests. | Pass |
 
+## M43-M48 Native egui GUI Dependency Review
+
+Date: 2026-06-03
+
+The M43-M48 GUI gate adds optional native GUI dependencies for `ferrisoxide-gui --features native`. The default workspace path and CLI remain usable without enabling the GUI feature.
+
+The original planning default named the current `eframe` and `egui_plot` latest versions. Implementation review found that current `eframe 0.34.3` requires Rust 1.92, while this workspace still declares `rust-version = "1.76"`. The accepted implementation therefore uses exact-pinned `0.28.1` egui-family crates rather than silently raising the workspace MSRV.
+
+| Crate | Scope | Purpose | License Expectation | Alternative Considered | Decision |
+|---|---|---|---|---|---|
+| `eframe = "=0.28.1"` | Optional `ferrisoxide-gui` `native` feature only | Native egui application shell for the M37-M42 desktop workflow. | MIT OR Apache-2.0 family in egui metadata. | Use latest `0.34.3` and raise workspace MSRV; defer GUI; build a custom terminal UI. | Approved because it preserves `rust-version = "1.76"` and keeps native GUI dependencies out of default features. |
+| `egui_plot = "=0.28.1"` | Optional `ferrisoxide-gui` `native` feature only | Interactive CSV waveform/result plotting inside the GUI shell. | MIT OR Apache-2.0 family in egui metadata. | Keep SVG-only plotting; custom egui drawing. | Approved because it resolves to the same `egui v0.28.1` as `eframe` and avoids custom plot logic. |
+
+Reviewed sources:
+
+- `eframe` package docs: `https://docs.rs/crate/eframe/latest`
+- `egui_plot` package/dependency docs: `https://deps.rs/crate/egui_plot/0.35.0`
+- `eframe 0.34.3` source metadata: `https://docs.rs/crate/eframe/0.34.3/source/Cargo.toml`
+
+Resolved dependency evidence:
+
+| Check | Evidence | Result |
+|---|---|---|
+| Feature isolation | `crates/ferrisoxide-gui/Cargo.toml` keeps `default = []` and enables `eframe` / `egui_plot` only through `native`. | Pass |
+| Single egui version | `cargo tree -p ferrisoxide-gui --features native -i egui` resolves one `egui v0.28.1` shared by `eframe`, `egui-winit`, `egui_glow`, and `egui_plot`. | Pass |
+| Native dependency surface | `cargo tree -p ferrisoxide-gui --features native --depth 2` shows the native stack under `eframe v0.28.1`, including `egui`, `egui-winit`, `egui_glow`, `glow`, `glutin`, `winit`, `image`, and macOS Objective-C/windowing crates. | Pass |
+| Architecture boundary | `ferrisoxide-gui` depends on local `ferrisoxide-workflow`; core signal, rule-engine, embedded, DAQ abstraction, simulator, and CLI crates do not depend on egui. | Pass |
+| CI boundary | Existing Ubuntu `rust` job remains unchanged; new `gui-macos` job checks the native feature explicitly. | Pass locally; protected CI pending PR run |
+
+Gate Decision:
+
+- Gate: Dependency Gate.
+- Decision: Pass for optional native GUI dependency use.
+- Reason: The user explicitly approved the GUI milestone gate and egui plan. Exact `0.28.1` pins preserve the workspace MSRV, resolve one egui version, and isolate native GUI dependencies to one optional crate/feature.
+- Residual risk: The native GUI transitive dependency surface is substantially larger than the CLI path, and license/advisory automation is still not present.
+- Next owner: Security Engineer / Core Software Engineer.
+
+## M49-M50 And Run/Config GUI File Dialog Dependency Review
+
+Date: 2026-06-03
+
+The M49-M50 Source-page UX refinement added a native CSV file selector to `ferrisoxide-gui --features native`. Later Config-page and Run-page refinements reuse the same optional `rfd` dependency for TOML open/save dialogs and output-directory folder selection. The dependency remains optional and is not enabled for the default workspace, CLI, core signal-processing crates, embedded-compatible crates, DAQ abstractions, simulator, controller I/O, or rule-package paths.
+
+User gate:
+
+- Gate: Human Approval / Dependency Gate.
+- Decision: Pass.
+- Evidence: The user requested native selectors for Source CSV input, Config TOML open/save paths, and Run output directories, and pre-approved human gates for this implementation.
+- Scope limit: File dialogs are limited to local CSV selection, TOML config open/save selection, and output-directory selection in the optional native GUI. The change does not add packaging, signing, notarization, live DAQ, hardware channel discovery, SDKs, drivers, runtime loaders, release publication, or certification evidence.
+
+| Crate | Scope | Purpose | License Expectation | Alternative Considered | Decision |
+|---|---|---|---|---|---|
+| `rfd = "=0.14.1"` | Optional `ferrisoxide-gui` `native` feature only | Native file/folder dialogs for CSV input selection, TOML config open/save paths, and evaluation output directory selection. | MIT, per `rfd 0.14.1` package metadata. | Keep manual text entry; build custom platform-specific pickers; use latest `rfd 0.17.2` without MSRV review. | Approved because it supplies the requested native selectors, stays behind `native`, and the exact `0.14.1` pin avoids silently adopting the latest transitive surface. |
+
+Reviewed sources:
+
+- `rfd` latest docs and API example: `https://docs.rs/rfd/latest/rfd/`
+- `rfd 0.14.1` source metadata: `https://docs.rs/crate/rfd/0.14.1/source/Cargo.toml.orig`
+
+Resolved dependency evidence:
+
+| Check | Evidence | Result |
+|---|---|---|
+| Feature isolation | `crates/ferrisoxide-gui/Cargo.toml` keeps `default = []` and enables `rfd` only through `native`. | Pass |
+| Pin and lockfile | Workspace manifest pins `rfd = "=0.14.1"` and `Cargo.lock` records `rfd v0.14.1`. | Pass |
+| Native dependency surface | `cargo check -p ferrisoxide-gui --features native` fetched and compiled `rfd v0.14.1` plus macOS Objective-C support crates `block`, `malloc_buf`, `objc`, `objc-foundation`, and `objc_id`. | Pass |
+| Architecture boundary | `rfd` is used only from `crates/ferrisoxide-gui/src/native.rs`; the workflow API owns CSV header loading and all analysis behavior remains shared with the CLI. | Pass |
+
+Gate Decision:
+
+- Gate: Dependency Gate.
+- Decision: Pass for optional native GUI file/folder selection.
+- Reason: The user explicitly requested picker controls and pre-approved the gate; `rfd` is constrained to the optional native GUI feature and does not affect default CLI/workspace behavior.
+- Residual risk: File dialogs increase native GUI platform surface, and Linux/Windows runtime behavior has not been visually validated in this macOS-first slice.
+- Next owner: Security Engineer / Core Software Engineer.
+
 ## Risk Assessment
 
 - Supply-chain risk: Medium; dependencies are common Rust ecosystem crates, but exact transitive dependencies must remain visible in `Cargo.lock`.
 - License risk: Low/Medium; confirm resolved crate license metadata during release readiness review.
 - Maintenance risk: Low/Medium; these crates are widely used and reduce custom parser surface.
 - Security risk: Medium; malformed input parsing expands attack surface and needs tests.
-- Plotting risk: Low/Medium; SVG output is local-file only, but future plotting backends could expand native or GUI dependencies if not gated.
+- Plotting risk: Medium; SVG output is local-file only, and the M43-M50 native GUI dependency is optional but expands the desktop dependency surface when enabled.
 - Embedded toolchain risk: Medium; future RTOS SDKs, HALs, FFI, or target CI require fresh review before adoption.
 - Measurement extraction risk: Medium; evidence values and tie behavior must remain guarded by exact golden reports.
 - Rule package drift risk: Medium; the schema crate, parse-tested examples, validator, export command, manifest/checksum evidence, shared rule engine, no_std boundary, and exact parity fixtures reduce duplicated shapes and semantics, but runtime package loading and hardware-target execution remain future work before runtime claims.
@@ -181,7 +257,7 @@ The M8-008 parity branch adds no new third-party crates. It adds a local dev-dep
 
 - Gate: Dependency Gate.
 - Decision: Pass.
-- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M3 RTOS follow-up, M6 measurement-engine work, M6 completion work, M8-001 rule-schema work, M8-002 package-format work, M8-003 validator work, M8-004 export work, M8-005 manifest/checksum work, M8-006 shared-rule work, M8-007 no_std boundary work, and M8-008 parity fixture work add no new third-party dependencies.
+- Reason: User approved adding dependencies; the selected crates directly support tracked requirements and avoid hand-rolled structured parsing. M5 Plotters usage is constrained to an isolated plotting crate and SVG line rendering. M43-M50 native GUI dependencies are optional and isolated to the `ferrisoxide-gui` native feature. M3 RTOS follow-up, M6 measurement-engine work, M6 completion work, M8-001 rule-schema work, M8-002 package-format work, M8-003 validator work, M8-004 export work, M8-005 manifest/checksum work, M8-006 shared-rule work, M8-007 no_std boundary work, and M8-008 parity fixture work add no new third-party dependencies.
 - Residual risk: Dependency license and advisory scanning is not automated yet.
 - Next owner: Core Software Engineer.
 

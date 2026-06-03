@@ -314,7 +314,7 @@ pub struct FeatureTransformConfig {
 
 impl FilterConfig {
     fn to_filter_step(&self) -> Result<FilterStep> {
-        match self.kind.as_str() {
+        let step = match self.kind.as_str() {
             "nan_interpolate" => Ok(FilterStep::NanInterpolate(NanInterpolateTransform)),
             "nan_remove" => Ok(FilterStep::NanRemove(NanRemoveTransform)),
             "timestamp_sort" => Ok(FilterStep::TimestampSort(TimestampSortTransform)),
@@ -775,7 +775,37 @@ impl FilterConfig {
                 name: "filters.type".to_string(),
                 reason: format!("unsupported filter type `{}`", self.kind),
             }),
+        }?;
+        self.scope_filter_step(step)
+    }
+
+    fn scope_filter_step(&self, step: FilterStep) -> Result<FilterStep> {
+        let Some(channel) = self
+            .channel
+            .as_ref()
+            .filter(|channel| !channel.trim().is_empty())
+        else {
+            return Ok(step);
+        };
+        if step.supports_channel_scoping() {
+            return Ok(FilterStep::channel_scoped(channel.clone(), step));
         }
+        if matches!(
+            step,
+            FilterStep::ChannelDelay(_)
+                | FilterStep::SensorConversion(_)
+                | FilterStep::VibrationTransform(_)
+                | FilterStep::ControlTransform(_)
+        ) {
+            return Ok(step);
+        }
+        Err(WaveformError::InvalidParameter {
+            name: "filters.channel".to_string(),
+            reason: format!(
+                "channel scoping is not supported for filter type `{}`",
+                self.kind
+            ),
+        })
     }
 
     fn noise_filter(&self, kind: NoiseKind) -> Result<FilterStep> {
@@ -3117,6 +3147,40 @@ threshold_v = 5.5
                 }),
             ]
         );
+    }
+
+    #[test]
+    fn filter_config_wraps_supported_channel_scoped_filters() {
+        let config: AnalysisConfig = toml::from_str(
+            r#"
+[input]
+time_column = "time"
+channels = ["input_v", "output_v"]
+
+[[filters]]
+type = "gain"
+channel = "input_v"
+gain = 2.0
+
+[[criteria]]
+id = "input_max"
+type = "maximum_voltage"
+channel = "input_v"
+threshold_v = 5.5
+"#,
+        )
+        .expect("channel-scoped filter config should deserialize");
+
+        let filters = config.filters().expect("filters should convert");
+
+        assert_eq!(filters.len(), 1);
+        match &filters[0] {
+            FilterStep::ChannelScoped(filter) => {
+                assert_eq!(filter.channel, "input_v");
+                assert_eq!(*filter.inner, FilterStep::Gain(GainTransform { gain: 2.0 }));
+            }
+            other => panic!("expected channel-scoped filter, got {other:?}"),
+        }
     }
 
     #[test]
