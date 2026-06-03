@@ -17,6 +17,8 @@ The main repository is `kota-wilson/ferrisoxide`. The current CLI binary is stil
 
 - [What FerrisOxide Does](#what-ferrisoxide-does)
 - [What It Looks Like In A Real Workflow](#what-it-looks-like-in-a-real-workflow)
+- [Desktop User Flow Direction](#desktop-user-flow-direction)
+- [Desktop Workflow Commands](#desktop-workflow-commands)
 - [Why This Is Useful](#why-this-is-useful)
 - [Current Status](#current-status)
 - [What Is In Scope](#what-is-in-scope)
@@ -46,16 +48,18 @@ The main repository is `kota-wilson/ferrisoxide`. The current CLI binary is stil
 
 ## What FerrisOxide Does
 
-FerrisOxide Signal currently implements this desktop workflow:
+FerrisOxide Signal currently implements this desktop workflow, with CSV and simulated-source paths implemented and live/realtime source work still future-gated:
 
 ```text
-CSV waveform data
-  -> channel mapping
+CSV waveform data or software-only simulated signal data
+  -> signal source selection
+  -> channel identification and labeling
   -> waveform model and metadata
-  -> optional derived transforms
+  -> optional derived transforms, filters, and feature/event calculations
   -> reusable measurements
   -> pass/fail criteria
-  -> text, JSON, SVG, and rule-package evidence
+  -> evaluation run
+  -> text, JSON, SVG, batch, package, and evidence artifacts
 ```
 
 The tool is deliberately documentation-heavy because the target audience is engineering work where evidence matters. A report should not only say `FAIL`; it should identify the failed criterion, measured value, required value, sample index, timestamp, channel, tolerance, and confidence context.
@@ -95,6 +99,63 @@ Imagine a heated actuator subsystem:
 
 FerrisOxide lets you put those rules in a TOML file, run them against DAQ-style CSV data, and produce output that says exactly which rule passed or failed. The same scenario is included in this repository under `tests/e2e/heated_actuator/`.
 
+## Desktop User Flow Direction
+
+The next product-flow direction is to make the desktop experience read as one sequence:
+
+```text
+run program
+  -> use CSV data, simulated signals, or future-gated realtime input
+  -> identify and label channels
+  -> apply transforms and filters
+  -> add pass/fail criteria for each relevant channel
+  -> run evaluation
+  -> review results
+```
+
+Current support and remaining gated gaps:
+
+| Step | Current support | Remaining gated gaps |
+|---|---|---|
+| Run program | `ferrisoxide-signal` CLI. | GUI remains separately gated. |
+| Choose source | CSV via `analyze`, `plot`, `batch`, `inspect-source`, and `evaluate-bundle`; software-only simulation via `simulate`, `inspect-source --source simulation`, and `evaluate-bundle --source simulation`. | Live/realtime DAQ remains separately gated. |
+| Identify and label channels | TOML `[input]` mappings, simulation channel maps, `inspect-source`, and `scaffold-config`. | Hardware channel discovery and vendor SDK mapping remain future work. |
+| Apply transforms and filters | `[[filters]]`, `[[feature_transforms]]`, `[[event_transforms]]`, `[[event_validations]]`, the transform catalog, and `workflow-template`. | Dependency-heavy or hardware-specific transforms remain gated where marked in the catalog. |
+| Add pass/fail criteria | Legacy criteria, measurement-backed DSL criteria, event validations, scaffolded observed-bound starter criteria, and workflow templates. | Requirement approval and hardware calibration evidence remain outside the CLI scaffold. |
+| Run evaluation | `analyze`, `simulate`, `batch`, and `evaluate-bundle`. | Runtime-loader execution remains future work. |
+| Get results | Text, JSON, SVG overlays, batch summaries, rule packages, deployment fixtures, qualification evidence reports, bundle summaries, source summaries, config copies, and failure-triage notes. | Release publication and certification evidence remain separately gated. |
+
+See [desktop user workflow guide](docs/desktop-user-workflow.md) for the implemented M38-M42 CLI workflow and [desktop user workflow roadmap](docs/desktop-user-workflow-roadmap.md) for the milestone rationale. This direction does not implement a GUI, vendor DAQ SDK, live hardware acquisition, HAL/RTOS adapter, runtime loader, release publication, or certification evidence.
+
+## Desktop Workflow Commands
+
+The workflow-oriented commands are:
+
+| Command | Purpose |
+|---|---|
+| `inspect-source` | Summarize CSV or software-only simulation source timing, headers, channel IDs, units, sample counts, observed ranges, warnings, and scope notes. |
+| `scaffold-config` | Generate a starter TOML analysis config from a CSV source, including `[input]`, metadata, tolerances, transform placeholders, and observed-bound starter criteria. |
+| `workflow-template` | Render TOML authoring starters for `supply-rail`, `switch-bounce`, `response-latency`, `sensor-cleanup`, `simulated-fault`, and `multi-channel` workflows. |
+| `evaluate-bundle` | Write a predictable result directory with source summary, config copies, text/JSON reports or simulation workflow evidence, optional SVG, failure-triage notes, and `bundle-summary.json`. |
+
+Start with the M42 fixture:
+
+```bash
+cargo run --quiet --bin ferrisoxide-signal -- inspect-source \
+  --input examples/m42-desktop-workflow-waveform.csv \
+  --format text
+```
+
+Then run a full bundle:
+
+```bash
+cargo run --quiet --bin ferrisoxide-signal -- evaluate-bundle \
+  --input examples/m42-desktop-workflow-waveform.csv \
+  --config examples/m42-desktop-workflow-config.toml \
+  --output-dir m42-bundle \
+  --plot
+```
+
 ## Why This Is Useful
 
 FerrisOxide is useful when signal review needs to be repeatable, inspectable, and automation-friendly.
@@ -127,6 +188,10 @@ Implemented today:
 - TOML config parsing with clear errors for invalid config.
 - Text and JSON analysis reports.
 - Local batch analysis over multiple CSV/config pairs with per-run reports and deterministic summary output.
+- Desktop source inspection for CSV and fixture-backed simulation sources.
+- CSV config scaffolding with starter channel criteria and transform placeholders.
+- Workflow template rendering for common signal-conditioning and validation use cases.
+- Evaluation bundle output for CSV and software-only simulation workflows.
 - Exact golden JSON tests.
 - SVG waveform plotting with optional third-axis 3D line plots.
 - 2D SVG evidence overlays from report evidence.
@@ -155,6 +220,7 @@ Post-MVP or future-gated:
 - Automated config/report drift checks.
 - Broader validation-corpus and benchmark refresh automation.
 - Advanced phase/gain matching, acoustic analysis packs, advanced sensor calibration packs, optimized FFT/Hilbert/polyphase/exact elliptic work, broader package/runtime transform exposure, external release publication, hardware validation, and certification claims.
+- GUI, live/realtime source acquisition, vendor SDK integration, and hardware channel discovery.
 
 ## What Is In Scope
 
@@ -327,6 +393,19 @@ production control config
   -> JSON or text workflow report
 ```
 
+### Desktop Evaluation Bundle Flow
+
+```text
+CSV input + analysis config
+  or fixture CSV + control config + verification config + channel map
+  -> source summary
+  -> existing analysis or simulation workflow
+  -> report or simulation evidence
+  -> optional SVG evidence
+  -> failure triage notes
+  -> bundle-summary.json
+```
+
 ### Controller Deployment Package Flow
 
 ```text
@@ -392,6 +471,14 @@ Usage:
   ferrisoxide-signal plot --input <csv> --time-column time --channels input_v --z-column temp_c --output waveform-3d.svg
   ferrisoxide-signal export-rule-package --input <csv> --config examples/basic-dsl-config.toml --output-dir deployment --package-name switch-rule --package-version 1.0.0 --target controller_runtime
   ferrisoxide-signal simulate --input tests/e2e/heated_actuator/input/passing_run.csv --control-config examples/control-config/production-control-config.toml --verification-config examples/test-verification-config/test-verification-config.toml --channel-map examples/simulation/heated-actuator-channel-map.toml --format json
+  ferrisoxide-signal batch --manifest examples/batch-analysis.toml --output-dir batch-output --format json
+  ferrisoxide-signal transforms --format text
+  ferrisoxide-signal inspect-source --input examples/basic-waveform.csv --format text
+  ferrisoxide-signal inspect-source --source simulation --input tests/e2e/heated_actuator/input/passing_run.csv --channel-map examples/simulation/heated-actuator-channel-map.toml --format json
+  ferrisoxide-signal scaffold-config --input examples/basic-waveform.csv --output analysis.toml
+  ferrisoxide-signal workflow-template --use-case switch-bounce --format toml
+  ferrisoxide-signal evaluate-bundle --input examples/basic-waveform.csv --config examples/basic-config.toml --output-dir evaluation-bundle --plot
+  ferrisoxide-signal evaluate-bundle --source simulation --input tests/e2e/heated_actuator/input/passing_run.csv --control-config examples/control-config/production-control-config.toml --verification-config examples/test-verification-config/test-verification-config.toml --channel-map examples/simulation/heated-actuator-channel-map.toml --output-dir simulation-bundle
 ```
 
 ## Quick Start
@@ -457,6 +544,22 @@ The JSON report includes:
 - `results`
 
 That shape is intended for automation, regression tests, and evidence comparison.
+
+To exercise the complete desktop workflow fixture, inspect the source and then write a bundle:
+
+```bash
+cargo run --quiet --bin ferrisoxide-signal -- inspect-source \
+  --input examples/m42-desktop-workflow-waveform.csv \
+  --format text
+
+cargo run --quiet --bin ferrisoxide-signal -- evaluate-bundle \
+  --input examples/m42-desktop-workflow-waveform.csv \
+  --config examples/m42-desktop-workflow-config.toml \
+  --output-dir m42-bundle \
+  --plot
+```
+
+The bundle contains `source-summary.json`, `config.toml`, `report.json`, `report.txt`, `failure-triage.md`, optional `evidence.svg`, and `bundle-summary.json`.
 
 ## CSV Inputs
 
@@ -1347,6 +1450,7 @@ Start here:
 - [M21-M24 runtime path pipeline report](docs/m21-m24-runtime-path-pipeline-report.md)
 - [Comprehensive filter and signal conditioning roadmap](docs/comprehensive-filter-signal-conditioning-roadmap.md)
 - [M36 comprehensive suite closure report](docs/m36-comprehensive-suite-closure-pipeline-report.md)
+- [Desktop user workflow roadmap](docs/desktop-user-workflow-roadmap.md)
 - [Post-MVP roadmap](docs/post-mvp-roadmap.md)
 - [v0.8.0 transform architecture proposal](docs/v0.8.0-transform-architecture-milestone-proposal.md)
 - [v0.9.0 pointwise/windowed transform proposal](docs/v0.9.0-pointwise-windowed-transform-mvp-milestone-proposal.md)
