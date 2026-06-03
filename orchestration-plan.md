@@ -6,9 +6,9 @@ Project folder: `/Users/kota/Desktop/codexprojects/softwaredev/projects/ferrisox
 
 Execution tier: Tier 2 MVP plus roadmap-controlled follow-on milestones
 
-Current objective: Implement M25-M36 comprehensive filter and signal-conditioning milestones after the M15-M20 MVP-exit pass and M21-M24 runtime-path follow-up.
+Current objective: Implement and validate the M37-M42 desktop user workflow path after the M25-M36 comprehensive filter and signal-conditioning suite reached `main`.
 
-Current stage: M10 through M14 are complete through merged PR evidence; M15 through M36 are complete and merged through PR #175. M25 is complete as a source-of-truth transform registry and completeness contract; M26 is complete as the desktop data-cleaning/timing-conditioning implementation slice; M27 is complete as the desktop pointwise/nonlinear conditioning implementation slice; M28 is complete as the desktop smoothing/baseline conditioning implementation slice; M29 is complete as the desktop standard frequency-filter implementation slice; M30 is complete as the desktop resampling/timing-alignment implementation slice; M31 is complete as the desktop envelope/energy/calculus implementation slice; M32 is complete as the desktop statistics/correlation implementation slice; M33 is complete as the desktop spectrum/window/time-frequency implementation slice; M34 is complete as the desktop deterministic fault-injection/ADC-DAC simulation implementation slice; M35 is complete as the desktop multi-channel/sensor/domain conditioning implementation slice; M36 is complete as the catalog, UX, compatibility, validation-corpus, benchmark, release-readiness, community, retrospective, and PR #175 merge-evidence closure slice without GitHub issue creation, release publication, dependency changes, live DAQ, HAL/RTOS, hardware, binary signing, runtime-loader implementation, or certification scope.
+Current stage: M10 through M14 are complete through merged PR evidence; M15 through M36 are complete and merged through PR #175. M25 is complete as a source-of-truth transform registry and completeness contract; M26 is complete as the desktop data-cleaning/timing-conditioning implementation slice; M27 is complete as the desktop pointwise/nonlinear conditioning implementation slice; M28 is complete as the desktop smoothing/baseline conditioning implementation slice; M29 is complete as the desktop standard frequency-filter implementation slice; M30 is complete as the desktop resampling/timing-alignment implementation slice; M31 is complete as the desktop envelope/energy/calculus implementation slice; M32 is complete as the desktop statistics/correlation implementation slice; M33 is complete as the desktop spectrum/window/time-frequency implementation slice; M34 is complete as the desktop deterministic fault-injection/ADC-DAC simulation implementation slice; M35 is complete as the desktop multi-channel/sensor/domain conditioning implementation slice; M36 is complete as the catalog, UX, compatibility, validation-corpus, benchmark, release-readiness, community, retrospective, and PR #175 merge-evidence closure slice. M37-M42 are implemented locally as the desktop workflow path: source intake/inspect, channel labeling/scaffold, transform/criteria authoring templates, evaluation bundles, and workflow validation corpus/docs. This stage adds no GitHub issue creation, release publication, dependency changes, live DAQ, GUI, HAL/RTOS, hardware, binary signing, runtime-loader implementation, or certification scope.
 
 Selected workflow: `workflows/project-orchestration-pipeline.md`
 
@@ -31,6 +31,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 - Runtime path pipeline report: `docs/m21-m24-runtime-path-pipeline-report.md`
 - Runtime loader design gate: `docs/runtime-loader-design-gate.md`
 - Comprehensive conditioning roadmap: `docs/comprehensive-filter-signal-conditioning-roadmap.md`
+- Desktop user workflow roadmap: `docs/desktop-user-workflow-roadmap.md`
 - M13 proposal: `docs/v0.11.0-transform-runtime-profile-validation-milestone-proposal.md`
 - M14 proposal: `docs/v0.12.0-high-pass-baseline-correction-milestone-proposal.md`
 - Selected standards: Rust, signal-processing, open-source library, data-analysis, environment, granularity.
@@ -67,6 +68,12 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | M34 | Fault injection and ADC/DAC simulation suite | Test Automation Engineer / Electrical Signal Integrity Engineer | M25 registry and RNG/noise review complete | Seeded noise/fault/drift/interference simulation, quantizer variants, dithering, companding, jitter, ADC defects, simulation-only docs | Complete; merged in PR #175 |
 | M35 | Multi-channel, sensor, and domain conditioning packs | Domain Specialists / Software Architect | M25 registry and domain review | Differential/common-mode, vector/matrix/coordinate, sensor conversions, vibration/control packs, config/CLI fixture, catalog metadata, dependency-gated advanced domain packs | Complete; merged in PR #175 |
 | M36 | Completeness, UX, and compatibility closure | Project Coordinator / Evaluation Engineer | M25-M35 complete | Catalog/docs/examples/corpus/benchmark/package-runtime compatibility/release readiness closure | Complete; merged in PR #175 |
+| M37 | Desktop user workflow contract | Product Architect / Project Coordinator | User supplied desktop flow direction after M36 merge | Workflow roadmap, README update, requirements WRA-RQ-122 through WRA-RQ-127, risk/state/traceability updates | Complete locally |
+| M38 | Signal source intake and inspect | Core Software Engineer / V&V Engineer | M37 workflow contract accepted | CSV and simulated-source inspection, unsupported live/realtime mode guardrails, tests/docs | Complete locally |
+| M39 | Channel labeling and config scaffold | Core Software Engineer / Documentation Engineer | M38 source inspection behavior accepted | Starter TOML config scaffold with channel labels, units, roles, metadata, transform placeholders, criteria placeholders | Complete locally |
+| M40 | Transform and criteria authoring UX | Product Architect / Documentation Engineer | M39 scaffold accepted | Recipes/templates tying transform catalog, filters, feature/event transforms, event validations, and per-channel criteria together | Complete locally |
+| M41 | Evaluation run bundle | Core Software Engineer / QA Engineer | M40 authoring path accepted | Deterministic results directory contract with source summary, config copy, report text/JSON, optional SVG, transform catalog, and triage notes | Complete locally |
+| M42 | Desktop workflow polish and validation corpus | V&V Engineer / Documentation Engineer | M41 bundle behavior accepted | End-to-end CSV and simulation workflow docs, fixtures, validation corpus entries, and docs validation | Complete and validated locally |
 
 ## Zoom-Level Plan
 
@@ -96,6 +103,9 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | M34 simulation suite | 3-5 | Seed policy, deterministic fixtures, fault/ADC/DAC docs, no-hardware wording | Yes |
 | M35 domain packs | 2-5 | Domain assumptions, sensor formulas, unit/alignment tests, calibration disclaimers | Yes |
 | M36 closure | 1-3 | Catalog completeness, validation corpus, docs, compatibility, release readiness | Yes |
+| M37 workflow contract | 1-3 | Desktop workflow roadmap, README/state/requirements/traceability/risk updates | Yes |
+| M38-M39 source and scaffold | 3-5 | Source inspect behavior, starter config schema/output, tests, docs | Yes |
+| M40-M42 authoring, bundle, corpus | 2-5 | Recipes, bundle contract, end-to-end fixtures, validation corpus, docs | Yes |
 
 ## Task Queue
 
@@ -155,6 +165,12 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | WRA-TASK-060 | Implement M34 fault injection and ADC/DAC simulation | Test Automation Engineer / Electrical Signal Integrity Engineer | M25 registry complete; M33 closure evidence; RNG/noise dependency review complete | Seeded fault/noise/ADC-DAC transforms, simulation-only docs, config/CLI fixture, catalog metadata, risk updates, and validation evidence | Implementation/V&V Gate | Complete; merged in PR #175 |
 | WRA-TASK-061 | Implement M35 multi-channel, sensor, and domain conditioning packs | Domain Specialists / Software Architect | M25 registry complete; M34 closure evidence; calibration/domain dependency review if needed | Multi-channel transforms, sensor/unit conversions, vibration/control transforms, config/CLI fixtures, catalog metadata, docs, validation evidence, and dependency-gated advanced domain entries | Implementation/V&V Gate | Complete; merged in PR #175 |
 | WRA-TASK-062 | Close M36 catalog, UX, compatibility, and release-readiness evidence | Project Coordinator / Evaluation Engineer | M25-M35 complete with validation evidence | Catalog completeness audit, config/doc searchability, validation corpus index, negative-case matrix, benchmark/readiness review, package/runtime compatibility map, release/community/retrospective closure, and stale-reference scan | Full Pipeline Closure Gate | Complete; merged in PR #175 |
+| WRA-TASK-063 | Plan M37-M42 desktop user workflow path | Product Architect / Project Coordinator | User desktop-flow direction and M25-M36 closure | `docs/desktop-user-workflow-roadmap.md`, README, requirements WRA-RQ-122 through WRA-RQ-127, traceability, risk, orchestration, state, validation log | Roadmap Gate | Complete locally |
+| WRA-TASK-064 | Implement M38 signal source intake and inspect | Core Software Engineer / V&V Engineer | M37 workflow contract | CSV and simulated-source inspection behavior, unsupported live/realtime guardrails, docs, tests | Implementation/V&V Gate | Complete locally |
+| WRA-TASK-065 | Implement M39 channel labeling and config scaffold | Core Software Engineer / Documentation Engineer | M38 source inspection | Starter TOML scaffold, channel/unit/role validation, docs, tests | Implementation/Docs Gate | Complete locally |
+| WRA-TASK-066 | Implement M40 transform and criteria authoring UX | Product Architect / Documentation Engineer | M39 scaffold | Recipes/templates, transform catalog links, channel criteria examples, raw-lineage warnings | Documentation/QA Gate | Complete locally |
+| WRA-TASK-067 | Implement M41 evaluation run bundle | Core Software Engineer / QA Engineer | M40 authoring path | Bundle contract, command support or wrapper, deterministic artifacts, overwrite/partial failure tests | Implementation/QA Gate | Complete locally |
+| WRA-TASK-068 | Close M42 desktop workflow polish and validation corpus | V&V Engineer / Documentation Engineer | M41 bundle behavior | End-to-end CSV and simulation workflow assets, corpus entries, README/docs polish, validation evidence | Full Workflow Gate | Complete and validated locally |
 
 ## Approval Gates
 
@@ -173,6 +189,8 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | M25 issue creation approval | Before creating issues or implementation tasks for comprehensive conditioning | User / Project Coordinator | User pre-approval for the active goal; `docs/comprehensive-filter-signal-conditioning-roadmap.md`; WRA-RQ-110 through WRA-RQ-121; risk review | Passed for local implementation |
 | M25 implementation approval | Before editing code for transform registry and completeness contract | User / Project Coordinator | User pre-approval for the active goal and scope-limited M25 acceptance criteria | Passed for local implementation |
 | M26-M36 implementation approval | Before starting each later comprehensive-suite milestone | User / Project Coordinator | User pre-approval for the active goal, prior milestone closure evidence, dependency review where needed, V&V plan | Passed for local implementation under active goal |
+| M37 desktop workflow planning approval | Before recording the desktop workflow roadmap and state updates | User / Project Coordinator | User supplied desktop flow direction after M36 mainline merge | Passed for local planning |
+| M38-M42 implementation approval | Before editing code for source inspection, config scaffolding, authoring UX, evaluation bundles, or workflow validation corpus | User / Project Coordinator | M37 workflow contract, requirements WRA-RQ-122 through WRA-RQ-127, risk review, V&V plan, and user pre-approval for remaining milestones | Passed for local implementation |
 | Runtime loader implementation approval | Before adding a runtime loader, binary package format, target execution, HAL/RTOS integration, or new runtime crate | User / Technical Director / Embedded RTOS Engineer | Reviewed `docs/runtime-loader-design-gate.md`, implementation plan, V&V plan, target checks, risk review | Pending |
 | Dependency approval | Before adding third-party crates | User / Security Engineer | Dependency reason, license, alternatives, no_std impact | Pending |
 | Schema compatibility approval | Before incompatible report/config schema changes | Project Coordinator / V&V Engineer | Migration plan, golden tests, compatibility statement | Pending |
@@ -196,6 +214,7 @@ Selected mode: `modes/rust-systems.md` plus `modes/signal-analysis.md`
 | Comprehensive-suite scope explosion | Product Architect / Project Coordinator | M25-M36 split work into bounded families and requires M25 registry before new algorithms | M25-M36 planning, issue creation, release messaging |
 | Advanced numeric dependency risk | Security Engineer / Performance Engineer | Require dependency review, known-answer fixtures, benchmarks, and rollback plans for advanced filters/spectral/domain work | M29, M30, M33, or M35 dependency proposals |
 | Simulation evidence overclaim | Test Automation Engineer / Documentation Engineer | M34 records deterministic seeds, `evidence_scope = simulation_only`, derived lineage, and no hardware/certification claims | Fault injection, ADC/DAC simulation, validation reports, release messaging |
+| Desktop workflow overclaim | Product Architect / Documentation Engineer | M37-M42 label CSV and fixture simulation as current support and keep live/realtime DAQ, GUI, runtime-loader, hardware, release, and certification scope gated | Workflow roadmap, README, source inspection, config scaffold, evaluation bundle, release messaging |
 
 ## State Updates Required
 
@@ -211,14 +230,15 @@ You are the Project Orchestrator / Project Coordinator.
 
 Purpose
 
-Choose one separately gated advanced follow-up or release-publication plan after PR #175 merged the completed M15-M36 work to `main`; keep release publication, runtime-loader implementation, dependencies, and hardware/certification claims behind their explicit gates.
+Validate and close the M37-M42 desktop user workflow path after PR #175 merged the completed M15-M36 work to `main`; keep release publication, runtime-loader implementation, dependencies, GUI, live/realtime DAQ, and hardware/certification claims behind their explicit gates.
 
 Responsibilities
 
 - Keep changes inside this project.
 - Do not add third-party crates without dependency approval.
 - Do not create additional GitHub milestones/issues beyond M14 without approval.
-- Choose one gated advanced follow-up or release-publication plan while keeping runtime-loader implementation, post-MVP hardware/runtime work, release publication, and dependency additions separately gated.
+- Preserve final M42 validation evidence for the implemented CLI source inspection, config scaffold, authoring templates, evaluation bundles, examples, and docs.
+- Keep runtime-loader implementation, post-MVP hardware/runtime work, GUI, live/realtime DAQ, release publication, and dependency additions separately gated.
 - Preserve raw waveform data and avoid unsupported algorithm, hardware, runtime, or certification claims.
 
 Deliverables
@@ -228,6 +248,8 @@ Deliverables
 - M21 through M24 are complete through `docs/m21-m24-runtime-path-pipeline-report.md` and `docs/runtime-loader-design-gate.md`, and merged in PR #175.
 - M25 is complete through `docs/m25-transform-registry-pipeline-report.md` and `docs/transform-catalog.md`; M26 is complete through `docs/m26-data-cleaning-timing-pipeline-report.md`; M27 is complete through `docs/m27-pointwise-normalization-nonlinear-pipeline-report.md`; M28 is complete through `docs/m28-smoothing-baseline-pipeline-report.md`; M29 is complete through `docs/m29-standard-frequency-filter-pipeline-report.md`; M30 is complete through `docs/m30-resampling-timing-pipeline-report.md`; M31 is complete through `docs/m31-envelope-energy-calculus-pipeline-report.md`; M32 is complete through `docs/m32-statistics-correlation-pipeline-report.md`; M33 is complete through `docs/m33-spectrum-time-frequency-pipeline-report.md`; M34 is complete through `docs/m34-fault-injection-adc-dac-pipeline-report.md`; M35 is complete through `docs/m35-multi-channel-sensor-domain-pipeline-report.md`; M36 is complete through `docs/m36-comprehensive-suite-closure-pipeline-report.md`; M25-M36 are merged in PR #175.
 - `docs/post-mvp-roadmap.md` separates future work from the MVP-exit decision.
+- `docs/desktop-user-workflow-roadmap.md` defines M37-M42 for source intake, channel labeling, transform/criteria authoring, evaluation bundles, result review, and workflow validation.
+- `docs/desktop-user-workflow.md`, README, `examples/m42-desktop-workflow-waveform.csv`, and `examples/m42-desktop-workflow-config.toml` document and exercise the implemented CLI desktop workflow.
 - Handoff note.
 
 Expected format to receive deliverables
@@ -239,4 +261,4 @@ Use the shared handoff note format from root `AGENTS.md`.
 - Stop before incompatible report/config schema changes without schema compatibility approval.
 - Stop before adding dependencies.
 - Stop before creating GitHub milestones/issues, opening external PRs, or publishing releases for M15-M20 or post-MVP work without explicit approval.
-- Stop before adding dependencies without review, live DAQ, runtime-loader implementation, binary package loading, HAL, RTOS SDK, unsafe FFI, target hardware, GUI, plugin runtime, hosted service, database-backed workflow, scheduler, binary package signing, hardware validation, certification, external PRs, release publication, or public production-readiness claims.
+- Stop before adding dependencies without review, live/realtime DAQ, runtime-loader implementation, binary package loading, HAL, RTOS SDK, unsafe FFI, target hardware, GUI, plugin runtime, hosted service, database-backed workflow, scheduler, binary package signing, hardware validation, certification, external PRs, release publication, or public production-readiness claims.

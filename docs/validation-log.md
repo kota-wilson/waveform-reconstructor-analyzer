@@ -22,6 +22,77 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, and `ferrisoxide-cli`.
 
+## M38-M42 Desktop Workflow Implementation Validation Update
+
+Date: 2026-06-02
+
+Stage: Local M38-M42 implementation validation and M42 workflow corpus closure
+
+Scope:
+
+- Validate `inspect-source` for CSV source intake, channel discovery, time-axis summary, sample-rate inference, and explicit software-only scope notes.
+- Validate `scaffold-config`, `workflow-template`, and `evaluate-bundle` coverage through focused CLI tests for channel/config scaffolding, authoring templates, CSV evaluation bundles, simulation evaluation bundles, overwrite refusal, transform catalog artifacts, and realtime/live source rejection.
+- Validate the M42 CSV fixture from source inspection through analysis, pass/fail criteria, event validation, optional SVG evidence, bundle summary, and failure triage.
+- Validate the simulation bundle path over fixture/test-double data, production control config, test verification config, and channel map artifacts.
+- Update README, desktop workflow docs, requirements, traceability, risk, orchestration, project state, and root studio memory so M37-M42 are represented as implemented and validated locally.
+- Preserve separate gates for GUI, live/realtime DAQ, vendor SDKs, drivers, HAL/RTOS adapters, runtime-loader implementation, target hardware, release publication, dependency additions, and certification evidence.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `cargo run --quiet --bin ferrisoxide-signal -- inspect-source --input examples/m42-desktop-workflow-waveform.csv --format json`: Pass; reported `sample_count = 6`, `nominal_sample_rate_hz = 1000.0`, channels `rail_v` and `switch_v`, and no warnings.
+- `cargo run --quiet --bin ferrisoxide-signal -- analyze --input examples/m42-desktop-workflow-waveform.csv --config examples/m42-desktop-workflow-config.toml --format json`: Pass; returned `overall_outcome = pass` with moving-average lineage, `rail_rms`, `rail_peak_to_peak`, switch edge evidence, `switch_must_rise` event validation, and three passing criteria.
+- `cargo run --quiet --bin ferrisoxide-signal -- evaluate-bundle --input examples/m42-desktop-workflow-waveform.csv --config examples/m42-desktop-workflow-config.toml --output-dir /private/tmp/ferrisoxide-m42-csv-bundle --plot --overwrite`: Pass; wrote `source-summary.json`, `config.toml`, `report.json`, `report.txt`, `failure-triage.md`, `transform-catalog.json`, `evidence.svg`, and `bundle-summary.json`.
+- `cargo run --quiet --bin ferrisoxide-signal -- evaluate-bundle --source simulation --input tests/e2e/heated_actuator/input/passing_run.csv --control-config examples/control-config/production-control-config.toml --verification-config examples/test-verification-config/test-verification-config.toml --channel-map examples/simulation/heated-actuator-channel-map.toml --output-dir /private/tmp/ferrisoxide-m42-simulation-bundle --overwrite`: Pass; wrote `source-summary.json`, `simulation-workflow.json`, `simulation-workflow.txt`, `production-control-config.toml`, `test-verification-config.toml`, `channel-map.toml`, `failure-triage.md`, `transform-catalog.json`, and `bundle-summary.json`.
+- `cargo test -p ferrisoxide-cli desktop_flow -- --nocapture`: Pass; 6 focused desktop workflow tests passed.
+- `cargo test --workspace`: Pass; workspace unit, integration, and doc-test harnesses passed, including 48 CLI tests and 169 core tests.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass after replacing the eight-argument source inspection helper with a `SourceInspectionRequest` context struct.
+- `git diff --check`: Pass.
+- FerrisOxide trailing-whitespace scan over Markdown, Rust, TOML, and CSV files: Pass; no matches.
+- Root memory trailing-whitespace scan over 12 Markdown files: Pass; no matches.
+- Local Markdown link-target scan: Pass; 198 FerrisOxide Markdown files scanned with 99 local links and no broken local links.
+- Root memory Markdown link-target scan: Pass; 12 root memory Markdown files scanned with 0 local links and no broken local links.
+- Current-state stale wording scan: Pass; the only remaining `Implement M38` match is a completed task title, not stale routing.
+
+Result:
+
+- M38-M42 are implemented and validated locally as a CLI-first desktop workflow path.
+- WRA-RQ-123 through WRA-RQ-127 are implemented and validated locally.
+- Engineers can run a local desktop workflow from source inspection through channel/config scaffolding, transform/criteria authoring, CSV or simulation evaluation bundle generation, and result review using committed docs and examples.
+- No new dependency, schema incompatibility, live/realtime DAQ, GUI, vendor SDK, driver, HAL/RTOS, runtime-loader, target hardware, release publication, or certification scope was added.
+- The remaining handoff is standard merge review if the work should be published to `main`.
+
+## M37 Desktop User Workflow Roadmap Validation Update
+
+Date: 2026-06-02
+
+Stage: Local M37 workflow planning validation
+
+Scope:
+
+- Define the desktop user flow from program start through source choice, channel labeling, transforms/filters, pass/fail criteria, evaluation, and results review.
+- Add `docs/desktop-user-workflow-roadmap.md` and README links.
+- Update requirements WRA-RQ-122 through WRA-RQ-127, traceability, risk, orchestration, post-MVP roadmap, next-milestones roadmap, and project state.
+- Update studio-level project memory so future sessions resume from M37-M42 and M38/M39 instead of the completed M25-M36 follow-up selection.
+- Preserve separate gates for live/realtime DAQ, GUI, dependencies, runtime loader, hardware, release publication, and certification scope.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no trailing whitespace matches.
+- Local Markdown link-target scan: Pass; 197 Markdown files scanned with 98 local links and no broken local links.
+- Current-artifact overclaim wording scan: Pass after review; matches were negative or gated wording such as "not implemented", "future-gated", or "separately gated".
+- Root memory trailing-whitespace scan over `project/` and `projects/00-project-registry.md`: Pass; no trailing whitespace matches.
+- Root memory Markdown link-target scan over 5 touched files: Pass; 0 local links required resolution.
+- Root memory stale-next-action scan: Pass; no remaining "choose one separately gated" follow-up wording in touched root memory files.
+
+Result:
+
+- M37 is planned locally as the desktop user workflow contract.
+- M38-M42 are planned locally for source intake/inspect, channel labeling/config scaffolding, transform/criteria authoring UX, evaluation bundles, and workflow validation corpus coverage.
+- No code, dependency, schema, runtime, live DAQ, GUI, hardware, release, or certification scope changed in this planning update.
+
 ## PR #175 Merge Evidence And Documentation State Validation Update
 
 Date: 2026-06-02

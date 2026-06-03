@@ -1,0 +1,67 @@
+[input]
+time_column = "time"
+channels = ["rail_v", "switch_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[metadata]
+test_run_id = "m42-desktop-workflow-example"
+acquisition_notes = "Software-only desktop workflow fixture for source inspection, transforms, criteria, and bundle output."
+environment = "local validation fixture"
+operator = "FerrisOxide automated test suite"
+
+[tolerances]
+voltage_v = 0.0
+time_s = 0.0
+
+[[filters]]
+type = "moving_average"
+window_samples = 2
+
+[[feature_transforms]]
+id = "rail_rms"
+type = "rms"
+channel = "rail_v"
+
+[[feature_transforms]]
+id = "rail_peak_to_peak"
+type = "peak_to_peak"
+channel = "rail_v"
+
+[[event_transforms]]
+id = "switch_state"
+type = "schmitt_trigger"
+channel = "switch_v"
+on_threshold_v = 2.5
+off_threshold_v = 1.5
+initial_state = "low"
+
+[[event_transforms]]
+id = "switch_edges"
+type = "edge_extraction"
+channel = "switch_v"
+
+[[event_validations]]
+id = "switch_must_rise"
+type = "missing_pulse"
+channel = "switch_v"
+direction = "rising"
+expected_count = 1
+
+[[criteria]]
+id = "rail_min"
+type = "minimum_voltage"
+channel = "rail_v"
+threshold_v = 4.75
+
+[[criteria]]
+id = "rail_max"
+type = "maximum_voltage"
+channel = "rail_v"
+threshold_v = 5.25
+
+[[criteria]]
+id = "switch_max"
+type = "maximum_voltage"
+channel = "switch_v"
+threshold_v = 5.5

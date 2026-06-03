@@ -74,8 +74,12 @@ fn run(args: Vec<String>) -> Result<String, String> {
         Some("simulate") => run_simulate(&args),
         Some("batch") => run_batch(&args),
         Some("transforms") => run_transforms(&args),
+        Some("inspect-source") => run_inspect_source(&args),
+        Some("scaffold-config") => run_scaffold_config(&args),
+        Some("workflow-template") => run_workflow_template(&args),
+        Some("evaluate-bundle") => run_evaluate_bundle(&args),
         Some(other) => Err(format!(
-            "expected subcommand `analyze`, `plot`, `export-rule-package`, `simulate`, `batch`, or `transforms`, got `{other}`"
+            "expected subcommand `analyze`, `plot`, `export-rule-package`, `simulate`, `batch`, `transforms`, `inspect-source`, `scaffold-config`, `workflow-template`, or `evaluate-bundle`, got `{other}`"
         )),
         None => Ok(help()),
     }
@@ -489,6 +493,60 @@ fn run_transforms(args: &[String]) -> Result<String, String> {
     }
 }
 
+fn run_inspect_source(args: &[String]) -> Result<String, String> {
+    let source_mode = value_after(args, "--source").unwrap_or("csv");
+    let output_format = value_after(args, "--format").unwrap_or("text");
+    let inspection = inspect_source_from_args(args, source_mode)?;
+    render_source_inspection(&inspection, output_format)
+}
+
+fn run_scaffold_config(args: &[String]) -> Result<String, String> {
+    let source_mode = value_after(args, "--source").unwrap_or("csv");
+    if !source_mode.eq_ignore_ascii_case("csv") {
+        return Err(format!(
+            "scaffold-config currently supports --source csv; `{source_mode}` source scaffolding is planned but not implemented"
+        ));
+    }
+    let output_format = value_after(args, "--format").unwrap_or("toml");
+    if output_format != "toml" {
+        return Err(format!("unsupported --format `{output_format}`; use toml"));
+    }
+    let input_path = value_after(args, "--input").ok_or("missing --input <csv>")?;
+    let inspection = inspect_csv_source_from_args(args)?;
+    let scaffold = render_analysis_config_scaffold(input_path, &inspection)?;
+    if let Some(output_path) = value_after(args, "--output") {
+        let overwrite = args.iter().any(|arg| arg == "--overwrite");
+        write_output_file(Path::new(output_path), &scaffold, overwrite)?;
+        return Ok(format!("Analysis config scaffold written to {output_path}"));
+    }
+    Ok(scaffold.trim_end().to_string())
+}
+
+fn run_workflow_template(args: &[String]) -> Result<String, String> {
+    let use_case = value_after(args, "--use-case").unwrap_or("supply-rail");
+    let output_format = value_after(args, "--format").unwrap_or("text");
+    let template = workflow_template(use_case)?;
+    match output_format {
+        "text" => Ok(template.render_text()),
+        "toml" => Ok(template.toml.trim_end().to_string()),
+        _ => Err(format!(
+            "unsupported --format `{output_format}`; use text or toml"
+        )),
+    }
+}
+
+fn run_evaluate_bundle(args: &[String]) -> Result<String, String> {
+    let source_mode = value_after(args, "--source").unwrap_or("csv");
+    let output_dir = value_after(args, "--output-dir").ok_or("missing --output-dir <dir>")?;
+    let overwrite = args.iter().any(|arg| arg == "--overwrite");
+    match normalized_source_mode(source_mode)? {
+        DesktopSourceMode::Csv => run_csv_evaluate_bundle(args, output_dir, overwrite),
+        DesktopSourceMode::Simulation => {
+            run_simulation_evaluate_bundle(args, output_dir, overwrite)
+        }
+    }
+}
+
 fn render_transform_catalog_text(entries: &[TransformCatalogEntry]) -> String {
     let mut output = String::new();
     output.push_str("FerrisOxide Transform Catalog\n");
@@ -542,6 +600,1103 @@ fn evidence_level_label(level: TransformEvidenceLevel) -> &'static str {
 fn runtime_profile_label(profile: TransformRuntimeProfile) -> &'static str {
     profile.as_str()
 }
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum DesktopSourceMode {
+    Csv,
+    Simulation,
+}
+
+#[derive(Debug, Serialize)]
+struct SourceInspection {
+    kind: &'static str,
+    source_mode: String,
+    input: String,
+    time_column: String,
+    time_unit: String,
+    sample_count: usize,
+    first_timestamp: Option<f64>,
+    last_timestamp: Option<f64>,
+    duration: Option<f64>,
+    sample_interval: Option<SourceSampleIntervalInspection>,
+    nominal_sample_rate_hz: Option<f64>,
+    headers: Vec<String>,
+    source_columns: Vec<String>,
+    channels: Vec<SourceChannelInspection>,
+    warnings: Vec<String>,
+    scope_note: String,
+}
+
+struct SourceInspectionRequest<'a> {
+    source_mode: &'a str,
+    input_path: &'a str,
+    time_column: &'a str,
+    headers: &'a [String],
+    source_columns: &'a [String],
+    channel_ids: &'a [String],
+    warnings: Vec<String>,
+}
+
+#[derive(Debug, Serialize)]
+struct SourceSampleIntervalInspection {
+    min: f64,
+    max: f64,
+    nominal: f64,
+    unit: String,
+    uniform: bool,
+}
+
+#[derive(Debug, Serialize)]
+struct SourceChannelInspection {
+    id: String,
+    source_column: String,
+    unit: String,
+    sample_count: usize,
+    first: Option<f64>,
+    last: Option<f64>,
+    min: Option<f64>,
+    max: Option<f64>,
+}
+
+#[derive(Debug, Serialize)]
+struct EvaluationBundleSummary {
+    kind: &'static str,
+    source_mode: String,
+    output_dir: String,
+    overall_outcome: String,
+    artifacts: Vec<String>,
+    scope_note: String,
+}
+
+struct WorkflowTemplate {
+    use_case: &'static str,
+    label: &'static str,
+    steps: &'static [&'static str],
+    toml: &'static str,
+}
+
+impl WorkflowTemplate {
+    fn render_text(&self) -> String {
+        let mut output = String::new();
+        output.push_str("FerrisOxide Desktop Workflow Template\n");
+        output.push_str(&format!("Use case: {} ({})\n", self.use_case, self.label));
+        output.push_str("Flow:\n");
+        for step in self.steps {
+            output.push_str("- ");
+            output.push_str(step);
+            output.push('\n');
+        }
+        output.push_str("\nTOML starter:\n");
+        output.push_str(self.toml.trim_end());
+        output
+    }
+}
+
+fn inspect_source_from_args(
+    args: &[String],
+    source_mode: &str,
+) -> Result<SourceInspection, String> {
+    match normalized_source_mode(source_mode)? {
+        DesktopSourceMode::Csv => inspect_csv_source_from_args(args),
+        DesktopSourceMode::Simulation => inspect_simulation_source_from_args(args),
+    }
+}
+
+fn normalized_source_mode(source_mode: &str) -> Result<DesktopSourceMode, String> {
+    match source_mode {
+        "csv" => Ok(DesktopSourceMode::Csv),
+        "simulation" | "simulate" | "fixture" => Ok(DesktopSourceMode::Simulation),
+        "realtime" | "real-time" | "live" | "daq" => Err(format!(
+            "`{source_mode}` source mode is planned for the desktop workflow but is not implemented in this software-only CLI yet; use --source csv or --source simulation"
+        )),
+        _ => Err(format!(
+            "unsupported --source `{source_mode}`; use csv, simulation, or a planned realtime/live mode"
+        )),
+    }
+}
+
+fn inspect_csv_source_from_args(args: &[String]) -> Result<SourceInspection, String> {
+    let input_path = value_after(args, "--input").ok_or("missing --input <csv>")?;
+    let time_column = value_after(args, "--time-column").unwrap_or("time");
+    let time_unit = value_after(args, "--time-unit").unwrap_or("s");
+    let signal_unit = value_after(args, "--signal-unit").unwrap_or("V");
+    let input = fs::read_to_string(input_path)
+        .map_err(|error| format!("failed to read `{input_path}`: {error}"))?;
+    let headers = csv_headers(&input)?;
+    let selected_channels = match value_after(args, "--channels") {
+        Some(channels) => parse_channel_list(channels)?,
+        None => headers
+            .iter()
+            .filter(|header| header.as_str() != time_column)
+            .cloned()
+            .collect::<Vec<_>>(),
+    };
+    if selected_channels.is_empty() {
+        return Err(
+            "source inspection found no channels; provide --channels <name[,name]>".to_string(),
+        );
+    }
+    let mut options = CsvParseOptions::new(time_column, selected_channels.clone());
+    options.time_unit = Unit::new(time_unit);
+    options.signal_unit = Unit::new(signal_unit);
+    let waveform = SimpleCsvParser
+        .parse_str(&input, &options)
+        .map_err(|error| format!("failed to parse waveform: {error}"))?
+        .with_source_name(input_path.to_string());
+    let source_columns = selected_channels.clone();
+    Ok(source_inspection_from_waveform(
+        SourceInspectionRequest {
+            source_mode: "csv",
+            input_path,
+            time_column,
+            headers: &headers,
+            source_columns: &source_columns,
+            channel_ids: &source_columns,
+            warnings: Vec::new(),
+        },
+        &waveform,
+    ))
+}
+
+fn inspect_simulation_source_from_args(args: &[String]) -> Result<SourceInspection, String> {
+    let input_path = value_after(args, "--input").ok_or("missing --input <csv>")?;
+    let channel_map_path =
+        value_after(args, "--channel-map").ok_or("missing --channel-map <toml>")?;
+    let channel_map = load_simulation_channel_map(channel_map_path)?;
+    let input = fs::read_to_string(input_path)
+        .map_err(|error| format!("failed to read `{input_path}`: {error}"))?;
+    let headers = csv_headers(&input)?;
+    let waveform = load_fixture_waveform(input_path, &channel_map)?;
+    let mut channel_ids = channel_map
+        .channels
+        .iter()
+        .map(|channel| channel.id.clone())
+        .collect::<Vec<_>>();
+    let mut source_columns = channel_map
+        .channels
+        .iter()
+        .map(|channel| channel.column.clone())
+        .collect::<Vec<_>>();
+    if let Some(channels) = value_after(args, "--channels") {
+        let selected = parse_channel_list(channels)?;
+        channel_ids.retain(|channel| selected.iter().any(|candidate| candidate == channel));
+        source_columns = channel_map
+            .channels
+            .iter()
+            .filter(|channel| selected.iter().any(|candidate| candidate == &channel.id))
+            .map(|channel| channel.column.clone())
+            .collect();
+        if channel_ids.len() != selected.len() {
+            return Err(
+                "--channels for simulation inspection must reference channel-map ids".to_string(),
+            );
+        }
+    }
+    Ok(source_inspection_from_waveform(
+        SourceInspectionRequest {
+            source_mode: "simulation",
+            input_path,
+            time_column: &channel_map.simulation.time_column,
+            headers: &headers,
+            source_columns: &source_columns,
+            channel_ids: &channel_ids,
+            warnings: vec![format!("channel_map={channel_map_path}")],
+        },
+        &waveform,
+    ))
+}
+
+fn source_inspection_from_waveform(
+    request: SourceInspectionRequest<'_>,
+    waveform: &Waveform,
+) -> SourceInspection {
+    let mut warnings = request.warnings;
+    if waveform.metadata.nominal_sample_rate_hz.is_none()
+        && waveform.metadata.time_unit.name.as_str() != "s"
+    {
+        warnings.push(
+            "nominal_sample_rate_hz is only computed automatically when time_unit is `s`"
+                .to_string(),
+        );
+    }
+    let channels = request
+        .channel_ids
+        .iter()
+        .zip(request.source_columns.iter())
+        .filter_map(|(id, source_column)| {
+            waveform
+                .channel(id)
+                .map(|channel| source_channel_inspection(channel, source_column))
+        })
+        .collect::<Vec<_>>();
+    let sample_interval =
+        waveform
+            .metadata
+            .sample_interval
+            .as_ref()
+            .map(|interval| SourceSampleIntervalInspection {
+                min: interval.min,
+                max: interval.max,
+                nominal: interval.nominal,
+                unit: interval.unit.name.clone(),
+                uniform: interval.uniform,
+            });
+    let first_timestamp = waveform.time.first().copied();
+    let last_timestamp = waveform.time.last().copied();
+    SourceInspection {
+        kind: "source_inspection",
+        source_mode: request.source_mode.to_string(),
+        input: request.input_path.to_string(),
+        time_column: request.time_column.to_string(),
+        time_unit: waveform.metadata.time_unit.name.clone(),
+        sample_count: waveform.sample_count(),
+        first_timestamp,
+        last_timestamp,
+        duration: first_timestamp.zip(last_timestamp).map(|(first, last)| last - first),
+        sample_interval,
+        nominal_sample_rate_hz: waveform.metadata.nominal_sample_rate_hz,
+        headers: request.headers.to_vec(),
+        source_columns: request.source_columns.to_vec(),
+        channels,
+        warnings,
+        scope_note:
+            "desktop source inspection only; not live DAQ acquisition, hardware qualification, RTOS runtime, or certification evidence"
+                .to_string(),
+    }
+}
+
+fn source_channel_inspection(channel: &Channel, source_column: &str) -> SourceChannelInspection {
+    let (min, max) = finite_min_max(&channel.samples);
+    SourceChannelInspection {
+        id: channel.name.clone(),
+        source_column: source_column.to_string(),
+        unit: channel.unit.name.clone(),
+        sample_count: channel.samples.len(),
+        first: channel.samples.first().copied(),
+        last: channel.samples.last().copied(),
+        min,
+        max,
+    }
+}
+
+fn finite_min_max(samples: &[f64]) -> (Option<f64>, Option<f64>) {
+    let mut values = samples.iter().copied().filter(|value| value.is_finite());
+    let Some(first) = values.next() else {
+        return (None, None);
+    };
+    let mut min = first;
+    let mut max = first;
+    for value in values {
+        min = min.min(value);
+        max = max.max(value);
+    }
+    (Some(min), Some(max))
+}
+
+fn csv_headers(input: &str) -> Result<Vec<String>, String> {
+    let header_line = input
+        .lines()
+        .find(|line| !line.trim().is_empty())
+        .ok_or("csv input is empty")?;
+    let headers = header_line
+        .split(',')
+        .map(|header| header.trim().trim_matches('"').to_string())
+        .filter(|header| !header.is_empty())
+        .collect::<Vec<_>>();
+    if headers.is_empty() {
+        return Err("csv header row is empty".to_string());
+    }
+    Ok(headers)
+}
+
+fn render_source_inspection(
+    inspection: &SourceInspection,
+    output_format: &str,
+) -> Result<String, String> {
+    match output_format {
+        "json" => serde_json::to_string_pretty(inspection)
+            .map_err(|error| format!("failed to render source inspection json: {error}")),
+        "text" => Ok(render_source_inspection_text(inspection)),
+        _ => Err(format!(
+            "unsupported --format `{output_format}`; use text or json"
+        )),
+    }
+}
+
+fn render_source_inspection_text(inspection: &SourceInspection) -> String {
+    let mut output = String::new();
+    output.push_str("FerrisOxide Source Inspection\n");
+    output.push_str(&format!("Source: {}\n", inspection.source_mode));
+    output.push_str(&format!("Input: {}\n", inspection.input));
+    output.push_str(&format!(
+        "Time: column={} unit={}\n",
+        inspection.time_column, inspection.time_unit
+    ));
+    output.push_str(&format!("Samples: {}\n", inspection.sample_count));
+    if let Some(duration) = inspection.duration {
+        output.push_str(&format!(
+            "Duration: {} {}\n",
+            format_float(duration),
+            inspection.time_unit
+        ));
+    }
+    if let Some(rate) = inspection.nominal_sample_rate_hz {
+        output.push_str(&format!("Nominal sample rate: {} Hz\n", format_float(rate)));
+    }
+    if let Some(interval) = &inspection.sample_interval {
+        output.push_str(&format!(
+            "Sample interval: nominal={} {} min={} {} max={} {} uniform={}\n",
+            format_float(interval.nominal),
+            interval.unit,
+            format_float(interval.min),
+            interval.unit,
+            format_float(interval.max),
+            interval.unit,
+            interval.uniform
+        ));
+    }
+    output.push_str("Channels:\n");
+    for channel in &inspection.channels {
+        output.push_str(&format!(
+            "- {} source_column={} unit={} samples={} min={} max={} first={} last={}\n",
+            channel.id,
+            channel.source_column,
+            channel.unit,
+            channel.sample_count,
+            option_float(channel.min),
+            option_float(channel.max),
+            option_float(channel.first),
+            option_float(channel.last)
+        ));
+    }
+    if !inspection.warnings.is_empty() {
+        output.push_str("Warnings:\n");
+        for warning in &inspection.warnings {
+            output.push_str("- ");
+            output.push_str(warning);
+            output.push('\n');
+        }
+    }
+    output.push_str(&format!("Scope: {}\n", inspection.scope_note));
+    output
+}
+
+fn render_analysis_config_scaffold(
+    input_path: &str,
+    inspection: &SourceInspection,
+) -> Result<String, String> {
+    let first_unit = inspection
+        .channels
+        .first()
+        .map(|channel| channel.unit.as_str())
+        .unwrap_or("V");
+    let channels = inspection
+        .channels
+        .iter()
+        .map(|channel| quoted_toml_string(&channel.id))
+        .collect::<Vec<_>>()
+        .join(", ");
+    let mut output = String::new();
+    output.push_str("# FerrisOxide analysis config scaffold\n");
+    output.push_str(&format!("# Generated from source: {input_path}\n"));
+    output.push_str("# Review transform order, engineering units, and thresholds before using as requirement evidence.\n\n");
+    output.push_str("[input]\n");
+    output.push_str(&format!(
+        "time_column = {}\n",
+        quoted_toml_string(&inspection.time_column)
+    ));
+    output.push_str(&format!("channels = [{channels}]\n"));
+    output.push_str(&format!(
+        "time_unit = {}\n",
+        quoted_toml_string(&inspection.time_unit)
+    ));
+    output.push_str(&format!(
+        "signal_unit = {}\n\n",
+        quoted_toml_string(first_unit)
+    ));
+    output.push_str("[metadata]\n");
+    output.push_str("acquisition_notes = \"Generated by ferrisoxide-signal scaffold-config from inspected CSV data.\"\n");
+    output.push_str("environment = \"desktop workflow scaffold\"\n");
+    output.push_str("operator = \"unassigned\"\n\n");
+    output.push_str("[tolerances]\n");
+    output.push_str("voltage_v = 0.0\n");
+    output.push_str("time_s = 0.0\n\n");
+    output.push_str(
+        "# Channel role prompts. Keep these as comments unless a future schema adds role fields.\n",
+    );
+    for channel in &inspection.channels {
+        output.push_str("# - ");
+        output.push_str(&channel.id);
+        output.push_str(
+            ": assign engineering role, requirement owner, and expected use before review.\n",
+        );
+    }
+    output.push('\n');
+    output.push_str(
+        "# Optional transform examples. Uncomment and tune for the channel behavior under test.\n",
+    );
+    output.push_str("# [[filters]]\n");
+    output.push_str("# type = \"moving_average\"\n");
+    output.push_str("# window_samples = 3\n\n");
+    output.push_str("# [[filters]]\n");
+    output.push_str("# type = \"low_pass\"\n");
+    output.push_str("# cutoff_hz = 25.0\n\n");
+    output.push_str("# [[feature_transforms]]\n");
+    output.push_str("# id = \"primary_rms\"\n");
+    output.push_str("# type = \"rms\"\n");
+    output.push_str("# channel = \"");
+    output.push_str(
+        inspection
+            .channels
+            .first()
+            .map(|channel| channel.id.as_str())
+            .unwrap_or("channel"),
+    );
+    output.push_str("\"\n\n");
+    for channel in &inspection.channels {
+        let min = channel.min.ok_or_else(|| {
+            format!(
+                "cannot scaffold criteria for channel `{}` because no finite samples were found",
+                channel.id
+            )
+        })?;
+        let max = channel.max.ok_or_else(|| {
+            format!(
+                "cannot scaffold criteria for channel `{}` because no finite samples were found",
+                channel.id
+            )
+        })?;
+        let id = safe_identifier(&channel.id);
+        output.push_str("[[criteria]]\n");
+        output.push_str(&format!("id = \"{id}_min_observed\"\n"));
+        output.push_str("type = \"minimum_voltage\"\n");
+        output.push_str(&format!("channel = {}\n", quoted_toml_string(&channel.id)));
+        output.push_str(&format!("threshold_v = {}\n\n", format_float(min)));
+        output.push_str("[[criteria]]\n");
+        output.push_str(&format!("id = \"{id}_max_observed\"\n"));
+        output.push_str("type = \"maximum_voltage\"\n");
+        output.push_str(&format!("channel = {}\n", quoted_toml_string(&channel.id)));
+        output.push_str(&format!("threshold_v = {}\n\n", format_float(max)));
+    }
+    Ok(output)
+}
+
+fn run_csv_evaluate_bundle(
+    args: &[String],
+    output_dir: &str,
+    overwrite: bool,
+) -> Result<String, String> {
+    let input_path = value_after(args, "--input").ok_or("missing --input <csv>")?;
+    let config_path = value_after(args, "--config").ok_or("missing --config <toml>")?;
+    let include_plot = args.iter().any(|arg| arg == "--plot");
+    let output_dir = Path::new(output_dir);
+    fs::create_dir_all(output_dir)
+        .map_err(|error| format!("failed to create `{}`: {error}", output_dir.display()))?;
+    let config = load_analysis_config_from_path(Path::new(config_path))?;
+    let (report, _filters, _criteria) = analyze_configured_input(input_path, &config)?;
+    let inspection_args = vec![
+        "inspect-source".to_string(),
+        "--input".to_string(),
+        input_path.to_string(),
+        "--time-column".to_string(),
+        config.input.time_column.clone(),
+        "--channels".to_string(),
+        config.input.channels.join(","),
+        "--time-unit".to_string(),
+        config.input.time_unit.clone(),
+        "--signal-unit".to_string(),
+        config.input.signal_unit.clone(),
+    ];
+    let inspection = inspect_csv_source_from_args(&inspection_args)?;
+    let mut artifacts = Vec::new();
+    write_bundle_artifact(
+        output_dir,
+        "source-summary.json",
+        &json_pretty(&inspection)?,
+        overwrite,
+        &mut artifacts,
+    )?;
+    let config_text = fs::read_to_string(config_path)
+        .map_err(|error| format!("failed to read `{config_path}`: {error}"))?;
+    write_bundle_artifact(
+        output_dir,
+        "config.toml",
+        &config_text,
+        overwrite,
+        &mut artifacts,
+    )?;
+    write_bundle_artifact(
+        output_dir,
+        "report.json",
+        &report
+            .render_json_pretty()
+            .map_err(|error| format!("failed to render bundle validation report json: {error}"))?,
+        overwrite,
+        &mut artifacts,
+    )?;
+    write_bundle_artifact(
+        output_dir,
+        "report.txt",
+        &report.render_text(),
+        overwrite,
+        &mut artifacts,
+    )?;
+    write_bundle_artifact(
+        output_dir,
+        "failure-triage.md",
+        &render_failure_triage("csv", report.overall_outcome(), &report),
+        overwrite,
+        &mut artifacts,
+    )?;
+    write_bundle_artifact(
+        output_dir,
+        "transform-catalog.json",
+        &json_pretty(transform_catalog())?,
+        overwrite,
+        &mut artifacts,
+    )?;
+    if include_plot {
+        let plot_path = output_dir.join("evidence.svg");
+        if plot_path.exists() && !overwrite {
+            return Err(format!(
+                "failed to create `{}`: file exists",
+                plot_path.display()
+            ));
+        }
+        let mut plot_options = PlotOptions::new(
+            plot_path.display().to_string(),
+            config.input.channels.clone(),
+        );
+        plot_options.title = "FerrisOxide Evaluation Evidence".to_string();
+        plot_options.evidence_overlays = evidence_overlays(&report.measurements, &report.results);
+        let input = fs::read_to_string(input_path)
+            .map_err(|error| format!("failed to read `{input_path}`: {error}"))?;
+        let waveform = SimpleCsvParser
+            .parse_str(&input, &config.csv_options())
+            .map_err(|error| format!("failed to parse waveform for bundle plot: {error}"))?;
+        render_svg(&waveform, &plot_options)
+            .map_err(|error| format!("failed to render bundle plot: {error}"))?;
+        artifacts.push("evidence.svg".to_string());
+    }
+    let mut summary_artifacts = artifacts.clone();
+    summary_artifacts.push("bundle-summary.json".to_string());
+    let summary = EvaluationBundleSummary {
+        kind: "desktop_evaluation_bundle",
+        source_mode: "csv".to_string(),
+        output_dir: output_dir.display().to_string(),
+        overall_outcome: report_outcome(&report),
+        artifacts: summary_artifacts,
+        scope_note:
+            "software-only desktop evaluation bundle; not live DAQ, hardware qualification, RTOS runtime, or certification evidence"
+                .to_string(),
+    };
+    let summary_json = json_pretty(&summary)?;
+    write_output_file(
+        &output_dir.join("bundle-summary.json"),
+        &with_trailing_newline(summary_json.clone()),
+        overwrite,
+    )?;
+    Ok(summary_json)
+}
+
+fn run_simulation_evaluate_bundle(
+    args: &[String],
+    output_dir: &str,
+    overwrite: bool,
+) -> Result<String, String> {
+    let input_path = value_after(args, "--input").ok_or("missing --input <csv>")?;
+    let control_config_path =
+        value_after(args, "--control-config").ok_or("missing --control-config <toml>")?;
+    let verification_config_path =
+        value_after(args, "--verification-config").ok_or("missing --verification-config <toml>")?;
+    let channel_map_path =
+        value_after(args, "--channel-map").ok_or("missing --channel-map <toml>")?;
+    let output_dir = Path::new(output_dir);
+    fs::create_dir_all(output_dir)
+        .map_err(|error| format!("failed to create `{}`: {error}", output_dir.display()))?;
+
+    let control_config = load_control_config(control_config_path)?;
+    let verification_config = load_verification_config(verification_config_path)?;
+    let channel_map = load_simulation_channel_map(channel_map_path)?;
+    validate_simulation_channel_map(&channel_map, &control_config, &verification_config)?;
+    let mode = value_after(args, "--mode")
+        .unwrap_or(&channel_map.simulation.mode)
+        .to_string();
+    let workflow = run_desktop_simulation_workflow(DesktopSimulationInput {
+        input_path,
+        control_config_path,
+        verification_config_path,
+        channel_map_path,
+        mode,
+        control_config,
+        verification_config,
+        channel_map,
+    })?;
+    let inspection_args = vec![
+        "inspect-source".to_string(),
+        "--source".to_string(),
+        "simulation".to_string(),
+        "--input".to_string(),
+        input_path.to_string(),
+        "--channel-map".to_string(),
+        channel_map_path.to_string(),
+    ];
+    let inspection = inspect_simulation_source_from_args(&inspection_args)?;
+    let mut artifacts = Vec::new();
+    write_bundle_artifact(
+        output_dir,
+        "source-summary.json",
+        &json_pretty(&inspection)?,
+        overwrite,
+        &mut artifacts,
+    )?;
+    write_bundle_artifact(
+        output_dir,
+        "simulation-workflow.json",
+        &render_desktop_simulation_json(&workflow)?,
+        overwrite,
+        &mut artifacts,
+    )?;
+    write_bundle_artifact(
+        output_dir,
+        "simulation-workflow.txt",
+        &render_desktop_simulation_text(&workflow),
+        overwrite,
+        &mut artifacts,
+    )?;
+    for (artifact, source_path) in [
+        ("production-control-config.toml", control_config_path),
+        ("test-verification-config.toml", verification_config_path),
+        ("channel-map.toml", channel_map_path),
+    ] {
+        let contents = fs::read_to_string(source_path)
+            .map_err(|error| format!("failed to read `{source_path}`: {error}"))?;
+        write_bundle_artifact(output_dir, artifact, &contents, overwrite, &mut artifacts)?;
+    }
+    write_bundle_artifact(
+        output_dir,
+        "failure-triage.md",
+        &render_failure_triage(
+            "simulation",
+            workflow.verification.overall_outcome(),
+            &workflow.verification,
+        ),
+        overwrite,
+        &mut artifacts,
+    )?;
+    write_bundle_artifact(
+        output_dir,
+        "transform-catalog.json",
+        &json_pretty(transform_catalog())?,
+        overwrite,
+        &mut artifacts,
+    )?;
+    let mut summary_artifacts = artifacts.clone();
+    summary_artifacts.push("bundle-summary.json".to_string());
+    let summary = EvaluationBundleSummary {
+        kind: "desktop_evaluation_bundle",
+        source_mode: "simulation".to_string(),
+        output_dir: output_dir.display().to_string(),
+        overall_outcome: report_outcome(&workflow.verification),
+        artifacts: summary_artifacts,
+        scope_note:
+            "software-only fixture simulation bundle; not live DAQ, hardware qualification, RTOS runtime, or certification evidence"
+                .to_string(),
+    };
+    let summary_json = json_pretty(&summary)?;
+    write_output_file(
+        &output_dir.join("bundle-summary.json"),
+        &with_trailing_newline(summary_json.clone()),
+        overwrite,
+    )?;
+    Ok(summary_json)
+}
+
+fn write_bundle_artifact(
+    output_dir: &Path,
+    relative_path: &str,
+    contents: &str,
+    overwrite: bool,
+    artifacts: &mut Vec<String>,
+) -> Result<(), String> {
+    validate_relative_output_path(relative_path, "bundle artifact")?;
+    write_output_file(
+        &output_dir.join(relative_path),
+        &with_trailing_newline(contents.to_string()),
+        overwrite,
+    )?;
+    artifacts.push(relative_path.to_string());
+    Ok(())
+}
+
+fn render_failure_triage(
+    source_mode: &str,
+    outcome: ferrisoxide_core::analysis::Outcome,
+    report: &AnalysisReport,
+) -> String {
+    let mut output = String::new();
+    output.push_str("# FerrisOxide Failure Triage\n\n");
+    output.push_str(&format!("- Source mode: {source_mode}\n"));
+    output.push_str(&format!("- Overall outcome: {outcome:?}\n"));
+    output.push_str("- Scope: software-only desktop evaluation evidence.\n\n");
+    output.push_str("## Failed Criteria\n\n");
+    let failed = report
+        .results
+        .iter()
+        .filter(|result| matches!(result.outcome, ferrisoxide_core::analysis::Outcome::Fail))
+        .collect::<Vec<_>>();
+    if failed.is_empty() {
+        output.push_str("No failed criteria were reported.\n");
+    } else {
+        for result in failed {
+            output.push_str(&format!(
+                "- `{}` channel={} measured={} required={} sample_index={} timestamp={}\n",
+                result.criterion_id,
+                result.channel,
+                format_float(result.measured_value),
+                format_float(result.required_value),
+                result.sample_index,
+                format_float(result.timestamp)
+            ));
+        }
+    }
+    output.push_str("\n## Suggested Review\n\n");
+    output.push_str("- Confirm channel labels, units, time base, and transform order.\n");
+    output.push_str(
+        "- Check whether thresholds represent requirements or observed starter bounds.\n",
+    );
+    output.push_str(
+        "- Re-run with `inspect-source` after changing source columns or channel labels.\n",
+    );
+    output
+}
+
+fn workflow_template(use_case: &str) -> Result<WorkflowTemplate, String> {
+    match use_case {
+        "supply-rail" => Ok(WorkflowTemplate {
+            use_case: "supply-rail",
+            label: "filtered rail limits and noise features",
+            steps: &[
+                "Inspect CSV source channels and sample rate.",
+                "Label the rail channel and apply smoothing/high-frequency filtering.",
+                "Add min/max pass-fail criteria and RMS/peak-to-peak features.",
+                "Run evaluate-bundle with an evidence plot.",
+            ],
+            toml: SUPPLY_RAIL_TEMPLATE,
+        }),
+        "switch-bounce" => Ok(WorkflowTemplate {
+            use_case: "switch-bounce",
+            label: "threshold state, edges, bounce, and dwell validation",
+            steps: &[
+                "Inspect the switch waveform and confirm voltage thresholds.",
+                "Label the switch channel.",
+                "Apply Schmitt trigger, edge extraction, and bounce detection.",
+                "Validate missing/extra pulses, dwell time, and timeout behavior.",
+            ],
+            toml: SWITCH_BOUNCE_TEMPLATE,
+        }),
+        "response-latency" => Ok(WorkflowTemplate {
+            use_case: "response-latency",
+            label: "source-to-target transition timing",
+            steps: &[
+                "Inspect command and response channels.",
+                "Label source and target channels.",
+                "Add response latency criteria with source and target thresholds.",
+                "Bundle report evidence for timing review.",
+            ],
+            toml: RESPONSE_LATENCY_TEMPLATE,
+        }),
+        "sensor-cleanup" => Ok(WorkflowTemplate {
+            use_case: "sensor-cleanup",
+            label: "DAQ export cleanup and robust smoothing",
+            steps: &[
+                "Inspect imported CSV headers and sample timing.",
+                "Sort, deduplicate, fill gaps, interpolate NaNs, and remove spikes.",
+                "Add observed-bounds criteria and statistics features.",
+                "Bundle the cleaned analysis report.",
+            ],
+            toml: SENSOR_CLEANUP_TEMPLATE,
+        }),
+        "simulated-fault" => Ok(WorkflowTemplate {
+            use_case: "simulated-fault",
+            label: "fault injection before pass-fail evaluation",
+            steps: &[
+                "Inspect the baseline waveform.",
+                "Inject drift/noise/fault transforms in a controlled config.",
+                "Apply pass-fail criteria to the resulting waveform.",
+                "Record the bundle scope as software-only simulation evidence.",
+            ],
+            toml: SIMULATED_FAULT_TEMPLATE,
+        }),
+        "multi-channel" => Ok(WorkflowTemplate {
+            use_case: "multi-channel",
+            label: "derived differential and vector channels",
+            steps: &[
+                "Inspect all related input channels.",
+                "Label source, return, and axis channels.",
+                "Apply multi-channel transforms before criteria.",
+                "Evaluate derived-channel margins and features.",
+            ],
+            toml: MULTI_CHANNEL_TEMPLATE,
+        }),
+        _ => Err(format!(
+            "unsupported --use-case `{use_case}`; use supply-rail, switch-bounce, response-latency, sensor-cleanup, simulated-fault, or multi-channel"
+        )),
+    }
+}
+
+fn json_pretty<T: Serialize + ?Sized>(value: &T) -> Result<String, String> {
+    serde_json::to_string_pretty(value).map_err(|error| format!("failed to render json: {error}"))
+}
+
+fn quoted_toml_string(value: &str) -> String {
+    format!("\"{}\"", value.replace('\\', "\\\\").replace('"', "\\\""))
+}
+
+fn safe_identifier(value: &str) -> String {
+    let mut output = String::new();
+    for character in value.chars() {
+        if character.is_ascii_alphanumeric() {
+            output.push(character.to_ascii_lowercase());
+        } else if !output.ends_with('_') {
+            output.push('_');
+        }
+    }
+    let trimmed = output.trim_matches('_').to_string();
+    if trimmed.is_empty() {
+        "channel".to_string()
+    } else {
+        trimmed
+    }
+}
+
+fn option_float(value: Option<f64>) -> String {
+    value.map(format_float).unwrap_or_else(|| "n/a".to_string())
+}
+
+fn format_float(value: f64) -> String {
+    if !value.is_finite() {
+        return value.to_string();
+    }
+    let mut text = format!("{value:.12}");
+    while text.contains('.') && text.ends_with('0') {
+        text.pop();
+    }
+    if text.ends_with('.') {
+        text.push('0');
+    }
+    if text == "-0.0" {
+        "0.0".to_string()
+    } else {
+        text
+    }
+}
+
+const SUPPLY_RAIL_TEMPLATE: &str = r#"[input]
+time_column = "time"
+channels = ["rail_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[filters]]
+type = "moving_average"
+window_samples = 3
+
+[[filters]]
+type = "low_pass"
+cutoff_hz = 25.0
+
+[[feature_transforms]]
+id = "rail_rms"
+type = "rms"
+channel = "rail_v"
+
+[[feature_transforms]]
+id = "rail_peak_to_peak"
+type = "peak_to_peak"
+channel = "rail_v"
+
+[[criteria]]
+id = "rail_min"
+type = "minimum_voltage"
+channel = "rail_v"
+threshold_v = 4.75
+
+[[criteria]]
+id = "rail_max"
+type = "maximum_voltage"
+channel = "rail_v"
+threshold_v = 5.25
+"#;
+
+const SWITCH_BOUNCE_TEMPLATE: &str = r#"[input]
+time_column = "time"
+channels = ["switch_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[event_transforms]]
+id = "switch_state"
+type = "schmitt_trigger"
+channel = "switch_v"
+on_threshold_v = 3.0
+off_threshold_v = 2.0
+initial_state = "low"
+
+[[event_transforms]]
+id = "switch_edges"
+type = "edge_extraction"
+channel = "switch_v"
+
+[[event_transforms]]
+id = "switch_bounce"
+type = "bounce_detection"
+channel = "switch_v"
+window_s = 0.004
+
+[[event_validations]]
+id = "must_rise"
+type = "missing_pulse"
+channel = "switch_v"
+direction = "rising"
+expected_count = 1
+
+[[event_validations]]
+id = "rise_count_limit"
+type = "extra_pulse"
+channel = "switch_v"
+direction = "rising"
+max_count = 3
+
+[[criteria]]
+id = "switch_max"
+type = "maximum_voltage"
+channel = "switch_v"
+threshold_v = 5.5
+"#;
+
+const RESPONSE_LATENCY_TEMPLATE: &str = r#"[input]
+time_column = "time"
+channels = ["command_v", "response_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[criteria]]
+id = "response_latency"
+type = "response_latency"
+channel = "response_v"
+source_channel = "command_v"
+source_threshold_v = 2.5
+target_threshold_v = 2.5
+source_state = "high"
+expected_target_state = "high"
+max_latency_s = 0.005
+"#;
+
+const SENSOR_CLEANUP_TEMPLATE: &str = r#"[input]
+time_column = "time"
+channels = ["sensor_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[filters]]
+type = "timestamp_sort"
+
+[[filters]]
+type = "dedupe_timestamps"
+
+[[filters]]
+type = "nan_interpolate"
+
+[[filters]]
+type = "spike_remove"
+window_samples = 3
+threshold_v = 0.5
+
+[[filters]]
+type = "exponential_moving_average"
+alpha = 0.25
+
+[[feature_transforms]]
+id = "sensor_mean"
+type = "mean"
+channel = "sensor_v"
+
+[[feature_transforms]]
+id = "sensor_stddev"
+type = "standard_deviation"
+channel = "sensor_v"
+
+[[criteria]]
+id = "sensor_min"
+type = "minimum_voltage"
+channel = "sensor_v"
+threshold_v = 0.0
+
+[[criteria]]
+id = "sensor_max"
+type = "maximum_voltage"
+channel = "sensor_v"
+threshold_v = 5.0
+"#;
+
+const SIMULATED_FAULT_TEMPLATE: &str = r#"[input]
+time_column = "time"
+channels = ["sensor_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[filters]]
+type = "thermal_drift"
+drift_rate_v_per_s = 0.01
+
+[[filters]]
+type = "gaussian_noise"
+stddev_v = 0.02
+seed = 11
+
+[[criteria]]
+id = "faulted_sensor_min"
+type = "minimum_voltage"
+channel = "sensor_v"
+threshold_v = 0.0
+
+[[criteria]]
+id = "faulted_sensor_max"
+type = "maximum_voltage"
+channel = "sensor_v"
+threshold_v = 5.0
+"#;
+
+const MULTI_CHANNEL_TEMPLATE: &str = r#"[input]
+time_column = "time"
+channels = ["sense_v", "return_v", "axis_x_v", "axis_y_v", "axis_z_v"]
+time_unit = "s"
+signal_unit = "V"
+
+[[filters]]
+type = "channel_subtract"
+left_channel = "sense_v"
+right_channel = "return_v"
+output_channel = "differential_v"
+
+[[filters]]
+type = "vector_magnitude"
+channels = ["axis_x_v", "axis_y_v", "axis_z_v"]
+output_channel = "axis_mag_v"
+
+[[criteria]]
+id = "differential_max"
+type = "maximum_voltage"
+channel = "differential_v"
+threshold_v = 5.0
+
+[[criteria]]
+id = "axis_mag_max"
+type = "maximum_voltage"
+channel = "axis_mag_v"
+threshold_v = 10.0
+"#;
 
 #[derive(Debug, Deserialize)]
 struct BatchManifest {
@@ -2503,6 +3658,12 @@ fn help() -> String {
         "  ferrisoxide-signal simulate --input tests/e2e/heated_actuator/input/passing_run.csv --control-config examples/control-config/production-control-config.toml --verification-config examples/test-verification-config/test-verification-config.toml --channel-map examples/simulation/heated-actuator-channel-map.toml --format json",
         "  ferrisoxide-signal batch --manifest examples/batch-analysis.toml --output-dir batch-output --format json",
         "  ferrisoxide-signal transforms --format text",
+        "  ferrisoxide-signal inspect-source --input examples/basic-waveform.csv --format text",
+        "  ferrisoxide-signal inspect-source --source simulation --input tests/e2e/heated_actuator/input/passing_run.csv --channel-map examples/simulation/heated-actuator-channel-map.toml --format json",
+        "  ferrisoxide-signal scaffold-config --input examples/basic-waveform.csv --output analysis.toml",
+        "  ferrisoxide-signal workflow-template --use-case switch-bounce --format toml",
+        "  ferrisoxide-signal evaluate-bundle --input examples/basic-waveform.csv --config examples/basic-config.toml --output-dir evaluation-bundle --plot",
+        "  ferrisoxide-signal evaluate-bundle --source simulation --input tests/e2e/heated_actuator/input/passing_run.csv --control-config examples/control-config/production-control-config.toml --verification-config examples/test-verification-config/test-verification-config.toml --channel-map examples/simulation/heated-actuator-channel-map.toml --output-dir simulation-bundle",
         "",
         "ADC quantization syntax: --adc-quantize bits:min_v:max_v",
         "Plot output is SVG. Use --config to add 2D criteria evidence overlays; use --z-column for an optional third axis.",
@@ -2510,6 +3671,8 @@ fn help() -> String {
         "Desktop simulation loads production control config, test verification config, a channel map, and fixture CSV input.",
         "Batch analysis processes local CSV/config pairs and writes per-run reports plus batch-summary.json.",
         "Transform catalog output is generated from the core transform registry.",
+        "Desktop source inspection and evaluation bundles support CSV and software-only simulation sources; live/realtime DAQ remains future-gated.",
+        "Workflow templates are TOML starters for supply-rail, switch-bounce, response-latency, sensor-cleanup, simulated-fault, and multi-channel cases.",
         "Formats: text, json",
     ]
     .join("\n")
@@ -4302,6 +5465,236 @@ mod tests {
             ))
             .to_string_lossy()
             .into_owned()
+    }
+
+    #[test]
+    fn desktop_flow_inspects_csv_source_as_json() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path = Path::new(manifest_dir)
+            .join("../../examples/basic-waveform.csv")
+            .display()
+            .to_string();
+
+        let output = run(vec![
+            "inspect-source".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("CSV source should inspect");
+
+        assert!(output.contains("\"kind\": \"source_inspection\""));
+        assert!(output.contains("\"source_mode\": \"csv\""));
+        assert!(output.contains("\"time_column\": \"time\""));
+        assert!(output.contains("\"id\": \"input_v\""));
+        assert!(output.contains("\"id\": \"output_v\""));
+        assert!(output.contains("\"nominal_sample_rate_hz\""));
+    }
+
+    #[test]
+    fn desktop_flow_rejects_realtime_source_until_live_daq_exists() {
+        let error = run(vec![
+            "inspect-source".to_string(),
+            "--source".to_string(),
+            "realtime".to_string(),
+        ])
+        .expect_err("realtime source should be explicitly gated");
+
+        assert!(error.contains("planned for the desktop workflow"));
+        assert!(error.contains("not implemented"));
+    }
+
+    #[test]
+    fn desktop_flow_scaffolds_config_that_can_analyze_the_source() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path = Path::new(manifest_dir)
+            .join("../../examples/basic-waveform.csv")
+            .display()
+            .to_string();
+        let temp_root = PathBuf::from(unique_export_dir("scaffold-config"));
+        fs::create_dir_all(&temp_root).expect("temp root should be created");
+        let scaffold_path = temp_root.join("analysis.toml");
+
+        let output = run(vec![
+            "scaffold-config".to_string(),
+            "--input".to_string(),
+            input_path.clone(),
+            "--output".to_string(),
+            scaffold_path.display().to_string(),
+        ])
+        .expect("config should scaffold");
+
+        assert!(output.contains("Analysis config scaffold written"));
+        assert!(scaffold_path.exists());
+
+        let analysis = run(vec![
+            "analyze".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--config".to_string(),
+            scaffold_path.display().to_string(),
+            "--format".to_string(),
+            "json".to_string(),
+        ])
+        .expect("scaffolded config should analyze the inspected source");
+
+        assert!(analysis.contains("\"overall_outcome\": \"pass\""));
+        assert!(analysis.contains("\"input_v_min_observed\""));
+        assert!(analysis.contains("\"output_v_max_observed\""));
+        let scaffold = fs::read_to_string(&scaffold_path).expect("scaffold should be readable");
+        assert!(scaffold.contains("Channel role prompts"));
+
+        fs::remove_dir_all(&temp_root).expect("temp root should be removable");
+    }
+
+    #[test]
+    fn desktop_flow_renders_authoring_recipe_template() {
+        let output = run(vec![
+            "workflow-template".to_string(),
+            "--use-case".to_string(),
+            "switch-bounce".to_string(),
+            "--format".to_string(),
+            "toml".to_string(),
+        ])
+        .expect("workflow template should render");
+
+        assert!(output.contains("[[event_transforms]]"));
+        assert!(output.contains("type = \"schmitt_trigger\""));
+        assert!(output.contains("[[event_validations]]"));
+        let config =
+            toml::from_str::<AnalysisConfig>(&output).expect("template should be valid TOML");
+        assert_eq!(config.input.channels, vec!["switch_v".to_string()]);
+        assert_eq!(config.event_transforms.len(), 3);
+        assert_eq!(config.event_validations.len(), 2);
+        assert_eq!(config.criteria.len(), 1);
+        validate_loaded_config(&config).expect("template should be a valid analysis config");
+    }
+
+    #[test]
+    fn desktop_flow_writes_csv_evaluation_bundle_with_plot() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path = Path::new(manifest_dir)
+            .join("../../examples/basic-waveform.csv")
+            .display()
+            .to_string();
+        let config_path = Path::new(manifest_dir)
+            .join("../../examples/basic-config.toml")
+            .display()
+            .to_string();
+        let temp_root = PathBuf::from(unique_export_dir("csv-evaluate-bundle"));
+        let output_dir = temp_root.join("bundle");
+
+        let output = run(vec![
+            "evaluate-bundle".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--config".to_string(),
+            config_path,
+            "--output-dir".to_string(),
+            output_dir.display().to_string(),
+            "--plot".to_string(),
+        ])
+        .expect("CSV evaluation bundle should be written");
+
+        assert!(output.contains("\"kind\": \"desktop_evaluation_bundle\""));
+        assert!(output.contains("\"source_mode\": \"csv\""));
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        for artifact in [
+            "source-summary.json",
+            "config.toml",
+            "report.json",
+            "report.txt",
+            "failure-triage.md",
+            "transform-catalog.json",
+            "evidence.svg",
+            "bundle-summary.json",
+        ] {
+            assert!(
+                output_dir.join(artifact).exists(),
+                "missing artifact {artifact}"
+            );
+        }
+        let overwrite_error = run(vec![
+            "evaluate-bundle".to_string(),
+            "--input".to_string(),
+            Path::new(manifest_dir)
+                .join("../../examples/basic-waveform.csv")
+                .display()
+                .to_string(),
+            "--config".to_string(),
+            Path::new(manifest_dir)
+                .join("../../examples/basic-config.toml")
+                .display()
+                .to_string(),
+            "--output-dir".to_string(),
+            output_dir.display().to_string(),
+        ])
+        .expect_err("existing bundle artifacts should not be overwritten by default");
+        assert!(overwrite_error.contains("failed to create"));
+
+        fs::remove_dir_all(&temp_root).expect("temp root should be removable");
+    }
+
+    #[test]
+    fn desktop_flow_writes_simulation_evaluation_bundle() {
+        let manifest_dir = env!("CARGO_MANIFEST_DIR");
+        let input_path = Path::new(manifest_dir)
+            .join("../../tests/e2e/heated_actuator/input/passing_run.csv")
+            .display()
+            .to_string();
+        let control_config_path = Path::new(manifest_dir)
+            .join("../../examples/control-config/production-control-config.toml")
+            .display()
+            .to_string();
+        let verification_config_path = Path::new(manifest_dir)
+            .join("../../examples/test-verification-config/test-verification-config.toml")
+            .display()
+            .to_string();
+        let channel_map_path = Path::new(manifest_dir)
+            .join("../../examples/simulation/heated-actuator-channel-map.toml")
+            .display()
+            .to_string();
+        let temp_root = PathBuf::from(unique_export_dir("simulation-evaluate-bundle"));
+        let output_dir = temp_root.join("bundle");
+
+        let output = run(vec![
+            "evaluate-bundle".to_string(),
+            "--source".to_string(),
+            "simulation".to_string(),
+            "--input".to_string(),
+            input_path,
+            "--control-config".to_string(),
+            control_config_path,
+            "--verification-config".to_string(),
+            verification_config_path,
+            "--channel-map".to_string(),
+            channel_map_path,
+            "--output-dir".to_string(),
+            output_dir.display().to_string(),
+        ])
+        .expect("simulation evaluation bundle should be written");
+
+        assert!(output.contains("\"source_mode\": \"simulation\""));
+        assert!(output.contains("\"overall_outcome\": \"pass\""));
+        for artifact in [
+            "source-summary.json",
+            "simulation-workflow.json",
+            "simulation-workflow.txt",
+            "production-control-config.toml",
+            "test-verification-config.toml",
+            "channel-map.toml",
+            "failure-triage.md",
+            "transform-catalog.json",
+            "bundle-summary.json",
+        ] {
+            assert!(
+                output_dir.join(artifact).exists(),
+                "missing artifact {artifact}"
+            );
+        }
+
+        fs::remove_dir_all(&temp_root).expect("temp root should be removable");
     }
 
     #[test]
