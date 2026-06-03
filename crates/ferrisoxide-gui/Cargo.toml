@@ -1,5 +1,5 @@
 [package]
-name = "ferrisoxide-cli"
+name = "ferrisoxide-gui"
 version = "0.1.0"
 edition.workspace = true
 license.workspace = true
@@ -7,13 +7,18 @@ repository.workspace = true
 rust-version.workspace = true
 
 [[bin]]
-name = "ferrisoxide-signal"
+name = "ferrisoxide-gui"
 path = "src/main.rs"
 
+[features]
+default = []
+native = ["dep:eframe", "dep:egui_plot", "dep:rfd"]
+
 [dependencies]
-toml.workspace = true
-ferrisoxide-core = { path = "../ferrisoxide-core" }
 ferrisoxide-workflow = { path = "../ferrisoxide-workflow" }
+eframe = { workspace = true, optional = true }
+egui_plot = { workspace = true, optional = true }
+rfd = { workspace = true, optional = true }
 
 [lints]
 workspace = true

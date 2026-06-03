@@ -2,7 +2,7 @@
 
 Date: 2026-05-30
 
-Updated: 2026-06-02
+Updated: 2026-06-03
 
 Project: FerrisOxide Signal
 
@@ -19,8 +19,287 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - Working directory: `/Users/kota/Desktop/codexprojects/softwaredev/projects/ferrisoxide`
 - Cargo: `cargo 1.95.0 (f2d3ce0bd 2026-03-21)`
 - Rust: `rustc 1.95.0 (59807616e 2026-04-14)`
-- External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
-- Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, and `ferrisoxide-cli`.
+- External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; optional native GUI dependencies `eframe`, `egui_plot`, and `rfd`; resolved versions are pinned in `Cargo.lock`.
+- Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, `ferrisoxide-workflow`, `ferrisoxide-gui`, and `ferrisoxide-cli`.
+
+## Native GUI Merge Readiness Validation Update
+
+Date: 2026-06-03
+
+Stage: Local merge-readiness check for the M43-M53 native GUI workflow shell plus WRA-RQ-139
+
+Scope:
+
+- Verify the optional native GUI shell, shared workflow API extraction, Source/Config/Run/Results/Plot UX refinements, scalable Plot-page rendering, and GUI documentation before GitHub merge.
+- Confirm the default workspace path remains valid while native GUI checks pass behind `ferrisoxide-gui --features native`.
+- Preserve separate gates for GUI packaging/installers/signing, live/realtime DAQ, vendor SDKs, drivers, hardware acquisition, HAL/RTOS adapters, runtime-loader implementation, release publication, and certification evidence.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-gui`: Pass; 16 GUI state tests passed.
+- `cargo test -p ferrisoxide-gui --features native native::tests`: Pass; 4 native helper tests passed.
+- `cargo check -p ferrisoxide-gui --features native`: Pass.
+- `cargo clippy -p ferrisoxide-gui --features native --all-targets -- -D warnings`: Pass.
+- `cargo test --workspace`: Pass; workspace unit, integration, and doc-test harnesses passed, including 171 core tests, 53 shared workflow tests, and 16 GUI state tests.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no FerrisOxide trailing whitespace matches.
+- Local Markdown link-target scan over 200 FerrisOxide Markdown files and 104 local links: Pass; no broken local links.
+
+Result:
+
+- The local branch is ready for a GitHub PR and merge after protected checks complete.
+- No new live/realtime DAQ, vendor SDK, driver, hardware acquisition, HAL/RTOS adapter, runtime-loader, release artifact, packaging, installer, signing, or certification evidence was added.
+
+## Native GUI Documentation Review Validation Update
+
+Date: 2026-06-03
+
+Stage: Documentation review for the current native GUI workflow shell
+
+Scope:
+
+- Audit the README and desktop workflow guide against `crates/ferrisoxide-gui/src/native.rs`.
+- Document every visible native GUI button, selector, checkbox, numeric control, picker, and display area.
+- Clarify the recommended CSV workflow from Source through Config, Run, Results, and Plot.
+- Preserve separate gates for fixture-simulation path picker refinement, GUI packaging/installers/signing, live/realtime DAQ, vendor SDKs, drivers, hardware acquisition, HAL/RTOS adapters, runtime-loader implementation, release publication, and certification evidence.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no FerrisOxide trailing whitespace matches.
+- Local Markdown link-target scan over 14 touched Markdown files and 104 local links: Pass; no broken local links.
+
+Result:
+
+- `README.md` now explains how to launch and use the native GUI workflow.
+- `docs/desktop-user-workflow.md` now contains the complete page-by-page native GUI button/control reference.
+- `docs/documentation-review.md` records the GUI documentation review and current scope limits.
+- Roadmap, dependency, risk, project-state, and pipeline wording now reflects the implemented Source, Config, Run, Results, and Plot GUI state.
+
+## GUI Run Page Output Directory Picker Validation Update
+
+Date: 2026-06-03
+
+Stage: Local Run-page UX refinement for the native GUI workflow shell
+
+Scope:
+
+- Replace manual Output Dir text entry on the Run page with a native folder picker.
+- Preserve existing Analyze, Evaluate Bundle, Overwrite, and SVG Plot Artifact behavior.
+- Keep selected folder output in `GuiSession.output_dir` for existing evaluation bundle execution.
+- Preserve separate gates for GUI packaging/installers/signing, live/realtime DAQ, vendor SDKs, drivers, hardware acquisition, HAL/RTOS adapters, runtime-loader implementation, release publication, and certification evidence.
+
+Commands:
+
+- `cargo test -p ferrisoxide-gui`: Pass; 16 GUI state tests passed, including existing evaluation bundle output directory consumption.
+- `cargo test -p ferrisoxide-gui --features native native::tests`: Pass; 4 native helper tests passed, including output-directory label coverage.
+- `cargo check -p ferrisoxide-gui --features native`: Pass.
+- `cargo clippy -p ferrisoxide-gui --features native --all-targets -- -D warnings`: Pass.
+- `cargo test --workspace`: Pass; workspace unit, integration, and doc-test harnesses passed, including 171 core tests, 53 shared workflow tests, and 16 GUI state tests.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `cargo fmt --check`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no FerrisOxide trailing whitespace matches.
+
+Result:
+
+- WRA-RQ-139 is implemented locally.
+- The Run page now lets users choose an evaluation bundle output directory through a native folder picker instead of manual path entry.
+- No new dependency, live/realtime DAQ, vendor SDK, driver, hardware acquisition, HAL/RTOS adapter, runtime loader, release artifact, packaging, installer, signing, or certification evidence was added.
+
+## M53 GUI Config Builder Validation Update
+
+Date: 2026-06-03
+
+Stage: Local Config-page UX refinement for the native GUI workflow shell
+
+Scope:
+
+- Add Source-derived channel sections to the Config page.
+- Add dropdown-driven filter/action and criterion rows for each loaded channel.
+- Keep non-numeric choices constrained to dropdown controls: filter/action, criterion type, state, direction, event kind, normalize mode, and source channel.
+- Keep thresholds, durations, counts, windows, gains, cutoffs, factors, and ranges as numeric controls.
+- Generate TOML from the typed GUI draft and show it as a preview.
+- Load existing TOML configs through a native open-file selector.
+- Save generated or edited TOML through a native `Save As` selector instead of manual path entry.
+- Honor generated `channel` filter fields in core for supported same-time-axis filters by applying the inner filter to the selected channel and merging it back.
+- Preserve separate gates for GUI packaging/installers/signing, live/realtime DAQ, vendor SDKs, drivers, hardware acquisition, HAL/RTOS adapters, runtime-loader implementation, release publication, persisted schema expansion beyond generated config text, and certification evidence.
+
+GitHub evidence:
+
+- Milestone: `https://github.com/kota-wilson/ferrisoxide/milestone/15`
+- Issue #189: `M53: Add channel-based GUI config builder`
+- Issue comments: `https://github.com/kota-wilson/ferrisoxide/issues/189#issuecomment-4609205790`, `https://github.com/kota-wilson/ferrisoxide/issues/189#issuecomment-4609242858`
+
+Commands:
+
+- `gh api repos/kota-wilson/ferrisoxide/issues ... -f milestone=15`: Pass; created Config-page builder issue #189 under milestone #15.
+- `gh api repos/kota-wilson/ferrisoxide/issues/189/comments -f body=...`: Pass; posted local implementation evidence comment to issue #189.
+- `gh api repos/kota-wilson/ferrisoxide/issues/189/comments -f body=...`: Pass; posted channel-scoping addendum to issue #189.
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-core channel_scoped -- --nocapture`: Pass; scoped filter config conversion and selected-channel application tests passed.
+- `cargo test -p ferrisoxide-gui`: Pass; 16 GUI state tests passed after M53, including Config builder source sync, TOML generation, existing TOML loading, and resync preservation coverage.
+- `cargo test -p ferrisoxide-gui --features native native::tests`: Pass; native Config save-file default naming and config-file label tests passed.
+- `cargo check -p ferrisoxide-gui --features native`: Pass.
+- `cargo clippy -p ferrisoxide-gui --features native --all-targets -- -D warnings`: Pass.
+- `cargo test --workspace`: Pass; workspace unit, integration, and doc-test harnesses passed, including 171 core tests, 53 shared workflow tests, and 16 GUI state tests.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no FerrisOxide trailing whitespace matches.
+- Root memory trailing-whitespace scan over `project/` and `projects/00-project-registry.md`: Pass; no matches.
+- Local Markdown link-target scan: Pass; 197 FerrisOxide Markdown files scanned with 102 local links and no broken local links.
+- Root memory Markdown link-target scan over `project/` and `projects/00-project-registry.md`: Pass; 24 Markdown files scanned with 0 local links.
+
+Result:
+
+- WRA-RQ-138 is implemented locally.
+- The GUI Config page now builds generated TOML from Source-derived channel sections, dropdown-only non-numeric choices, and numeric value controls.
+- Existing config TOML can now be opened through a native picker, while config saving uses a native `Save As` selector, opens that selector automatically when Save is clicked without a selected config file, and derives a default filename from the selected CSV when available.
+- Core now wraps supported `channel` filter configs so generated per-channel filter rows update only the selected channel.
+- Existing source, run, result, plot, and config save workflows remain in place.
+- No new dependency, live/realtime DAQ, vendor SDK, driver, hardware acquisition, HAL/RTOS adapter, runtime loader, release artifact, packaging, installer, signing, or certification evidence was added.
+
+## M52 GUI Plot Rendering Performance Validation Update
+
+Date: 2026-06-03
+
+Stage: Local scalable Plot-page rendering refinement for the native GUI workflow shell
+
+Scope:
+
+- Add Fast, Balanced, Detailed, and Full Plot-page render resolution modes.
+- Add viewport-aware render budgets based on visible x-range and plot width.
+- Add min/max bucket decimation so non-Full modes preserve narrow spikes and envelopes better than nth-point sampling.
+- Add cached rendered point state keyed by plot data revision, selected channels, viewport signature, plot width bucket, and resolution.
+- Add multiresolution plot pyramids for large loaded CSV series while preserving raw loaded `WorkflowPlotSeries` data for analysis/export.
+- Preserve separate gates for GUI packaging/installers/signing, live/realtime DAQ, vendor SDKs, drivers, hardware acquisition, HAL/RTOS adapters, runtime-loader implementation, release publication, benchmarked end-to-end performance claims, and certification evidence.
+
+GitHub evidence:
+
+- Milestone: `https://github.com/kota-wilson/ferrisoxide/milestone/15`
+- Issue #188: `M52: Add scalable GUI plot rendering`
+
+Commands:
+
+- `gh api repos/kota-wilson/ferrisoxide/issues ... -F milestone=15`: Pass; created Plot-page performance issue #188 under milestone #15.
+- `gh api repos/kota-wilson/ferrisoxide/issues/188/comments -f body=...`: Pass; posted local implementation evidence comment to issue #188.
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-gui`: Pass; 12 GUI state tests passed after M52, including render budget, min/max spike preservation, cache reuse/invalidation, and plot-pyramid coverage.
+- `cargo check -p ferrisoxide-gui --features native`: Pass.
+- `cargo clippy -p ferrisoxide-gui --features native --all-targets -- -D warnings`: Pass.
+- `cargo test --workspace`: Pass; workspace unit, integration, and doc-test harnesses passed, including 53 shared workflow tests and 12 GUI state tests.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no FerrisOxide trailing whitespace matches.
+- Root memory trailing-whitespace scan over `project/` and `projects/00-project-registry.md`: Pass; no matches.
+- Local Markdown link-target scan: Pass; 200 FerrisOxide Markdown files scanned with 102 local links and no broken local links.
+- Root memory Markdown link-target scan over `project/` and `projects/00-project-registry.md`: Pass; 24 Markdown files scanned with 0 local links.
+
+Result:
+
+- WRA-RQ-137 is implemented locally.
+- The GUI Plot page now renders large loaded CSV series through user-selectable resolution modes, viewport-aware min/max decimation, cached rendered point state, and multiresolution plot pyramids.
+- Raw loaded plot series remain unchanged for analysis/export.
+- No new dependency, live/realtime DAQ, vendor SDK, driver, hardware acquisition, HAL/RTOS adapter, runtime loader, release artifact, packaging, installer, signing, benchmarked end-to-end performance claim, or certification evidence was added.
+
+## M49-M51 GUI Source And Plot Page UX Validation Update
+
+Date: 2026-06-03
+
+Stage: Local Source/Plot-page UX refinement for the native GUI workflow shell
+
+Scope:
+
+- Replace manual CSV path entry on the GUI Source page with a native CSV file selector.
+- Add an explicit `Load Channels` button that reads selected CSV headers through `ferrisoxide-workflow`.
+- Populate Time Column, Time Unit, and per-channel unit dropdowns from Source-page state.
+- Add Plot-page channel checkboxes beside `Load Series`, derived from Source channel state.
+- Keep the file-dialog dependency optional under `ferrisoxide-gui --features native`.
+- Preserve separate gates for GUI packaging/installers/signing, live/realtime DAQ, vendor SDKs, drivers, hardware acquisition, HAL/RTOS adapters, runtime-loader implementation, release publication, persisted per-channel config schema changes, and certification evidence.
+
+GitHub evidence:
+
+- Milestone: `https://github.com/kota-wilson/ferrisoxide/milestone/15`
+- Issue #186: `M49: Add GUI source CSV picker and header loading`
+- Issue #185: `M50: Add GUI source time and per-channel unit selectors`
+- Issue #187: `M51: Add GUI plot channel selectors`
+
+Commands:
+
+- `gh api repos/kota-wilson/ferrisoxide/issues ... -F milestone=15`: Pass; created Source-page UX issues #186 and #185 under milestone #15.
+- `gh api repos/kota-wilson/ferrisoxide/issues ... -F milestone=15`: Pass; created Plot-page UX issue #187 under milestone #15.
+- `gh api repos/kota-wilson/ferrisoxide/issues/{issue}/comments -f body=...`: Pass; posted local implementation evidence comments to issues #186, #185, and #187.
+- `cargo fmt --check`: Pass.
+- `cargo test -p ferrisoxide-workflow workflow_api`: Pass; 5 focused shared workflow API tests passed, including CSV header loading.
+- `cargo test -p ferrisoxide-gui`: Pass; 8 GUI state tests passed after M51.
+- `cargo check -p ferrisoxide-gui --features native`: Pass; `rfd v0.14.1` and macOS file-dialog transitive crates compiled.
+- `cargo clippy -p ferrisoxide-gui --features native --all-targets -- -D warnings`: Pass.
+- `cargo test --workspace`: Pass; workspace unit, integration, and doc-test harnesses passed, including 53 shared workflow tests and 8 GUI state tests.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `cargo tree -p ferrisoxide-gui --features native -i rfd`: Pass; `rfd v0.14.1` is required only by `ferrisoxide-gui`.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no FerrisOxide trailing whitespace matches.
+- Root memory trailing-whitespace scan over `project/` and `projects/00-project-registry.md`: Pass; no matches.
+- Local Markdown link-target scan: Pass; 200 FerrisOxide Markdown files scanned with 102 local links and no broken local links.
+- Root memory Markdown link-target scan over `project/` and `projects/00-project-registry.md`: Pass; 24 Markdown files scanned with 0 local links.
+
+Result:
+
+- WRA-RQ-134, WRA-RQ-135, and WRA-RQ-136 are implemented locally.
+- The GUI Source page now supports native CSV selection, explicit header loading, header-driven Time Column selection, Time Unit selection, and per-channel GUI unit selection.
+- The GUI Plot page now supports plot-channel checkboxes derived from Source channel state and filters loaded plot series without mutating Source-channel assignment.
+- No live/realtime DAQ, vendor SDK, driver, hardware acquisition, HAL/RTOS adapter, runtime loader, release artifact, packaging, installer, signing, persisted per-channel config schema change, or certification evidence was added.
+
+## M43-M48 Native egui Workflow Shell Validation Update
+
+Date: 2026-06-03
+
+Stage: Local M43-M48 native GUI workflow shell implementation and validation
+
+Scope:
+
+- Gate and implement the first optional native egui workflow shell over the existing M37-M42 desktop workflow.
+- Extract shared workflow behavior into `ferrisoxide-workflow` so CLI and GUI call the same Rust implementation path.
+- Add `ferrisoxide-gui` with default-feature state tests and optional `native` feature for `eframe` / `egui_plot`.
+- Add GUI source/config/run/results/plot panels for CSV and fixture-simulation workflow review.
+- Add GitHub milestone #15 and issues #179 through #184 for M43-M48 tracking.
+- Preserve separate gates for file dialogs at the base M43-M48 stage, GUI packaging/installers/signing, live/realtime DAQ, vendor SDKs, drivers, hardware acquisition, HAL/RTOS adapters, runtime-loader implementation, release publication, and certification evidence.
+
+GitHub evidence:
+
+- Milestone: `https://github.com/kota-wilson/ferrisoxide/milestone/15`
+- Issues: #179, #180, #181, #182, #183, and #184 track M43 through M48.
+
+Commands:
+
+- `gh api repos/kota-wilson/ferrisoxide/milestones -f title='M43-M48: Native egui Workflow Shell' ...`: Pass; created milestone #15.
+- `gh api repos/kota-wilson/ferrisoxide/issues ... -F milestone=15`: Pass; created issues #179 through #184.
+- `cargo test -p ferrisoxide-workflow workflow_api`: Pass; 4 focused shared workflow API tests passed.
+- `cargo test -p ferrisoxide-gui`: Pass; 4 GUI state tests passed.
+- `cargo check -p ferrisoxide-gui --features native`: Pass.
+- `cargo tree -p ferrisoxide-gui --features native -i egui`: Pass; one `egui v0.28.1` resolved through `eframe`, `egui-winit`, `egui_glow`, and `egui_plot`.
+- `cargo tree -p ferrisoxide-gui --features native --depth 2`: Pass; native GUI dependency surface recorded for review.
+- `cargo run --quiet --bin ferrisoxide-signal -- inspect-source --input examples/basic-waveform.csv --format text`: Pass; thin CLI wrapper executed shared workflow inspection and reported 5 samples / 1000 Hz.
+- `cargo fmt --check`: Pass.
+- `cargo test --workspace`: Pass; workspace unit, integration, and doc-test harnesses passed, including 52 shared workflow tests and 4 GUI state tests.
+- `cargo clippy --workspace --all-targets -- -D warnings`: Pass.
+- `cargo clippy -p ferrisoxide-gui --features native --all-targets -- -D warnings`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no FerrisOxide trailing whitespace matches.
+- Root memory trailing-whitespace scan over touched Markdown files: Pass; no matches.
+- Local Markdown link-target scan: Pass; 200 FerrisOxide Markdown files scanned with 102 local links and no broken local links.
+- Root memory Markdown link-target scan over `project/` and `projects/00-project-registry.md`: Pass; 24 Markdown files scanned with 0 local links.
+
+Result:
+
+- M43-M48 are implemented locally as a native egui workflow shell.
+- WRA-RQ-128 through WRA-RQ-133 are implemented locally.
+- CLI behavior is preserved through `ferrisoxide-workflow::run`, while GUI state/native panels call typed shared workflow APIs.
+- The native GUI dependency surface is optional and isolated to `ferrisoxide-gui --features native`.
+- No file-dialog dependency was added by the base M43-M48 stage; M49-M50 later adds an optional native-only file selector. No live/realtime DAQ, vendor SDK, driver, hardware acquisition, HAL/RTOS adapter, runtime loader, release artifact, packaging, installer, signing, or certification evidence was added.
 
 ## PR #177 Merge Evidence And Desktop Workflow Closure Update
 

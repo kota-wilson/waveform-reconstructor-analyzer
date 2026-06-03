@@ -1,12 +1,12 @@
 # Next Milestones Roadmap
 
-Date: 2026-06-02
+Date: 2026-06-03
 
-Status: M10 through M14 complete through merged PR evidence. M15 through M20 are complete as the MVP-exit sequence. M21 through M24 are complete as the first runtime-path follow-up. M25 through M36 are complete as the comprehensive filter and simulated signal-conditioning suite and merged to `main` through PR #175. M37 through M42 are complete as the CLI-first desktop user workflow path and merged to `main` through PR #177. No GitHub milestones/issues for M15-M42, release publication, dependency addition, runtime-loader implementation, live DAQ, HAL/RTOS, target hardware, or certification scope is created by this update.
+Status: M10 through M14 complete through merged PR evidence. M15 through M20 are complete as the MVP-exit sequence. M21 through M24 are complete as the first runtime-path follow-up. M25 through M36 are complete as the comprehensive filter and simulated signal-conditioning suite and merged to `main` through PR #175. M37 through M42 are complete as the CLI-first desktop user workflow path and merged to `main` through PR #177. M43 through M53 plus WRA-RQ-139 are implemented locally as the optional native egui workflow shell plus Source, Config, Run, and Plot page UX and scalable Plot-page rendering refinements tracked by GitHub milestone #15 / issues #179-#189. Release publication, runtime-loader implementation, live DAQ, HAL/RTOS, target hardware, full GUI packaging, or certification scope is not created by this update.
 
 ## Purpose
 
-FerrisOxide has completed the validated MVP, measurement/evidence engine, portable rule package, controller simulation/deployment config milestones through M9, transform/event/runtime-profile milestones through M14, MVP-exit hardening through M20, and the first narrow runtime-path follow-up through M24. M10 through M14 turned the analog transform taxonomy into implemented metadata, transform, event, validation, runtime-profile, and high-pass baseline correction work without claiming broad DSP support. M25 through M36 made FerrisOxide comprehensive for sampled DAQ/test waveform conditioning and calculations. M37 through M42 implement the desktop user workflow that ties source choice, channel labeling, transforms, criteria, evaluation, and result review into one coherent path.
+FerrisOxide has completed the validated MVP, measurement/evidence engine, portable rule package, controller simulation/deployment config milestones through M9, transform/event/runtime-profile milestones through M14, MVP-exit hardening through M20, and the first narrow runtime-path follow-up through M24. M10 through M14 turned the analog transform taxonomy into implemented metadata, transform, event, validation, runtime-profile, and high-pass baseline correction work without claiming broad DSP support. M25 through M36 made FerrisOxide comprehensive for sampled DAQ/test waveform conditioning and calculations. M37 through M42 implement the desktop user workflow that ties source choice, channel labeling, transforms, criteria, evaluation, and result review into one coherent path. M43 through M53 plus WRA-RQ-139 add the first optional native egui shell, Source, Config, Run, and Plot page UX, and scalable render-only Plot-page handling over the same shared workflow APIs.
 
 This roadmap records the completed transform milestones, completed local MVP-exit/runtime-path milestones, completed comprehensive conditioning milestones, and merged desktop workflow milestones:
 
@@ -45,6 +45,17 @@ This roadmap records the completed transform milestones, completed local MVP-exi
 | M40 | mainline | Transform and criteria authoring UX | Complete; merged in PR #177 |
 | M41 | mainline | Evaluation run bundle | Complete; merged in PR #177 |
 | M42 | mainline | Desktop workflow polish and validation corpus | Complete; validated and merged in PR #177 |
+| M43 | mainline | Native GUI gate and dependency review | Implemented locally |
+| M44 | mainline | Shared desktop workflow APIs | Implemented locally |
+| M45 | mainline | Optional native egui app shell | Implemented locally |
+| M46 | mainline | GUI source inspection and config scaffolding | Implemented locally |
+| M47 | mainline | GUI run controls and results review | Implemented locally |
+| M48 | mainline | GUI plotting, macOS CI, and validation closure | Implemented locally |
+| M49 | mainline | GUI Source-page CSV picker and header loading | Implemented locally |
+| M50 | mainline | GUI Source-page time/channel unit selectors | Implemented locally |
+| M51 | mainline | GUI Plot-page channel selectors | Implemented locally |
+| M52 | mainline | GUI Plot-page scalable rendering for large loaded CSV series | Implemented locally |
+| M53 | mainline | GUI Config-page channel builder | Implemented locally |
 
 ## Sequencing Rationale
 
@@ -65,6 +76,8 @@ M21 through M24 prove a narrow runtime-path slice for `offset`, `gain`, and `inv
 M25 through M36 are the comprehensive filter and signal-conditioning path. M25 came first because broad algorithm expansion needed a central transform registry and completeness contract. M26 through M35 then added transform families in dependency-aware groups. M36 closed the suite by proving docs, fixtures, package/runtime compatibility, validation corpus, benchmark readiness, and user-facing completeness; PR #175 merged the suite to `main`.
 
 M37 through M42 are the desktop workflow path. M37 defines the user workflow contract. M38 makes signal-source intake and inspection explicit for CSV and simulation while keeping live/realtime DAQ gated. M39 adds channel labeling and config scaffolding for CSV sources. M40 organizes transform/filter and pass/fail criteria authoring around channels and recipes. M41 defines a single evaluation output bundle for CSV and fixture simulation workflows. M42 proves the full workflow through documentation, examples, and validation corpus coverage.
+
+M43 through M53 are the native GUI workflow shell path. M43 records the GUI dependency gate and exact egui-family dependency pins. M44 extracts shared workflow APIs from the CLI implementation. M45 adds the optional native GUI crate and shell. M46 wires source/config panels. M47 wires analysis/evaluation and result review. M48 adds interactive CSV plotting and macOS GUI CI. M49 adds the native CSV file selector and explicit `Load Channels` action. M50 adds header-driven Time Column, Time Unit, and per-channel unit selectors. M51 adds Plot-page channel checkboxes derived from Source channel state. M52 adds render-only large-dataset plotting controls, min/max viewport decimation, cached render points, and multiresolution plot pyramids while preserving raw loaded data for analysis/export. M53 replaces primary Config-page manual authoring with Source-derived channel sections, dropdown-driven filter/action and criterion rows, numeric-only value fields, generated/opened TOML preview, and native open/save behavior. WRA-RQ-139 adds Run-page output directory selection through a native folder picker.
 
 ## Near-Term Milestones
 
@@ -190,9 +203,9 @@ The following remain outside M10 through M20 unless a fresh proposal and approva
 - HAL, RTOS SDK, target hardware bindings, unsafe FFI, or real-time runtime guarantees.
 - Binary deployment package serialization, cryptographic signing, authentication, or tamper-proof claims.
 - Hardware qualification, flight certification, or regulatory compliance evidence.
-- GUI, web UI, plugin runtime, hosted service, database-backed workflow, scheduler, and embedded plotting.
+- Full GUI packaging, web UI, plugin runtime, hosted service, database-backed workflow, scheduler, and embedded plotting.
 - Live/realtime source execution, source SDKs, drivers, and hardware acquisition before the M38 source gate is approved.
-- Desktop GUI implementation before a separate GUI/product approval gate.
+- Broader desktop GUI productization before a separate GUI/product approval gate.
 - Enforcing new runtime/package behavior beyond M13 validator scope or M14 rule-package guardrails unless a separate schema/export migration is approved.
 
 ## Gate Decisions
@@ -212,6 +225,7 @@ The following remain outside M10 through M20 unless a fresh proposal and approva
 | Human Approval Gate For M15-M20 | Pass for local implementation and later PR #175 merge | User approved continuing the implementation pipeline through MVP exit on 2026-06-01, then requested the documentation update and mainline merge on 2026-06-02. GitHub milestones/issues and release publication remain separately gated. | User / Project Coordinator |
 | M15-M20 Implementation Gate | Pass locally | `docs/config-reference.md`, `docs/artifact-contract.md`, `docs/batch-analysis-workflow.md`, `docs/transform-package-compatibility.md`, `docs/validation-corpus-index.md`, `docs/mvp-exit-readiness-report.md`, and `crates/ferrisoxide-cli/src/main.rs` complete the local MVP-exit scope. | Project Orchestrator |
 | Desktop User Workflow Roadmap Gate | Pass | `docs/desktop-user-workflow-roadmap.md` defines M37 through M42 from the user-requested desktop flow; PR #177 merged the implementation while keeping live/realtime DAQ, GUI, runtime, hardware, dependency, release, and certification work gated. | Product Architect / Project Coordinator |
+| Native GUI Workflow Shell Gate | Pass locally | User approved the GUI milestone gate, egui implementation plan, Source-page UX gate, Config-page UX refinement, Run-page output directory refinement, Plot-page UX refinement, and scalable Plot-page rendering refinement; GitHub milestone #15 and issues #179 through #189 track M43-M53; `docs/egui-workflow-shell-roadmap.md` and `docs/m43-m48-egui-workflow-shell-pipeline-report.md` define and validate M43 through M53 plus WRA-RQ-139 while keeping live/realtime DAQ, hardware, runtime, packaging, release, and certification work gated. | Product Architect / Core Software Engineer |
 | Implementation Gate | Pass for M14 | `high_pass_baseline` filter/config support, first-order recurrence, timing validation, metadata, CLI/config coverage, export guardrail coverage, docs, traceability, and risk updates merged in PR #173. | Core Software Engineer |
 | Testing Gate | Pass for M14 | Focused M14 tests, full workspace tests, clippy, formatting, diff check, local Markdown link scan, and PR #173 protected `rust` CI pass. | Test Automation Engineer |
 | Release Gate | Pass for M14 | PR #173 merged after required `rust` CI passed; squash commit `a17cd4c0ae7af5ab768688c9301484e5eb4799cf`. | GitHub Maintainer Specialist |
@@ -232,5 +246,5 @@ Goal: Track the staged FerrisOxide milestone roadmap from transform architecture
 Files changed: This roadmap plus comprehensive-suite roadmap, MVP-exit/runtime-path reports, requirements, traceability, risk, orchestration, and state files.
 Checks run: See `docs/validation-log.md`.
 Status: M10 through M14 are complete through GitHub issue/milestone evidence; M15 through M36 are complete and merged through PR #175; M37 through M42 are complete, validated, and merged through PR #177.
-Known gaps: No GitHub release tag was published for M14 or M15-M42; GitHub milestones/issues are not created for M15 through M42; live DAQ, GUI, runtime loaders, hardware validation, certification evidence, and advanced follow-up work remain separately gated.
+Known gaps: No GitHub release tag was published for M14 or M15-M42; GitHub milestones/issues are not created for M15 through M42; live DAQ, full GUI packaging/productization, runtime loaders, hardware validation, certification evidence, and advanced follow-up work remain separately gated.
 Next recommended step: Select any future post-M42 follow-up only after an explicit gate.

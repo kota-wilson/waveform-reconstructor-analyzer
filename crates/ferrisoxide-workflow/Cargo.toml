@@ -1,0 +1,25 @@
+[package]
+name = "ferrisoxide-workflow"
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+toml.workspace = true
+ferrisoxide-control-schema = { path = "../ferrisoxide-control-schema" }
+ferrisoxide-core = { path = "../ferrisoxide-core" }
+ferrisoxide-daq = { path = "../ferrisoxide-daq" }
+ferrisoxide-plot = { path = "../ferrisoxide-plot" }
+ferrisoxide-rule-schema = { path = "../ferrisoxide-rule-schema" }
+ferrisoxide-simulator = { path = "../ferrisoxide-simulator" }
+ferrisoxide-verification-schema = { path = "../ferrisoxide-verification-schema" }
+
+[dev-dependencies]
+ferrisoxide-rule-engine = { path = "../ferrisoxide-rule-engine" }
+
+[lints]
+workspace = true

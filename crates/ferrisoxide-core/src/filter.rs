@@ -123,11 +123,91 @@ pub enum FilterStep {
     MovingMedian(MovingMedianFilter),
     LowPass(LowPassFilter),
     AdcQuantize(AdcQuantizer),
+    ChannelScoped(ChannelScopedFilter),
 }
 
 impl FilterStep {
     pub fn sensor_conversion(filter: SensorConversionTransform) -> Self {
         Self::SensorConversion(Box::new(filter))
+    }
+
+    pub fn channel_scoped(channel: String, inner: FilterStep) -> Self {
+        Self::ChannelScoped(ChannelScopedFilter {
+            channel,
+            inner: Box::new(inner),
+        })
+    }
+
+    pub fn supports_channel_scoping(&self) -> bool {
+        matches!(
+            self,
+            Self::HalfWaveRectify(_)
+                | Self::FullWaveRectify(_)
+                | Self::Envelope(_)
+                | Self::MovingRms(_)
+                | Self::PeakHold(_)
+                | Self::FirstDerivative(_)
+                | Self::SecondDerivative(_)
+                | Self::Integral(_)
+                | Self::CumulativeIntegral(_)
+                | Self::LeakyIntegrator(_)
+                | Self::SlopeDetection(_)
+                | Self::RollingMean(_)
+                | Self::RollingVariance(_)
+                | Self::RollingStdDev(_)
+                | Self::RollingMin(_)
+                | Self::RollingMax(_)
+                | Self::ZScore(_)
+                | Self::OutlierDetection(_)
+                | Self::QuantileClip(_)
+                | Self::AbsoluteValue(_)
+                | Self::Square(_)
+                | Self::SquareRoot(_)
+                | Self::Log(_)
+                | Self::Exp(_)
+                | Self::Normalize(_)
+                | Self::Tanh(_)
+                | Self::Sigmoid(_)
+                | Self::SoftLimit(_)
+                | Self::WeightedMovingAverage(_)
+                | Self::ExponentialMovingAverage(_)
+                | Self::BoxcarSmoothing(_)
+                | Self::GaussianSmoothing(_)
+                | Self::SavitzkyGolay(_)
+                | Self::CenteredMovingMedian(_)
+                | Self::RollingMeanBaseline(_)
+                | Self::RollingMedianBaseline(_)
+                | Self::LinearDetrend(_)
+                | Self::PolynomialDetrend(_)
+                | Self::HampelFilter(_)
+                | Self::SpikeRemove(_)
+                | Self::FirFilter(_)
+                | Self::ZeroPhaseFirFilter(_)
+                | Self::IirBiquad(_)
+                | Self::ZeroPhaseIirBiquad(_)
+                | Self::HighPass(_)
+                | Self::BandPass(_)
+                | Self::BandStop(_)
+                | Self::Notch(_)
+                | Self::CombFilter(_)
+                | Self::ButterworthLowPass(_)
+                | Self::ButterworthHighPass(_)
+                | Self::Chebyshev1LowPass(_)
+                | Self::Chebyshev2LowPass(_)
+                | Self::BesselLowPass(_)
+                | Self::Offset(_)
+                | Self::Gain(_)
+                | Self::Invert(_)
+                | Self::Clamp(_)
+                | Self::Deadband(_)
+                | Self::DcRemove(_)
+                | Self::BaselineSubtract(_)
+                | Self::HighPassBaseline(_)
+                | Self::MovingAverage(_)
+                | Self::MovingMedian(_)
+                | Self::LowPass(_)
+                | Self::AdcQuantize(_)
+        )
     }
 }
 
@@ -241,6 +321,7 @@ impl Filter for FilterStep {
             Self::MovingMedian(filter) => filter.name(),
             Self::LowPass(filter) => filter.name(),
             Self::AdcQuantize(filter) => filter.name(),
+            Self::ChannelScoped(filter) => filter.name(),
         }
     }
 
@@ -353,6 +434,7 @@ impl Filter for FilterStep {
             Self::MovingMedian(filter) => filter.apply(waveform),
             Self::LowPass(filter) => filter.apply(waveform),
             Self::AdcQuantize(filter) => filter.apply(waveform),
+            Self::ChannelScoped(filter) => filter.apply(waveform),
         }
     }
 }
@@ -363,8 +445,89 @@ impl FilterStep {
     }
 
     pub fn rule_package_export_supported(&self) -> bool {
+        if matches!(self, Self::ChannelScoped(_)) {
+            return false;
+        }
         self.catalog_entry()
             .is_some_and(|entry| entry.supports_rule_package())
+    }
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub struct ChannelScopedFilter {
+    pub channel: String,
+    pub inner: Box<FilterStep>,
+}
+
+impl Filter for ChannelScopedFilter {
+    fn name(&self) -> &'static str {
+        self.inner.name()
+    }
+
+    fn apply(&self, waveform: &Waveform) -> Result<Waveform> {
+        validate_required_channel_name("channel", &self.channel)?;
+        let channel_index = waveform
+            .channels
+            .iter()
+            .position(|channel| channel.name == self.channel)
+            .ok_or_else(|| WaveformError::InvalidParameter {
+                name: "channel".to_string(),
+                reason: format!("channel `{}` was not found", self.channel),
+            })?;
+        let target_channel = waveform.channels[channel_index].clone();
+        let scoped_waveform = Waveform::new_with_time_unit(
+            waveform.time.clone(),
+            waveform.time_unit.clone(),
+            vec![target_channel],
+        )?;
+        let filtered = self.inner.apply(&scoped_waveform)?;
+        if filtered.time != waveform.time {
+            return Err(WaveformError::InvalidParameter {
+                name: "filters.channel".to_string(),
+                reason: format!(
+                    "filter type `{}` changes the time axis and cannot be channel-scoped",
+                    self.inner.name()
+                ),
+            });
+        }
+        if filtered.channels.len() != 1 || filtered.channels[0].samples.len() != waveform.time.len()
+        {
+            return Err(WaveformError::InvalidParameter {
+                name: "filters.channel".to_string(),
+                reason: format!(
+                    "filter type `{}` changes channel shape and cannot be channel-scoped",
+                    self.inner.name()
+                ),
+            });
+        }
+
+        let mut channels = waveform.channels.clone();
+        channels[channel_index] = filtered.channels[0].clone();
+        let mut transform_step = filtered
+            .metadata
+            .transform_steps
+            .last()
+            .cloned()
+            .unwrap_or_else(|| {
+                TransformStepMetadata::implemented_desktop_with_execution(
+                    format!("{}(channel={})", self.inner.name(), self.channel),
+                    self.inner.name(),
+                    TransformCategory::Pointwise,
+                    Vec::new(),
+                    offline_execution(false, false, TransformPhaseEffect::None),
+                )
+            });
+        transform_step.history_label = format!(
+            "{} scoped to {}",
+            transform_step.history_label, self.channel
+        );
+        transform_step
+            .parameters
+            .push(TransformParameterMetadata::text(
+                "channel",
+                self.channel.clone(),
+            ));
+        derived_waveform(waveform, channels, transform_step)
     }
 }
 
@@ -11226,6 +11389,34 @@ mod tests {
         assert!(!step.sample_rate_required);
         assert!(step.stateful);
         assert_eq!(step.phase_effect, TransformPhaseEffect::Delay);
+    }
+
+    #[test]
+    fn channel_scoped_filter_updates_only_selected_channel() {
+        let input = waveform_with_channels(
+            vec![0.0, 1.0, 2.0, 3.0],
+            vec![
+                Channel::new("input_v", Unit::volts(), vec![1.0, 2.0, 3.0, 4.0]),
+                Channel::new("output_v", Unit::volts(), vec![10.0, 11.0, 12.0, 13.0]),
+            ],
+        );
+        let filtered = FilterStep::channel_scoped(
+            "input_v".to_string(),
+            FilterStep::Gain(GainTransform { gain: 2.0 }),
+        )
+        .apply(&input)
+        .expect("channel-scoped filter should apply");
+
+        assert_eq!(input.channels[0].samples, vec![1.0, 2.0, 3.0, 4.0]);
+        assert_eq!(filtered.channels[0].samples, vec![2.0, 4.0, 6.0, 8.0]);
+        assert_eq!(filtered.channels[1].samples, vec![10.0, 11.0, 12.0, 13.0]);
+        let step = &filtered.metadata.transform_steps[0];
+        assert_eq!(step.name, "gain");
+        assert!(step.history_label.contains("scoped to input_v"));
+        assert!(step.parameters.iter().any(|parameter| {
+            parameter.name == "channel"
+                && parameter.value == TransformParameterValue::Text("input_v".to_string())
+        }));
     }
 
     #[test]

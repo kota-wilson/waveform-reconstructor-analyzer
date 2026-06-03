@@ -46,6 +46,8 @@ M21-M24 review update: The local runtime-path pass adds linear pointwise package
 
 M25-M36 review update: The comprehensive-suite pass is merged to `main` through PR #175 and adds the transform catalog, config reference expansion, transform package compatibility matrix, validation corpus index, M25-M36 pipeline reports, comprehensive roadmap closure, benchmark-readiness evidence, release/community/retrospective updates, and README coverage for implemented desktop waveform conditioning while preserving no-release-publication, no-runtime-loader, no-live-DAQ, no-HAL/RTOS, no-target-hardware, no-new-dependency, no-hardware-calibration, no-hardware-qualification, and no-certification scope.
 
+GUI documentation review update: The local M43-M53 native egui workflow shell and WRA-RQ-139 Run-page output directory picker now have README usage instructions and a page-by-page button/control reference in `docs/desktop-user-workflow.md`. The review compared the documented controls against `crates/ferrisoxide-gui/src/native.rs`, including navigation, status display, Source-page CSV loading/inspection controls, Config-page TOML open/save and channel-builder controls, Run-page output/evaluation controls, Results display state, and Plot-page load/channel/resolution/render-summary controls. The reference covers every visible native GUI button, selector, checkbox, numeric control, picker, and display area in the current implementation. The docs explicitly preserve the current limits: fixture-simulation path fields remain manual text fields, and GUI packaging, live/realtime DAQ, vendor SDKs, hardware acquisition, runtime loaders, release publication, and certification evidence remain future-gated.
+
 ## Evidence
 
 | Artifact | Result |
@@ -98,12 +100,16 @@ M25-M36 review update: The comprehensive-suite pass is merged to `main` through 
 | M26-M35 comprehensive transform family pipeline reports | Pass |
 | M36 comprehensive-suite closure report | Pass |
 | M25-M36 comprehensive roadmap, config reference, package compatibility, corpus index, release/community/retrospective updates, and README coverage | Pass |
+| Native GUI README workflow instructions | Pass |
+| Native GUI button/control reference in `docs/desktop-user-workflow.md` | Pass |
+| Native GUI roadmap scope boundaries | Pass |
+| Native GUI control surface review against `crates/ferrisoxide-gui/src/native.rs` | Pass |
 
 ## Gate Decision
 
 - Gate: Documentation Gate.
 - Decision: Pass.
-- Reason: Public usage, contribution, security, change, validation, plotting, embedded adapter/prototype, measurement, report schema, criteria DSL direction/migration/schema, README product workflow, production/test verification schema boundaries, simulator/DAQ/controller-I/O/desktop-simulation/deployment-package/mode-separation/parity/qualification-evidence boundaries, M15-M20 MVP-exit docs, M21-M24 runtime-path docs, M25-M36 comprehensive-suite docs, traceability, and current-state documentation exist and are human-readable.
+- Reason: Public usage, contribution, security, change, validation, plotting, embedded adapter/prototype, measurement, report schema, criteria DSL direction/migration/schema, README product workflow, native GUI workflow/button documentation, production/test verification schema boundaries, simulator/DAQ/controller-I/O/desktop-simulation/deployment-package/mode-separation/parity/qualification-evidence boundaries, M15-M20 MVP-exit docs, M21-M24 runtime-path docs, M25-M36 comprehensive-suite docs, traceability, and current-state documentation exist and are human-readable.
 - Residual risk: API docs, external reader feedback, embedded target build docs, simulator docs, automated README example refresh, automated config/report drift checks, and automated Markdown link checking are still thin.
 - Next owner: Code Reviewer.
 
@@ -111,7 +117,7 @@ M25-M36 review update: The comprehensive-suite pass is merged to `main` through 
 
 Role: Documentation Engineer
 Goal: Confirm docs are accurate and readable after the validated-MVP, MVP-exit, M21-M24 runtime-path, and M25-M36 comprehensive-suite mainline feature baseline.
-Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05-31.md`, `docs/plotting.md`, `docs/measurements.md`, `docs/control-config-schema.md`, `docs/test-verification-config-schema.md`, `docs/simulator.md`, `docs/daq-abstraction.md`, `docs/controller-io-abstraction.md`, `docs/desktop-simulation-workflow.md`, `docs/rtos-deployment-package-format.md`, `docs/controller-operating-modes.md`, `docs/controller-config-parity.md`, `docs/qualification-evidence-report.md`, M15-M36 docs, criteria DSL docs, embedded docs, README, current-state docs, traceability docs, validation log, and historical pipeline reports.
+Files changed: `docs/documentation-review.md`, `docs/documentation-audit-2026-05-31.md`, `docs/desktop-user-workflow.md`, `docs/plotting.md`, `docs/measurements.md`, `docs/control-config-schema.md`, `docs/test-verification-config-schema.md`, `docs/simulator.md`, `docs/daq-abstraction.md`, `docs/controller-io-abstraction.md`, `docs/desktop-simulation-workflow.md`, `docs/rtos-deployment-package-format.md`, `docs/controller-operating-modes.md`, `docs/controller-config-parity.md`, `docs/qualification-evidence-report.md`, M15-M36 docs, criteria DSL docs, embedded docs, README, current-state docs, traceability docs, validation log, and historical pipeline reports.
 Checks run: Documentation inspection plus the validation commands recorded in `docs/documentation-audit-2026-05-31.md`.
 Status: Pass.
 Known gaps: Add API docs, external reader feedback, embedded target build docs, simulator docs, automated README example refresh, automated config/report drift checks, and automated docs/link checking later.

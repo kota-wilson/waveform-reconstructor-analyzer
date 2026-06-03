@@ -7,12 +7,14 @@ members = [
     "crates/ferrisoxide-daq",
     "crates/ferrisoxide-deployment",
     "crates/ferrisoxide-embedded",
+    "crates/ferrisoxide-gui",
     "crates/ferrisoxide-measurements",
     "crates/ferrisoxide-plot",
     "crates/ferrisoxide-rule-engine",
     "crates/ferrisoxide-rule-schema",
     "crates/ferrisoxide-signal",
     "crates/ferrisoxide-simulator",
+    "crates/ferrisoxide-workflow",
     "crates/ferrisoxide-verification-schema",
 ]
 resolver = "2"
@@ -28,7 +30,10 @@ unsafe_code = "forbid"
 
 [workspace.dependencies]
 csv = "1"
+eframe = { version = "=0.28.1", default-features = false, features = ["default_fonts", "glow"] }
+egui_plot = "=0.28.1"
 plotters = { version = "0.3.7", default-features = false, features = ["svg_backend", "line_series"] }
+rfd = { version = "=0.14.1", default-features = false }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 toml = "0.8"
