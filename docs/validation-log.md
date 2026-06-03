@@ -22,6 +22,47 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, and `ferrisoxide-cli`.
 
+## PR #177 Merge Evidence And Desktop Workflow Closure Update
+
+Date: 2026-06-02
+
+Stage: Post-merge M37-M42 desktop workflow closure
+
+Scope:
+
+- Record PR #177 merge evidence after the M37-M42 desktop workflow implementation reached `main`.
+- Confirm the required `rust` GitHub check passed for the merged head.
+- Update current project state so future sessions do not route the completed M37-M42 work back to merge review.
+- Preserve separate gates for GUI, live/realtime DAQ, vendor SDKs, drivers, HAL/RTOS adapters, runtime-loader implementation, target hardware, release publication, dependency additions, and certification evidence.
+
+GitHub evidence:
+
+- PR: `https://github.com/kota-wilson/ferrisoxide/pull/177`
+- Merge commit: `6af6cdc90d5229cd979cef1001d28c5dd63ae9f4`
+- Required check: `rust`, passed; completed 2026-06-03T00:15:00Z.
+- Main branch: protected; `main` points at `6af6cdc90d5229cd979cef1001d28c5dd63ae9f4` after the PR #177 merge.
+
+Commands:
+
+- `gh api repos/kota-wilson/ferrisoxide/pulls/177`: Pass; PR #177 is closed and merged with merge commit `6af6cdc90d5229cd979cef1001d28c5dd63ae9f4`.
+- `gh api repos/kota-wilson/ferrisoxide/commits/9afc731f3e3ce55f3af0fb0a29ed8fd3b7d060ad/check-runs --jq '.check_runs[] | {name,status,conclusion,completed_at,html_url}'`: Pass; required `rust` check completed successfully.
+- `git status --short --branch`: Pass; local `main` was clean and aligned with `origin/main` at PR #177 merge evidence capture.
+- `cargo fmt --check`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no FerrisOxide trailing whitespace matches.
+- Root memory trailing-whitespace scan over touched files: Pass; no matches.
+- Local Markdown link-target scan: Pass; 198 FerrisOxide Markdown files scanned with 99 local links and no broken local links.
+- Root memory Markdown link-target scan over touched files: Pass; 5 files scanned with 0 local links and no broken local links.
+- Active M37-M42 stale-routing scan: Pass; no current artifacts route the merged desktop workflow back to merge review.
+- Root memory stale-routing scan: Pass; no current root memory artifacts route M37-M42 back to merge review.
+
+Result:
+
+- M37-M42 are implemented, validated, and merged to `main` through PR #177.
+- WRA-RQ-122 through WRA-RQ-127 are closed against mainline evidence.
+- The desktop workflow path now includes source inspection, config scaffolding, authoring templates, CSV/simulation evaluation bundles, examples, docs, and validation evidence on `main`.
+- No new dependency, schema incompatibility, live/realtime DAQ, GUI, vendor SDK, driver, HAL/RTOS, runtime-loader, target hardware, release publication, or certification scope was added.
+
 ## M38-M42 Desktop Workflow Implementation Validation Update
 
 Date: 2026-06-02
@@ -60,7 +101,7 @@ Result:
 - WRA-RQ-123 through WRA-RQ-127 are implemented and validated locally.
 - Engineers can run a local desktop workflow from source inspection through channel/config scaffolding, transform/criteria authoring, CSV or simulation evaluation bundle generation, and result review using committed docs and examples.
 - No new dependency, schema incompatibility, live/realtime DAQ, GUI, vendor SDK, driver, HAL/RTOS, runtime-loader, target hardware, release publication, or certification scope was added.
-- The remaining handoff is standard merge review if the work should be published to `main`.
+- PR #177 merge evidence is recorded in the newer closure section above after the implementation was published to `main`.
 
 ## M37 Desktop User Workflow Roadmap Validation Update
 

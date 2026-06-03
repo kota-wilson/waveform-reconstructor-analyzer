@@ -2,7 +2,7 @@
 
 Date: 2026-06-02
 
-Status: Implementation artifact for M37 through M42 after the M25-M36 comprehensive filter and simulated signal-conditioning suite reached `main` through PR #175. The local implementation adds CLI source inspection, CSV config scaffolding, workflow templates, CSV/simulation evaluation bundles, examples, docs, and tests. It adds no new dependencies, GUI, live DAQ SDKs, HAL/RTOS adapters, target hardware work, runtime loader implementation, release publication, or certification scope.
+Status: Implementation artifact for M37 through M42 after the M25-M36 comprehensive filter and simulated signal-conditioning suite reached `main` through PR #175. PR #177 merged the CLI source inspection, CSV config scaffolding, workflow templates, CSV/simulation evaluation bundles, examples, docs, and tests to `main`. It adds no new dependencies, GUI, live DAQ SDKs, HAL/RTOS adapters, target hardware work, runtime loader implementation, release publication, or certification scope.
 
 ## Purpose
 
@@ -24,21 +24,21 @@ This document defines and records the milestone path for making that flow explic
 
 | Source mode | Current support | Planned direction | Gate status |
 |---|---|---|---|
-| CSV data | Implemented through `analyze`, `plot`, `batch`, `inspect-source`, `scaffold-config`, and `evaluate-bundle` over local files and TOML configs. | Keep as the first-class desktop authoring path. | Implemented locally for M38-M42. |
-| Simulated signals | Implemented through `simulate`, fixture/test-double DAQ input, deterministic virtual controller simulation, M34 fault/ADC-DAC simulation transforms, `inspect-source --source simulation`, and `evaluate-bundle --source simulation`. | Treat simulation as a first-class source mode for desktop validation and fixture authoring. | Implemented locally for M38-M42. |
+| CSV data | Implemented through `analyze`, `plot`, `batch`, `inspect-source`, `scaffold-config`, and `evaluate-bundle` over local files and TOML configs. | Keep as the first-class desktop authoring path. | Implemented; merged in PR #177 for M38-M42. |
+| Simulated signals | Implemented through `simulate`, fixture/test-double DAQ input, deterministic virtual controller simulation, M34 fault/ADC-DAC simulation transforms, `inspect-source --source simulation`, and `evaluate-bundle --source simulation`. | Treat simulation as a first-class source mode for desktop validation and fixture authoring. | Implemented; merged in PR #177 for M38-M42. |
 | Realtime/live signals | Not implemented as live DAQ or hardware input. Current DAQ support is fixture/test-double only. | Define a source abstraction and UI language that can reserve a live/realtime mode without activating SDK, driver, hardware, or global setup work. | Pending separate human, dependency, security, environment, hardware, and V&V approval. |
 
 ## Workflow Contract
 
 | Step | User intent | Current FerrisOxide support | Next gap to close |
 |---|---|---|---|
-| 1. Run program | Start the desktop analysis tool without private context. | `ferrisoxide-signal` CLI with `analyze`, `plot`, `simulate`, `batch`, `export-rule-package`, `transforms`, `inspect-source`, `scaffold-config`, `workflow-template`, and `evaluate-bundle`. | Implemented locally. |
-| 2. Choose signal source | Use CSV data, simulated signals, or a future-gated realtime stream. | CSV and fixture simulation are implemented; live input is not. | Implemented locally for CSV and fixture simulation with gated realtime errors. |
-| 3. Identify and label channels | Turn raw columns or fixture channels into engineering names, units, and roles. | `[input]` channel mapping, simulation channel maps, `inspect-source`, and `scaffold-config` exist. | Implemented locally for CSV scaffolds and simulation map inspection. |
-| 4. Apply transforms and filters | Condition waveforms before evaluation while preserving raw lineage. | `[[filters]]`, `[[feature_transforms]]`, `[[event_transforms]]`, `[[event_validations]]`, `workflow-template`, and the transform catalog exist. | Implemented locally with recipes and examples. |
-| 5. Add pass/fail criteria | Attach requirements to each relevant channel or event. | Legacy `[[criteria]]`, measurement-backed DSL criteria, event validations, scaffolded observed-bound starter criteria, and templates exist. | Implemented locally; engineering threshold approval remains user-owned. |
-| 6. Run evaluation | Execute analysis over the selected source and config. | `analyze`, `simulate`, `batch`, and `evaluate-bundle` run deterministic local evaluations. | Implemented locally. |
-| 7. Get results | Review pass/fail outcomes, values, plots, and artifacts. | Text, JSON, SVG evidence, batch summaries, rule packages, deployment package fixtures, qualification evidence reports, source summaries, bundle summaries, config copies, and failure triage notes exist. | Implemented locally for CSV and simulation bundles. |
+| 1. Run program | Start the desktop analysis tool without private context. | `ferrisoxide-signal` CLI with `analyze`, `plot`, `simulate`, `batch`, `export-rule-package`, `transforms`, `inspect-source`, `scaffold-config`, `workflow-template`, and `evaluate-bundle`. | Implemented; merged in PR #177. |
+| 2. Choose signal source | Use CSV data, simulated signals, or a future-gated realtime stream. | CSV and fixture simulation are implemented; live input is not. | Implemented for CSV and fixture simulation with gated realtime errors; merged in PR #177. |
+| 3. Identify and label channels | Turn raw columns or fixture channels into engineering names, units, and roles. | `[input]` channel mapping, simulation channel maps, `inspect-source`, and `scaffold-config` exist. | Implemented for CSV scaffolds and simulation map inspection; merged in PR #177. |
+| 4. Apply transforms and filters | Condition waveforms before evaluation while preserving raw lineage. | `[[filters]]`, `[[feature_transforms]]`, `[[event_transforms]]`, `[[event_validations]]`, `workflow-template`, and the transform catalog exist. | Implemented with recipes and examples; merged in PR #177. |
+| 5. Add pass/fail criteria | Attach requirements to each relevant channel or event. | Legacy `[[criteria]]`, measurement-backed DSL criteria, event validations, scaffolded observed-bound starter criteria, and templates exist. | Implemented; engineering threshold approval remains user-owned; merged in PR #177. |
+| 6. Run evaluation | Execute analysis over the selected source and config. | `analyze`, `simulate`, `batch`, and `evaluate-bundle` run deterministic local evaluations. | Implemented; merged in PR #177. |
+| 7. Get results | Review pass/fail outcomes, values, plots, and artifacts. | Text, JSON, SVG evidence, batch summaries, rule packages, deployment package fixtures, qualification evidence reports, source summaries, bundle summaries, config copies, and failure triage notes exist. | Implemented for CSV and simulation bundles; merged in PR #177. |
 
 ## Milestone Path
 
@@ -136,12 +136,12 @@ Required exit evidence:
 
 | Gate | Decision | Evidence | Next Owner |
 |---|---|---|---|
-| Desktop Workflow Roadmap Gate | Pass locally | This document defines M37-M42 from the user-requested desktop flow and maps current support versus gaps. | Product Architect / Project Coordinator |
-| Source Scope Gate | Pass locally | CSV and simulated sources are implemented through inspect/evaluate workflows; realtime/live DAQ remains future-gated. | Project Coordinator |
+| Desktop Workflow Roadmap Gate | Pass | This document defines M37-M42 from the user-requested desktop flow and maps current support versus gaps; implementation merged through PR #177. | Product Architect / Project Coordinator |
+| Source Scope Gate | Pass | CSV and simulated sources are implemented through inspect/evaluate workflows; realtime/live DAQ remains future-gated. | Project Coordinator |
 | GUI Scope Gate | Not Applicable | Current direction is CLI-first desktop workflow, not GUI implementation. | Product Coordinator / UX Owner |
 | Dependency Gate | Not Applicable | M37-M42 add no dependencies. | Security Engineer |
 | Hardware Runtime Gate | Blocked until separate approval | Live DAQ, SDKs, HAL/RTOS, target hardware, runtime loader, and certification work need fresh gates. | User / Technical Director |
-| Documentation Gate | Pass locally | README, workflow docs, requirements, traceability, risk, orchestration, state, and validation log were checked with final M42 validation evidence. | Documentation Engineer |
+| Documentation Gate | Pass | README, workflow docs, requirements, traceability, risk, orchestration, state, and validation log were checked with final M42 validation evidence and PR #177 merge evidence. | Documentation Engineer |
 
 ## Hand-Off Note
 
@@ -149,6 +149,6 @@ Role: Product Architect / Project Coordinator
 Goal: Define and implement the desktop-user workflow milestone path after M25-M36.
 Files changed: `docs/desktop-user-workflow-roadmap.md`, `docs/desktop-user-workflow.md`, README, CLI, examples, requirements, traceability, risk, orchestration, post-MVP roadmap, next-milestones roadmap, project state, and validation log.
 Checks run: See `docs/validation-log.md`.
-Status: Implemented and validated locally for M37-M42; merge remains a standard repository process step.
+Status: Implemented, validated, and merged through PR #177 for M37-M42.
 Known gaps: GUI, live DAQ, vendor SDKs, hardware channel discovery, HAL/RTOS adapters, runtime loader, release publication, and certification scope remain gated.
-Next recommended step: Merge through the standard process while keeping GUI, live DAQ, runtime-loader, hardware, release, dependency, and certification scope gated.
+Next recommended step: Select any future post-M42 follow-up only after an explicit gate while keeping GUI, live DAQ, runtime-loader, hardware, release, dependency, and certification scope gated.

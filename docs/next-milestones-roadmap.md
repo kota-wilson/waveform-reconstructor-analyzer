@@ -2,13 +2,13 @@
 
 Date: 2026-06-02
 
-Status: M10 through M14 complete through merged PR evidence. M15 through M20 are complete as the MVP-exit sequence. M21 through M24 are complete as the first runtime-path follow-up. M25 through M36 are complete as the comprehensive filter and simulated signal-conditioning suite and merged to `main` through PR #175. M37 through M42 are implemented and validated locally as the CLI-first desktop user workflow path, with merge still handled through the standard process. No GitHub milestones/issues for M15-M42, release publication, dependency addition, runtime-loader implementation, live DAQ, HAL/RTOS, target hardware, or certification scope is created by this update.
+Status: M10 through M14 complete through merged PR evidence. M15 through M20 are complete as the MVP-exit sequence. M21 through M24 are complete as the first runtime-path follow-up. M25 through M36 are complete as the comprehensive filter and simulated signal-conditioning suite and merged to `main` through PR #175. M37 through M42 are complete as the CLI-first desktop user workflow path and merged to `main` through PR #177. No GitHub milestones/issues for M15-M42, release publication, dependency addition, runtime-loader implementation, live DAQ, HAL/RTOS, target hardware, or certification scope is created by this update.
 
 ## Purpose
 
 FerrisOxide has completed the validated MVP, measurement/evidence engine, portable rule package, controller simulation/deployment config milestones through M9, transform/event/runtime-profile milestones through M14, MVP-exit hardening through M20, and the first narrow runtime-path follow-up through M24. M10 through M14 turned the analog transform taxonomy into implemented metadata, transform, event, validation, runtime-profile, and high-pass baseline correction work without claiming broad DSP support. M25 through M36 made FerrisOxide comprehensive for sampled DAQ/test waveform conditioning and calculations. M37 through M42 implement the desktop user workflow that ties source choice, channel labeling, transforms, criteria, evaluation, and result review into one coherent path.
 
-This roadmap records the completed transform milestones, completed local MVP-exit/runtime-path milestones, completed comprehensive conditioning milestones, and locally implemented desktop workflow milestones:
+This roadmap records the completed transform milestones, completed local MVP-exit/runtime-path milestones, completed comprehensive conditioning milestones, and merged desktop workflow milestones:
 
 | Milestone | Working Version | Goal | Status |
 |---|---|---|---|
@@ -39,12 +39,12 @@ This roadmap records the completed transform milestones, completed local MVP-exi
 | M34 | mainline | Fault injection and ADC/DAC simulation suite | Complete; merged in PR #175 |
 | M35 | mainline | Multi-channel, sensor, and domain conditioning packs | Complete; merged in PR #175 |
 | M36 | mainline | Completeness, UX, and compatibility closure | Complete; merged in PR #175 |
-| M37 | mainline | Desktop user workflow contract | Complete locally |
-| M38 | mainline | Signal source intake and inspect | Complete locally |
-| M39 | mainline | Channel labeling and config scaffold | Complete locally |
-| M40 | mainline | Transform and criteria authoring UX | Complete locally |
-| M41 | mainline | Evaluation run bundle | Complete locally |
-| M42 | mainline | Desktop workflow polish and validation corpus | Complete and validated locally |
+| M37 | mainline | Desktop user workflow contract | Complete; merged in PR #177 |
+| M38 | mainline | Signal source intake and inspect | Complete; merged in PR #177 |
+| M39 | mainline | Channel labeling and config scaffold | Complete; merged in PR #177 |
+| M40 | mainline | Transform and criteria authoring UX | Complete; merged in PR #177 |
+| M41 | mainline | Evaluation run bundle | Complete; merged in PR #177 |
+| M42 | mainline | Desktop workflow polish and validation corpus | Complete; validated and merged in PR #177 |
 
 ## Sequencing Rationale
 
@@ -211,7 +211,7 @@ The following remain outside M10 through M20 unless a fresh proposal and approva
 | MVP Exit Roadmap Gate | Pass locally | `docs/mvp-exit-roadmap.md` defines M15 through M20, MVP-exit criteria, outside-MVP scope, and gate decisions. | Project Coordinator |
 | Human Approval Gate For M15-M20 | Pass for local implementation and later PR #175 merge | User approved continuing the implementation pipeline through MVP exit on 2026-06-01, then requested the documentation update and mainline merge on 2026-06-02. GitHub milestones/issues and release publication remain separately gated. | User / Project Coordinator |
 | M15-M20 Implementation Gate | Pass locally | `docs/config-reference.md`, `docs/artifact-contract.md`, `docs/batch-analysis-workflow.md`, `docs/transform-package-compatibility.md`, `docs/validation-corpus-index.md`, `docs/mvp-exit-readiness-report.md`, and `crates/ferrisoxide-cli/src/main.rs` complete the local MVP-exit scope. | Project Orchestrator |
-| Desktop User Workflow Roadmap Gate | Pass locally | `docs/desktop-user-workflow-roadmap.md` defines M37 through M42 from the user-requested desktop flow and keeps live/realtime DAQ, GUI, runtime, hardware, dependency, release, and certification work gated. | Product Architect / Project Coordinator |
+| Desktop User Workflow Roadmap Gate | Pass | `docs/desktop-user-workflow-roadmap.md` defines M37 through M42 from the user-requested desktop flow; PR #177 merged the implementation while keeping live/realtime DAQ, GUI, runtime, hardware, dependency, release, and certification work gated. | Product Architect / Project Coordinator |
 | Implementation Gate | Pass for M14 | `high_pass_baseline` filter/config support, first-order recurrence, timing validation, metadata, CLI/config coverage, export guardrail coverage, docs, traceability, and risk updates merged in PR #173. | Core Software Engineer |
 | Testing Gate | Pass for M14 | Focused M14 tests, full workspace tests, clippy, formatting, diff check, local Markdown link scan, and PR #173 protected `rust` CI pass. | Test Automation Engineer |
 | Release Gate | Pass for M14 | PR #173 merged after required `rust` CI passed; squash commit `a17cd4c0ae7af5ab768688c9301484e5eb4799cf`. | GitHub Maintainer Specialist |
@@ -231,6 +231,6 @@ Role: Project Coordinator / Product Architect
 Goal: Track the staged FerrisOxide milestone roadmap from transform architecture through comprehensive-suite closure and the implemented desktop user workflow path.
 Files changed: This roadmap plus comprehensive-suite roadmap, MVP-exit/runtime-path reports, requirements, traceability, risk, orchestration, and state files.
 Checks run: See `docs/validation-log.md`.
-Status: M10 through M14 are complete through GitHub issue/milestone evidence; M15 through M36 are complete and merged through PR #175; M37 through M42 are complete and validated locally.
-Known gaps: No GitHub release tag was published for M14 or M15-M36; GitHub milestones/issues are not created for M15 through M42; live DAQ, GUI, runtime loaders, hardware validation, certification evidence, and advanced follow-up work remain separately gated.
-Next recommended step: Merge the validated M37-M42 desktop workflow implementation through the standard process.
+Status: M10 through M14 are complete through GitHub issue/milestone evidence; M15 through M36 are complete and merged through PR #175; M37 through M42 are complete, validated, and merged through PR #177.
+Known gaps: No GitHub release tag was published for M14 or M15-M42; GitHub milestones/issues are not created for M15 through M42; live DAQ, GUI, runtime loaders, hardware validation, certification evidence, and advanced follow-up work remain separately gated.
+Next recommended step: Select any future post-M42 follow-up only after an explicit gate.
