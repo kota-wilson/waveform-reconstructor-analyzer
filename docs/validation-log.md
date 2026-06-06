@@ -22,6 +22,34 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; optional native GUI dependencies `eframe`, `egui_plot`, and `rfd`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, `ferrisoxide-workflow`, `ferrisoxide-gui`, and `ferrisoxide-cli`.
 
+## Architecture Diagram Hierarchy Rule Validation Update
+
+Date: 2026-06-06
+
+Stage: Documentation rule update for system and crate-local architecture diagrams
+
+Scope:
+
+- Add `docs/architecture/ferrisoxide-overview.md` as the single high-level FerrisOxide system flowchart.
+- Add the Codex-facing architecture diagram rule to `AGENTS.md`.
+- Refine WRA-RQ-140 so crate-local diagrams focus on inputs, internal processing stages, outputs, public APIs, and important error paths.
+- Preserve the explicit boundary that existing major crate architecture backfill remains pending.
+
+Commands:
+
+- `cargo fmt --check`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no FerrisOxide trailing whitespace matches.
+- `find crates -maxdepth 2 -name architecture.md -print`: Pass; no crate-local architecture files exist yet, confirming backfill remains pending.
+- Local Markdown link-target scan over 201 FerrisOxide Markdown files and 105 local links: Pass; no broken local links.
+
+Result:
+
+- `docs/architecture/ferrisoxide-overview.md` contains the high-level FerrisOxide Mermaid flowchart.
+- `AGENTS.md` contains the Codex-facing architecture diagram rule.
+- `docs/architecture.md`, `requirements.md`, and `traceability-matrix.md` distinguish the root overview diagram from focused crate-local diagrams.
+- `docs/documentation-review.md`, `project-state.md`, `orchestration-plan.md`, and `risk-register.md` record the hierarchy and the crate-local backfill gap.
+
 ## Major Crate Architecture Documentation Rule Validation Update
 
 Date: 2026-06-06

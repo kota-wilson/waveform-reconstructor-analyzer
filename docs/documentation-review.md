@@ -48,7 +48,7 @@ M25-M36 review update: The comprehensive-suite pass is merged to `main` through 
 
 GUI documentation review update: The local M43-M53 native egui workflow shell and WRA-RQ-139 Run-page output directory picker now have README usage instructions and a page-by-page button/control reference in `docs/desktop-user-workflow.md`. The review compared the documented controls against `crates/ferrisoxide-gui/src/native.rs`, including navigation, status display, Source-page CSV loading/inspection controls, Config-page TOML open/save and channel-builder controls, Run-page output/evaluation controls, Results display state, and Plot-page load/channel/resolution/render-summary controls. The reference covers every visible native GUI button, selector, checkbox, numeric control, picker, and display area in the current implementation. The docs explicitly preserve the current limits: fixture-simulation path fields remain manual text fields, and GUI packaging, live/realtime DAQ, vendor SDKs, hardware acquisition, runtime loaders, release publication, and certification evidence remain future-gated.
 
-Crate architecture documentation rule update: `docs/architecture.md` now requires every major workspace crate to contain `crates/<crate-name>/architecture.md` with at least one Mermaid diagram describing component interactions and data flow. The rule defines "major crate" by public API, user-facing surface, data-flow responsibility, runtime/deployment boundary, or material dependency boundary. Existing crates predate the rule, so crate-local architecture backfill remains a tracked documentation follow-up rather than a completed claim.
+Architecture diagram hierarchy rule update: `docs/architecture/ferrisoxide-overview.md` now owns the high-level FerrisOxide system flowchart, while `AGENTS.md` and `docs/architecture.md` define the Codex-facing and project-facing rule for focused crate-local diagrams. Every major workspace crate must contain `crates/<crate-name>/architecture.md` with a Mermaid flowchart covering inputs, internal processing stages, outputs, public APIs, and important error paths. The rule defines "major crate" by public API, user-facing surface, data-flow responsibility, runtime/deployment boundary, or material dependency boundary, and it explicitly prevents duplicating the full system diagram inside every crate. Existing crates predate the rule, so crate-local architecture backfill remains a tracked documentation follow-up rather than a completed claim.
 
 ## Evidence
 
@@ -106,13 +106,15 @@ Crate architecture documentation rule update: `docs/architecture.md` now require
 | Native GUI button/control reference in `docs/desktop-user-workflow.md` | Pass |
 | Native GUI roadmap scope boundaries | Pass |
 | Native GUI control surface review against `crates/ferrisoxide-gui/src/native.rs` | Pass |
+| FerrisOxide system overview diagram in `docs/architecture/ferrisoxide-overview.md` | Pass |
+| Codex-facing architecture diagram rule in `AGENTS.md` | Pass |
 | Major crate architecture documentation rule in `docs/architecture.md` | Pass |
 
 ## Gate Decision
 
 - Gate: Documentation Gate.
 - Decision: Pass.
-- Reason: Public usage, contribution, security, change, validation, plotting, embedded adapter/prototype, measurement, report schema, criteria DSL direction/migration/schema, README product workflow, native GUI workflow/button documentation, production/test verification schema boundaries, simulator/DAQ/controller-I/O/desktop-simulation/deployment-package/mode-separation/parity/qualification-evidence boundaries, M15-M20 MVP-exit docs, M21-M24 runtime-path docs, M25-M36 comprehensive-suite docs, traceability, and current-state documentation exist and are human-readable.
+- Reason: Public usage, contribution, security, change, validation, plotting, embedded adapter/prototype, measurement, report schema, criteria DSL direction/migration/schema, README product workflow, native GUI workflow/button documentation, architecture diagram hierarchy rule, production/test verification schema boundaries, simulator/DAQ/controller-I/O/desktop-simulation/deployment-package/mode-separation/parity/qualification-evidence boundaries, M15-M20 MVP-exit docs, M21-M24 runtime-path docs, M25-M36 comprehensive-suite docs, traceability, and current-state documentation exist and are human-readable.
 - Residual risk: API docs, crate-local architecture backfill, external reader feedback, embedded target build docs, simulator docs, automated README example refresh, automated config/report drift checks, and automated Markdown link checking are still thin.
 - Next owner: Code Reviewer.
 

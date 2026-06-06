@@ -20,6 +20,24 @@ This project inherits the root `/Users/kota/Desktop/softwareai/AGENTS.md`, `STUD
 - Preserve raw waveform input data; filtering and analysis outputs must be derived artifacts.
 - State units, sample rate assumptions, tolerances, and criteria definitions in docs and tests.
 
+## Architecture Diagram Rule
+
+Every major crate must include an `architecture.md` file with a Mermaid flowchart.
+
+The root `docs/architecture/ferrisoxide-overview.md` file contains the system-level FerrisOxide flowchart.
+
+Crate diagrams must stay focused on that crate only:
+
+- Inputs.
+- Internal processing stages.
+- Outputs.
+- Public APIs.
+- Error paths when important.
+
+Do not duplicate the full system diagram inside every crate.
+
+Update the relevant diagram whenever crate responsibilities, APIs, or data flow change.
+
 ## Current Stop Condition
 
 This repository has a dependency-reviewed post-MVP local desktop slice with CSV loading, waveform modeling, derived transforms, TOML config parsing, waveform criteria, text/JSON/SVG reports, local batch analysis, rule-package review artifacts, and separate embedded-boundary crates. Stop before claiming production-grade signal-processing behavior, expanding into GUI/DAQ/certification/hardware/runtime work, publishing releases, or adding dependencies without a fresh gate decision.
