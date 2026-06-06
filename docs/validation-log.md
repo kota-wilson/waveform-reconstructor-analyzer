@@ -22,6 +22,34 @@ This file is an audit trail. The newest validation snapshot is listed first, and
 - External dependencies: `csv`, `serde`, `serde_json`, `toml`, `plotters`; optional native GUI dependencies `eframe`, `egui_plot`, and `rfd`; resolved versions are pinned in `Cargo.lock`.
 - Local workspace dependencies include `ferrisoxide-measurements`, `ferrisoxide-signal`, `ferrisoxide-embedded`, `ferrisoxide-plot`, `ferrisoxide-rule-schema`, `ferrisoxide-deployment`, `ferrisoxide-core`, `ferrisoxide-workflow`, `ferrisoxide-gui`, and `ferrisoxide-cli`.
 
+## Major Crate Architecture Documentation Rule Validation Update
+
+Date: 2026-06-06
+
+Stage: Documentation rule update for crate-local architecture diagrams
+
+Scope:
+
+- Add WRA-RQ-140 requiring every major workspace crate to have `crates/<crate-name>/architecture.md`.
+- Define major crates by public API, user-facing surface, data-flow responsibility, runtime/deployment boundary, or material dependency boundary.
+- Require each major crate architecture file to include at least one Mermaid component/data-flow diagram.
+- Record that existing FerrisOxide crates predate the rule and need a separate backfill task.
+
+Commands:
+
+- `find crates -maxdepth 2 -name Cargo.toml -print`: Pass; 16 workspace crates inspected for current crate layout.
+- `find crates -maxdepth 2 -name architecture.md -print`: Pass; no crate-local architecture files exist yet, confirming backfill remains pending.
+- `cargo fmt --check`: Pass.
+- `git diff --check`: Pass.
+- `rg -n "[ \t]+$" --glob '*.md' --glob '*.rs' --glob '*.toml' --glob '*.csv'`: Pass; no FerrisOxide trailing whitespace matches.
+- Local Markdown link-target scan over 200 FerrisOxide Markdown files and 104 local links: Pass; no broken local links.
+
+Result:
+
+- `docs/architecture.md` now contains the major crate architecture documentation rule.
+- `requirements.md` and `traceability-matrix.md` include WRA-RQ-140.
+- `docs/documentation-review.md`, `project-state.md`, `orchestration-plan.md`, and `risk-register.md` record the rule, ownership, and backfill gap.
+
 ## Native GUI PR #190 Merge Evidence Update
 
 Date: 2026-06-03

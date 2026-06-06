@@ -42,6 +42,25 @@ The production control config schema is implemented in `ferrisoxide-control-sche
 
 Platform targets are documented in `docs/platform-targets.md`. The desktop authoring platform is Apple Silicon macOS using `aarch64-apple-darwin`; the first-class embedded runtime target is Raspberry Pi 5 bare-metal ARM64 using `aarch64-unknown-none`; Raspberry Pi Pico 2 is a future optional microcontroller profile for constrained rule execution.
 
+## Crate Architecture Documentation Rule
+
+Every major workspace crate must contain a crate-local `architecture.md` file at `crates/<crate-name>/architecture.md`.
+
+A major crate is any workspace crate that owns a public API consumed by another crate, owns a user-facing command or GUI surface, performs data ingestion, transformation, criteria evaluation, reporting, plotting, simulation, deployment/package validation, runtime-boundary behavior, or introduces a material dependency or deployment boundary. Test-only fixtures, temporary experiment crates, or leaf utility crates may be covered by their parent architecture document until they are promoted to a stable public boundary.
+
+Each crate-local `architecture.md` file must include:
+
+- The crate responsibility, non-goals, and ownership boundary.
+- Public inputs, outputs, and data types that cross crate boundaries.
+- Upstream and downstream crate dependencies.
+- At least one Mermaid diagram showing component interactions and data flow.
+- Important invariants, raw-data preservation rules, unit/timing assumptions, and scope limits where relevant.
+- Validation commands or tests that prove the documented boundary.
+
+When a new major crate is added or an existing major crate materially changes its public boundary or data flow, its crate-local `architecture.md` must be added or updated before the PR is merge-ready. The crate README should link to the crate-local architecture document when a README exists, and this workspace architecture map should reference major crate architecture documents as they are backfilled.
+
+Existing FerrisOxide crates predate this rule. Backfilling crate-local architecture files for current major crates is a documentation follow-up and should be tracked separately; new major crates must not bypass this rule.
+
 ## Module Map
 
 | Module | Path | Responsibility |
